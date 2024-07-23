@@ -5,6 +5,8 @@ import Register from '@/views/Register.vue';
 import Product from '@/views/Product.vue';
 import Product2 from '@/views/Product2.vue';
 import Product3 from '@/views/Product3.vue';
+import ProductDetail1 from '@/views/ProductDetail1.vue';
+import ProductDetail2 from '@/views/ProductDetail2.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
@@ -29,6 +31,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/product3',
     component: Product3,
+  },
+  {
+    path: '/product-detail1',
+    component: ProductDetail1,
+  },
+  {
+    path: '/product-detail2',
+    component: ProductDetail2,
   },
   {
     path: '/',
