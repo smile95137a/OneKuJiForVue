@@ -1,0 +1,27 @@
+$root-block-name: '.dialog';
+$root-block-style: '.downDialog';
+
+#{$root-block-name} {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  $p: &;
+  $p__main: #{$p}__main;
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 10;
+  }
+
+  &__main {
+    @include abs-center;
+    @include flex;
+    @include w_h(calc(100% - 36px), 500px);
+    max-width: 815px;
+
+    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.12);
+    z-index: 11;
+  }
+}

@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import Header from '@/components/layout/Header.vue';
-import Sidebar from '@/components/layout/Sidebar.vue';
+import Footer from '@/components/layout/Footer.vue';
 </script>
 
 <template>
-  <div class="main">
+  <div className="layout">
     <Header />
-    <div class="layout">
-      <Sidebar />
-      <div class="content">
-        <router-view></router-view>
-      </div>
-    </div>
+    <main className="layout__main">
+      <router-view></router-view>
+    </main>
+    <Footer />
   </div>
 </template>
 

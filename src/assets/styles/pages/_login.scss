@@ -1,0 +1,87 @@
+$root-block-name: '.login';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+  @include flex(center, center);
+  height: 100%;
+
+  &__container {
+    @include w_h(100%, 100%);
+    @include flex(center, null, column);
+    padding: 64px;
+    flex: 1;
+    @include screen(md) {
+      padding: 8px;
+    }
+  }
+  &__main {
+    @include w_h(342px, 100%);
+    @include flex(null, null, column);
+    flex: 1;
+    @include screen(xs) {
+      @include w_h(100%, 100%);
+      max-width: 340px;
+    }
+  }
+  &__tab {
+    width: 100%;
+    @include flex(center, center);
+    gap: 16px;
+    &-btn {
+      @include flex(center, center);
+      width: 100%;
+      max-width: 152px;
+      height: 48px;
+      border-radius: 8px;
+
+      &--active {
+        color: #e21a1c;
+        border: 2px solid #e21a1c;
+      }
+    }
+  }
+
+  &__form {
+    #{$p__text} {
+      color: #212121;
+    }
+
+    &-input {
+      @include w_h(100%, 54px);
+    }
+  }
+
+  &__forgot {
+    @include flex(null, center);
+    margin-top: 32px;
+    #{$p__text} {
+      color: #e21a1c;
+
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.30000001192092896px;
+      text-decoration: underline;
+    }
+
+    &-input {
+      @include w_h(100%, 54px);
+    }
+  }
+
+  &__btns {
+    flex: 1;
+    @include flex(end, center);
+  }
+
+  &__btn {
+    @include flex(center, center);
+    @include w_h(156px, 48px);
+    border-radius: 90px;
+    background: #fe4206;
+    color: #fff;
+
+    font-size: 20px;
+    text-align: center;
+  }
+}

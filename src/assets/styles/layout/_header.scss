@@ -1,0 +1,182 @@
+$root-block-name: '.header';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+  $p__logo-img: #{$p}__logo-img;
+
+  width: 100%;
+  @include flex(null, null, column);
+
+  &__main {
+    @include w_h(100%, 147px);
+    @include flex(center, null);
+    padding: 0 12%;
+    background: #fff5ea;
+    @include screen(lg) {
+      padding: 0 4%;
+    }
+    @include screen(md) {
+      padding: 0 4%;
+      height: 82px;
+      order: 2;
+    }
+  }
+
+  &__marquee {
+    @include w_h(100%, 81px);
+    @include flex(center, center);
+    background: #ffce58;
+    overflow: hidden;
+    padding: 0 12%;
+
+    @include screen(md) {
+      padding: 0 4%;
+      height: 54px;
+      order: 1;
+    }
+
+    #{$p__text} {
+      font-size: 18px;
+      font-weight: 400;
+      word-break: keep-all;
+      animation: marquee 20s linear infinite;
+    }
+  }
+
+  &__menu {
+    font-size: 56px;
+    @include screen(md) {
+      font-size: 28px;
+    }
+  }
+  &__logo {
+    margin-left: 40px;
+    @include w_h(132px, 132px);
+    @include screen(md) {
+      margin-left: 8px;
+      @include w_h(68px, 68px);
+    }
+    &-img {
+      @include w_h(100%, 100%);
+      object-fit: contain;
+    }
+  }
+
+  &__nav {
+    flex: 1;
+    margin-left: 62px;
+
+    @include screen(md) {
+      margin: 0;
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 246px;
+      height: 100%;
+      z-index: 20;
+      background: #fff;
+      padding: 40px;
+      transform: translateX(-100%);
+    }
+
+    &--open {
+      @include screen(md) {
+        transform: translateX(0);
+      }
+    }
+    &-items {
+      @include flex(center);
+      gap: 38px;
+      flex-wrap: wrap;
+      @include screen(md) {
+        @include flex(null, null, column);
+        gap: 18px;
+      }
+    }
+
+    &-item {
+      min-width: 100px;
+      height: 36px;
+      font-family: Noto Sans TC;
+      font-size: 25px;
+      font-weight: 500;
+      @include screen(md) {
+        width: 100%;
+        @include flex(center, space-between);
+        color: #eb9838;
+
+        font-size: 18px;
+        font-weight: 400;
+      }
+
+      #{$p__logo-img} {
+        display: none;
+        @include screen(md) {
+          @include flex;
+          width: 108px;
+          height: 108px;
+        }
+      }
+
+      &--logo {
+        display: none;
+        @include screen(md) {
+          width: 100%;
+          height: 120px;
+          @include flex(center, center);
+        }
+      }
+
+      &-icon {
+        display: none;
+        @include screen(md) {
+          @include flex;
+          color: #eb9838;
+        }
+      }
+    }
+  }
+
+  &__btns {
+    @include flex(center);
+    width: 238px;
+    height: 55px;
+    gap: 16px;
+    @include screen(md) {
+      flex: 1;
+      justify-content: end;
+    }
+  }
+  &__btn {
+    @include flex(center, center);
+    width: 110px;
+    height: 55px;
+    border-radius: 10px;
+    border: 2px solid #000;
+    font-size: 25px;
+    font-weight: 500;
+
+    @include screen(md) {
+      width: 58px;
+      height: 28px;
+      font-size: 14px;
+      font-weight: 400;
+      border-radius: 5px;
+      border: 1.5px solid #000;
+    }
+    &--login {
+      background: #eb9838;
+      color: #fff;
+    }
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(150%);
+  }
+  to {
+    transform: translateX(-150%);
+  }
+}

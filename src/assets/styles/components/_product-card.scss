@@ -1,0 +1,179 @@
+$root-block-name: '.productCard';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+  $p__img: #{$p}__img;
+  $p__detail: #{$p}__detail;
+  $p__img-status: #{$p}__img-status;
+  border-radius: 30px;
+
+  &--style2 {
+    border-radius: 60px;
+    margin: 12px 0;
+    #{$p__img-status} {
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    #{$p__img} {
+      img {
+        border-radius: 60px 60px 0 0;
+      }
+    }
+
+    #{$p__detail} {
+      height: 100%;
+      max-height: 100px;
+      border-radius: 0 0 60px 60px;
+    }
+  }
+
+  &--like {
+    #{ $p__detail } {
+      background-color: #ffe7cc;
+      @include line-clamp(2);
+    }
+  }
+
+  &__img {
+    position: relative;
+
+    &::after {
+      content: '';
+      display: flex;
+      width: 100%;
+      height: 50%;
+      position: absolute;
+      z-index: 2;
+      bottom: 0;
+      left: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(217, 217, 217, 0) 0%,
+        rgba(0, 0, 0, 0.9) 95.65%
+      );
+    }
+    img {
+      border-radius: 30px 30px 0 0;
+      width: 100%;
+      height: auto;
+    }
+
+    &-status {
+      width: 93px;
+      height: 41px;
+      position: absolute;
+      top: 12px;
+      left: 8px;
+      border-radius: 30px;
+      background: #fe4206;
+      color: #fff;
+      @include flex(center, center, column);
+      font-size: 20px;
+      font-weight: 500;
+
+      @include screen(md) {
+        width: 71px;
+        height: 32px;
+        font-size: 14px;
+      }
+    }
+    &-detail {
+      position: relative;
+      z-index: 3;
+    }
+    &-balance {
+      width: 140px;
+      height: 42px;
+      background: #eb9838;
+      border-radius: 30px;
+      position: absolute;
+      bottom: 12px;
+      left: 8px;
+      @include flex(center, center, column);
+      font-size: 20px;
+      font-weight: 500;
+      #{$p__text} {
+        color: #fff;
+        letter-spacing: 2px;
+      }
+    }
+
+    &-price {
+      width: 150px;
+      height: 68px;
+      @include flex(end, end, row);
+      position: absolute;
+      bottom: 12px;
+      right: 8px;
+      color: #fff;
+      gap: 8px;
+    }
+
+    &-money {
+      @include flex(end, null, column);
+      height: 50px;
+      #{$p__text} {
+        font-size: 50px;
+        font-weight: 600;
+        color: #fed706;
+      }
+    }
+
+    &-unit {
+      @include flex(end);
+      #{$p__text} {
+        letter-spacing: -1px;
+        color: #fff;
+        font-size: 14px;
+        &--icon {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: #fff;
+          color: #eb9838;
+          font-size: 16px;
+          @include flex(center, center, column);
+        }
+      }
+    }
+  }
+
+  &__detail {
+    width: 100%;
+    @include flex(null, null, column);
+    padding: 16px;
+    gap: 8px;
+    border-radius: 0 0 30px 30px;
+    background: #fff;
+    &-title {
+      font-size: 22px;
+      font-weight: 500;
+      @include line-clamp(2);
+    }
+
+    &-content {
+      color: #7c7c7c;
+      font-size: 14px;
+      font-weight: 500;
+      @include line-clamp(4);
+      @include screen(md) {
+        @include line-clamp(5);
+      }
+    }
+  }
+
+  &__links {
+    @include flex;
+    gap: 16px;
+  }
+
+  &__infos {
+    @include flex(null, null, column);
+  }
+
+  &__info {
+    @include flex;
+  }
+}

@@ -1,0 +1,105 @@
+$root-block-name: '.footer';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+  background-color: #fff5ea;
+  height: 308px;
+  @include flex;
+  padding: 0 12%;
+  background: #fff5ea;
+  @include screen(lg) {
+    padding: 0 4%;
+  }
+  @include screen(md) {
+    height: 393px;
+    @include flex(center, start, column);
+    padding: 8px;
+  }
+
+  &__logo {
+    position: relative;
+    @include w_h(106px, 212px);
+    @include screen(lg) {
+      @include w_h(212px, 212px);
+    }
+    @include screen(md) {
+      @include w_h(100%, 164px);
+      @include flex(center, start, column);
+      order: 2;
+    }
+    &-img {
+      position: absolute;
+      left: -100%;
+      @include w_h(212px, 212px);
+      @include screen(lg) {
+        position: relative;
+        left: 0;
+      }
+      @include screen(md) {
+        @include w_h(auto, 164px);
+      }
+      img {
+        width: 100%;
+        height: 100%;
+        @include screen(md) {
+          @include w_h(164px, 164px);
+        }
+        object-fit: contain;
+      }
+    }
+
+    #{$p__text} {
+      margin-top: -16px;
+      font-size: 16px;
+      font-weight: 400;
+      @include screen(md) {
+        font-size: 12px;
+        font-weight: 400;
+      }
+    }
+  }
+
+  &__main {
+    flex: 1;
+    padding: 36px;
+    @include screen(md) {
+      padding: 8px 16px;
+      flex: 0;
+    }
+  }
+
+  &__nav {
+    @include flex;
+    column-gap: 32px;
+    font-size: 20px;
+    font-weight: 500;
+
+    @include screen(md) {
+      flex-wrap: wrap;
+      font-size: 14px;
+      font-weight: 400;
+    }
+  }
+
+  &__infos {
+    margin-top: 32px;
+    @include flex(null, null, column);
+    font-size: 18px;
+    font-weight: 500;
+
+    @include screen(md) {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 400;
+    }
+  }
+
+  &__info {
+    @include flex;
+
+    &-text {
+      color: #7c7c7c;
+    }
+  }
+}
