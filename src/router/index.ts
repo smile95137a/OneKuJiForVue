@@ -1,5 +1,5 @@
 import MemberManagement from '@/components/MemberManagement.vue';
-import { getCurrentUser } from '@/services/auth'; // 导入 getCurrentUser 方法
+import { getCurrentUser } from '@/services/auth'; // 導入 getCurrentUser 
 import AdminDashboard from '@/views/AdminDashboard.vue';
 import AdminLogin from '@/views/AdminLogin.vue';
 import Home from '@/views/Home.vue';
@@ -76,7 +76,7 @@ const router = createRouter({
   routes,
 });
 
-// 路由守卫
+// 路由
 router.beforeEach(async (to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     try {

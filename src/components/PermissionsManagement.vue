@@ -1,6 +1,6 @@
 <template>
     <div class="permissions-management">
-      <h1>权限管理系统</h1>
+      <h1>權限管理系统</h1>
       <!-- 添加相关内容 -->
     </div>
   </template>

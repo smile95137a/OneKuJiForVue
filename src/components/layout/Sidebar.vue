@@ -1,22 +1,23 @@
 <template>
   <div class="sidebar">
     <ul>
-      <li @click="navigate('MemberManagement')">会员管理系统</li>
-      <li @click="navigate('InventoryManagement')">进销存管理系统</li>
-      <li @click="navigate('PermissionsManagement')">权限管理系统</li>
-      <li @click="navigate('ProductDataManagement')">商品资料管理系统</li>
-      <li @click="navigate('ShipmentManagement')">进出货管理系统</li>
+      <li><a href="#" @click.prevent="navigate('MemberManagement')">會員管理</a></li>
+      <li><a href="#" @click.prevent="navigate('PermissionsManagement')">權限管理</a></li>
+      <li><a href="#" @click.prevent="navigate('InventoryManagement')">進銷存管理</a></li>
+      <li><a href="#" @click.prevent="navigate('ProductDataManagement')">商品資料管理</a></li>
+      <li><a href="#" @click.prevent="navigate('ShipmentManagement')">進出貨管理</a></li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, defineEmits } from 'vue';
 
 export default defineComponent({
-  name: 'SidebarComponent',
-  emits: ['navigate'],
-  setup(_, { emit }) {
+  name: 'Sidebar',
+  setup() {
+    const emit = defineEmits(['navigate']);
+
     const navigate = (view: string) => {
       emit('navigate', view);
     };
@@ -29,19 +30,26 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import '../assets/styles/admin.scss';
+
 .sidebar {
   width: 200px;
-  background-color: #f4f4f4;
+  background-color: #f8f9fa;
+  padding: 10px;
 }
+
 .sidebar ul {
   list-style-type: none;
   padding: 0;
 }
+
 .sidebar li {
-  padding: 10px;
-  cursor: pointer;
+  margin: 10px 0;
 }
-.sidebar li:hover {
-  background-color: #ddd;
+
+.sidebar a {
+  text-decoration: none;
+  color: #000;
 }
 </style>
+  

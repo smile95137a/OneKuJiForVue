@@ -1,6 +1,6 @@
 <template>
     <div class="inventory-management">
-      <h1>进销存管理系统</h1>
+      <h1>進銷存管理系統</h1>
       <!-- 添加相关内容 -->
     </div>
   </template>
