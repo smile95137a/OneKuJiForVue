@@ -144,11 +144,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import ProductCard from '@/components/ProductCard.vue';
 import pd1 from '@/assets/image/pd1.png';
 import pd2 from '@/assets/image/pd2.png';
 import pImg2 from '@/assets/image/pd3.png';
+import ProductCard from '@/components/Frontend/ProductCard.vue';
+import { ref } from 'vue';
 
 const imagepst = ref<string[]>([pd2, pd2, pd2, pd2, pd2, pd2, pd2, pd2]);
 

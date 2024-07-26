@@ -1,5 +1,12 @@
-import MemberManagement from '@/components/MemberManagement.vue';
-import { getCurrentUser } from '@/services/auth'; // 導入 getCurrentUser 
+import { getCurrentUser } from '@/services/auth'; // 导入 getCurrentUser 方法
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+
+// 导入组件
+import InventoryManagement from '@/components/Backend/InventoryManagement.vue';
+import MemberManagement from '@/components/Backend/MemberManagement.vue';
+import PermissionManagement from '@/components/Backend/PermissionsManagement.vue';
+import ProductDataManagement from '@/components/Backend/ProductDataManagement.vue';
+import ShipmentManagement from '@/components/Backend/ShipmentManagement.vue';
 import AdminDashboard from '@/views/AdminDashboard.vue';
 import AdminLogin from '@/views/AdminLogin.vue';
 import Home from '@/views/Home.vue';
@@ -11,54 +18,79 @@ import Product3 from '@/views/Product3.vue';
 import ProductDetail1 from '@/views/ProductDetail1.vue';
 import ProductDetail2 from '@/views/ProductDetail2.vue';
 import Register from '@/views/Register.vue';
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     component: Login,
+    meta: { layout: 'default' }, // 前台頁面
   },
   {
     path: '/register',
     component: Register,
+    meta: { layout: 'default' }, // 前台頁面
   },
   {
     path: '/home',
     component: Home,
+    meta: { layout: 'default' }, // 前台頁面
   },
   {
     path: '/product',
     component: Product,
+    meta: { layout: 'default' }, // 前台頁面
   },
   {
     path: '/product2',
     component: Product2,
+    meta: { layout: 'default' }, // 前台頁面
   },
   {
     path: '/product3',
     component: Product3,
+    meta: { layout: 'default' }, // 前台頁面
   },
   {
     path: '/product-detail1',
     component: ProductDetail1,
+    meta: { layout: 'default' }, // 前台頁面
   },
   {
     path: '/product-detail2',
     component: ProductDetail2,
+    meta: { layout: 'default' }, // 前台頁面
   },
   {
     path: '/admin',
-    component: MemberManagement,
-    meta: { requiresAuth: true }  // 需要身份验证
+    component: AdminDashboard,
+    meta: { requiresAuth: false, layout: 'admin' },  // 驗證身分並設定為後台頁面
+    children: [
+      {
+        path: 'member-management',
+        component: MemberManagement,
+      },
+      {
+        path: 'inventory-management',
+        component: InventoryManagement,
+      },
+      {
+        path: 'shipment-management',
+        component: ShipmentManagement,
+      },
+      {
+        path: 'permission-management',
+        component: PermissionManagement,
+      },
+      {
+        path: 'product-data-management',
+        component: ProductDataManagement,
+      },
+    ],
   },
   {
     path: '/admin-login',
     component: AdminLogin,
-  },
-  {
-    path: '/admin-dashboard',
-    component: AdminDashboard,
-    meta: { requiresAuth: true }  // 需要身份验证
+    meta: { layout: 'admin' }, // 後台登入頁面
   },
   {
     path: '/',
@@ -68,6 +100,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: NotFound,
+    meta: { layout: 'default' }, // 前台404頁面
   },
 ];
 
@@ -76,8 +109,8 @@ const router = createRouter({
   routes,
 });
 
-// 路由
-router.beforeEach(async (to, from, next) => {
+// 路由守衛
+router.beforeEach(async (to, _, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     try {
       await getCurrentUser();

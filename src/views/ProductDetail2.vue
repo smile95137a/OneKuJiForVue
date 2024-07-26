@@ -211,20 +211,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import ProductCard2 from '@/components/ProductCard2.vue';
-import Card from '@/components/Card.vue';
-import pd1 from '@/assets/image/pd1.png';
-import pdo1 from '@/assets/image/pdo1.png';
+import boxClose from '@/assets/image/box-close.png';
+import boxOpen from '@/assets/image/box-open.png';
+import btnIcon from '@/assets/image/btn-icon.png';
 import oo1 from '@/assets/image/oo1.png';
 import oo2 from '@/assets/image/oo2.png';
 import oo3 from '@/assets/image/oo3.png';
 import oo4 from '@/assets/image/oo4.png';
-import btnIcon from '@/assets/image/btn-icon.png';
+import pd1 from '@/assets/image/pd1.png';
+import pdo1 from '@/assets/image/pdo1.png';
 import ticket1 from '@/assets/image/ticket1.png';
 import ticketE from '@/assets/image/ticketE.png';
-import boxOpen from '@/assets/image/box-open.png';
-import boxClose from '@/assets/image/box-close.png';
+import ProductCard2 from '@/components/Frontend/ProductCard2.vue';
+import Card from '@/components/common/Card.vue';
+import { ref } from 'vue';
 
 const products3 = ref([
   {

@@ -54,8 +54,8 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import Card from '@/components/Card.vue';
-import ProductCard from '@/components/ProductCard.vue';
+import Card from '@/components/common/Card.vue';
+import ProductCard from '@/components/Frontend/ProductCard.vue';
 import pImg from '@/assets/image/p.png';
 
 interface Product {

@@ -26,7 +26,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-import ProductCard from '@/components/ProductCard.vue';
+import ProductCard from '@/components/Frontend/ProductCard.vue';
 import pImg from '@/assets/image/pd3.png';
 
 interface Product {
