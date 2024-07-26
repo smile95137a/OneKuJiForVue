@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:8080',
@@ -6,6 +7,19 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+export const loginJwt = apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const logout = () => {
+  localStorage.removeItem('token');
+  const router = useRouter();
+  router.push('/admin-login');
+};
 
 // 獎品管理
 export const getPrizeById = (prizeId: string) => {
@@ -111,3 +125,6 @@ export const addUser = (data: any) => {
 export const getAllUsers = () => {
   return apiClient.get('/api/user/query');
 };
+
+
+export default apiClient;

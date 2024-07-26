@@ -1,4 +1,4 @@
-\<template>
+<template>
   <div class="admin-dashboard">
     <Sidebar @navigate="handleNavigation" />
     <div class="admin-content">
@@ -11,6 +11,7 @@
           <i class="notification-icon"></i>
           <span class="user-name">系統管理員</span>
           <i class="dropdown-icon"></i>
+          <button @click="logout" class="logout-btn">登出</button>
         </div>
       </div>
       <router-view></router-view>
@@ -22,6 +23,7 @@
 import Sidebar from '@/components/layout/Sidebar.vue';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import apiClient from '@/service/api'; // Import apiClient
 
 export default defineComponent({
   name: 'AdminDashboard',
@@ -40,10 +42,16 @@ export default defineComponent({
       router.push(`/admin/${view}`);
     };
 
+    const logout = () => {
+      localStorage.removeItem('token');
+      router.push('/admin-login');
+    };
+
     return {
       isSidebarOpen,
       toggleSidebar,
       handleNavigation,
+      logout,
     };
   }
 });
@@ -89,6 +97,21 @@ export default defineComponent({
 
 .user-name {
   margin-left: 10px;
+}
+
+.logout-btn {
+  margin-left: 15px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #d4380d;
 }
 
 .admin-content {

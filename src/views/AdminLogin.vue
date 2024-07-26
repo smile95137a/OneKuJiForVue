@@ -18,6 +18,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import loginJwt from '@/services/api'; // 确保路径和文件名正确
 
 export default defineComponent({
   name: 'AdminLogin',
@@ -26,10 +27,18 @@ export default defineComponent({
     const password = ref('');
     const router = useRouter();
 
-    const login = () => {
-      // 这里可以添加登录逻辑，例如API请求
-      console.log('登录:', username.value, password.value);
-      router.push('/admin');
+    const login = async () => {
+      try {
+        const response = await loginJwt.post('/api/auth/login', {
+          username: username.value,
+          password: password.value
+        });
+        const token = response.data.accessToken;
+        localStorage.setItem('token', token);
+        router.push('/admin');
+      } catch (error) {
+        console.error('Error logging in:', error);
+      }
     };
 
     return {
