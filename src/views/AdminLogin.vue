@@ -4,54 +4,50 @@
     <form @submit.prevent="login">
       <div class="form-group">
         <label for="username">用戶名</label>
-        <input type="text" id="username" v-model="username" required />
+        <input type="text" id="username" v-model="values.username" />
+        <span v-if="errors.username">{{ errors.username }}</span>
       </div>
       <div class="form-group">
         <label for="password">密碼</label>
-        <input type="password" id="password" v-model="password" required />
+        <input type="password" id="password" v-model="values.password" />
+        <span v-if="errors.password">{{ errors.password }}</span>
       </div>
       <button type="submit" class="login-btn">登入</button>
     </form>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script lang="ts" setup>
 import { useRouter } from 'vue-router';
-import loginJwt from '@/services/api'; // 确保路径和文件名正确
+import { useForm } from 'vee-validate';
+import { login as authLogin } from '@/services/auth.service';
 
-export default defineComponent({
-  name: 'AdminLogin',
-  setup() {
-    const username = ref('');
-    const password = ref('');
-    const router = useRouter();
+const router = useRouter();
 
-    const login = async () => {
-      try {
-        const response = await loginJwt.post('/api/auth/login', {
-          username: username.value,
-          password: password.value
-        });
-        const token = response.data.accessToken;
-        localStorage.setItem('token', token);
-        router.push('/admin');
-      } catch (error) {
-        console.error('Error logging in:', error);
-      }
-    };
-
-    return {
-      username,
-      password,
-      login,
-    };
+const { values, errors, setErrors } = useForm({
+  initialValues: {
+    username: '',
+    password: '',
   },
 });
+
+const login = async () => {
+  try {
+    const response = await authLogin(values.username, values.password);
+    const token = response.data.accessToken;
+    localStorage.setItem('token', token);
+    router.push('/admin');
+  } catch (error) {
+    setErrors({
+      username: '帳號或密碼失敗',
+      password: '帳號或密碼失敗',
+    });
+  }
+};
 </script>
 
 <style scoped>
-@import "@/assets/styles/admin.scss";
+@import '@/assets/styles/admin.scss';
 
 .login-container {
   width: 300px;
