@@ -1,4 +1,4 @@
-import { getCurrentUser } from '@/services/auth'; // 导入 getCurrentUser 方法
+import { getCurrentUser } from '@/interfaces/auth'; // 导入 getCurrentUser 方法
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 // 导入组件
@@ -63,7 +63,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/admin',
     component: AdminDashboard,
-    meta: { requiresAuth: false, layout: 'admin' },  // 驗證身分並設定為後台頁面
+    meta: { requiresAuth: true, layout: 'admin' },  // 驗證身分並設定為後台頁面
     children: [
       {
         path: 'member-management',
@@ -111,11 +111,16 @@ const router = createRouter({
 
 // 路由守衛
 router.beforeEach(async (to, _, next) => {
+  const token = localStorage.getItem('token'); // 檢查本地存儲中是否有 token
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    try {
-      await getCurrentUser();
-      next();
-    } catch (error) {
+    if (token) {
+      try {
+        await getCurrentUser();
+        next();
+      } catch (error) {
+        next('/admin-login');
+      }
+    } else {
       next('/admin-login');
     }
   } else {

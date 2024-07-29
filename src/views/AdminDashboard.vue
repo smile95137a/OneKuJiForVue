@@ -23,7 +23,7 @@
 import Sidebar from '@/components/layout/Sidebar.vue';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import apiClient from '@/service/api'; // Import apiClient
+// import { loginJwt, setAuthToken } from '@/services/api'; // 目前未使用，先註解掉
 
 export default defineComponent({
   name: 'AdminDashboard',

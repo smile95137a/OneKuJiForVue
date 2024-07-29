@@ -18,7 +18,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import loginJwt from '@/services/api'; // 确保路径和文件名正确
+import { loginJwt, setAuthToken } from '@/services/api'; // 確保路徑和文件名正確
 
 export default defineComponent({
   name: 'AdminLogin',
@@ -29,12 +29,13 @@ export default defineComponent({
 
     const login = async () => {
       try {
-        const response = await loginJwt.post('/api/auth/login', {
+        const response = await loginJwt.post('/auth/login', {
           username: username.value,
           password: password.value
         });
         const token = response.data.accessToken;
         localStorage.setItem('token', token);
+        setAuthToken(token); // 設置認證頭
         router.push('/admin');
       } catch (error) {
         console.error('Error logging in:', error);

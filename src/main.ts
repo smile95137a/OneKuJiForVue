@@ -5,5 +5,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import './assets/styles/admin.scss'; // 引入 admin.scss
 import './assets/styles/main.scss';
-
+window.addEventListener('beforeunload', () => {
+    localStorage.removeItem('token');
+  });
 createApp(App).use(router).mount('#app');
