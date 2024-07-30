@@ -13,7 +13,7 @@ apiClient.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = token;
     }
     return config;
   },
@@ -25,6 +25,7 @@ export const addUser = (user: {
   password: string;
   nickname: string;
   email: string;
+  phoneNumber: string;
   address: string;
 }) => {
   return apiClient.post('/user/add', user);
@@ -43,7 +44,7 @@ export const loginJwt = axios.create({
 
 export function setAuthToken(token: string) {
   if (token) {
-    loginJwt.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    loginJwt.defaults.headers.common['Authorization'] = token;
   } else {
     delete loginJwt.defaults.headers.common['Authorization'];
   }

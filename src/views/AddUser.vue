@@ -42,13 +42,13 @@ export default defineComponent({
       password: '',
       nickname: '',
       email: '',
+      phoneNumber: '',
       address: ''
     });
 
     const createUser = async () => {
       try {
-        console.log(user.value);
-        
+        console.log('Submitting user:', user.value);
         const response = await addUser(user.value);
         alert('用户新增成功!');
       } catch (error) {
