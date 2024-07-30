@@ -1,3 +1,4 @@
+// AdminLogin.vue
 <template>
   <div class="login-container">
     <h1>後台登入</h1>
@@ -16,9 +17,9 @@
 </template>
 
 <script lang="ts">
+import { loginJwt, setAuthToken } from '@/services/api';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { loginJwt, setAuthToken } from '@/services/api'; // 確保路徑和文件名正確
 
 export default defineComponent({
   name: 'AdminLogin',
@@ -34,9 +35,11 @@ export default defineComponent({
           password: password.value
         });
         const token = response.data.accessToken;
+        console.log("獲取到的token:", token);
         localStorage.setItem('token', token);
         setAuthToken(token); // 設置認證頭
         router.push('/admin');
+        console.log("localStorage 中的 token:", localStorage.getItem('token')); // 確認 token 是否正確儲存
       } catch (error) {
         console.error('Error logging in:', error);
       }

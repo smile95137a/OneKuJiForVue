@@ -107,27 +107,9 @@
 </template>
 
 <script lang="ts">
-import apiClient from '@/interceptors/jwtInterceptor.ts'; // 確保路徑正確
+import { Member } from '@/interfaces/Member';
+import { addUser, getUsers, setAuthToken } from '@/services/api'; // 確保路徑正確
 import { computed, defineComponent, onMounted, ref } from 'vue';
-
-interface Member {
-  id: number;
-  username: string;
-  password: string;
-  nickname: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  createdAt: string;
-  updatedAt: string;
-  roles: Array<{ id: number; name: string }>;
-  balance: number;
-  bonusPoints: number;
-  lastTopUpTime: string;
-  userType: string;
-  roleId: number;
-  status: string;
-}
 
 export default defineComponent({
   name: 'MemberManagement',
@@ -135,18 +117,17 @@ export default defineComponent({
     const totalMembers = ref(0);
     const regularMembers = ref(0);
     const trialMembers = ref(0);
-    const newMembersThisMonth = ref(0);
     const members = ref<Member[]>([]);
     const currentPage = ref(1);
     const itemsPerPage = 10;
     const showAddMemberModal = ref(false);
     const newMember = ref<Member>({
-      id: 1,
+      id: 0,
       username: '',
       password: '',
       nickname: '',
       email: '',
-      phoneNumber: '',
+      phoneNumber: '', // 確保與接口定義一致
       address: '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -168,13 +149,21 @@ export default defineComponent({
 
     const fetchMemberData = async () => {
       try {
-        const response = await apiClient.get('/api/user/count');
-        const data = response.data;
+        const token = localStorage.getItem('token');
+        console.log('localStorage 中的 token:', token); // 確認從 localStorage 中獲取的 token
+        if (token) {
+          setAuthToken(token);
+        }
+        const response = await getUsers();
+        members.value = response.data;
+        regularMembers.value = members.value.filter(member => member.roleId === 2).length;
+        trialMembers.value = members.value.filter(member => member.roleId === 3).length;
+        totalMembers.value = members.value.length;
 
         statItems.value = [
-          { title: '會員總數', value: data.additionalProp1 },
-          { title: '正式會員', value: data.additionalProp2 },
-          { title: '體驗會員', value: data.additionalProp3 },
+          { title: '會員總數', value: totalMembers.value },
+          { title: '正式會員', value: regularMembers.value },
+          { title: '體驗會員', value: trialMembers.value },
           { title: '當月新增', value: 0 }  // 假設當月新增需要其他 API 來獲取
         ];
       } catch (error) {
@@ -182,27 +171,11 @@ export default defineComponent({
       }
     };
 
-    const fetchMembersList = async () => {
-      try {
-        const response = await apiClient.get('/api/user/query');
-        const data = response.data;
-
-        members.value = data;
-        // 在此更新其他數據如當月新增數據
-      } catch (error) {
-        console.error('Failed to fetch members list:', error);
-      }
-    };
-
     const addMember = async () => {
       try {
-        const response = await apiClient.post('/api/user/add', newMember.value);
-        if (response.status === 201) {
-          fetchMembersList(); // 重新獲取會員列表
-          showAddMemberModal.value = false;
-        } else {
-          console.error('Failed to add member:', response.data);
-        }
+        await addUser(newMember.value);
+        fetchMemberData(); // 重新獲取會員列表
+        showAddMemberModal.value = false;
       } catch (error) {
         console.error('Failed to add member:', error);
       }
@@ -210,7 +183,6 @@ export default defineComponent({
 
     onMounted(() => {
       fetchMemberData();
-      fetchMembersList();
     });
 
     const totalPages = computed(() => Math.ceil(members.value.length / itemsPerPage));
@@ -236,7 +208,6 @@ export default defineComponent({
       totalMembers,
       regularMembers,
       trialMembers,
-      newMembersThisMonth,
       members,
       currentPage,
       totalPages,
