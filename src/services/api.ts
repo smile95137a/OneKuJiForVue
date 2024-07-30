@@ -36,6 +36,9 @@ export const addUser = (user: {
 export const getUsers = () => {
   return apiClient.get('/user/query');
 };
+export const getUserById = (userId: string) => {
+  return apiClient.get(`/api/user/${userId}`);
+};
 
 export const loginJwt = axios.create({
   baseURL: 'http://localhost:8080/api', // 确保与后端地址一致

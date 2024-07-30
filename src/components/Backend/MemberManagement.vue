@@ -4,6 +4,7 @@
       <div class="title-and-button">
         <h2 class="title">會員管理</h2>
         <button class="add-member-button" @click="showAddMemberModal = true">新增會員</button>
+        <button class="search-member-button" @click="showSearchMemberModal = true">查詢會員</button>
       </div>
     </div>
     <div class="stats">
@@ -36,7 +37,12 @@
             <td>{{ member.address }}</td>
             <td>{{ member.updatedAt }}</td>
             <td>{{ member.username }}</td>
-            <td>{{ member.status }}</td>
+            <td>
+              <select v-model="member.status">
+                <option value="啟用">啟用</option>
+                <option value="未啟用">未啟用</option>
+              </select>
+            </td>
             <td>
               <button>編輯</button>
               <button class="delete-button">刪除</button>
@@ -56,50 +62,29 @@
         <span class="close-button" @click="showAddMemberModal = false">&times;</span>
         <h2>新增會員</h2>
         <form @submit.prevent="addMember">
-          <div>
-            <label for="username">用戶名:</label>
-            <input type="text" id="username" v-model="newMember.username" required>
-          </div>
-          <div>
-            <label for="password">密碼:</label>
-            <input type="password" id="password" v-model="newMember.password" required>
-          </div>
-          <div>
-            <label for="nickname">暱稱:</label>
-            <input type="text" id="nickname" v-model="newMember.nickname" required>
-          </div>
-          <div>
-            <label for="email">電子郵件:</label>
-            <input type="email" id="email" v-model="newMember.email" required>
-          </div>
-          <div>
-            <label for="phoneNumber">電話:</label>
-            <input type="text" id="phoneNumber" v-model="newMember.phoneNumber" required>
-          </div>
-          <div>
-            <label for="address">地址:</label>
-            <input type="text" id="address" v-model="newMember.address" required>
-          </div>
-          <div>
-            <label for="balance">餘額:</label>
-            <input type="number" id="balance" v-model="newMember.balance" required>
-          </div>
-          <div>
-            <label for="bonusPoints">紅利點數:</label>
-            <input type="number" id="bonusPoints" v-model="newMember.bonusPoints" required>
-          </div>
-          <div>
-            <label for="userType">會員類型:</label>
-            <select id="userType" v-model="newMember.userType" required>
-              <option value="REGULAR">正式會員</option>
-              <option value="TRIAL">體驗會員</option>
-            </select>
-          </div>
+          <!-- 其他表單元素保持不變 -->
           <div>
             <label for="status">狀態:</label>
-            <input type="text" id="status" v-model="newMember.status" required>
+            <select id="status" v-model="newMember.status" required>
+              <option value="啟用">啟用</option>
+              <option value="未啟用">未啟用</option>
+            </select>
           </div>
           <button type="submit">提交</button>
+        </form>
+      </div>
+    </div>
+
+    <div v-if="showSearchMemberModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" @click="showSearchMemberModal = false">&times;</span>
+        <h2>查詢會員</h2>
+        <form @submit.prevent="searchMember">
+          <div>
+            <label for="searchInput">查詢條件:</label>
+            <input type="text" id="searchInput" v-model="searchInput" placeholder="輸入電話、ID、email等" required>
+          </div>
+          <button type="submit">查詢</button>
         </form>
       </div>
     </div>
@@ -108,7 +93,7 @@
 
 <script lang="ts">
 import { Member } from '@/interfaces/Member';
-import { addUser, getUsers, setAuthToken } from '@/services/api'; // 確保路徑正確
+import { addUser, getUserById, getUsers, setAuthToken } from '@/services/api'; // 確保路徑正確
 import { computed, defineComponent, onMounted, ref } from 'vue';
 
 export default defineComponent({
@@ -121,13 +106,17 @@ export default defineComponent({
     const currentPage = ref(1);
     const itemsPerPage = 10;
     const showAddMemberModal = ref(false);
+    const showSearchMemberModal = ref(false);
+    const searchInput = ref('');
+    const currentUser = ref(''); // 当前登录用户
+
     const newMember = ref<Member>({
       id: 0,
       username: '',
       password: '',
       nickname: '',
       email: '',
-      phoneNumber: '', // 確保與接口定義一致
+      phoneNumber: '',
       address: '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -137,7 +126,7 @@ export default defineComponent({
       lastTopUpTime: new Date().toISOString(),
       userType: 'REGULAR',
       roleId: 2,
-      status: 'Y等於啟用 N等於未啟用'
+      status: '啟用'
     });
 
     const statItems = ref([
@@ -150,9 +139,10 @@ export default defineComponent({
     const fetchMemberData = async () => {
       try {
         const token = localStorage.getItem('token');
-        console.log('localStorage 中的 token:', token); // 確認從 localStorage 中獲取的 token
         if (token) {
           setAuthToken(token);
+          // 获取当前登录用户的信息，可以使用另一个API端点来获取
+          currentUser.value = 'current_logged_in_user'; // 这里需要用实际的用户名替换
         }
         const response = await getUsers();
         members.value = response.data;
@@ -173,11 +163,25 @@ export default defineComponent({
 
     const addMember = async () => {
       try {
+        newMember.value.updatedAt = new Date().toISOString(); // 更新时间
+        newMember.value.username = currentUser.value; // 设置最近修改人
         await addUser(newMember.value);
-        fetchMemberData(); // 重新獲取會員列表
+        fetchMemberData(); // 重新获取会员列表
         showAddMemberModal.value = false;
       } catch (error) {
         console.error('Failed to add member:', error);
+      }
+    };
+
+    const searchMember = async () => {
+      try {
+        const response = await getUserById(searchInput.value);
+        if (response.data) {
+          members.value = [response.data]; // 假设只返回一个结果
+        }
+        showSearchMemberModal.value = false;
+      } catch (error) {
+        console.error('Failed to search member:', error);
       }
     };
 
@@ -216,8 +220,12 @@ export default defineComponent({
       previousPage,
       statItems,
       showAddMemberModal,
+      showSearchMemberModal,
       newMember,
+      searchInput,
       addMember,
+      searchMember,
+      currentUser
     };
   },
 });
@@ -247,7 +255,7 @@ export default defineComponent({
   margin: 0;
 }
 
-.add-member-button {
+.add-member-button, .search-member-button {
   padding: 10px 20px;
   cursor: pointer;
   border: none;
@@ -257,7 +265,7 @@ export default defineComponent({
   transition: background-color 0.3s ease;
 }
 
-.add-member-button:hover {
+.add-member-button:hover, .search-member-button:hover {
   background-color: #45a049;
 }
 

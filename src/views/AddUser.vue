@@ -50,9 +50,9 @@ export default defineComponent({
       try {
         console.log('Submitting user:', user.value);
         const response = await addUser(user.value);
-        alert('用户新增成功!');
+        alert('新增成功!');
       } catch (error) {
-        console.error('新增用户失败:', error);
+        console.error('新增失敗:', error);
       }
     };
 

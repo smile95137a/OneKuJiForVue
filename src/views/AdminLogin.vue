@@ -42,6 +42,7 @@ export default defineComponent({
         console.log("localStorage 中的 token:", localStorage.getItem('token')); // 確認 token 是否正確儲存
       } catch (error) {
         console.error('Error logging in:', error);
+        alert('登入失敗')
       }
     };
 
