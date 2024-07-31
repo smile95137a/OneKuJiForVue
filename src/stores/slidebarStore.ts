@@ -5,8 +5,6 @@ export const useSlidebarStore = defineStore('slidebar', () => {
   const isOpen = ref<boolean>(false);
 
   const toggleSlidebar = () => {
-    console.log(isOpen.value);
-
     isOpen.value = !isOpen.value;
   };
 
