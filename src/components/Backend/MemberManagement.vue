@@ -104,7 +104,7 @@
 <script lang="ts">
 import { Member } from '@/interfaces/Member';
 import { addUser, getUserById, getUsers } from '@/services/api';
-import debounce from 'lodash.debounce';
+import { debounce } from 'lodash';
 import { computed, defineComponent, onMounted, ref } from 'vue';
 
 export default defineComponent({
