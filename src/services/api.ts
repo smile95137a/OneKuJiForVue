@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 创建一个 axios 实例
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api', // 确保与后端地址一致
+  baseURL: 'http://104.199.211.35:8080/api', // 确保与后端地址一致
   headers: {
     'Content-Type': 'application/json'
   }
@@ -82,7 +82,7 @@ export const updateProductStatus = async (productId: number, status: number): Pr
 };
 //
 export const loginJwt = axios.create({
-  baseURL: 'http://localhost:8080/api', // 确保与后端地址一致
+  baseURL: 'http://104.199.211.35:8080/api', // 确保与后端地址一致
   headers: {
     'Content-Type': 'application/json'
   }

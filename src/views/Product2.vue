@@ -7,11 +7,15 @@
       <div class="product2__btns-selects">
         <div class="product2__input product2__input--select">
           <div class="product2__input-main">全部狀態</div>
-          <div class="product2__input-icon"></div>
+          <div class="product2__input-icon">
+            <i class="fa-solid fa-caret-down"></i>
+          </div>
         </div>
         <div class="product2__input product2__input--select">
           <div class="product2__input-main">全部廠商</div>
-          <div class="product2__input-icon"></div>
+          <div class="product2__input-icon">
+            <i class="fa-solid fa-caret-down"></i>
+          </div>
         </div>
       </div>
       <div class="product2__btns-search">
@@ -20,7 +24,7 @@
             <input type="text" />
           </div>
           <div class="product2__input-icon font-size-28">
-            <CiSearch />
+            <i class="fa-solid fa-magnifying-glass"></i>
           </div>
         </div>
       </div>
@@ -29,7 +33,9 @@
     <Card>
       <div class="product2__list">
         <div class="product2__list-title">
-          <div class="product2__list-filter"></div>
+          <div class="product2__list-filter">
+            <i class="fa-solid fa-filter"></i>
+          </div>
         </div>
 
         <div class="product2__list-products">

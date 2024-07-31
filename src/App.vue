@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Footer from '@/components/layout/Footer.vue';
 import Header from '@/components/layout/Header.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import { useRoute } from 'vue-router';
 window.addEventListener('beforeunload', () => {
   localStorage.removeItem('token');
@@ -19,6 +20,7 @@ const route = useRoute();
     </div>
     <Footer v-if="route.meta.layout !== 'admin'" />
   </div>
+  <ConfirmDialog />
 </template>
 
 <style scoped>

@@ -31,7 +31,9 @@
       <div class="product__list">
         <div class="product__list-title">
           <div class="product__text">{{ title }}</div>
-          <div class="product__list-filter"></div>
+          <div class="product__list-filter">
+            <i class="fa-solid fa-filter"></i>
+          </div>
         </div>
 
         <div class="product__list-products">

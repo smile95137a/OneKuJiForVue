@@ -5,7 +5,8 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import './assets/styles/admin.scss'; // 引入 admin.scss
 import './assets/styles/main.scss';
+import { createPinia } from 'pinia';
 window.addEventListener('beforeunload', () => {
-    localStorage.removeItem('token');
-  });
-createApp(App).use(router).mount('#app');
+  localStorage.removeItem('token');
+});
+createApp(App).use(createPinia()).use(router).mount('#app');
