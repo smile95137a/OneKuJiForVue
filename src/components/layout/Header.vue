@@ -19,15 +19,21 @@
           </div>
           <router-link class="header__nav-item" to="/product">
             一番賞
-            <div class="header__nav-item-icon"></div>
+            <div class="header__nav-item-icon">
+              <i class="fa-solid fa-angle-right"></i>
+            </div>
           </router-link>
           <router-link class="header__nav-item" to="/product2">
             盲盒
-            <div class="header__nav-item-icon"></div>
+            <div class="header__nav-item-icon">
+              <i class="fa-solid fa-angle-right"></i>
+            </div>
           </router-link>
           <router-link class="header__nav-item" to="/product3">
             扭蛋抽獎
-            <div class="header__nav-item-icon"></div>
+            <div class="header__nav-item-icon">
+              <i class="fa-solid fa-angle-right"></i>
+            </div>
           </router-link>
         </div>
       </div>
