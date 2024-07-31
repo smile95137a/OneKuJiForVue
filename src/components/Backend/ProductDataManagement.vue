@@ -2,74 +2,83 @@
   <div class="product-data-management">
     <h2>商品資訊</h2>
     <div class="selection-bar">
-      <button @click="fetchData('gacha')">扭蛋</button>
-      <button @click="fetchData('prize')">一番賞</button>
-      <button @click="fetchData('blindbox')">盲盒</button>
+      <button @click="fetchData(2)">扭蛋</button>
+      <button @click="fetchData(1)">一番賞</button>
+      <button @click="fetchData(3)">盲盒</button>
     </div>
-    <div v-if="products.length > 0" class="product-list">
-      <div v-for="product in products" :key="product.id" class="product-item">
-        <h3>{{ product.name }}</h3>
-        <p>{{ product.description }}</p>
-        <p>Price: {{ product.price }}</p>
-        <img :src="product.imageUrl" alt="Product Image" />
-      </div>
+    <div v-if="products.length > 0" class="product-table">
+      <table>
+        <thead>
+          <tr>
+            <th>商品名稱</th>
+            <th>價格</th>
+            <th>庫存</th>
+            <th>上架日期</th>
+            <th>狀態</th>
+            <th>圖片</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="product in products" :key="product.productId">
+            <td>{{ product.productName }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.stockQuantity }}</td>
+            <td>{{ formatDate(product.startDate) }}</td>
+            <td>
+              <select v-model="product.status" @change="updateStatus(product.productId, product.status)">
+                <option value="1">可以購買</option>
+                <option value="2">不可購買</option>
+                <option value="3">尚未上架</option>
+                <option value="4">售罄</option>
+              </select>
+            </td>
+            <td><img :src="product.imageUrl" alt="Product Image" class="product-image" /></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div v-else>
-      <p>No products found.</p>
+    <div v-else class="no-data">
+      <p>查無資料</p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import apiClient from '@/interceptors/jwtInterceptor'; // JWT
+import { getProducts, Product, updateProductStatus } from '@/services/api';
 import { defineComponent, ref } from 'vue';
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  imageUrl: string;
-}
 
 export default defineComponent({
   name: 'ProductDataManagement',
   setup() {
     const products = ref<Product[]>([]);
 
-    const fetchData = async (type: string) => {
-      let endpoint = '';
-      switch (type) {
-        case 'gacha':
-          endpoint = '/api/gacha/query';
-          break;
-        case 'prize':
-          endpoint = '/api/PrizeDetail/query'; // 一番賞
-          break;
-        case 'blindbox':
-          endpoint = '/api/blindBox/query'; // 盲盒
-          break;
-        default:
-          break;
-      }
-
+    const fetchData = async (productType: number) => {
       try {
-        const response = await apiClient.get(endpoint);
-        products.value = response.data.map((item: any) => ({
-          id: item.gachaId || item.prizeID || item.blindboxId,
-          name: item.gachaName || item.prizeName || item.blindboxName,
-          description: item.description,
-          price: item.price,
-          imageUrl: item.imageUrl,
-        }));
+        products.value = await getProducts(productType);
       } catch (error) {
         console.error('Failed to fetch data:', error);
+        products.value = []; // 清空數據，顯示"查無資料"
       }
+    };
+
+    const updateStatus = async (productId: number, status: string) => {
+      try {
+        await updateProductStatus(productId, parseInt(status));
+        console.log('Product status updated successfully');
+      } catch (error) {
+        console.error('Failed to update product status:', error);
+      }
+    };
+
+    const formatDate = (dateString: string) => {
+      return new Date(dateString).toLocaleDateString();
     };
 
     return {
       products,
       fetchData,
+      updateStatus,
+      formatDate,
     };
   },
 });
@@ -105,33 +114,36 @@ export default defineComponent({
   background-color: #45a049;
 }
 
-.product-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+.product-table {
+  overflow-x: auto;
 }
 
-.product-item {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  width: calc(33% - 20px);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.product-item h3 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.product-item p {
-  margin: 5px 0;
-}
-
-.product-item img {
+table {
   width: 100%;
-  height: auto;
-  border-radius: 8px;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.product-image {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: cover;
+}
+
+.no-data {
+  text-align: center;
+  font-size: 18px;
+  color: #888;
+  margin-top: 20px;
 }
 </style>

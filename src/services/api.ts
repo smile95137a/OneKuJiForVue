@@ -36,10 +36,51 @@ export const addUser = (user: {
 export const getUsers = () => {
   return apiClient.get('/user/query');
 };
-export const getUserById = (userId: string) => {
-  return apiClient.get(`/api/user/${userId}`);
+export const getUserById = (searchTerm: string) => {
+  return apiClient.get(`/user/search`, { params: { term: searchTerm } });
+};
+//產品管理
+export interface Product {
+  productId: number;
+  productName: string;
+  description: string;
+  price: number;
+  stockQuantity: number;
+  soldQuantity: number;
+  imageUrl: string;
+  rarity: string;
+  createDate: string;
+  startDate: string;
+  endDate: string;
+  createdUser: string;
+  updatedUser: string;
+  updatedAt: string;
+  productType: string;
+  prizeCategory: string;
+  status: string;
+}
+
+export const getProducts = async (productType: number): Promise<Product[]> => {
+  try {
+    const response = await apiClient.get<Product[]>('/product/query', {
+      params: { productType },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw error;
+  }
 };
 
+export const updateProductStatus = async (productId: number, status: number): Promise<void> => {
+  try {
+    await apiClient.put(`/product/${productId}/status`, { status });
+  } catch (error) {
+    console.error('Error updating product status:', error);
+    throw error;
+  }
+};
+//
 export const loginJwt = axios.create({
   baseURL: 'http://localhost:8080/api', // 确保与后端地址一致
   headers: {

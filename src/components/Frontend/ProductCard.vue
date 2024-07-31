@@ -28,8 +28,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from 'vue-router';
 import { defineProps } from 'vue';
+import { useRouter } from 'vue-router';
 
 interface IproductCardProps {
   customClass?: string;
@@ -45,6 +45,7 @@ interface IproductCardProps {
 }
 
 const props = defineProps<IproductCardProps>();
-
+console.log(props)
 const router = useRouter();
+console.log(router)
 </script>

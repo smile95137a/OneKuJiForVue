@@ -1,18 +1,29 @@
 <template>
   <div class="member-management">
     <div class="header">
-      <div class="title-and-button">
-        <h2 class="title">會員管理</h2>
-        <button class="add-member-button" @click="showAddMemberModal = true">新增會員</button>
-        <button class="search-member-button" @click="showSearchMemberModal = true">查詢會員</button>
-      </div>
+      <h2 class="title">會員管理</h2>
+      <button class="add-member-button" @click="showAddMemberModal = true">新增會員</button>
     </div>
-    <div class="stats">
+
+    <!-- 優化後的統計顯示 -->
+    <div class="stats-container">
       <div class="stat-item" v-for="(item, index) in statItems" :key="index">
-        <h3>{{ item.title }}</h3>
-        <p>{{ item.value }}</p>
+        <div class="stat-content">
+          <h3>{{ item.title }}</h3>
+          <p class="stat-value">{{ item.value }}</p>
+        </div>
       </div>
     </div>
+    
+    <!-- 搜索功能 -->
+    <div class="search-section">
+      <input 
+        v-model="searchInput" 
+        placeholder="輸入會員編號、電話或電子郵件搜索會員" 
+        @input="debounceSearch"
+      />
+    </div>
+    
     <div class="table-container">
       <table>
         <thead>
@@ -21,9 +32,9 @@
             <th>會員編號</th>
             <th>姓名</th>
             <th>電話</th>
+            <th>電子郵件</th>
             <th>居住地址</th>
             <th>最近修改時間</th>
-            <th>最近修改人</th>
             <th>狀態</th>
             <th>操作</th>
           </tr>
@@ -34,57 +45,56 @@
             <td>{{ member.id }}</td>
             <td>{{ member.nickname }}</td>
             <td>{{ member.phoneNumber }}</td>
+            <td>{{ member.email }}</td>
             <td>{{ member.address }}</td>
-            <td>{{ member.updatedAt }}</td>
-            <td>{{ member.username }}</td>
+            <td>{{ formatDate(member.updatedAt) }}</td>
+            <td>{{ member.status }}</td>
             <td>
-              <select v-model="member.status">
-                <option value="啟用">啟用</option>
-                <option value="未啟用">未啟用</option>
-              </select>
-            </td>
-            <td>
-              <button>編輯</button>
-              <button class="delete-button">刪除</button>
+              <button @click="editMember(member)">編輯</button>
+              <button class="delete-button" @click="deleteMember(member)">刪除</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+    
     <div class="pagination">
       <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
       <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
       <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
     </div>
 
+    <!-- 新增會員模態框 -->
     <div v-if="showAddMemberModal" class="modal">
       <div class="modal-content">
         <span class="close-button" @click="showAddMemberModal = false">&times;</span>
         <h2>新增會員</h2>
         <form @submit.prevent="addMember">
-          <!-- 其他表單元素保持不變 -->
           <div>
-            <label for="status">狀態:</label>
-            <select id="status" v-model="newMember.status" required>
-              <option value="啟用">啟用</option>
-              <option value="未啟用">未啟用</option>
-            </select>
+            <label for="username">用戶名:</label>
+            <input id="username" v-model="newMember.username" required>
+          </div>
+          <div>
+            <label for="password">密碼:</label>
+            <input id="password" v-model="newMember.password" type="password" required>
+          </div>
+          <div>
+            <label for="nickname">暱稱:</label>
+            <input id="nickname" v-model="newMember.nickname" required>
+          </div>
+          <div>
+            <label for="email">電子郵件:</label>
+            <input id="email" v-model="newMember.email" type="email" required>
+          </div>
+          <div>
+            <label for="phoneNumber">電話號碼:</label>
+            <input id="phoneNumber" v-model="newMember.phoneNumber" required>
+          </div>
+          <div>
+            <label for="address">地址:</label>
+            <input id="address" v-model="newMember.address" required>
           </div>
           <button type="submit">提交</button>
-        </form>
-      </div>
-    </div>
-
-    <div v-if="showSearchMemberModal" class="modal">
-      <div class="modal-content">
-        <span class="close-button" @click="showSearchMemberModal = false">&times;</span>
-        <h2>查詢會員</h2>
-        <form @submit.prevent="searchMember">
-          <div>
-            <label for="searchInput">查詢條件:</label>
-            <input type="text" id="searchInput" v-model="searchInput" placeholder="輸入電話、ID、email等" required>
-          </div>
-          <button type="submit">查詢</button>
         </form>
       </div>
     </div>
@@ -93,22 +103,18 @@
 
 <script lang="ts">
 import { Member } from '@/interfaces/Member';
-import { addUser, getUserById, getUsers, setAuthToken } from '@/services/api'; // 確保路徑正確
+import { addUser, getUserById, getUsers } from '@/services/api';
+import debounce from 'lodash.debounce';
 import { computed, defineComponent, onMounted, ref } from 'vue';
 
 export default defineComponent({
   name: 'MemberManagement',
   setup() {
-    const totalMembers = ref(0);
-    const regularMembers = ref(0);
-    const trialMembers = ref(0);
     const members = ref<Member[]>([]);
     const currentPage = ref(1);
     const itemsPerPage = 10;
     const showAddMemberModal = ref(false);
-    const showSearchMemberModal = ref(false);
     const searchInput = ref('');
-    const currentUser = ref(''); // 当前登录用户
 
     const newMember = ref<Member>({
       id: 0,
@@ -126,7 +132,7 @@ export default defineComponent({
       lastTopUpTime: new Date().toISOString(),
       userType: 'REGULAR',
       roleId: 2,
-      status: '啟用'
+      status: ''
     });
 
     const statItems = ref([
@@ -138,51 +144,101 @@ export default defineComponent({
 
     const fetchMemberData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          setAuthToken(token);
-          // 获取当前登录用户的信息，可以使用另一个API端点来获取
-          currentUser.value = 'current_logged_in_user'; // 这里需要用实际的用户名替换
-        }
         const response = await getUsers();
         members.value = response.data;
-        regularMembers.value = members.value.filter(member => member.roleId === 2).length;
-        trialMembers.value = members.value.filter(member => member.roleId === 3).length;
-        totalMembers.value = members.value.length;
-
-        statItems.value = [
-          { title: '會員總數', value: totalMembers.value },
-          { title: '正式會員', value: regularMembers.value },
-          { title: '體驗會員', value: trialMembers.value },
-          { title: '當月新增', value: 0 }  // 假設當月新增需要其他 API 來獲取
-        ];
+        updateStats();
       } catch (error) {
-        console.error('Failed to fetch member data:', error);
+        console.error('獲取會員數據失敗:', error);
       }
+    };
+
+    const updateStats = () => {
+      const totalMembers = members.value.length;
+      const regularMembers = members.value.filter(member => member.roleId === 2).length;
+      const trialMembers = members.value.filter(member => member.roleId === 3).length;
+      // 假設當月新增需要額外的邏輯來計算
+      const newMembersThisMonth = 0; 
+
+      statItems.value = [
+        { title: '會員總數', value: totalMembers },
+        { title: '正式會員', value: regularMembers },
+        { title: '體驗會員', value: trialMembers },
+        { title: '當月新增', value: newMembersThisMonth }
+      ];
     };
 
     const addMember = async () => {
       try {
-        newMember.value.updatedAt = new Date().toISOString(); // 更新时间
-        newMember.value.username = currentUser.value; // 设置最近修改人
         await addUser(newMember.value);
-        fetchMemberData(); // 重新获取会员列表
+        await fetchMemberData();
         showAddMemberModal.value = false;
+        // 重置新會員表單
+        newMember.value = {
+          id: 0,
+          username: '',
+          password: '',
+          nickname: '',
+          email: '',
+          phoneNumber: '',
+          address: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          roles: [{ id: 0, name: 'string' }],
+          balance: 0,
+          bonusPoints: 0,
+          lastTopUpTime: new Date().toISOString(),
+          userType: 'REGULAR',
+          roleId: 2,
+          status: ''
+        };
       } catch (error) {
-        console.error('Failed to add member:', error);
+        console.error('新增會員失敗:', error);
       }
     };
 
-    const searchMember = async () => {
+    const searchMembers = async () => {
+      if (!searchInput.value.trim()) {
+        await fetchMemberData();
+        return;
+      }
+      
       try {
         const response = await getUserById(searchInput.value);
         if (response.data) {
-          members.value = [response.data]; // 假设只返回一个结果
+          members.value = Array.isArray(response.data) ? response.data : [response.data];
+        } else {
+          members.value = [];
         }
-        showSearchMemberModal.value = false;
+        updateStats();
       } catch (error) {
-        console.error('Failed to search member:', error);
+        console.error('搜索會員失敗:', error);
+        members.value = [];
       }
+    };
+
+    const debounceSearch = debounce(() => {
+      searchMembers();
+    }, 300);
+
+    const editMember = (member: Member) => {
+      console.log('編輯會員:', member);
+      // 實現編輯會員的邏輯
+    };
+
+    const deleteMember = (member: Member) => {
+      console.log('刪除會員:', member);
+      // 實現刪除會員的邏輯
+    };
+
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleString('zh-TW', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
     };
 
     onMounted(() => {
@@ -209,9 +265,6 @@ export default defineComponent({
     };
 
     return {
-      totalMembers,
-      regularMembers,
-      trialMembers,
       members,
       currentPage,
       totalPages,
@@ -220,34 +273,29 @@ export default defineComponent({
       previousPage,
       statItems,
       showAddMemberModal,
-      showSearchMemberModal,
       newMember,
       searchInput,
       addMember,
-      searchMember,
-      currentUser
+      searchMembers,
+      debounceSearch,
+      editMember,
+      deleteMember,
+      formatDate
     };
   },
 });
 </script>
 
 <style scoped>
-@import "@/assets/styles/admin.scss";
-
 .member-management {
   padding: 20px;
 }
 
 .header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-}
-
-.title-and-button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .title {
@@ -255,43 +303,60 @@ export default defineComponent({
   margin: 0;
 }
 
-.add-member-button, .search-member-button {
+.add-member-button {
   padding: 10px 20px;
-  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
   border: none;
-  border-radius: 5px;
-  background-color: #4caf50;
-  color: #fff;
-  transition: background-color 0.3s ease;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.add-member-button:hover, .search-member-button:hover {
-  background-color: #45a049;
-}
-
-.stats {
+.stats-container {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
   margin-bottom: 20px;
+  gap: 20px;
 }
 
 .stat-item {
   flex: 1;
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: #ffffff;
   border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 20px;
   text-align: center;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .stat-item:hover {
-  transform: scale(1.05);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.stat-item h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
+.stat-content h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 10px 0 0;
+  color: #4CAF50;
+}
+
+.search-section {
+  margin-bottom: 20px;
+}
+
+.search-section input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .table-container {
@@ -301,42 +366,16 @@ export default defineComponent({
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
 }
 
 th, td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 8px;
   text-align: left;
 }
 
 th {
   background-color: #f2f2f2;
-}
-
-button {
-  padding: 5px 10px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background-color: #3f51b5;
-  color: #fff;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #303f9f;
-}
-
-.delete-button {
-  background-color: #f44336;
-}
-
-.delete-button:hover {
-  background-color: #d32f2f;
 }
 
 .pagination {
@@ -347,26 +386,20 @@ button:hover {
 }
 
 .pagination button {
-  padding: 5px 10px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background-color: #3f51b5;
-  color: #fff;
   margin: 0 10px;
-  transition: background-color 0.3s ease;
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .pagination button:disabled {
-  background-color: #ccc;
+  background-color: #ddd;
   cursor: not-allowed;
 }
 
-.pagination span {
-  font-size: 16px;
-}
-
-/* Modal styles */
 .modal {
   position: fixed;
   z-index: 1;
@@ -375,19 +408,18 @@ button:hover {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0,0,0,0.4);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: #fefefe;
   padding: 20px;
   border: 1px solid #888;
-  width: 400px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  width: 80%;
+  max-width: 500px;
 }
 
 .close-button {
@@ -395,11 +427,12 @@ button:hover {
   float: right;
   font-size: 28px;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .close-button:hover,
 .close-button:focus {
-  color: black;
+  color: #000;
   text-decoration: none;
   cursor: pointer;
 }
@@ -413,9 +446,20 @@ form label {
   margin-bottom: 5px;
 }
 
-form input, form select {
+form input {
   width: 100%;
   padding: 8px;
-  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+form button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>
