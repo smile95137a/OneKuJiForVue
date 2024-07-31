@@ -1,6 +1,6 @@
 <template>
   <div class="shipment-management">
-    <h2>進出貨管理</h2>
+    <h2>出貨管理</h2>
     <!-- Add your shipment management content here -->
   </div>
 </template>
