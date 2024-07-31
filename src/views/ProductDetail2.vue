@@ -199,7 +199,10 @@
     </div>
     <div class="product-detail-one__option">
       <div class="product-detail-one__btns">
-        <div class="product-detail-one__btn product-detail-one__btn--random">
+        <div
+          class="product-detail-one__btn product-detail-one__btn--random"
+          @click="showConfirmDialog"
+        >
           隨機選擇
         </div>
         <div class="product-detail-one__btn product-detail-one__btn--im">
@@ -224,7 +227,13 @@ import ticket1 from '@/assets/image/ticket1.png';
 import ticketE from '@/assets/image/ticketE.png';
 import ProductCard2 from '@/components/Frontend/ProductCard2.vue';
 import Card from '@/components/common/Card.vue';
+import { useDialogStore } from '@/stores';
 import { ref } from 'vue';
+const dialogStore = useDialogStore();
+const showConfirmDialog = async () => {
+  const result = await dialogStore.openConfirmDialog();
+  console.log(result);
+};
 
 const products3 = ref([
   {
