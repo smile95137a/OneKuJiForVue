@@ -9,23 +9,44 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-// JWT token存储
-let jwtToken: string | null = null;
+// JWT token存储和获取
+const TOKEN_KEY = 'jwtToken';
 
-// 设置JWT token的函数
 export const setJwtToken = (token: string) => {
-  jwtToken = token;
+  localStorage.setItem(TOKEN_KEY, token);
+};
+
+export const getJwtToken = (): string | null => {
+  return localStorage.getItem(TOKEN_KEY);
+};
+
+export const removeJwtToken = () => {
+  localStorage.removeItem(TOKEN_KEY);
 };
 
 // 请求拦截器，添加JWT token到请求头
 api.interceptors.request.use(
   (config) => {
-    if (jwtToken) {
-      config.headers['Authorization'] = `Bearer ${jwtToken}`;
+    const token = getJwtToken();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// 响应拦截器，处理令牌过期等情况
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      // 令牌过期，清除本地存储的令牌
+      removeJwtToken();
+      // 可以在这里添加重定向到登录页面的逻辑
+    }
     return Promise.reject(error);
   }
 );
@@ -170,6 +191,11 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   }
 };
 
+export const logout = () => {
+  removeJwtToken();
+  // 可以在这里添加其他登出逻辑，如清除用户信息等
+};
+
 export const getProductDetail = async (productDetailId: number): Promise<ProductDetail> => {
   try {
     const response: AxiosResponse<ProductDetail> = await api.get(`/productDetail/${productDetailId}`);
@@ -209,3 +235,5 @@ export const queryProducts = async (): Promise<Product[]> => {
     throw error;
   }
 };
+
+export default api;

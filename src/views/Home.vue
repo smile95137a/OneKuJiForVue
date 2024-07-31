@@ -19,52 +19,51 @@
     <Card title="一番賞" customClass="mcard--home">
       <div class="home__products">
         <ProductCard
-          v-for="(product, index) in products1"
-          :key="index"
-          :customClass="product.customClass"
-          :imagePath="product.imagePath"
-          :imgStatus="product.imgStatus"
-          :balanceText="product.balanceText"
-          :money="product.money"
-          :unitIcon="product.unitIcon"
-          :unitText="product.unitText"
-          :title="product.title"
-          :content="product.content"
+          v-for="product in prizeProducts"
+          :key="product.productId"
+          :customClass="''"
+          :imagePath="product.imageUrl"
+          :imgStatus="getProductStatus(product)"
+          :balanceText="`剩餘${product.stockQuantity}抽`"
+          :money="product.price.toString()"
+          :unitIcon="'金'"
+          :unitText="'/抽'"
+          :title="product.productName"
+          :content="product.description"
         />
       </div>
     </Card>
     <Card title="盲盒" customClass="mcard--home">
       <div class="home__products">
         <ProductCard
-          v-for="(product, index) in products2"
-          :key="index"
-          :customClass="product.customClass"
-          :imagePath="product.imagePath"
-          :imgStatus="product.imgStatus"
-          :balanceText="product.balanceText"
-          :money="product.money"
-          :unitIcon="product.unitIcon"
-          :unitText="product.unitText"
-          :title="product.title"
-          :content="product.content"
+          v-for="product in blindBoxProducts"
+          :key="product.productId"
+          :customClass="''"
+          :imagePath="product.imageUrl"
+          :imgStatus="getProductStatus(product)"
+          :balanceText="`剩餘${product.stockQuantity}抽`"
+          :money="product.price.toString()"
+          :unitIcon="'金'"
+          :unitText="'/抽'"
+          :title="product.productName"
+          :content="product.description"
         />
       </div>
     </Card>
     <Card title="扭蛋" customClass="mcard--home">
       <div class="home__products p-y-64">
         <ProductCard
-          v-for="(product, index) in products3"
-          :key="index"
-          :customClass="product.customClass"
-          :imagePath="product.imagePath"
-          :imgStatus="product.imgStatus"
-          :balanceText="product.balanceText"
-          :money="product.money"
-          :unitIcon="product.unitIcon"
-          :unitText="product.unitText"
-          :title="product.title"
-          :content="product.content"
-          :path="product.path"
+          v-for="product in gachaProducts"
+          :key="product.productId"
+          :customClass="'productCard3--style2 m-y-36'"
+          :imagePath="product.imageUrl"
+          :imgStatus="getProductStatus(product)"
+          :balanceText="`剩餘${product.stockQuantity}抽`"
+          :money="product.price.toString()"
+          :unitIcon="'金'"
+          :unitText="'/抽'"
+          :title="product.productName"
+          :content="product.description"
         />
       </div>
     </Card>
@@ -72,241 +71,84 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
-import { Swiper, SwiperSlide } from 'swiper/vue';
-import 'swiper/scss';
-import 'swiper/scss/navigation';
-import { Navigation } from 'swiper/modules';
+import bg from '@/assets/image/bg1.jpeg';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import bg from '@/assets/image/bg1.jpeg';
-import pImg from '@/assets/image/p.png';
-import pImg2 from '@/assets/image/pd3.png';
+import axios from 'axios';
+import { Navigation } from 'swiper/modules';
+import 'swiper/scss';
+import 'swiper/scss/navigation';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { onMounted, ref } from 'vue';
 
-const products1 = ref([
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '[日版] 一番賞《HUNTER×HUNTER 獵人》REVENGE OF SCARLET',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '[日版] 一番賞《HUNTER×HUNTER 獵人》REVENGE OF SCARLET',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '[日版] 一番賞《HUNTER×HUNTER 獵人》REVENGE OF SCARLET',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '[日版] 一番賞《HUNTER×HUNTER 獵人》REVENGE OF SCARLET',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '[日版] 一番賞《HUNTER×HUNTER 獵人》REVENGE OF SCARLET',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '[日版] 一番賞《HUNTER×HUNTER 獵人》REVENGE OF SCARLET',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上',
-    customClass: '',
-  },
-]);
+interface Product {
+  productId: number;
+  productName: string;
+  description: string;
+  price: number;
+  stockQuantity: number;
+  soldQuantity: number;
+  imageUrl: string;
+  rarity: number;
+  createdAt: string;
+  startDate: string;
+  endDate: string;
+  createdUser: string;
+  updatedUser: string;
+  updatedAt: string;
+  productType: 'PRIZE' | 'BLIND_BOX' | 'GACHA';
+  prizeCategory: string;
+  status: string;
+}
 
-const products2 = ref([
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-]);
+const prizeProducts = ref<Product[]>([]);
+const blindBoxProducts = ref<Product[]>([]);
+const gachaProducts = ref<Product[]>([]);
 
-const products3 = ref([
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '大耳狗拿鐵色動物造型吊飾',
-    content: '',
-    customClass: 'productCard3--style2 m-y-36',
-    path: '1',
-  },
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '大耳狗拿鐵色動物造型吊飾',
-    content: '',
-    customClass: 'productCard3--style2 m-y-36',
-    path: '1',
-  },
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '大耳狗拿鐵色動物造型吊飾',
-    content: '',
-    customClass: 'productCard3--style2 m-y-36',
-    path: '1',
-  },
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '大耳狗拿鐵色動物造型吊飾',
-    content: '',
-    customClass: 'productCard3--style2 m-y-36',
-    path: '1',
-  },
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '大耳狗拿鐵色動物造型吊飾',
-    content: '',
-    customClass: 'productCard3--style2 m-y-36',
-    path: '1',
-  },
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '大耳狗拿鐵色動物造型吊飾',
-    content: '',
-    customClass: 'productCard3--style2 m-y-36',
-    path: '1',
-  },
-]);
+const fetchProducts = async () => {
+  try {
+    const response = await axios.get('/product/query');
+    console.log('API response:', response.data); // 用于调试
+
+    let products: Product[];
+    if (Array.isArray(response.data)) {
+      products = response.data;
+    } else if (response.data && Array.isArray(response.data.products)) {
+      products = response.data.products;
+    } else {
+      console.error('Unexpected data structure:', response.data);
+      return;
+    }
+
+    prizeProducts.value = products.filter(p => p.productType === 'PRIZE');
+    blindBoxProducts.value = products.filter(p => p.productType === 'BLIND_BOX');
+    gachaProducts.value = products.filter(p => p.productType === 'GACHA');
+
+    console.log('Processed products:', {
+      prize: prizeProducts.value.length,
+      blindBox: blindBoxProducts.value.length,
+      gacha: gachaProducts.value.length
+    });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+};
+
+const getProductStatus = (product: Product): string => {
+  const now = new Date();
+  const startDate = new Date(product.startDate);
+  const endDate = new Date(product.endDate);
+
+  if (now < startDate) return '即將開始';
+  if (now > endDate) return '已結束';
+  return '開抽中';
+};
+
+onMounted(() => {
+  fetchProducts();
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+/* 你可以在这里添加任何特定于这个组件的样式 */
+</style>
