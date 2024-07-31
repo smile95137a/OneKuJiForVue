@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://104.199.211.35:8081/api', // 确保与后端地址一致
+  baseURL: 'http://104.199.211.35:8080/api', // 确保与后端地址一致
   headers: {
     'Content-Type': 'application/json',
   },
