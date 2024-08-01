@@ -45,7 +45,7 @@
 
 <script lang="ts">
 
-import { Product, queryProducts, updateProductStatus } from '@/services/Front/Frontapi';
+//import { Product, queryProducts, updateProductStatus } from '@/services/Front/Frontapi';
 import { defineComponent, onMounted, ref } from 'vue';
 
 export default defineComponent({

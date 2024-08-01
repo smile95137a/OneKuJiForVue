@@ -1,142 +1,42 @@
 <template>
-  <div>
-    <div class="breadcrumbs">
-      <div class="breadcrumbs__items">
-        <div class="breadcrumbs__item">首頁</div>
-        <div class="breadcrumbs__item">扭蛋抽獎</div>
-        <div class="breadcrumbs__item breadcrumbs__item--active">
-          一番賞關於我轉生變成史萊姆這檔事(代理版)_FVAA
-        </div>
-      </div>
+  <div class="product">
+    <h1 class="product__title">一番賞</h1>
+    <div class="product__btns">
+      <button 
+        v-for="btn in buttons" 
+        :key="btn.type"
+        :class="['product__btn', { 'product__btn--active': activeBtn === btn.type }]"
+        @click="handleBtnClick(btn.type, btn.title)"
+      >
+        {{ btn.title }}
+      </button>
     </div>
-    <div class="product-detail">
-      <div class="product-detail__main">
-        <div class="product-detail__img">
-          <img :src="pd1" alt="" />
-        </div>
-        <div class="product-detail__title">
-          <p class="product-detail__text">
-            一番賞關於我轉生變成史萊姆這檔事(代理版)_FVAA
-          </p>
-        </div>
-        <div class="product-detail__other">
-          <div
-            v-for="(image, index) in imagepst"
-            :key="index"
-            class="product-detail__other-img"
-          >
-            <img :src="image" :alt="`Image ${index}`" />
-          </div>
-        </div>
+
+    <div class="product__list">
+      <div class="product__list-header">
+        <h2 class="product__list-title">{{ title }}</h2>
+        <button class="product__list-filter">
+          <i class="fa-solid fa-filter"></i>
+        </button>
       </div>
 
-      <div class="product-detail__action">
-        <div class="product-detail__price">
-          <p class="product-detail__price-money">
-            <span class="product-detail__text">250</span>
-          </p>
-          <p class="product-detail__price-unit">
-            <span class="product-detail__text product-detail__text--icon"
-              >金</span
-            >
-            <span class="product-detail__text">/抽</span>
-          </p>
-        </div>
-        <div class="product-detail__action-btn">開抽！</div>
-      </div>
-      <div class="product-detail__infos">
-        <div class="product-detail__info product-detail__info--one">
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">獎項剩餘總數</div>
-            <div class="product-detail__item-num"></div>
-          </div>
-
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">A賞 角色模型</div>
-            <div class="product-detail__item-num">2/3</div>
-          </div>
-
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">B賞 角色模型</div>
-            <div class="product-detail__item-num">1/1</div>
-          </div>
-
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">C賞 角色模型</div>
-            <div class="product-detail__item-num">1/2</div>
-          </div>
-
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">D賞 坐墊玩具</div>
-            <div class="product-detail__item-num">0/1</div>
-          </div>
-
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">E賞 角色模型</div>
-            <div class="product-detail__item-num">3/5</div>
-          </div>
-
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">F賞 壓克力立牌</div>
-            <div class="product-detail__item-num">7/14</div>
-          </div>
-
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">G賞 毛巾</div>
-            <div class="product-detail__item-num">10/22</div>
-          </div>
-
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">H賞 文件夾貼紙組</div>
-            <div class="product-detail__item-num">15/22</div>
-          </div>
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">合計</div>
-            <div class="product-detail__item-num">39/70</div>
-          </div>
-        </div>
-        <div class="product-detail__info product-detail__info--two">
-          <div class="product-detail__item">
-            <div class="product-detail__item-name">商品簡介</div>
-            <div class="product-detail__item-other">
-              <p>1. 有效日期：2024/6/6-2024/7/31</p>
-              <p>2. 獎盃中獎證：角色模型</p>
-              <p>
-                3. 出貨時依照抽獎結果附「雙重中獎鑑紙」，活動結束則不附鑑紙。
-              </p>
-              <p>4. 雙重中獎追加特典</p>
-              <p>5. 獲獎使用期限請自行參考獎票具反應。</p>
-              <p>※ 最終另加隨機抽選一張。</p>
+      <div class="product__list-products">
+        <div 
+          v-for="product in products" 
+          :key="product.productId" 
+          class="product-card"
+          @click="navigateToDetail(product.productId)"
+        >
+          <img :src="product.imageUrl" :alt="product.productName" class="product-card__image">
+          <div class="product-card__status">{{ product.status }}</div>
+          <div class="product-card__info">
+            <h3 class="product-card__title">{{ product.productName }}</h3>
+            <p class="product-card__description">{{ product.description }}</p>
+            <div class="product-card__price">
+              <span class="product-card__price-value">{{ product.price }}</span>
+              <span class="product-card__price-unit">金/抽</span>
             </div>
           </div>
-          <div class="product-detail__item">
-            <div class="product-detail__item-name m-t-24">注意事項</div>
-            <div class="product-detail__item-other">
-              <p>1. 拍蛋盒玩商品均隨機商品，不可挑款。</p>
-              <p>2. 盒玩商品均隨機出貨不拆盒。</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="product-detail__likes">
-        <div class="product-detail__likes-title">
-          <p class="product-detail__text">你可能會喜歡</p>
-        </div>
-        <div class="product-detail__likes-products">
-          <ProductCard
-            v-for="(product, index) in products3"
-            :key="index"
-            :customClass="product.customClass"
-            :imagePath="product.imagePath"
-            :imgStatus="product.imgStatus"
-            :balanceText="product.balanceText"
-            :money="product.money"
-            :unitIcon="product.unitIcon"
-            :unitText="product.unitText"
-            :title="product.title"
-            :content="product.content"
-          />
         </div>
       </div>
     </div>
@@ -144,61 +44,46 @@
 </template>
 
 <script lang="ts" setup>
-import pd1 from '@/assets/image/pd1.png';
-import pd2 from '@/assets/image/pd2.png';
-import pImg2 from '@/assets/image/pd3.png';
-import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { queryProducts } from '@/services/Front/Frontapi'; // 假設這是您的API函數
 
-const imagepst = ref<string[]>([pd2, pd2, pd2, pd2, pd2, pd2, pd2, pd2]);
+const router = useRouter();
+const products = ref([]);
+const activeBtn = ref('official');
+const title = ref('官方一番賞');
 
-interface Product {
-  customClass: string;
-  imagePath: string;
-  imgStatus: string;
-  balanceText: string;
-  money: string;
-  unitIcon: string;
-  unitText: string;
-  title: string;
-  content: string;
-}
+const buttons = [
+  { type: 'official', title: '官方一番賞' },
+  { type: '3c', title: '3C一番賞' },
+  { type: 'bonus', title: '紅利賞' }
+];
 
-const products3 = ref<Product[]>([
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '大耳狗拿鐵色動物造型吊飾',
-    content: '',
-    customClass: 'productCard--style2 productCard--like',
-  },
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '遊戲王桌上小物系列收藏(BOX)(隨機出貨)',
-    content: '',
-    customClass: 'productCard--style2 productCard--like',
-  },
-  {
-    imagePath: pImg2,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '大耳狗拿鐵色動物造型吊飾',
-    content: '',
-    customClass: 'productCard--style2 productCard--like',
-  },
-]);
+const handleBtnClick = async (btnType: string, btnTitle: string) => {
+  activeBtn.value = btnType;
+  title.value = btnTitle;
+  await fetchProducts(btnType);
+};
+
+const fetchProducts = async (type: string) => {
+  try {
+    const response = await queryProducts();
+    // 這裡可能需要根據type過濾產品
+    products.value = response.filter(product => product.productType === type);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+};
+
+const navigateToDetail = (productId: number) => {
+  router.push({ name: 'product-detail', params: { id: productId } });
+};
+
+onMounted(() => {
+  fetchProducts('official');
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+/* 這裡添加所需的CSS樣式 */
+</style>

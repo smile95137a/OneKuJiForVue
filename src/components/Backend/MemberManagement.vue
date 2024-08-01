@@ -131,7 +131,7 @@
 <script lang="ts">
 import { Member } from '@/interfaces/Member';
 import { addUser, deleteUser, updateUser } from '@/services/api';
-import { getUsers } from '@/services/Front/Frontapi';
+//import { getUsers } from '@/services/Front/Frontapi';
 import { debounce } from 'lodash';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 

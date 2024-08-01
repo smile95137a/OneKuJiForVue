@@ -28,8 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { defineProps } from 'vue';
 
 interface IproductCardProps {
   customClass?: string;
@@ -41,25 +40,45 @@ interface IproductCardProps {
   unitText?: string;
   title?: string;
   content?: string;
-  path?: string;
 }
 
 const props = defineProps<IproductCardProps>();
-const router = useRouter();
 
-const handleImageError = (e: Event) => {
-  console.error('Image failed to load:', (e.target as HTMLImageElement).src);
-  // 可以在這裡設置一個默認圖片
-  // (e.target as HTMLImageElement).src = '/path/to/default/image.jpg';
+const handleImageError = (event: Event) => {
+  console.error('Image failed to load:', (event.target as HTMLImageElement).src);
+  // 设置一个默认图片
+  (event.target as HTMLImageElement).src = '/path/to/default/image.jpg';
 };
-
-onMounted(() => {
-  console.log('ProductCard props:', props);
-  // 如果需要使用 router，可以在這裡添加相關邏輯
-  console.log('Router:', router);
-});
 </script>
 
 <style scoped>
-/* 如果有任何特定於 ProductCard 的樣式，可以在這裡添加 */
+/* 样式部分 */
+.productCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  padding: 20px;
+  margin: 10px;
+}
+
+.productCard__img {
+  width: 100%;
+  height: 200px;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.productCard__img img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.productCard__detail {
+  padding-top: 10px;
+}
 </style>

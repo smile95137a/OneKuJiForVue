@@ -1,10 +1,11 @@
-import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 const api: AxiosInstance = axios.create({
-  baseURL: 'https://a153-2402-7500-4ce-3589-a97b-f3fb-d6ec-8d49.ngrok-free.app/api', // 替换为您的API基础URL
-  timeout: 10000, // 请求超时时间
+  baseURL: 'http://localhost:8081',
+  timeout: 10000,
   headers: {
-    'Content-Type': 'application/json', 'ngrok-skip-browser-warning':true
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': true
   },
 });
 
@@ -24,10 +25,11 @@ export const removeJwtToken = () => {
 
 api.interceptors.request.use(
   (config) => {
-    const token = getJwtToken();
-    
-    if (token) {
-      config.headers['Authorization'] = token;
+    if ((config as any).auth !== false) {
+      const token = getJwtToken();
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -51,59 +53,18 @@ api.interceptors.response.use(
 export interface User {
   id: number;
   username: string;
-  nickname: string;
-  email: string;
-  phoneNumber: string;
-  status: string;
-  createDate: string;
-  updateDate: string;
-}
-
-export interface UserQueryResponse {
-  id: number;
-  username: string;
+  password: string;
   nickname: string;
   email: string;
   phoneNumber: string;
   address: string;
   createDate: string;
   updateDate: string;
-}
-
-export interface DrawOnePrizeRequest {
-  productId: number;
-  productDetailId: number;
-  productType: string;
-  drawFrom: string;
-  amount: number;
-  totalDrawCount: number;
-  remainingDrawCount: number;
-}
-
-export interface DrawOnePrizeResponse {
-  id: number;
-  userId: number;
-  productId: number;
-  productDetailId: number;
-  drawTime: string;
+  roles: {
+    id: number;
+    name: string;
+  }[];
   status: string;
-  amount: number;
-  code: string;
-  createDate: string;
-  updateDate: string;
-  totalDrawCount: number;
-  remainingDrawCount: number;
-}
-
-export interface LoginRequest {
-  username: string;
-  password: string;
-  userId: number;
-}
-
-export interface LoginResponse {
-  accessToken: string;
-  userId: number;
 }
 
 export interface ProductDetail {
@@ -141,6 +102,77 @@ export interface Product {
   status: string;
 }
 
+export interface DrawOnePrizeRequest {
+  productId: number;
+  productDetailId: number;
+  productType: string;
+  drawFrom: string;
+  amount: number;
+  totalDrawCount: number;
+  remainingDrawCount: number;
+}
+
+export interface DrawOnePrizeResponse {
+  id: number;
+  userId: number;
+  productId: number;
+  productDetailId: number;
+  drawTime: string;
+  status: string;
+  amount: number;
+  code: string;
+  createDate: string;
+  updateDate: string;
+  totalDrawCount: number;
+  remainingDrawCount: number;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+  userId: number;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  userId: number;
+  username: string;
+}
+
+// 公開 API 請求函數
+export const publicApiRequest = async <T>(
+  url: string,
+  method: 'get' | 'post' = 'get',
+  data?: any
+): Promise<T> => {
+  try {
+    console.log(`Sending ${method.toUpperCase()} request to ${url}`);
+    const config: AxiosRequestConfig = {
+      method,
+      url,
+      data,
+    };
+    (config as any).auth = false;
+    
+    const response = await api(config);
+    console.log(`Response received from ${url}:`, response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(`Error in public API request to ${url}:`, {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        headers: error.response?.headers,
+        data: error.response?.data
+      });
+    } else {
+      console.error(`Unexpected error in public API request to ${url}:`, error);
+    }
+    throw error;
+  }
+};
+
 // API 函數
 export const getUserInfo = async (userId: number): Promise<User> => {
   try {
@@ -152,39 +184,14 @@ export const getUserInfo = async (userId: number): Promise<User> => {
   }
 };
 
-export const queryUsers = async (): Promise<UserQueryResponse[]> => {
+export const queryUsers = async (): Promise<User[]> => {
   try {
-    const response: AxiosResponse<UserQueryResponse[]> = await api.get('/user/query');
+    const response: AxiosResponse<User[]> = await api.get('/user/query');
     return response.data;
   } catch (error) {
     console.error('Error querying users:', error);
     throw error;
   }
-};
-
-export const drawOnePrize = async (userId: number, productId: number, data: DrawOnePrizeRequest): Promise<DrawOnePrizeResponse> => {
-  try {
-    const response: AxiosResponse<DrawOnePrizeResponse> = await api.put(`/draw/oneprize?userId=${userId}&productId=${productId}`, data);
-    return response.data;
-  } catch (error) {
-    console.error('Error in drawOnePrize:', error);
-    throw error;
-  }
-};
-
-export const login = async (data: LoginRequest): Promise<LoginResponse> => {
-  try {
-    const response: AxiosResponse<LoginResponse> = await api.post('/auth/login', data);
-    setJwtToken(response.data.accessToken);
-    return response.data;
-  } catch (error) {
-    console.error('Error during login:', error);
-    throw error;
-  }
-};
-
-export const logout = () => {
-  removeJwtToken();
 };
 
 export const getProductDetail = async (productDetailId: number): Promise<ProductDetail> => {
@@ -218,46 +225,32 @@ export const getProduct = async (productId: number): Promise<Product> => {
 };
 
 export const queryProducts = async (): Promise<Product[]> => {
+  return publicApiRequest<Product[]>('/product/query');
+};
+
+export const drawOnePrize = async (userId: number, productId: number, data: DrawOnePrizeRequest): Promise<DrawOnePrizeResponse> => {
   try {
-    console.log('Sending request to:', '/product/query');
-    console.log('Headers:', api.defaults.headers);
-    const response: AxiosResponse<Product[]> = await api.get('/product/query');
-    console.log('Response:', response);
+    const response: AxiosResponse<DrawOnePrizeResponse> = await api.put(`/draw/oneprize?userId=${userId}&productId=${productId}`, data);
     return response.data;
   } catch (error) {
-    console.error('Error querying products:', error);
-    if (axios.isAxiosError(error)) {
-      console.error('Response data:', error.response?.data);
-      console.error('Response status:', error.response?.status);
-      console.error('Response headers:', error.response?.headers);
-    }
+    console.error('Error in drawOnePrize:', error);
     throw error;
   }
 };
 
-export const updateProductStatus = async (productId: number, status: number): Promise<void> => {
+export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
-    await api.put(`/product/${productId}/status`, { status });
-    console.log('Product status updated successfully');
+    const response: AxiosResponse<LoginResponse> = await api.post('/auth/login', data);
+    setJwtToken(response.data.accessToken);
+    return response.data;
   } catch (error) {
-    console.error('Error updating product status:', error);
+    console.error('Error during login:', error);
     throw error;
   }
 };
 
-export interface AddUserRequest {
-  username: string;
-  email: string;
-}
-
-export const getUsers = async (): Promise<User[]> => {
-  try {
-    const response: AxiosResponse<User[]> = await api.get('/user/query');
-    return response.data;
-  } catch (error) {
-    console.error('Error getting users:', error);
-    throw error;
-  }
+export const logout = () => {
+  removeJwtToken();
 };
 
 export default api;
