@@ -118,4 +118,12 @@ export const getAllOrder = () => {
   return apiClient.get('/order/query');
 }
 
+export const getProduct = () => {
+  return apiClient.get('/product/query');
+}
+
+export const deleteProduct = (data : any) => {
+  return apiClient.delete(`/product/${data}`)
+}
+
 export default apiClient;

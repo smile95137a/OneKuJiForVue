@@ -135,14 +135,4 @@ onMounted(() => {
   width: 100%;
   overflow: hidden;
 }
-
-.home {
-  padding: 20px;
-}
-
-.home__products {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
 </style>
