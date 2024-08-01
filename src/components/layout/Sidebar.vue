@@ -5,7 +5,7 @@
       <li><a href="#" @click.prevent="navigate('permission-management')"><i class="icon"></i>權限管理</a></li>
       <li><a href="#" @click.prevent="navigate('inventory-management')"><i class="icon"></i>進銷存管理</a></li>
       <li><a href="#" @click.prevent="navigate('product-data-management')"><i class="icon"></i>商品資料管理</a></li>
-      <li><a href="#" @click.prevent="navigate('shipment-management')"><i class="icon"></i>進出貨管理</a></li>
+      <li><a href="#" @click.prevent="navigate('shipment-management')"><i class="icon"></i>出貨管理</a></li>
     </ul>
   </div>
 </template>

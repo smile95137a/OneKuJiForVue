@@ -44,8 +44,9 @@
 </template>
 
 <script lang="ts">
-import { Product, getProduct } from '@/services/Front/Frontapi';
-import { defineComponent, ref } from 'vue';
+
+import { Product, queryProducts, updateProductStatus } from '@/services/Front/Frontapi';
+import { defineComponent, onMounted, ref } from 'vue';
 
 export default defineComponent({
   name: 'ProductDataManagement',
@@ -54,7 +55,16 @@ export default defineComponent({
 
     const fetchData = async (productType: number) => {
       try {
-        product.value = await getProduct(productType);
+        products.value = await getProduct(productType);
+        console.log(`Fetching products for type: ${productType}`);
+        const allProducts = await queryProducts();
+        products.value = allProducts.filter((p: Product) => {
+          if (productType === 1) return p.productType === 'PRIZE';
+          if (productType === 2) return p.productType === 'GACHA';
+          if (productType === 3) return p.productType === 'BLIND_BOX';
+          return false;
+        });
+        console.log(`Fetched ${products.value.length} products`);
       } catch (error) {
         console.error('Failed to fetch data:', error);
         products.value = []; // 清空數據，顯示"查無資料"
@@ -63,6 +73,7 @@ export default defineComponent({
 
     const updateStatus = async (productId: number, status: string) => {
       try {
+        console.log(`Updating status for product ${productId} to ${status}`);
         await updateProductStatus(productId, parseInt(status));
         console.log('Product status updated successfully');
       } catch (error) {
@@ -73,6 +84,11 @@ export default defineComponent({
     const formatDate = (dateString: string) => {
       return new Date(dateString).toLocaleDateString();
     };
+
+    onMounted(() => {
+      console.log('ProductDataManagement component mounted');
+      fetchData(1); // 默認加載一番賞商品
+    });
 
     return {
       products,
