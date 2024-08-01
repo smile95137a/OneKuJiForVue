@@ -1,4 +1,5 @@
-import axios from 'axios';
+import { User } from '@/interfaces/auth';
+import axios, { AxiosResponse } from 'axios';
 
 // 创建一个 axios 实例
 const apiClient = axios.create({
@@ -54,4 +55,38 @@ export const getUserById = (userId: any) => {
   return apiClient.get(`/user/${userId}`);
 };
 
+export const deleteUser = async (userId: number) => {
+  try {
+    const response = await apiClient.delete(`/user/${userId}`)
+    return response.data;
+  } catch (error) {
+    console.error('Error adding user:', error);
+    throw error;
+  }
+};
+
+export const updateUser = async (userData: any): Promise<User> => {
+  try {
+    const response: AxiosResponse<User> = await apiClient.put('/user/'+userData.id, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding user:', error);
+    throw error;
+  }
+};
+
+// export const addUser = async (userData: AddUserRequest): Promise<User> => {
+//   try {
+//     const response: AxiosResponse<User> = await apiClient.post('/user', userData);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error adding user:', error);
+//     throw error;
+//   }
+// };
+
+export const getDetail = () => {
+  const response = apiClient.get('/productDetail/query');
+  return response;
+};
 export default apiClient;

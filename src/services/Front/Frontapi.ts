@@ -250,36 +250,6 @@ export interface AddUserRequest {
   email: string;
 }
 
-export const addUser = async (userData: AddUserRequest): Promise<User> => {
-  try {
-    const response: AxiosResponse<User> = await api.post('/user', userData);
-    return response.data;
-  } catch (error) {
-    console.error('Error adding user:', error);
-    throw error;
-  }
-};
-
-export const updateUser = async (userData: any): Promise<User> => {
-  try {
-    const response: AxiosResponse<User> = await api.put('/user/'+userData.id, userData);
-    return response.data;
-  } catch (error) {
-    console.error('Error adding user:', error);
-    throw error;
-  }
-};
-
-export const deleteUser = async (userId: number) => {
-  try {
-    const response = await api.delete(`/user/${userId}`)
-    return response.data;
-  } catch (error) {
-    console.error('Error adding user:', error);
-    throw error;
-  }
-};
-
 export const getUsers = async (): Promise<User[]> => {
   try {
     const response: AxiosResponse<User[]> = await api.get('/user/query');
