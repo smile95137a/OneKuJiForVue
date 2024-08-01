@@ -1,7 +1,7 @@
 <template>
   <div class="product2">
     <div class="product2__title">
-      <div class="product2__text" data-text="BLIND_BOX">盲盒</div>
+      <div class="product2__text" data-text="盲盒">盲盒</div>
     </div>
     <div class="product2__btns">
       <div class="product2__btns-selects">
@@ -49,6 +49,7 @@
             :unitText="'/抽'"
             :title="product.productName"
             :content="product.description"
+            @click="navigateToDetail(product.productId)"
           />
         </div>
       </div>
@@ -61,7 +62,9 @@ import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 import { Product, queryProducts } from '@/services/Front/Frontapi';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const BLIND_BOXProducts = ref<Product[]>([]);
 
 const fetchProducts = async () => {
@@ -83,6 +86,10 @@ const getProductStatus = (product: Product): string => {
     if (now < startDate) return '即將開始';
     if (now > endDate) return '已結束';
     return '開抽中';
+};
+
+const navigateToDetail = (productId: number) => {
+  router.push({ name: 'ProductDetail2', params: { id: productId.toString() } });
 };
 
 onMounted(() => {

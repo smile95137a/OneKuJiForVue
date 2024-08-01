@@ -56,6 +56,11 @@ const routes: Array<RouteRecordRaw> = [
     meta: { layout: 'default' }, // 前台頁面
   },
   {
+    path: '/product-detail2/:id',
+    name: 'ProductDetail2',
+    component: () => import('@/views/ProductDetail2.vue')
+  },
+  {
     path: '/product-detail2',
     component: ProductDetail2,
     meta: { layout: 'default' }, // 前台頁面
