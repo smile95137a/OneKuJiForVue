@@ -103,7 +103,7 @@
 
 <script lang="ts">
 import { Member } from '@/interfaces/Member';
-import { addUser, getUsers } from '@/services/api';
+import { addUser, getUsers } from '@/services/Front/Frontapi';
 import { debounce } from 'lodash';
 import { computed, defineComponent, onMounted, ref } from 'vue';
 
@@ -144,8 +144,9 @@ export default defineComponent({
 
     const fetchMemberData = async () => {
       try {
-        const response = await getUsers();
-        members.value = response.data;
+        members.value = await getUsers();
+        console.log(members.value);
+        
         updateStats();
       } catch (error) {
         console.error('獲取會員數據失敗:', error);
@@ -196,27 +197,22 @@ export default defineComponent({
       }
     };
 
-    const searchMembers = async () => {
+    const searchMembers = () => {
       const query = searchInput.value.trim().toLowerCase();
       if (!query) {
-        await fetchMemberData();
+        fetchMemberData();
         return;
       }
       
-      try {
-        const filteredMembers = members.value.filter(member => {
-          return (
-            member.id.toString().includes(query) ||
-            member.phoneNumber.toLowerCase().includes(query) ||
-            member.email.toLowerCase().includes(query)
-          );
-        });
-        members.value = filteredMembers;
-        updateStats();
-      } catch (error) {
-        console.error('搜索會員失敗:', error);
-        members.value = [];
-      }
+      const filteredMembers = members.value.filter(member => {
+        return (
+          member.id.toString().includes(query) ||
+          member.phoneNumber.toLowerCase().includes(query) ||
+          member.email.toLowerCase().includes(query)
+        );
+      });
+      members.value = filteredMembers;
+      updateStats();
     };
 
     const debounceSearch = debounce(() => {

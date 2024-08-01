@@ -1,15 +1,13 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 
-// 创建axios实例
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://104.199.211.35:8081/api', // 替换为您的API基础URL
-  timeout: 10000, // 请求超时时间
+  baseURL: 'http://localhost:8081/api',
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// JWT token存储和获取
 const TOKEN_KEY = 'jwtToken';
 
 export const setJwtToken = (token: string) => {
@@ -24,7 +22,6 @@ export const removeJwtToken = () => {
   localStorage.removeItem(TOKEN_KEY);
 };
 
-// 请求拦截器，添加JWT token到请求头
 api.interceptors.request.use(
   (config) => {
     const token = getJwtToken();
@@ -38,20 +35,18 @@ api.interceptors.request.use(
   }
 );
 
-// 响应拦截器，处理令牌过期等情况
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
+  async (error: AxiosError) => {
     if (error.response && error.response.status === 401) {
-      // 令牌过期，清除本地存储的令牌
       removeJwtToken();
-      // 可以在这里添加重定向到登录页面的逻辑
+      // 可以在這裡添加重定向到登錄頁面的邏輯
     }
     return Promise.reject(error);
   }
 );
 
-// 用户相关接口
+// 接口定義
 export interface User {
   id: number;
   username: string;
@@ -74,7 +69,6 @@ export interface UserQueryResponse {
   updateDate: string;
 }
 
-// 抽奖相关接口
 export interface DrawOnePrizeRequest {
   productId: number;
   productDetailId: number;
@@ -100,7 +94,6 @@ export interface DrawOnePrizeResponse {
   remainingDrawCount: number;
 }
 
-// 登录相关接口
 export interface LoginRequest {
   username: string;
   password: string;
@@ -112,7 +105,6 @@ export interface LoginResponse {
   userId: number;
 }
 
-// 产品详情相关接口
 export interface ProductDetail {
   productId: number;
   description: string;
@@ -128,7 +120,6 @@ export interface ProductDetail {
   secret: boolean;
 }
 
-// 产品相关接口
 export interface Product {
   productId: number;
   productName: string;
@@ -149,7 +140,7 @@ export interface Product {
   status: string;
 }
 
-// API 函数
+// API 函數
 export const getUserInfo = async (userId: number): Promise<User> => {
   try {
     const response: AxiosResponse<User> = await api.get(`/user/${userId}`);
@@ -183,7 +174,7 @@ export const drawOnePrize = async (userId: number, productId: number, data: Draw
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
     const response: AxiosResponse<LoginResponse> = await api.post('/auth/login', data);
-    setJwtToken(response.data.accessToken); // 设置JWT token
+    setJwtToken(response.data.accessToken);
     return response.data;
   } catch (error) {
     console.error('Error during login:', error);
@@ -193,7 +184,6 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
 
 export const logout = () => {
   removeJwtToken();
-  // 可以在这里添加其他登出逻辑，如清除用户信息等
 };
 
 export const getProductDetail = async (productDetailId: number): Promise<ProductDetail> => {
@@ -228,10 +218,54 @@ export const getProduct = async (productId: number): Promise<Product> => {
 
 export const queryProducts = async (): Promise<Product[]> => {
   try {
+    console.log('Sending request to:', '/product/query');
+    console.log('Headers:', api.defaults.headers);
     const response: AxiosResponse<Product[]> = await api.get('/product/query');
+    console.log('Response:', response);
     return response.data;
   } catch (error) {
     console.error('Error querying products:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Response data:', error.response?.data);
+      console.error('Response status:', error.response?.status);
+      console.error('Response headers:', error.response?.headers);
+    }
+    throw error;
+  }
+};
+
+export const updateProductStatus = async (productId: number, status: number): Promise<void> => {
+  try {
+    await api.put(`/product/${productId}/status`, { status });
+    console.log('Product status updated successfully');
+  } catch (error) {
+    console.error('Error updating product status:', error);
+    throw error;
+  }
+};
+
+export interface AddUserRequest {
+  username: string;
+  email: string;
+  // 其他必要字段...
+}
+
+export const addUser = async (userData: AddUserRequest): Promise<User> => {
+  try {
+    const response: AxiosResponse<User> = await api.post('/user', userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding user:', error);
+    throw error;
+  }
+};
+
+export const getUsers = async (): Promise<User[]> => {
+  try {
+    const response: AxiosResponse<User[]> = await api.get('/user');
+    return response.data;
+  } catch (error) {
+    console.error('Error getting users:', error);
     throw error;
   }
 };

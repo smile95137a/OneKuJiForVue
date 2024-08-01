@@ -1,7 +1,7 @@
 <template>
   <div :class="['productCard', customClass]">
     <div class="productCard__img">
-      <img :src="imagePath" alt="Product Card Image" />
+      <img :src="imagePath" alt="Product Card Image" @error="handleImageError" />
       <div class="productCard__img-status">{{ imgStatus }}</div>
       <div class="productCard__img-detail">
         <div class="productCard__img-balance">
@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import { defineProps, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 interface IproductCardProps {
@@ -45,7 +45,21 @@ interface IproductCardProps {
 }
 
 const props = defineProps<IproductCardProps>();
-console.log(props)
 const router = useRouter();
-console.log(router)
+
+const handleImageError = (e: Event) => {
+  console.error('Image failed to load:', (e.target as HTMLImageElement).src);
+  // 可以在這裡設置一個默認圖片
+  // (e.target as HTMLImageElement).src = '/path/to/default/image.jpg';
+};
+
+onMounted(() => {
+  console.log('ProductCard props:', props);
+  // 如果需要使用 router，可以在這裡添加相關邏輯
+  console.log('Router:', router);
+});
 </script>
+
+<style scoped>
+/* 如果有任何特定於 ProductCard 的樣式，可以在這裡添加 */
+</style>
