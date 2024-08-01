@@ -8,7 +8,7 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-const TOKEN_KEY = 'jwtToken';
+const TOKEN_KEY = 'token';
 
 export const setJwtToken = (token: string) => {
   localStorage.setItem(TOKEN_KEY, token);
@@ -25,8 +25,9 @@ export const removeJwtToken = () => {
 api.interceptors.request.use(
   (config) => {
     const token = getJwtToken();
+    
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers['Authorization'] = token;
     }
     return config;
   },
@@ -247,7 +248,6 @@ export const updateProductStatus = async (productId: number, status: number): Pr
 export interface AddUserRequest {
   username: string;
   email: string;
-  // 其他必要字段...
 }
 
 export const addUser = async (userData: AddUserRequest): Promise<User> => {
@@ -260,9 +260,29 @@ export const addUser = async (userData: AddUserRequest): Promise<User> => {
   }
 };
 
+export const updateUser = async (userData: any): Promise<User> => {
+  try {
+    const response: AxiosResponse<User> = await api.put('/user/'+userData.id, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding user:', error);
+    throw error;
+  }
+};
+
+export const deleteUser = async (userId: number) => {
+  try {
+    const response = await api.delete(`/user/${userId}`)
+    return response.data;
+  } catch (error) {
+    console.error('Error adding user:', error);
+    throw error;
+  }
+};
+
 export const getUsers = async (): Promise<User[]> => {
   try {
-    const response: AxiosResponse<User[]> = await api.get('/user');
+    const response: AxiosResponse<User[]> = await api.get('/user/query');
     return response.data;
   } catch (error) {
     console.error('Error getting users:', error);

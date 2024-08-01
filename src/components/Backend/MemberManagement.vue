@@ -14,16 +14,12 @@
         </div>
       </div>
     </div>
-    
+
     <!-- 搜索功能 -->
     <div class="search-section">
-      <input 
-        v-model="searchInput" 
-        placeholder="輸入會員編號、電話或電子郵件搜索會員" 
-        @input="debounceSearch"
-      />
+      <input v-model="searchInput" placeholder="輸入會員編號、電話或電子郵件搜索會員" @input="debounceSearch" />
     </div>
-    
+
     <div class="table-container">
       <table>
         <thead>
@@ -51,13 +47,13 @@
             <td>{{ member.status }}</td>
             <td>
               <button @click="editMember(member)">編輯</button>
-              <button class="delete-button" @click="deleteMember(member)">刪除</button>
+              <button class="delete-button" @click="handleDeleteMember(member)">刪除</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    
+
     <div class="pagination">
       <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
       <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
@@ -99,13 +95,44 @@
       </div>
     </div>
   </div>
+
+  <!-- 編輯會員模態框 -->
+  <div v-if="showUpdateMemberModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" @click="showUpdateMemberModal = false">&times;</span>
+      <h2>編輯會員</h2>
+      <form @submit.prevent="updateMember">
+        <div>
+          <label for="edit-username">用戶名:</label>
+          <input id="edit-username" v-model="editingMember.username" required>
+        </div>
+        <div>
+          <label for="edit-nickname">暱稱:</label>
+          <input id="edit-nickname" v-model="editingMember.nickname" required>
+        </div>
+        <div>
+          <label for="edit-email">電子郵件:</label>
+          <input id="edit-email" v-model="editingMember.email" type="email" required>
+        </div>
+        <div>
+          <label for="edit-phoneNumber">電話號碼:</label>
+          <input id="edit-phoneNumber" v-model="editingMember.phoneNumber" required>
+        </div>
+        <div>
+          <label for="edit-address">地址:</label>
+          <input id="edit-address" v-model="editingMember.address" required>
+        </div>
+        <button type="submit">更新</button>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { Member } from '@/interfaces/Member';
-import { addUser, getUsers } from '@/services/Front/Frontapi';
+import { addUser, deleteUser, getUsers, updateUser } from '@/services/Front/Frontapi';
 import { debounce } from 'lodash';
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 
 export default defineComponent({
   name: 'MemberManagement',
@@ -146,7 +173,7 @@ export default defineComponent({
       try {
         members.value = await getUsers();
         console.log(members.value);
-        
+
         updateStats();
       } catch (error) {
         console.error('獲取會員數據失敗:', error);
@@ -158,7 +185,7 @@ export default defineComponent({
       const regularMembers = members.value.filter(member => member.roleId === 2).length;
       const trialMembers = members.value.filter(member => member.roleId === 3).length;
       // 假設當月新增需要額外的邏輯來計算
-      const newMembersThisMonth = 0; 
+      const newMembersThisMonth = 0;
 
       statItems.value = [
         { title: '會員總數', value: totalMembers },
@@ -203,7 +230,7 @@ export default defineComponent({
         fetchMemberData();
         return;
       }
-      
+
       const filteredMembers = members.value.filter(member => {
         return (
           member.id.toString().includes(query) ||
@@ -219,24 +246,60 @@ export default defineComponent({
       searchMembers();
     }, 300);
 
+    const showUpdateMemberModal = ref(false);
+    const editingMember = reactive<Member>({
+      id: 0,
+      username: '',
+      password: '',
+      nickname: '',
+      email: '',
+      phoneNumber: '',
+      address: '',
+      createdAt: '',
+      updatedAt: '',
+      roles: [],
+      balance: 0,
+      bonusPoints: 0,
+      lastTopUpTime: '',
+      userType: '',
+      roleId: 0,
+      status: ''
+    });
+
     const editMember = (member: Member) => {
-      console.log('編輯會員:', member);
-      // 實現編輯會員的邏輯
+      Object.assign(editingMember, member);
+      showUpdateMemberModal.value = true;
     };
 
-    const deleteMember = (member: Member) => {
-      console.log('刪除會員:', member);
-      // 實現刪除會員的邏輯
+    const updateMember = async () => {
+      try {
+        await updateUser(editingMember);
+        await fetchMemberData();
+        showUpdateMemberModal.value = false;
+      } catch (error) {
+        console.error('更新會員失敗:', error);
+      }
+    };
+
+    const handleDeleteMember = async (member: any) => {
+      if (confirm(`確定要刪除會員 ${member.nickname} 嗎？`)) {
+        try {
+          await deleteUser(member.id);
+          await fetchMemberData();
+        } catch (error) {
+          console.error('刪除會員失敗:', error);
+        }
+      }
     };
 
     const formatDate = (dateString: string) => {
       const date = new Date(dateString);
-      return date.toLocaleString('zh-TW', { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit', 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
       });
     };
 
@@ -264,6 +327,10 @@ export default defineComponent({
     };
 
     return {
+      showUpdateMemberModal,
+      editingMember,
+      editMember,
+      updateMember,
       members,
       currentPage,
       totalPages,
@@ -277,11 +344,10 @@ export default defineComponent({
       addMember,
       searchMembers,
       debounceSearch,
-      editMember,
-      deleteMember,
+      handleDeleteMember,
       formatDate
     };
-  },
+  }
 });
 </script>
 
@@ -367,7 +433,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -407,7 +474,7 @@ th {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
