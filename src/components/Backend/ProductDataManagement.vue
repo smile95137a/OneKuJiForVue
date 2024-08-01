@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { getProducts, Product, updateProductStatus } from '@/services/api';
+import { Product, getProduct } from '@/services/Front/Frontapi';
 import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
@@ -54,7 +54,7 @@ export default defineComponent({
 
     const fetchData = async (productType: number) => {
       try {
-        products.value = await getProducts(productType);
+        product.value = await getProduct(productType);
       } catch (error) {
         console.error('Failed to fetch data:', error);
         products.value = []; // 清空數據，顯示"查無資料"

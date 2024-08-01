@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://104.199.211.35:8080/api', // 确保与后端地址一致
+  baseURL: 'https://a153-2402-7500-4ce-3589-a97b-f3fb-d6ec-8d49.ngrok-free.app/api', // 确保与后端地址一致
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json', 'ngrok-skip-browser-warning':true
   },
 });
 

@@ -103,7 +103,7 @@
 
 <script lang="ts">
 import { Member } from '@/interfaces/Member';
-import { addUser, getUserById, getUsers } from '@/services/api';
+import { addUser, getUsers } from '@/services/api';
 import { debounce } from 'lodash';
 import { computed, defineComponent, onMounted, ref } from 'vue';
 
@@ -146,6 +146,8 @@ export default defineComponent({
       try {
         const response = await getUsers();
         members.value = response.data;
+        console.log(members.value);
+        
         updateStats();
       } catch (error) {
         console.error('獲取會員數據失敗:', error);
@@ -197,18 +199,21 @@ export default defineComponent({
     };
 
     const searchMembers = async () => {
-      if (!searchInput.value.trim()) {
+      const query = searchInput.value.trim().toLowerCase();
+      if (!query) {
         await fetchMemberData();
         return;
       }
       
       try {
-        const response = await getUserById(searchInput.value);
-        if (response.data) {
-          members.value = Array.isArray(response.data) ? response.data : [response.data];
-        } else {
-          members.value = [];
-        }
+        const filteredMembers = members.value.filter(member => {
+          return (
+            member.id.toString().includes(query) ||
+            member.phoneNumber.toLowerCase().includes(query) ||
+            member.email.toLowerCase().includes(query)
+          );
+        });
+        members.value = filteredMembers;
         updateStats();
       } catch (error) {
         console.error('搜索會員失敗:', error);

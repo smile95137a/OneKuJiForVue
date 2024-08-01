@@ -2,10 +2,10 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 // 创建axios实例
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://104.199.211.35:8081/api', // 替换为您的API基础URL
+  baseURL: 'https://a153-2402-7500-4ce-3589-a97b-f3fb-d6ec-8d49.ngrok-free.app/api', // 替换为您的API基础URL
   timeout: 10000, // 请求超时时间
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json', 'ngrok-skip-browser-warning':true
   },
 });
 
