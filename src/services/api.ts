@@ -5,7 +5,7 @@ import axios, { AxiosResponse } from 'axios';
 const apiClient = axios.create({
   baseURL: 'https://a153-2402-7500-4ce-3589-a97b-f3fb-d6ec-8d49.ngrok-free.app/api', // 确保与后端地址一致
   headers: {
-    'Content-Type': 'application/json', 'ngrok-skip-browser-warning':true
+    'Content-Type': 'application/json ,multipart/form-data', 'ngrok-skip-browser-warning':true  
     }
 });
 
@@ -89,4 +89,33 @@ export const getDetail = () => {
   const response = apiClient.get('/productDetail/query');
   return response;
 };
+
+export const addDetail = (data:any) => {
+  return apiClient.post('/productDetail/add', data);
+};
+
+export const getProducts = () => {
+  return apiClient.get('/product/query');
+};
+
+export const updateDtail = (data:any) => {
+  return apiClient.put(`/productDetail/${data}`);
+};
+
+export const deleteDetail = (data : any) => {
+  return apiClient.delete(`/productDetail/${data}`);
+}
+
+export const getProductByType = (data:any) => {
+  return apiClient.post('/product/type' , data , {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
+
+export const getAllOrder = () => {
+  return apiClient.get('/order/query');
+}
+
 export default apiClient;

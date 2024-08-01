@@ -2,9 +2,9 @@
   <div class="product-data-management">
     <h2>商品資訊</h2>
     <div class="selection-bar">
-      <button @click="fetchData(2)">扭蛋</button>
-      <button @click="fetchData(1)">一番賞</button>
-      <button @click="fetchData(3)">盲盒</button>
+      <button @click="fetchData('PRIZE')">一番賞</button>
+      <button @click="fetchData('GACHA')">扭蛋</button>
+      <button @click="fetchData('BLIND_BOX')">盲盒</button>
     </div>
     <div v-if="products.length > 0" class="product-table">
       <table>
@@ -19,17 +19,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="product in products" :key="product.productId">
+          <tr v-for="(product, index) in products" :key="product.productId">
             <td>{{ product.productName }}</td>
             <td>{{ product.price }}</td>
             <td>{{ product.stockQuantity }}</td>
             <td>{{ formatDate(product.startDate) }}</td>
             <td>
-              <select v-model="product.status" @change="updateStatus(product.productId, product.status)">
-                <option value="1">可以購買</option>
-                <option value="2">不可購買</option>
-                <option value="3">尚未上架</option>
-                <option value="4">售罄</option>
+              <select v-model="product.status">
+                <option value="AVAILABLE">上架</option>
+                <option value="UNAVAILABLE">下架</option>
+                <option value="NOT_AVAILABLE_YET">尚未上架</option>
+                <option value="SOLD_OUT">上架已售完</option>
               </select>
             </td>
             <td><img :src="product.imageUrl" alt="Product Image" class="product-image" /></td>
@@ -45,26 +45,26 @@
 
 <script lang="ts">
 
-import { Product, queryProducts, updateProductStatus } from '@/services/Front/Frontapi';
+import { getProductByType } from '@/services/api';
+import { Product, updateProductStatus } from '@/services/Front/Frontapi';
 import { defineComponent, onMounted, ref } from 'vue';
 
 export default defineComponent({
   name: 'ProductDataManagement',
   setup() {
     const products = ref<Product[]>([]);
-
-    const fetchData = async (productType: number) => {
+    const fetchData = async (productType: any) => {
       try {
-        products.value = await getProduct(productType);
-        console.log(`Fetching products for type: ${productType}`);
-        const allProducts = await queryProducts();
-        products.value = allProducts.filter((p: Product) => {
-          if (productType === 1) return p.productType === 'PRIZE';
-          if (productType === 2) return p.productType === 'GACHA';
-          if (productType === 3) return p.productType === 'BLIND_BOX';
-          return false;
-        });
-        console.log(`Fetched ${products.value.length} products`);
+        const res = await getProductByType(productType);
+        products.value = res.data;
+        // const allProducts = await queryProducts();
+        // products.value = allProducts.filter((p: Product) => {
+        //   if (productType === 1) return p.productType === 'PRIZE';
+        //   if (productType === 2) return p.productType === 'GACHA';
+        //   if (productType === 3) return p.productType === 'BLIND_BOX';
+        //   return false;
+        // });
+        // console.log(`Fetched ${products.value.length} products`);
       } catch (error) {
         console.error('Failed to fetch data:', error);
         products.value = []; // 清空數據，顯示"查無資料"
@@ -73,7 +73,6 @@ export default defineComponent({
 
     const updateStatus = async (productId: number, status: string) => {
       try {
-        console.log(`Updating status for product ${productId} to ${status}`);
         await updateProductStatus(productId, parseInt(status));
         console.log('Product status updated successfully');
       } catch (error) {
@@ -86,8 +85,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      console.log('ProductDataManagement component mounted');
-      fetchData(1); // 默認加載一番賞商品
+      fetchData('PRIZE'); // 默認加載一番賞商品
     });
 
     return {
