@@ -41,7 +41,6 @@
           <ProductCard
             v-for="(product, index) in gachaProducts"
             :key="index"
-            :customClass="product.customClass"
             :imagePath="product.imageUrl"
             :imgStatus="getProductStatus(product)"
             :balanceText="`剩餘${product.stockQuantity}抽`"
@@ -58,10 +57,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { queryProducts, Product } from '@/services/Front/Frontapi';
+import { Product, queryProducts } from '@/services/Front/Frontapi';
+import { onMounted, ref } from 'vue';
 
 const gachaProducts = ref<Product[]>([]);
 
