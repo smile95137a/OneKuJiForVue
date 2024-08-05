@@ -3,44 +3,65 @@ import Card from '@/components/common/Card.vue';
 </script>
 
 <template>
-  <Card title="註冊" customClass="mcard--register">
-    <div className="register__container">
-      <div className="register__main">
-        <div className="register__tab">
-          <div className="register__tab-btn register__tab-btn--mail">信箱</div>
-          <div className="register__tab-line"></div>
-          <div
-            className="register__tab-btn register__tab-btn--phone register__tab-btn--active"
-          >
-            手機
+  <Card title="註冊會員" customClass="mcard--register">
+    <div class="register__container">
+      <div class="register__main">
+        <div class="register__form">
+          <div class="register__form-inputs">
+            <p class="register__text register__text--required">email</p>
+            <input type="text" class="register__form-input" />
+          </div>
+          <div class="register__form-inputs m-t-20">
+            <p class="register__text register__text--required">手機</p>
+            <input type="text" class="register__form-input" />
+          </div>
+          <div class="register__form-inputs m-t-20">
+            <p class="register__text register__text--required">密碼</p>
+            <input type="text" class="register__form-input" />
+          </div>
+          <div class="register__form-inputs m-t-20">
+            <p class="register__text register__text--required">確認密碼</p>
+            <input type="text" class="register__form-input" />
           </div>
         </div>
-        <div className="register__btn">
-          <div className="register__btn-icon">Ｘ</div>
-          <div className="register__btn-text">使用手機登入</div>
+        <div class="register__divider">
+          <div class="login__divider-line"></div>
         </div>
+        <div class="register__form">
+          <div class="register__form-inputs">
+            <p class="register__text register__text--required">暱稱</p>
+            <input type="text" class="register__form-input" />
+          </div>
+          <div class="register__form-inputs m-t-20">
+            <p class="register__text">LINE ID</p>
+            <input type="text" class="register__form-input" />
+          </div>
+          <div class="register__form-inputs m-t-20">
+            <p class="register__text">收貨姓名</p>
+            <input type="text" class="register__form-input" />
+          </div>
+          <div class="register__form-inputs--addr">
+            <div class="register__form-inputs w-50 m-t-20">
+              <p class="register__text">收貨地址</p>
+              <input type="text" class="register__form-input" />
+            </div>
+            <div class="register__form-inputs w-50 m-t-20">
+              <input type="text" class="register__form-input" />
+            </div>
+          </div>
 
-        <div className="register__divider">
-          <div className="register__divider-line"></div>
-          <div className="register__divider-text">OR</div>
-        </div>
-        <div className="register__btns">
-          <div className="register__btn">
-            <div className="register__btn-icon">Ｘ</div>
-            <div className="register__btn-text">使用 Google 登入</div>
-          </div>
-          <div className="register__btn">
-            <div className="register__btn-icon">Ｘ</div>
-            <div className="register__btn-text">使用 Apple ID 登入</div>
-          </div>
-          <div className="register__btn">
-            <div className="register__btn-icon">Ｘ</div>
-            <div className="register__btn-text">使用 Facebook 登入</div>
+          <div class="register__form-inputs m-t-20">
+            <p class="register__text">詳細地址</p>
+            <input type="text" class="register__form-input" />
           </div>
         </div>
-
-        <div className="register__register">
-          <p className="register__text">註冊</p>
+      </div>
+      <div class="register__other">
+        <p class="register__text">
+          我同意 一番賞 提供的 <u>網站服務條款</u> 與 <u>隱私權政策</u> 。
+        </p>
+        <div class="register__other-btn">
+          <div class="register__btn">註冊成為會員</div>
         </div>
       </div>
     </div>

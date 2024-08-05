@@ -19,7 +19,7 @@ $root-block-name: '.login';
   &__main {
     @include flex(null, center);
     width: 100%;
-    gap: 80px;
+    gap: 120px;
     @include screen(md) {
       @include flex(center, null, column);
     }
