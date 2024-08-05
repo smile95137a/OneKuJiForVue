@@ -1,0 +1,14 @@
+$root-block-name: '.memberCenter';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+  @include flex;
+  &__nav {
+    width: 210px;
+  }
+
+  &__main {
+    flex: 1;
+  }
+}
