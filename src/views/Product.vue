@@ -4,51 +4,44 @@
       <div class="product__text" data-text="一番賞">一番賞</div>
     </div>
     <div class="product__btns">
-      <div
-        class="product__btn"
-        :class="{ 'product__btn--active': activeBtn === 'official' }"
-        @click="handleBtnClick(products1, 'official', '官方一番賞')"
+      <div 
+        v-for="btn in buttons" 
+        :key="btn.type"
+        :class="['product__btn', { 'product__btn--active': activeBtn === btn.type }]"
+        @click="handleBtnClick(btn.type, btn.title)"
       >
-        官方一番賞
-      </div>
-      <div
-        class="product__btn"
-        :class="{ 'product__btn--active': activeBtn === '3c' }"
-        @click="handleBtnClick(products2, '3c', '3C一番賞')"
-      >
-        3C一番賞
-      </div>
-      <div
-        class="product__btn"
-        :class="{ 'product__btn--active': activeBtn === 'bonus' }"
-        @click="handleBtnClick(products3, 'bonus', '紅利賞')"
-      >
-        紅利賞
+        {{ btn.title }}
       </div>
     </div>
 
-    <Card>
+    <Card :title="title" customClass="mcard--home">
       <div class="product__list">
         <div class="product__list-title">
-          <div class="product__text">{{ title }}</div>
           <div class="product__list-filter">
             <i class="fa-solid fa-filter"></i>
           </div>
         </div>
 
-        <div class="product__list-products">
+        <div v-if="loading" class="product__loading">
+          加載中...
+        </div>
+        <div v-else-if="error" class="product__error">
+          {{ error }}
+        </div>
+        <div v-else class="product__list-products">
           <ProductCard
-            v-for="(product, index) in selectedProducts"
-            :key="index"
-            :customClass="product.customClass"
-            :imagePath="product.imagePath"
-            :imgStatus="product.imgStatus"
-            :balanceText="product.balanceText"
-            :money="product.money"
-            :unitIcon="product.unitIcon"
-            :unitText="product.unitText"
-            :title="product.title"
-            :content="product.content"
+            v-for="product in filteredProducts"
+            :key="product.productId"
+            :customClass="''"
+            :imagePath="product.imageUrl"
+            :imgStatus="getProductStatus(product)"
+            :balanceText="`剩餘${product.stockQuantity}抽`"
+            :money="product.price.toString()"
+            :unitIcon="'金'"
+            :unitText="'/抽'"
+            :title="product.productName"
+            :content="product.description"
+            @click="navigateToDetail(product.productId)"
           />
         </div>
       </div>
@@ -57,83 +50,112 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import pImg from '@/assets/image/p.png';
-import p2Img from '@/assets/image/3c1.png';
-import p3Img from '@/assets/image/bo1.png';
+import { queryProducts } from '@/services/Front/Frontapi';
 
-interface Product {
-  imagePath: string;
-  imgStatus: string;
-  balanceText: string;
-  money: string;
-  unitIcon: string;
-  unitText: string;
-  title: string;
-  content: string;
-  customClass: string;
-}
+const router = useRouter();
+const products = ref([]);
+const activeBtn = ref('official');
+const title = ref('官方一番賞');
+const loading = ref(true);
+const error = ref('');
 
-const products1: Product[] = [
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
+const buttons = [
+  { type: 'official', title: '官方一番賞' },
+  { type: '3c', title: '3C一番賞' },
+  { type: 'bonus', title: '紅利賞' }
 ];
 
-const products2: Product[] = [
-  {
-    imagePath: p2Img,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《原神》 幽幽秘法系列毛絨地毯X御建鸣神主尊大御所大人像',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-];
+const filteredProducts = computed(() => {
+  return products.value.filter(product => 
+    product.productType === 'PRIZE' && 
+    (activeBtn.value === 'official' ? product.prizeCategory === 'OFFICIAL' :
+     activeBtn.value === '3c' ? product.prizeCategory === '3C' :
+     product.prizeCategory === 'BONUS')
+  );
+});
 
-const products3: Product[] = [
-  {
-    imagePath: p3Img,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '保證有 iPhone 15 Pro MAX 512G',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-];
-
-const selectedProducts = ref<Product[]>(products1);
-const activeBtn = ref<string>('official');
-const title = ref<string>('官方一番賞');
-
-const handleBtnClick = (
-  products: Product[],
-  btnName: string,
-  newTitle: string
-) => {
-  selectedProducts.value = products;
-  activeBtn.value = btnName;
-  title.value = newTitle;
+const handleBtnClick = (btnType: string, btnTitle: string) => {
+  activeBtn.value = btnType;
+  title.value = btnTitle;
 };
+
+const fetchProducts = async () => {
+  loading.value = true;
+  error.value = '';
+  try {
+    console.log('Fetching products for PRIZE...');
+    const response = await queryProducts();
+    console.log('API response:', response);
+    if (Array.isArray(response)) {
+      products.value = response.filter(product => product.productType === 'PRIZE');
+    } else {
+      throw new Error('API 返回的數據格式不正確');
+    }
+    console.log('PRIZE products:', products.value);
+  } catch (err) {
+    console.error('Error fetching PRIZE products:', err);
+    error.value = '獲取產品數據時出錯，請稍後再試';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const navigateToDetail = (productId: number) => {
+  router.push({ name: 'product-detail', params: { id: productId } });
+};
+
+const getProductStatus = (product) => {
+  const now = new Date();
+  const startDate = new Date(product.startDate);
+  const endDate = new Date(product.endDate);
+
+  if (now < startDate) return '即將開始';
+  if (now > endDate) return '已結束';
+  return '開抽中';
+};
+
+onMounted(() => {
+  console.log('Product component mounted, fetching products...');
+  fetchProducts();
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+.product {
+  padding: 20px;
+}
+
+.product__list-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.product__btn {
+  cursor: pointer;
+  padding: 10px 20px;
+  margin-right: 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
+
+.product__btn--active {
+  background-color: #007bff;
+  color: white;
+}
+
+.product__loading,
+.product__error {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+}
+
+.product__error {
+  color: red;
+}
+</style>

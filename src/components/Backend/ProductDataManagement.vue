@@ -170,12 +170,13 @@
 <script lang="ts" setup>
 
 import { deleteProduct, getProductByType } from '@/services/api';
-import { updateProductStatus } from '@/services/Front/Frontapi';
+
+//import { updateProductStatus } from '@/services/Front/Frontapi'
 import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 const apiClient = axios.create({
-  baseURL: 'https://a153-2402-7500-4ce-3589-a97b-f3fb-d6ec-8d49.ngrok-free.app/api', // 根据实际情况修改
+  baseURL: 'https://9691-111-248-113-219.ngrok-free.app/api', // 根据实际情况修改
   headers: {
     'Content-Type': 'multipart/form-data',
   },
@@ -198,14 +199,15 @@ const fetchData = async (productType: any) => {
   }
 };
 
-const updateStatus = async (productId: number, status: string) => {
-  try {
-    await updateProductStatus(productId, parseInt(status));
-    console.log('Product status updated successfully');
-  } catch (error) {
-    console.error('Failed to update product status:', error);
-  }
-};
+
+// const updateStatus = async (productId: number, status: string) => {
+//   try {
+//     await updateProductStatus(productId, parseInt(status));
+//     console.log('Product status updated successfully');
+//   } catch (error) {
+//     console.error('Failed to update product status:', error);
+//   }
+// };
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString();

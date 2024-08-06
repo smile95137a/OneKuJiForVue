@@ -30,27 +30,26 @@
       </div>
     </div>
 
-    <Card>
+    <Card title="盲盒" customClass="mcard--home">
       <div class="product2__list">
         <div class="product2__list-title">
           <div class="product2__list-filter">
             <i class="fa-solid fa-filter"></i>
           </div>
         </div>
-
         <div class="product2__list-products">
           <ProductCard
-            v-for="(product, index) in products1"
+            v-for="(product, index) in BLIND_BOXProducts"
             :key="index"
-            :customClass="product.customClass"
-            :imagePath="product.imagePath"
-            :imgStatus="product.imgStatus"
-            :balanceText="product.balanceText"
-            :money="product.money"
-            :unitIcon="product.unitIcon"
-            :unitText="product.unitText"
-            :title="product.title"
-            :content="product.content"
+            :imagePath="product.imageUrl"
+            :imgStatus="getProductStatus(product)"
+            :balanceText="`剩餘${product.stockQuantity}抽`"
+            :money="product.price.toString()"
+            :unitIcon="'金'"
+            :unitText="'/抽'"
+            :title="product.productName"
+            :content="product.description"
+            @click="navigateToDetail(product.productId)"
           />
         </div>
       </div>
@@ -59,97 +58,58 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import pImg from '@/assets/image/p.png';
+import { Product, queryProducts } from '@/services/Front/Frontapi';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-interface Product {
-  imagePath: string;
-  imgStatus: string;
-  balanceText: string;
-  money: string;
-  unitIcon: string;
-  unitText: string;
-  title: string;
-  content: string;
-  customClass: string;
-}
+const router = useRouter();
+const BLIND_BOXProducts = ref<Product[]>([]);
 
-const products1 = ref<Product[]>([
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-  {
-    imagePath: pImg,
-    imgStatus: '開抽中',
-    balanceText: '剩餘100抽',
-    money: '250',
-    unitIcon: '金',
-    unitText: '/抽',
-    title: '《我的英雄學院》~闖入~(日版)',
-    content:
-      '台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時、方便、公開！台灣最人氣【一番賞】線上抽選網站與日本0時差同步開抽！即時...',
-    customClass: '',
-  },
-]);
+const fetchProducts = async () => {
+  try {
+    console.log('Fetching products for BLIND_BOX...');
+    const products = await queryProducts();
+    BLIND_BOXProducts.value = products.filter(product => product.productType === 'BLIND_BOX');
+    console.log('BLIND_BOX products:', BLIND_BOXProducts.value);
+  } catch (error) {
+    console.error('Error fetching BLIND_BOX products:', error);
+  }
+};
+
+const getProductStatus = (product: Product): string => {
+    const now = new Date();
+    const startDate = new Date(product.startDate);
+    const endDate = new Date(product.endDate);
+
+    if (now < startDate) return '即將開始';
+    if (now > endDate) return '已結束';
+    return '開抽中';
+};
+
+const navigateToDetail = (productId: number) => {
+  router.push({ name: 'ProductDetail2', params: { id: productId.toString() } });
+};
+
+onMounted(() => {
+  console.log('Product2 component mounted, fetching products...');
+  fetchProducts();
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+.product2 {
+  padding: 20px;
+}
+
+.product2__list-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.product2__btns, .product2__list {
+  margin-top: 20px;
+}
+</style>
