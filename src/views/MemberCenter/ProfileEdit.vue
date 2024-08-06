@@ -1,7 +1,15 @@
 <template>
-  <div>3</div>
+  <div class="memberCenter__profileEdit">
+    <MemberCenterCoins />
+    <MemberCenterProfileEditForm />
+    <MemberCenterProfileEditInvoiceForm />
+  </div>
 </template>
 
-<script setup></script>
+<script lang="ts" setup>
+import MemberCenterCoins from '@/components/Frontend/memberCenter/MemberCenterCoins.vue';
+import MemberCenterProfileEditForm from '@/components/Frontend/memberCenter/MemberCenterProfileEditForm.vue';
+import MemberCenterProfileEditInvoiceForm from '@/components/Frontend/memberCenter/MemberCenterProfileEditInvoiceForm.vue';
+</script>
 
 <style lang="scss" scoped></style>

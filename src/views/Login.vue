@@ -31,7 +31,7 @@ import p1 from '@/assets/image/login.png';
             <p class="login__text">帳號</p>
             <input type="text" class="login__form-input" />
           </div>
-          <div class="col-100 m-t-16">
+          <div class="login__form-inputs">
             <p class="login__text">密碼</p>
             <input type="text" class="login__form-input" />
           </div>

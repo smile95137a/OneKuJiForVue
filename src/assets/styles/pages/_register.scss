@@ -39,6 +39,7 @@ $root-block-name: '.register';
       }
     }
     #{$p__text} {
+      min-height: 22px;
       color: #212121;
       @include flex(end);
       &--required {
