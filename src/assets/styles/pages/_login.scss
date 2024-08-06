@@ -3,6 +3,7 @@ $root-block-name: '.login';
 #{$root-block-name} {
   $p: &;
   $p__text: #{$p}__text;
+  $p__btn: #{$p}__btn;
   @include flex(center, center);
   height: 100%;
 
@@ -16,45 +17,35 @@ $root-block-name: '.login';
     }
   }
   &__main {
-    @include w_h(342px, 100%);
-    @include flex(null, null, column);
-    flex: 1;
-    @include screen(xs) {
-      @include w_h(100%, 100%);
-      max-width: 340px;
-    }
-  }
-  &__tab {
+    @include flex(null, center);
     width: 100%;
-    @include flex(center, center);
-    gap: 16px;
-    &-btn {
-      @include flex(center, center);
-      width: 100%;
-      max-width: 152px;
-      height: 48px;
-      border-radius: 8px;
-
-      &--active {
-        color: #e21a1c;
-        border: 2px solid #e21a1c;
-      }
+    gap: 120px;
+    @include screen(md) {
+      @include flex(center, null, column);
     }
   }
 
   &__form {
+    width: 100%;
+    max-width: 340px;
+    @include flex(null, null, column);
+    &-inputs {
+    }
     #{$p__text} {
       color: #212121;
     }
 
     &-input {
-      @include w_h(100%, 54px);
+      @include w_h(100%, 50px);
+      padding: 13px 20px 0px 20px;
+      border-radius: 8px;
+      border: 1px solid #d4d4d4;
     }
   }
 
   &__forgot {
-    @include flex(null, center);
-    margin-top: 32px;
+    @include flex(null, end);
+    padding: 16px 24px;
     #{$p__text} {
       color: #e21a1c;
 
@@ -76,12 +67,90 @@ $root-block-name: '.login';
 
   &__btn {
     @include flex(center, center);
-    @include w_h(156px, 48px);
+    @include w_h(100%, 48px);
     border-radius: 90px;
     background: #fe4206;
     color: #fff;
 
     font-size: 20px;
     text-align: center;
+  }
+
+  &__other {
+    width: 100%;
+    max-width: 365px;
+    @include flex(null, null, column);
+    &-img {
+      width: 100%;
+    }
+
+    &-info {
+      padding: 24px 12px 24px 36px;
+      #{$p__text} {
+        font-size: 20px;
+        font-weight: 400;
+      }
+    }
+
+    &-btn {
+      @include flex(null, end);
+      #{$p__btn} {
+        width: 100%;
+        max-width: 338px;
+      }
+    }
+  }
+
+  &__divider {
+    margin: 12px 0;
+    @include w_h(100%, 32px);
+    @include flex(center, center);
+    position: relative;
+    &-line {
+      width: 100%;
+      max-width: 306px;
+      height: 1px;
+      background: #7c7c7c;
+    }
+
+    &-text {
+      @include abs-center;
+      color: #949494;
+      background-color: #fee7cc;
+      padding: 0 24px;
+      font-family: Noto Sans TC;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 21.72px;
+    }
+  }
+
+  &__auth {
+    height: 158px;
+    @include flex(null, end, column);
+    gap: 20px;
+    &-btn {
+      @include flex;
+      width: 100%;
+      max-width: 338px;
+      height: 50px;
+      background: #fff;
+      padding: 18px 45px 18px 45px;
+      border-radius: 10px;
+      border: 1px solid #aeaeb2;
+
+      &-icon {
+        @include flex(center, center);
+        width: 24px;
+        height: 100%;
+      }
+      &-text {
+        @include flex(center, center);
+        flex: 1;
+        font-size: 16px;
+        font-weight: 600;
+        color: #212121;
+      }
+    }
   }
 }

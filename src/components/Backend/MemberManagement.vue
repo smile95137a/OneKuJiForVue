@@ -17,7 +17,11 @@
 
     <!-- 搜索功能 -->
     <div class="search-section">
-      <input v-model="searchInput" placeholder="輸入會員編號、電話或電子郵件搜索會員" @input="debounceSearch" />
+      <input 
+        v-model="searchInput" 
+        placeholder="輸入會員編號、電話或電子郵件搜索會員" 
+        @input="debounceSearch"
+      />
     </div>
 
     <div class="table-container">
@@ -36,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(member, index) in paginatedMembers" :key="index">
+          <tr v-for="(member, index) in paginatedMembers" :key="member.id">
             <td>{{ member.userType }}</td>
             <td>{{ member.id }}</td>
             <td>{{ member.nickname }}</td>
@@ -130,15 +134,16 @@
 
 <script lang="ts">
 import { Member } from '@/interfaces/Member';
-import { addUser, deleteUser, updateUser } from '@/services/api';
-//import { getUsers } from '@/services/Front/Frontapi';
+import { addUser, deleteUser, getUsers, updateUser } from '@/services/api';
+import { AxiosResponse } from 'axios';
 import { debounce } from 'lodash';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 
 export default defineComponent({
   name: 'MemberManagement',
   setup() {
-    const members = ref<Member[]>([]);
+    const allMembers = ref<Member[]>([]);
+    const displayedMembers = ref<Member[]>([]);
     const currentPage = ref(1);
     const itemsPerPage = 10;
     const showAddMemberModal = ref(false);
@@ -172,9 +177,10 @@ export default defineComponent({
 
     const fetchMemberData = async () => {
       try {
-        members.value = await getUsers();
-        console.log(members.value);
-
+        const response: AxiosResponse<Member[]> = await getUsers();
+        allMembers.value = response.data;
+        displayedMembers.value = response.data;
+        console.log('獲取到的會員數量:', allMembers.value.length);
         updateStats();
       } catch (error) {
         console.error('獲取會員數據失敗:', error);
@@ -182,9 +188,9 @@ export default defineComponent({
     };
 
     const updateStats = () => {
-      const totalMembers = members.value.length;
-      const regularMembers = members.value.filter(member => member.roleId === 2).length;
-      const trialMembers = members.value.filter(member => member.roleId === 3).length;
+      const totalMembers = displayedMembers.value.length;
+      const regularMembers = displayedMembers.value.filter(member => member.roleId === 2).length;
+      const trialMembers = displayedMembers.value.filter(member => member.roleId === 3).length;
       // 假設當月新增需要額外的邏輯來計算
       const newMembersThisMonth = 0;
 
@@ -226,21 +232,23 @@ export default defineComponent({
     };
 
     const searchMembers = () => {
+      console.log('搜尋函數被觸發');
       const query = searchInput.value.trim().toLowerCase();
+      console.log('搜尋關鍵字:', query);
+      
       if (!query) {
-        fetchMemberData();
-        return;
-      }
-
-      const filteredMembers = members.value.filter(member => {
-        return (
+        displayedMembers.value = allMembers.value;
+      } else {
+        displayedMembers.value = allMembers.value.filter(member => 
           member.id.toString().includes(query) ||
           member.phoneNumber.toLowerCase().includes(query) ||
           member.email.toLowerCase().includes(query)
         );
-      });
-      members.value = filteredMembers;
+      }
+      
+      console.log('過濾後的會員數量:', displayedMembers.value.length);
       updateStats();
+      currentPage.value = 1;
     };
 
     const debounceSearch = debounce(() => {
@@ -282,7 +290,7 @@ export default defineComponent({
       }
     };
 
-    const handleDeleteMember = async (member: any) => {
+    const handleDeleteMember = async (member: Member) => {
       if (confirm(`確定要刪除會員 ${member.nickname} 嗎？`)) {
         try {
           await deleteUser(member.id);
@@ -308,11 +316,11 @@ export default defineComponent({
       fetchMemberData();
     });
 
-    const totalPages = computed(() => Math.ceil(members.value.length / itemsPerPage));
+    const totalPages = computed(() => Math.ceil(displayedMembers.value.length / itemsPerPage));
     const paginatedMembers = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      return members.value.slice(start, end);
+      return displayedMembers.value.slice(start, end);
     });
 
     const nextPage = () => {
@@ -332,7 +340,7 @@ export default defineComponent({
       editingMember,
       editMember,
       updateMember,
-      members,
+      displayedMembers,
       currentPage,
       totalPages,
       paginatedMembers,

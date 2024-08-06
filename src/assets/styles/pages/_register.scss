@@ -3,6 +3,7 @@ $root-block-name: '.register';
 #{$root-block-name} {
   $p: &;
   $p__text: #{$p}__text;
+  $p__btn: #{$p}__btn;
   @include flex(center, center);
   height: 100%;
 
@@ -12,79 +13,66 @@ $root-block-name: '.register';
     padding: 64px;
     flex: 1;
     @include screen(md) {
-      padding: 64px 8px;
+      padding: 32px 8px;
     }
   }
   &__main {
-    @include w_h(320px, 100%);
-    @include flex(null, null, column);
-    flex: 1;
-    @include screen(xs) {
-      @include w_h(100%, 100%);
-      max-width: 320px;
+    @include flex(null, center);
+    width: 100%;
+    min-height: 450px;
+    gap: 120px;
+    position: relative;
+    @include screen(md) {
+      @include flex(center, null, column);
+      gap: 20px;
     }
   }
 
-  &__tab {
+  &__form {
     width: 100%;
-    margin-bottom: 32px;
-    @include flex(center, space-between);
-    position: relative;
-    &-line {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 1px;
-      height: 16px;
-      background: #908578;
-    }
-    &-btn {
-      @include flex(center, center);
-      width: 140px;
-      height: 40px;
-      color: #908578;
-
-      &--active {
-        color: #e21a1c;
-        border-radius: 30px;
-        border: 2px solid #e21a1c;
+    max-width: 340px;
+    @include flex(null, null, column);
+    &-inputs {
+      &--addr {
+        @include flex(end);
+        gap: 24px;
       }
     }
-  }
-  &__btn {
-    @include flex;
-    width: 100%;
-    max-width: 320px;
-    height: 48px;
-    background: #fff;
-    border-radius: 100px;
-    padding: 12px 20px 12px 20px;
-
-    &-icon {
-      @include flex(center, center);
-      width: 24px;
-      height: 100%;
-    }
-    &-text {
-      @include flex(center, center);
-      flex: 1;
-      font-family: Noto Sans TC;
-      font-size: 14px;
-      font-weight: 400;
+    #{$p__text} {
+      min-height: 22px;
       color: #212121;
+      @include flex(end);
+      &--required {
+        &::after {
+          content: '*';
+          color: #fe4206;
+          display: block;
+          margin-left: 4px;
+        }
+      }
+      margin-bottom: 4px;
+    }
+
+    &-input {
+      @include w_h(100%, 50px);
+      padding: 13px 20px 0px 20px;
+      border-radius: 8px;
+      border: 1px solid #d4d4d4;
     }
   }
 
   &__divider {
-    margin: 12px 0;
-    @include w_h(100%, 32px);
-    @include flex(center, center);
-    position: relative;
-
+    @include abs-center;
+    height: 95%;
+    width: 1px;
+    background: #7c7c7c;
+    @include screen(md) {
+      display: none;
+    }
     &-line {
       width: 100%;
-      height: 1px;
-      background: #e6e6e6;
+      height: 100%;
+      background: #7c7c7c;
     }
 
     &-text {
@@ -99,17 +87,31 @@ $root-block-name: '.register';
     }
   }
 
-  &__btns {
-    @include flex(null, null, column);
-    gap: 16px;
+  &__other {
+    margin-top: 24px;
+
+    #{$p__text} {
+      font-size: 16px;
+      font-weight: 400;
+    }
+    &-btn {
+      margin-top: 24px;
+      @include flex(null, center);
+      #{$p__btn} {
+        width: 100%;
+        max-width: 338px;
+      }
+    }
   }
 
-  &__register {
-    flex: 1;
-    width: 100%;
-    @include flex(end, center);
-    #{$p__text} {
-      color: red;
-    }
+  &__btn {
+    @include flex(center, center);
+    @include w_h(100%, 48px);
+    border-radius: 90px;
+    background: #fe4206;
+    color: #fff;
+
+    font-size: 20px;
+    text-align: center;
   }
 }

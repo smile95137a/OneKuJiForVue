@@ -82,6 +82,7 @@ const getProductStatus = (product: Product): string => {
     const now = new Date();
     const startDate = new Date(product.startDate);
     const endDate = new Date(product.endDate);
+    console.log(`开始时间: ${startDate}, 结束时间: ${endDate}`);
 
     if (now < startDate) return '即將開始';
     if (now > endDate) return '已結束';

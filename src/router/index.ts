@@ -18,6 +18,11 @@ import Product3 from '@/views/Product3.vue';
 import ProductDetail1 from '@/views/ProductDetail1.vue';
 import ProductDetail2 from '@/views/ProductDetail2.vue';
 import Register from '@/views/Register.vue';
+import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
+import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
+import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
+import Rewards from '@/views/MemberCenter/Rewards.vue';
+import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -58,12 +63,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/product-detail2/:id',
     name: 'ProductDetail2',
-    component: () => import('@/views/ProductDetail2.vue')
+    component: () => import('@/views/ProductDetail2.vue'),
   },
   {
     path: '/product-detail2/:id',
     name: 'ProductDetail2',
-    component: () => import('@/views/ProductDetail2.vue')
+    component: () => import('@/views/ProductDetail2.vue'),
   },
   {
     path: '/product-detail2',
@@ -73,7 +78,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/admin',
     component: AdminDashboard,
-    meta: { requiresAuth: true, layout: 'admin' },  // 驗證身分並設定為後台頁面
+    meta: { requiresAuth: true, layout: 'admin' }, // 驗證身分並設定為後台頁面
     children: [
       {
         path: 'member-management',
@@ -103,6 +108,29 @@ const routes: Array<RouteRecordRaw> = [
     meta: { layout: 'admin' }, // 後台登入頁面
   },
   {
+    path: '/member-center',
+    component: MemberCenter,
+    meta: { requiresAuth: false }, // 驗證身分並設定為前台頁面
+    children: [
+      {
+        path: 'profile-edit',
+        component: ProfileEdit,
+      },
+      {
+        path: 'purchase-history',
+        component: PurchaseHistory,
+      },
+      {
+        path: 'rewards',
+        component: Rewards,
+      },
+      {
+        path: 'order-history',
+        component: OrderHistory,
+      },
+    ],
+  },
+  {
     path: '/',
     redirect: '/home',
   },
@@ -122,7 +150,7 @@ const router = createRouter({
 // 路由守衛
 router.beforeEach(async (to, _, next) => {
   const token = localStorage.getItem('token'); // 檢查本地存儲中是否有 token
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (token) {
       try {
         await getCurrentUser();

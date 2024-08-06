@@ -15,6 +15,10 @@ $root-block-name: '.mcard';
     min-height: 636px;
   }
 
+  &--memberCenter {
+    min-height: 1315px;
+  }
+
   &--login {
     @include screen(xs) {
       min-height: 478px;
