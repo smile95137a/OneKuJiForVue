@@ -79,8 +79,10 @@ $root-block-name: '.memberCenter';
     }
 
     &-icon {
-      width: 120px;
-      height: 120px;
+      width: 100%;
+      height: 100%;
+      max-width: 120px;
+      max-height: 120px;
       @include flex(end, center);
       @include screen(md) {
         width: 60px;
@@ -135,7 +137,7 @@ $root-block-name: '.memberCenter';
     max-width: 850px;
     margin: 0 auto;
     @include screen(md) {
-      padding: 64px 24px;
+      padding: 64px;
     }
   }
 
@@ -214,7 +216,8 @@ $root-block-name: '.memberCenter';
     }
     &-btn {
       @include flex(center, center);
-      width: 226px;
+      width: 100%;
+      max-width: 226px;
       height: 48px;
       border-radius: 90px;
       background: #fe4206;
@@ -290,7 +293,8 @@ $root-block-name: '.memberCenter';
     }
     &-btn {
       @include flex(center, center);
-      width: 226px;
+      width: 100%;
+      max-width: 226px;
       height: 48px;
       border-radius: 90px;
       background: #fe4206;
