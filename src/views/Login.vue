@@ -1,48 +1,157 @@
 <script setup lang="ts">
-import Card from '@/components/common/Card.vue';
 import p1 from '@/assets/image/login.png';
+import Card from '@/components/common/Card.vue';
+import { login, LoginRequest, register, RegisterRequest } from '@/services/Front/Frontapi';
+import axios from 'axios';
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+const loginForm = reactive({
+  username: '',
+  password: '',
+});
+
+const registrationForm = reactive({
+  username: '',
+  password: '',
+  nickname: '',
+  email: '',
+  phoneNumber: '',
+  address: '',
+});
+
+const isRegistering = ref(false);
+const errorMessage = ref('');
+
+const handleLogin = async () => {
+  try {
+    console.log('Attempting login with:', loginForm);
+    const loginData: LoginRequest = {
+      username: loginForm.username,
+      password: loginForm.password,
+    };
+    const response = await login(loginData);
+    console.log('Login response:', response);
+    if (response.accessToken) {
+      // Token is already set in localStorage by the login function
+      // Redirect to dashboard or home page
+      router.push('/dashboard');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      errorMessage.value = `登錄失敗: ${error.response.data.message || '請檢查您的憑證。'}`;
+    } else {
+      errorMessage.value = '登錄失敗。請檢查您的憑證。';
+    }
+  }
+};
+
+const handleRegister = async () => {
+  try {
+    const registerData: RegisterRequest = {
+      username: registrationForm.username,
+      password: registrationForm.password,
+      nickname: registrationForm.nickname,
+      email: registrationForm.email,
+      phoneNumber: registrationForm.phoneNumber,
+      address: registrationForm.address
+    };
+    const response = await register(registerData);
+    console.log('Registration successful', response);
+    isRegistering.value = false;
+    errorMessage.value = '註冊成功。請登錄。';
+  } catch (error) {
+    console.error('Registration failed', error);
+    if (axios.isAxiosError(error) && error.response) {
+      errorMessage.value = `註冊失敗: ${error.response.data.message || '請稍後再試。'}`;
+    } else {
+      errorMessage.value = '註冊失敗。請稍後再試。';
+    }
+  }
+};
+const toggleRegistration = () => {
+  isRegistering.value = !isRegistering.value;
+  errorMessage.value = '';
+};
 </script>
 
 <template>
-  <Card title="會員登入" customClass="mcard--login">
+  <Card :title="isRegistering ? '會員註冊' : '會員登入'" customClass="mcard--login">
     <div class="login__container">
       <div class="login__main">
         <div class="login__form">
-          <div class="login__auth">
-            <div class="login__auth-btn">
-              <div class="login__auth-btn-icon">
-                <i class="fa-brands fa-google"></i>
+          <template v-if="!isRegistering">
+            <div class="login__auth">
+              <div class="login__auth-btn">
+                <div class="login__auth-btn-icon">
+                  <i class="fa-brands fa-google"></i>
+                </div>
+                <div class="login__auth-btn-text">Google 帳號登入</div>
               </div>
-              <div class="login__auth-btn-text">Google 帳號登入</div>
-            </div>
-            <div class="login__auth-btn">
-              <div class="login__auth-btn-icon">
-                <i class="fa-brands fa-facebook-f"></i>
+              <div class="login__auth-btn">
+                <div class="login__auth-btn-icon">
+                  <i class="fa-brands fa-facebook-f"></i>
+                </div>
+                <div class="login__auth-btn-text">Facebook 帳號登入</div>
               </div>
-              <div class="login__auth-btn-text">Facebook 帳號登入</div>
             </div>
-          </div>
 
-          <div class="login__divider">
-            <div class="login__divider-line"></div>
-            <div class="login__divider-text">或</div>
-          </div>
-          <div class="login__form-inputs">
-            <p class="login__text">帳號</p>
-            <input type="text" class="login__form-input" />
-          </div>
-          <div class="login__form-inputs">
-            <p class="login__text">密碼</p>
-            <input type="text" class="login__form-input" />
-          </div>
+            <div class="login__divider">
+              <div class="login__divider-line"></div>
+              <div class="login__divider-text">或</div>
+            </div>
+            <div class="login__form-inputs">
+              <p class="login__text">帳號</p>
+              <input v-model="loginForm.username" type="text" class="login__form-input" />
+            </div>
+            <div class="login__form-inputs">
+              <p class="login__text">密碼</p>
+              <input v-model="loginForm.password" type="password" class="login__form-input" />
+            </div>
 
-          <div class="login__forgot">
-            <p class="login__text login__text--forgot">忘記密碼?</p>
-          </div>
+            <div class="login__forgot">
+              <p class="login__text login__text--forgot">忘記密碼?</p>
+            </div>
 
-          <div class="login__btns">
-            <div class="login__btn">登入</div>
-          </div>
+            <div class="login__btns">
+              <div class="login__btn" @click="handleLogin">登入</div>
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="login__form-inputs">
+              <p class="login__text">帳號</p>
+              <input v-model="registrationForm.username" type="text" class="login__form-input" />
+            </div>
+            <div class="login__form-inputs">
+              <p class="login__text">密碼</p>
+              <input v-model="registrationForm.password" type="password" class="login__form-input" />
+            </div>
+            <div class="login__form-inputs">
+              <p class="login__text">暱稱</p>
+              <input v-model="registrationForm.nickname" type="text" class="login__form-input" />
+            </div>
+            <div class="login__form-inputs">
+              <p class="login__text">電子郵件</p>
+              <input v-model="registrationForm.email" type="email" class="login__form-input" />
+            </div>
+            <div class="login__form-inputs">
+              <p class="login__text">電話號碼</p>
+              <input v-model="registrationForm.phoneNumber" type="tel" class="login__form-input" />
+            </div>
+            <div class="login__form-inputs">
+              <p class="login__text">地址</p>
+              <input v-model="registrationForm.address" type="text" class="login__form-input" />
+            </div>
+
+            <div class="login__btns">
+              <div class="login__btn" @click="handleRegister">註冊</div>
+            </div>
+          </template>
+
+          <p v-if="errorMessage" class="login__error">{{ errorMessage }}</p>
         </div>
         <div class="login__other">
           <div class="login__other-img">
@@ -51,11 +160,13 @@ import p1 from '@/assets/image/login.png';
           <div class="login__other-info">
             <p class="login__text">歡迎來到 再來一抽 官方網站!</p>
             <p class="login__text">
-              如果你還沒有帳號，請立即註冊， 開啟更多功能哦！
+              {{ isRegistering ? '已經有帳號了嗎？請立即登入！' : '如果你還沒有帳號，請立即註冊， 開啟更多功能哦！' }}
             </p>
           </div>
           <div class="login__other-btn">
-            <div class="login__btn">註冊</div>
+            <div class="login__btn" @click="toggleRegistration">
+              {{ isRegistering ? '返回登入' : '註冊' }}
+            </div>
           </div>
         </div>
       </div>
@@ -63,4 +174,10 @@ import p1 from '@/assets/image/login.png';
   </Card>
 </template>
 
-<style scoped></style>
+<style scoped>
+.login__error {
+  color: red;
+  margin-top: 10px;
+  text-align: center;
+}
+</style>

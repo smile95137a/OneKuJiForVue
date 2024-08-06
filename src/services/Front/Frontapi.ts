@@ -25,11 +25,9 @@ export const removeJwtToken = () => {
 
 api.interceptors.request.use(
   (config) => {
-    if ((config as any).auth !== false) {
-      const token = getJwtToken();
-      if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-      }
+    const token = getJwtToken();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
   },
@@ -130,7 +128,7 @@ export interface DrawOnePrizeResponse {
 export interface LoginRequest {
   username: string;
   password: string;
-  userId: number;
+  userId?: number; // 將 userId 設為可選
 }
 
 export interface LoginResponse {
@@ -139,7 +137,52 @@ export interface LoginResponse {
   username: string;
 }
 
-// 公開 API 請求函數
+export interface RegisterRequest {
+  username: string;
+  password: string;
+  nickname: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+}
+
+// 公開 API 請求函數（不含 Authorization 頭）
+export const publicApiRequestWithoutAuth = async <T>(
+  url: string,
+  method: 'get' | 'post' = 'get',
+  data?: any
+): Promise<T> => {
+  try {
+    console.log(`Sending ${method.toUpperCase()} request to ${url}`);
+    const config: AxiosRequestConfig = {
+      method,
+      url,
+      data,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    const response = await axios(config); // 使用 axios 而不是 api 實例
+    console.log(`Response received from ${url}:`, response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(`Error in public API request to ${url}:`, {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        headers: error.response?.headers,
+        data: error.response?.data
+      });
+    } else {
+      console.error(`Unexpected error in public API request to ${url}:`, error);
+    }
+    throw error;
+  }
+};
+
+// 公開 API 請求函數（含 Authorization 頭）
 export const publicApiRequest = async <T>(
   url: string,
   method: 'get' | 'post' = 'get',
@@ -152,7 +195,6 @@ export const publicApiRequest = async <T>(
       url,
       data,
     };
-    (config as any).auth = false;
     
     const response = await api(config);
     console.log(`Response received from ${url}:`, response.data);
@@ -240,17 +282,38 @@ export const drawOnePrize = async (userId: number, productId: number, data: Draw
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
-    const response: AxiosResponse<LoginResponse> = await api.post('/auth/login', data);
-    setJwtToken(response.data.accessToken);
+    console.log('Sending login request:', data);
+    const response = await api.post<LoginResponse>('/auth/login', data);
+    console.log('Login response:', response.data);
+    if (response.data.accessToken) {
+      setJwtToken(response.data.accessToken);
+    }
     return response.data;
   } catch (error) {
     console.error('Error during login:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Response:', error.response);
+      console.error('Request:', error.request);
+    }
+    throw error;
+  }
+};
+
+export const register = async (data: RegisterRequest): Promise<any> => {
+  try {
+    console.log('Sending register request:', data);
+    const response = await publicApiRequestWithoutAuth<any>('/auth/register', 'post', data);
+    console.log('Register response:', response);
+    return response;
+  } catch (error) {
+    console.error('Error during registration:', error);
     throw error;
   }
 };
 
 export const logout = () => {
   removeJwtToken();
+  // 可以在這裡添加其他登出邏輯，如重定向到登錄頁面
 };
 
 export default api;
