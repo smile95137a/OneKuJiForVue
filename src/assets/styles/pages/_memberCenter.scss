@@ -8,7 +8,9 @@ $root-block-name: '.memberCenter';
     @include flex(null, null, column);
   }
   &__profileEdit,
-  &__rewards {
+  &__rewards,
+  &__orderHistory,
+  &__purchaseHistory {
     padding: 64px;
     width: 100%;
     max-width: 850px;
@@ -446,6 +448,222 @@ $root-block-name: '.memberCenter';
         font-size: 14px;
         font-weight: 400;
       }
+    }
+  }
+
+  //
+
+  &__orderHistoryForm {
+    padding: 32px 16px;
+    position: relative;
+    &-title {
+      @include screen(md) {
+        @include flex(null, center);
+      }
+      #{$p__text} {
+        font-size: 24px;
+        font-weight: 900;
+      }
+    }
+
+    &-main {
+      @include flex(null);
+      gap: 24px;
+      @include screen(md) {
+        @include flex(null, null, column);
+      }
+    }
+
+    &-box {
+      width: 100%;
+      @include flex(end);
+      max-width: 342px;
+      @include screen(md) {
+        max-width: none;
+      }
+      &--btns {
+        max-width: 92px;
+        @include screen(md) {
+          max-width: none;
+          justify-content: center;
+        }
+      }
+    }
+
+    &-form {
+      @include screen(md) {
+        flex: 100%;
+        max-width: none;
+      }
+      &--other {
+        margin-left: 80px;
+        @include screen(md) {
+          margin-left: 0;
+        }
+      }
+      &-inputs {
+        width: 100%;
+      }
+      #{$p__text} {
+        min-height: 22px;
+        color: #212121;
+        @include flex(end);
+        &--required {
+          &::after {
+            content: '*';
+            color: #fe4206;
+            display: block;
+            margin-left: 4px;
+          }
+        }
+        margin-bottom: 4px;
+      }
+
+      &-input {
+        @include w_h(100%, 50px);
+        padding: 13px 20px 0px 20px;
+        border-radius: 8px;
+        border: 1px solid #d4d4d4;
+      }
+    }
+
+    &-btns {
+      width: 100%;
+      @include flex(center, center);
+      @include screen(md) {
+        max-width: 92px;
+      }
+    }
+    &-btn {
+      @include flex(center, center);
+      width: 100%;
+      max-width: 226px;
+      height: 48px;
+      border-radius: 90px;
+      background: #fe4206;
+      #{$p__text} {
+        font-size: 20px;
+        font-weight: 900;
+        color: #fff;
+      }
+    }
+  }
+
+  &__purchaseHistory {
+    padding: 32px 16px;
+    position: relative;
+    &-title {
+      @include screen(md) {
+        @include flex(null, center);
+      }
+      #{$p__text} {
+        font-size: 24px;
+        font-weight: 900;
+      }
+    }
+
+    &-main {
+      @include flex(null);
+      gap: 24px;
+      @include screen(md) {
+        @include flex(null, null, column);
+      }
+    }
+
+    &-box {
+      width: 100%;
+      @include flex(end);
+      max-width: 342px;
+      @include screen(md) {
+        max-width: none;
+      }
+      &--btns {
+        max-width: 92px;
+        @include screen(md) {
+          max-width: none;
+          justify-content: center;
+        }
+      }
+    }
+
+    &-form {
+      @include screen(md) {
+        flex: 100%;
+        max-width: none;
+      }
+      &--other {
+        margin-left: 80px;
+        @include screen(md) {
+          margin-left: 0;
+        }
+      }
+      &-inputs {
+        width: 100%;
+      }
+      #{$p__text} {
+        min-height: 22px;
+        color: #212121;
+        @include flex(end);
+        &--required {
+          &::after {
+            content: '*';
+            color: #fe4206;
+            display: block;
+            margin-left: 4px;
+          }
+        }
+        margin-bottom: 4px;
+      }
+
+      &-input {
+        @include w_h(100%, 50px);
+        padding: 13px 20px 0px 20px;
+        border-radius: 8px;
+        border: 1px solid #d4d4d4;
+      }
+    }
+
+    &-btns {
+      width: 100%;
+      @include flex(center, center);
+      @include screen(md) {
+        max-width: 92px;
+      }
+    }
+    &-btn {
+      @include flex(center, center);
+      width: 100%;
+      max-width: 226px;
+      height: 48px;
+      border-radius: 90px;
+      background: #fe4206;
+      #{$p__text} {
+        font-size: 20px;
+        font-weight: 900;
+        color: #fff;
+      }
+    }
+  }
+
+  &__table {
+    overflow: auto;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      height: 40px;
+    }
+    th {
+      border-bottom: 1px solid #7c7c7c;
+      text-align: left;
+    }
+    td {
     }
   }
 }
