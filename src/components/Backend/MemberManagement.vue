@@ -39,8 +39,9 @@
             <th>操作</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(member, index) in paginatedMembers" :key="member.id">
+        <tbody>  
+                 <!-- //v-for移除了index -->
+          <tr v-for="(member) in paginatedMembers" :key="member.id">
             <td>{{ member.userType }}</td>
             <td>{{ member.id }}</td>
             <td>{{ member.nickname }}</td>
