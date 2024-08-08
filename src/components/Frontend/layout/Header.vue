@@ -38,12 +38,22 @@
         </div>
       </div>
       <div class="header__btns">
-        <router-link class="header__btn header__btn--login" to="/login">
-          登入
-        </router-link>
-        <router-link class="header__btn header__btn--register" to="/register">
-          註冊
-        </router-link>
+        <template v-if="userStore.isLoggedIn">
+          <router-link class="header__btn header__btn--member" to="/member-center">
+            會員中心
+          </router-link>
+          <div class="header__btn header__btn--logout" @click="handleLogout">
+            登出
+          </div>
+        </template>
+        <template v-else>
+          <router-link class="header__btn header__btn--login" to="/login">
+            登入
+          </router-link>
+          <router-link class="header__btn header__btn--register" to="/register">
+            註冊
+          </router-link>
+        </template>
       </div>
     </div>
     <div class="header__marquee">
@@ -54,10 +64,19 @@
   </div>
 </template>
 
-<style scoped></style>
-
 <script setup lang="ts">
 import { useSlidebarStore } from '@/stores';
+import { useUserStore } from '@/stores/userStores';
+import { useRouter } from 'vue-router';
 import logoImg from '@/assets/image/logo1.png';
+
 const slidebarStore = useSlidebarStore();
+const userStore = useUserStore();
+const router = useRouter();
+
+const handleLogout = () => {
+  userStore.logout();
+  localStorage.removeItem('token');
+  router.push('/login');
+};
 </script>

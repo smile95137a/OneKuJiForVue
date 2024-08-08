@@ -30,6 +30,9 @@
         <div v-else-if="error" class="product__error">
           {{ error }}
         </div>
+        <div v-else-if="filteredProducts.length === 0" class="product__no-data">
+          沒有找到相關產品
+        </div>
         <div v-else class="product__list-products">
           <ProductCard
             v-for="product in filteredProducts"
@@ -55,9 +58,9 @@
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 import { queryProducts } from '@/services/Front/Frontapi';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useDialogStore } from '@/stores/dialogStore'; // ??
+import { useDialogStore } from '@/stores/dialogStore';
 
 const dialogStore = useDialogStore();
 const router = useRouter();
@@ -68,15 +71,15 @@ const loading = ref(true);
 const error = ref('');
 
 const buttons = [
-  { type: 'official', title: '官方一番賞', category: 'OFFICIAL' },
-  { type: '3c', title: '3C一番賞', category: '3C' },
+  { type: 'official', title: '官方一番賞', category: 'FIGURE' },
+  { type: '3c', title: '3C一番賞', category: 'C3' },
   { type: 'bonus', title: '紅利賞', category: 'BONUS' }
 ];
 
 const filteredProducts = computed(() => {
+  const buttonCategory = buttons.find(btn => btn.type === activeBtn.value)?.category;
   return products.value.filter(product => 
-    product.productType === 'PRIZE' && 
-    product.prizeCategory === buttons.find(btn => btn.type === activeBtn.value)?.category
+    product.productType === 'PRIZE' && product.prizeCategory === buttonCategory
   );
 });
 
@@ -91,22 +94,21 @@ const showOneKuJiDialog = async () => {
 };
 
 const fetchProducts = async () => {
+  if (products.value.length > 0) return;
   loading.value = true;
   error.value = '';
   try {
-    console.log('Fetching products for PRIZE...');
     const response = await queryProducts();
-    console.log('API response:', response);
     if (Array.isArray(response)) {
-      products.value = response.filter(
-        (product) => product.productType === 'PRIZE'
-      );
+      products.value = response.filter(product => product.productType === 'PRIZE').map(product => ({
+        ...product,
+        imageUrl: ensureFullImageUrl(product.imageUrl)
+      }));
     } else {
       throw new Error('API 返回的數據格式不正確');
     }
-    console.log('PRIZE products:', products.value);
   } catch (err) {
-    console.error('Error fetching PRIZE products:', err);
+    console.error('Error fetching products:', err);
     error.value = '獲取產品數據時出錯，請稍後再試';
   } finally {
     loading.value = false;
@@ -114,7 +116,7 @@ const fetchProducts = async () => {
 };
 
 const navigateToDetail = (productId: number) => {
-  router.push({ name: 'product-detail', params: { id: productId } });
+  router.push({ name: 'productDetail1', params: { id: productId.toString() } });
 };
 
 const getProductStatus = (product) => {
@@ -127,13 +129,15 @@ const getProductStatus = (product) => {
   return '開抽中';
 };
 
-onMounted(() => {
-  console.log('Product component mounted, fetching products...');
-  fetchProducts();
-});
+const ensureFullImageUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `http://localhost:8081${url.startsWith('/') ? '' : '/'}${url}`;
+};
 
-// 監聽 activeBtn 變化，當切換按鈕時重新獲取產品列表
-watch(activeBtn, () => {
+onMounted(() => {
   fetchProducts();
 });
 </script>
@@ -163,7 +167,8 @@ watch(activeBtn, () => {
 }
 
 .product__loading,
-.product__error {
+.product__error,
+.product__no-data {
   text-align: center;
   padding: 20px;
   font-size: 18px;
@@ -171,5 +176,9 @@ watch(activeBtn, () => {
 
 .product__error {
   color: red;
+}
+
+.product__no-data {
+  color: #666;
 }
 </style>

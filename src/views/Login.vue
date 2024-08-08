@@ -1,105 +1,3 @@
-<script setup lang="ts">
-import p1 from '@/assets/image/login.png';
-import Card from '@/components/common/Card.vue';
-import { login, LoginRequest, register, RegisterRequest } from '@/services/Front/Frontapi';
-import axios from 'axios';
-import { onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-
-const loginForm = reactive({
-  username: '',
-  password: '',
-});
-
-const registrationForm = reactive({
-  username: '',
-  password: '',
-  nickname: '',
-  email: '',
-  phoneNumber: '',
-  address: '',
-});
-
-const isRegistering = ref(false);
-const errorMessage = ref('');
-
-const handleLogin = async () => {
-  try {
-    console.log('Attempting login with:', loginForm);
-    const loginData: LoginRequest = {
-      username: loginForm.username,
-      password: loginForm.password,
-    };
-    const response = await login(loginData);
-    console.log('Login response:', response);
-    if (response.accessToken) {
-      router.push('/dashboard');
-    }
-  } catch (error) {
-    console.error('Login error:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      errorMessage.value = `登錄失敗: ${error.response.data.message || '請檢查您的憑證。'}`;
-    } else {
-      errorMessage.value = '登錄失敗。請檢查您的憑證。';
-    }
-  }
-};
-
-const handleRegister = async () => {
-  try {
-    const registerData: RegisterRequest = {
-      username: registrationForm.username,
-      password: registrationForm.password,
-      nickname: registrationForm.nickname,
-      email: registrationForm.email,
-      phoneNumber: registrationForm.phoneNumber,
-      address: registrationForm.address
-    };
-    const response = await register(registerData);
-    console.log('Registration successful', response);
-    isRegistering.value = false;
-    errorMessage.value = '註冊成功。請登錄。';
-  } catch (error) {
-    console.error('Registration failed', error);
-    if (axios.isAxiosError(error) && error.response) {
-      errorMessage.value = `註冊失敗: ${error.response.data.message || '請稍後再試。'}`;
-    } else {
-      errorMessage.value = '註冊失敗。請稍後再試。';
-    }
-  }
-};
-
-const toggleRegistration = () => {
-  isRegistering.value = !isRegistering.value;
-  errorMessage.value = '';
-};
-
-const loginWithGoogle = () => {
-  window.location.href = 'http://localhost:8081/oauth2/authorization/google';
-};
-
-const handleOAuth2Callback = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const accessToken = urlParams.get('accessToken');
-
-  if (accessToken) {
-    localStorage.setItem('token', accessToken);
-    console.log('登录成功，AccessToken:', accessToken);
-    // 跳转到主页
-    router.push('/dashboard');
-  } else {
-    errorMessage.value = '登录失败，请稍后重试。';
-  }
-};
-
-// 调用 handleOAuth2Callback 以处理 OAuth2 回调
-onMounted(() => {
-  handleOAuth2Callback();
-});
-</script>
-
 <template>
   <Card :title="isRegistering ? '會員註冊' : '會員登入'" customClass="mcard--login">
     <div class="login__container">
@@ -196,6 +94,111 @@ onMounted(() => {
     </div>
   </Card>
 </template>
+
+<script setup lang="ts">
+import p1 from '@/assets/image/login.png';
+import Card from '@/components/common/Card.vue';
+import { login, LoginRequest, register, RegisterRequest } from '@/services/Front/Frontapi';
+import { useUserStore } from '@/stores/userstore';
+import axios from 'axios';
+import { onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const userstore = useUserStore();
+
+const loginForm = reactive({
+  username: '',
+  password: '',
+});
+
+const registrationForm = reactive({
+  username: '',
+  password: '',
+  nickname: '',
+  email: '',
+  phoneNumber: '',
+  address: '',
+});
+
+const isRegistering = ref(false);
+const errorMessage = ref('');
+
+const handleLogin = async () => {
+  try {
+    console.log('Attempting login with:', loginForm);
+    const loginData: LoginRequest = {
+      username: loginForm.username,
+      password: loginForm.password,
+    };
+    const response = await login(loginData);
+    console.log('Login response:', response);
+    if (response.accessToken) {
+      localStorage.setItem('token', response.accessToken); // Store JWT token
+      userstore.login(loginForm.username);
+      router.push('/home');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      errorMessage.value = `登錄失敗: ${error.response.data.message || '請檢查您的憑證。'}`;
+    } else {
+      errorMessage.value = '登錄失敗。請檢查您的憑證。';
+    }
+  }
+};
+
+const handleRegister = async () => {
+  try {
+    const registerData: RegisterRequest = {
+      username: registrationForm.username,
+      password: registrationForm.password,
+      nickname: registrationForm.nickname,
+      email: registrationForm.email,
+      phoneNumber: registrationForm.phoneNumber,
+      address: registrationForm.address
+    };
+    const response = await register(registerData);
+    console.log('Registration successful', response);
+    isRegistering.value = false;
+    errorMessage.value = '註冊成功。請登錄。';
+  } catch (error) {
+    console.error('Registration failed', error);
+    if (axios.isAxiosError(error) && error.response) {
+      errorMessage.value = `註冊失敗: ${error.response.data.message || '請稍後再試。'}`;
+    } else {
+      errorMessage.value = '註冊失敗。請稍後再試。';
+    }
+  }
+};
+
+const toggleRegistration = () => {
+  isRegistering.value = !isRegistering.value;
+  errorMessage.value = '';
+};
+
+const loginWithGoogle = () => {
+  window.location.href = 'http://localhost:8081/oauth2/authorization/google';
+};
+
+const handleOAuth2Callback = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessToken = urlParams.get('accessToken');
+
+  if (accessToken) {
+    localStorage.setItem('token', accessToken);
+    console.log('登录成功，AccessToken:', accessToken);
+    userstore.login('Google User'); // 假設使用 Google 登入的用戶名為 'Google User'
+    router.push('/home');
+  } else {
+    errorMessage.value = '登录失败，请稍后重试。';
+  }
+};
+
+onMounted(() => {
+  handleOAuth2Callback();
+});
+</script>
 
 <style scoped>
 .login__error {
