@@ -1,0 +1,12 @@
+$root-block-name: '.oneKuJiDialog';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+
+  @include w_h(100%, 100%);
+  position: relative;
+  &__main {
+    @include abs-center;
+  }
+}

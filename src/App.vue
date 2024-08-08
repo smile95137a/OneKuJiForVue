@@ -3,6 +3,7 @@ import Footer from '@/components/layout/Footer.vue';
 import Header from '@/components/layout/Header.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import { useRoute } from 'vue-router';
+import OneKuJiDialog from './components/common/OneKuJiDialog.vue';
 window.addEventListener('beforeunload', () => {
   localStorage.removeItem('token');
 });
@@ -21,6 +22,7 @@ const route = useRoute();
     <Footer v-if="route.meta.layout !== 'admin'" />
   </div>
   <ConfirmDialog />
+  <OneKuJiDialog />
 </template>
 
 <style scoped>
