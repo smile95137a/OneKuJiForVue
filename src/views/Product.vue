@@ -32,7 +32,7 @@
         </div>
         <div v-else class="product__list-products">
           <ProductCard
-            v-for="product in filteredProducts"
+            v-for="product in products"
             :key="product.productId"
             :customClass="''"
             :imagePath="product.imageUrl"
@@ -52,14 +52,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 import { queryProducts } from '@/services/Front/Frontapi';
 import { useDialogStore } from '@/stores/dialogStore';
-const dialogStore = useDialogStore();
+import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
+const dialogStore = useDialogStore();
 const router = useRouter();
 const products = ref([]);
 const activeBtn = ref('official');

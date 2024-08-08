@@ -3,7 +3,9 @@ import { Member } from '@/interfaces/Member';
 import axios, { AxiosResponse } from 'axios';
 // 创建一个 axios 实例
 const apiClient = axios.create({
+
   baseURL: 'http://localhost:8080/api',
+
   headers: {
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': 'true'
@@ -126,4 +128,13 @@ export const deleteProduct = (data : any) => {
   return apiClient.delete(`/product/${data}`)
 }
 
+export const getOrderDetailsByOrderId = (data : any) => {
+  return apiClient.get(`/orderDetails/${data}`);
+}
+
+export const getProductByOneKuJiType = (data : any) => {
+  return apiClient.post(`/product/OneKuJi/type`, data);
+}
+
 export default apiClient;
+

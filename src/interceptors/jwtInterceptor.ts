@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'https://a153-2402-7500-4ce-3589-a97b-f3fb-d6ec-8d49.ngrok-free.app/api', // 确保与后端地址一致
+  baseURL: 'http://localhost:8081', // 确保与后端地址一致
   headers: {
     'Content-Type': 'application/json', 'ngrok-skip-browser-warning':true
   },

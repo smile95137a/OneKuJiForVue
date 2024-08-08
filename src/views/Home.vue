@@ -75,15 +75,15 @@
 
   <script lang="ts" setup>
   import bg from '@/assets/image/bg1.jpeg';
-  import Card from '@/components/common/Card.vue';
-  import ProductCard from '@/components/Frontend/ProductCard.vue';
-  import { Product, queryProducts } from '@/services/Front/Frontapi';
-  import axios from 'axios';
-  import { Navigation } from 'swiper/modules';
-  import 'swiper/scss';
-  import 'swiper/scss/navigation';
-  import { Swiper, SwiperSlide } from 'swiper/vue';
-  import { onMounted, ref } from 'vue';
+import Card from '@/components/common/Card.vue';
+import ProductCard from '@/components/Frontend/ProductCard.vue';
+import { Product, queryProducts } from '@/services/Front/Frontapi';
+import axios from 'axios';
+import { Navigation } from 'swiper/modules';
+import 'swiper/scss';
+import 'swiper/scss/navigation';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { onMounted, ref } from 'vue';
 
   const prizeProducts = ref<Product[]>([]);
   const blindBoxProducts = ref<Product[]>([]);
@@ -149,7 +149,6 @@
   width: 100%;
   overflow: hidden;
 }
-
 .home {
   padding: 20px;
 }

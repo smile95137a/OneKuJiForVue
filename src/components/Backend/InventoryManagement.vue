@@ -29,6 +29,11 @@
       </tbody>
     </table>
   </div>
+   <div class="pagination">
+      <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
+      <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
+      <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
+    </div>
 
   <!-- 新增進貨 -->
   <div v-if="showCreateDetail" class="modal">
@@ -72,8 +77,9 @@
   <div v-if="showUpdateDetailModal" class="modal">
     <div class="modal-content">
       <span class="close-button" @click="showUpdateDetailModal = false">&times;</span>
-      <h2>編輯會員</h2>
+      <h2>編輯商品</h2>
       <form @submit.prevent="updateMember">
+        <input type="hidden" v-model="editingMember.productId">
         <div>
           <label for="edit-username">產品名稱:</label>
           <input id="edit-username" v-model="editingMember.productName" required>
@@ -92,6 +98,9 @@
         </div>
         <div>
           <label for="image">圖片:</label>
+          <div v-if="editingMember.image">
+            <img :src="editingMember.image" alt="Current Image" style="max-width: 200px;" />
+          </div>
           <input id="image" type="file" @change="handleFileUpload">
         </div>
         <button type="submit">更新</button>
@@ -102,20 +111,28 @@
 
 
 <script lang="ts" setup>
-import { addDetail as addDetailApi, deleteDetail, getDetail, getProducts, updateDtail } from '@/services/api';
+import { deleteDetail, getDetail, getProducts } from '@/services/api';
+import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 
+const apiClient = axios.create({
+  baseURL: 'http://localhost:8080/api', // 根据实际情况修改
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+});
 const currentPage = ref(1);
 const products = ref<any[]>([]);
 const detail = ref<any[]>([]);
 const itemsPerPage = 10;
 const showCreateDetail = ref(false);
-const newgMember = reactive<any>({
+const newgMember = ref({
   productId: '',
   productName: '',
   description: '',
   quantity: '',
   grade: '',
+  image: null as File | null,
 });
 
 const fetchDetailData = async () => {
@@ -136,15 +153,27 @@ const fetchProducts = async () => {
   }
 };
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('zh-TW', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+const formatDate = (dateArray: number[]) => {
+  // JavaScript 的月份是从 0 开始的，所以减去 1
+  const [year, month, day, hour, minute, second] = dateArray;
+  const date = new Date(year, month - 1, day, hour, minute, second);
+
+  // 格式化输出
+  return `${date.getFullYear()}年${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}月${date
+    .getDate()
+    .toString()
+    .padStart(2, '0')}日${date
+    .getHours()
+    .toString()
+    .padStart(2, '0')}時${date
+    .getMinutes()
+    .toString()
+    .padStart(2, '0')}分${date
+    .getSeconds()
+    .toString()
+    .padStart(2, '0')}秒`;
 };
 
 const showUpdateDetailModal = ref(false);
@@ -154,6 +183,8 @@ const editingMember = reactive<any>({
   description: '',
   quantity: '',
   grade: '',
+  image: '', // 保存图片的 URL
+  imageFile: null as File | null, // 用于保存用户上传的图片文件
 });
 
 const totalPages = computed(() => Math.ceil(detail.value.length / itemsPerPage));
@@ -165,21 +196,41 @@ const paginatedproductDetail = computed(() => {
 });
 
 
-
-const editMember = (detail: any) => {
-  Object.assign(editingMember, detail);
-  showUpdateDetailModal.value = true;
-};
+const editMember = (member: any) => {
+      Object.assign(editingMember, member);
+      showUpdateDetailModal.value = true;
+    };
 
 const updateMember = async () => {
   const formData = new FormData();
-  formData.append('productDetailReq', JSON.stringify(editingMember));
-  if (editingMember.image) {
-    formData.append('image', editingMember.image);
+  console.log('123123' , editingMember);
+  
+  // 將 productDetailReq 作為 JSON 字符串添加到 formData 中
+  formData.append('productDetailReq', JSON.stringify({
+    productId: editingMember.productId, // 確保這裡包含了 productId
+    productDetailId: editingMember.productDetailId, // 如果需要的話
+    productName: editingMember.productName,
+    description: editingMember.description,
+    quantity: editingMember.quantity,
+    grade: editingMember.grade,
+    image: editingMember.image, // 保留原始 imageUrl
+  }));
+
+  // 如果有圖片，添加到 formData 中
+  if (editingMember.imageFile) {
+    formData.append('image', editingMember.imageFile);
   }
+
   try {
-    await updateDtail(editingMember);
+    // 更新數據
+    await apiClient.put(`/productDetail/${editingMember.productDetailId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    // 重新獲取數據
     await fetchDetailData();
+    // 關閉模態框
     showUpdateDetailModal.value = false;
   } catch (error) {
     console.error('更新進貨失敗:', error);
@@ -216,20 +267,34 @@ onMounted(() => {
 
 const addDetail = async () => {
   const formData = new FormData();
-  formData.append('productDetailReq', JSON.stringify(newgMember));
-  if (newgMember.image) {
-    formData.append('image', newgMember.image);
+  formData.append('productDetailReq', JSON.stringify({
+    productId: newgMember.value.productId,
+    productName: newgMember.value.productName,
+    description: newgMember.value.description,
+    quantity: newgMember.value.quantity,
+    grade: newgMember.value.grade,
+  }));
+  if (newgMember.value.image) {
+    formData.append('image', newgMember.value.image);
   }
   try {
-    await addDetailApi(newgMember);
+    await apiClient.post('/productDetail/add', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    // Reset form
+    newgMember.value = {
+      productId: '',
+      productName: '',
+      description: '',
+      quantity: '',
+      grade: '',
+      image: null,
+    };
+    // Fetch data or update UI as needed
     await fetchDetailData();
     showCreateDetail.value = false;
-    // 重置新進貨表單
-    newgMember.productId = '';
-    newgMember.productName = '';
-    newgMember.description = '';
-    newgMember.quantity = '';
-    newgMember.grade = '';
   } catch (error) {
     console.error('新增進貨失敗:', error);
   }
@@ -237,8 +302,8 @@ const addDetail = async () => {
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  if (target.files && target.files[0]) {
-    newgMember.image = target.files[0];
+  if (target.files && target.files.length > 0) {
+    editingMember.imageFile = target.files[0]; // 更新 imageFile
   }
 };
 

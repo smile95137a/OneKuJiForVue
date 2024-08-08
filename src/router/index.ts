@@ -11,6 +11,11 @@ import AdminDashboard from '@/views/AdminDashboard.vue';
 import AdminLogin from '@/views/AdminLogin.vue';
 import Home from '@/views/Home.vue';
 import Login from '@/views/Login.vue';
+import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
+import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
+import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
+import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
+import Rewards from '@/views/MemberCenter/Rewards.vue';
 import NotFound from '@/views/NotFound.vue';
 import Product from '@/views/Product.vue';
 import Product2 from '@/views/Product2.vue';
@@ -18,11 +23,6 @@ import Product3 from '@/views/Product3.vue';
 import ProductDetail1 from '@/views/ProductDetail1.vue';
 import ProductDetail2 from '@/views/ProductDetail2.vue';
 import Register from '@/views/Register.vue';
-import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
-import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
-import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
-import Rewards from '@/views/MemberCenter/Rewards.vue';
-import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
