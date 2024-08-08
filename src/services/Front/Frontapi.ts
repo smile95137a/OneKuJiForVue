@@ -163,7 +163,7 @@ export const publicApiRequestWithoutAuth = async <T>(
       }
     };
     
-    const response = await axios(config); // 使用 axios 而不是 api 實例
+    const response = await api(config); // 使用 axios 而不是 api 實例
     console.log(`Response received from ${url}:`, response.data);
     return response.data;
   } catch (error) {
