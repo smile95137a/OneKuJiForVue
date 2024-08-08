@@ -1,13 +1,17 @@
 <template>
   <div class="product">
+    <button @click="showOneKuJiDialog">點擊我</button>
     <div class="product__title">
       <div class="product__text" data-text="一番賞">一番賞</div>
     </div>
     <div class="product__btns">
-      <div 
-        v-for="btn in buttons" 
+      <div
+        v-for="btn in buttons"
         :key="btn.type"
-        :class="['product__btn', { 'product__btn--active': activeBtn === btn.type }]"
+        :class="[
+          'product__btn',
+          { 'product__btn--active': activeBtn === btn.type },
+        ]"
         @click="handleBtnClick(btn.type, btn.title)"
       >
         {{ btn.title }}
@@ -22,15 +26,13 @@
           </div>
         </div>
 
-        <div v-if="loading" class="product__loading">
-          加載中...
-        </div>
+        <div v-if="loading" class="product__loading">加載中...</div>
         <div v-else-if="error" class="product__error">
           {{ error }}
         </div>
         <div v-else class="product__list-products">
           <ProductCard
-            v-for="product in products"
+            v-for="product in filteredProducts"
             :key="product.productId"
             :customClass="''"
             :imagePath="product.imageUrl"
@@ -53,9 +55,11 @@
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 import { queryProducts } from '@/services/Front/Frontapi';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useDialogStore } from '@/stores/dialogStore'; // ??
 
+const dialogStore = useDialogStore();
 const router = useRouter();
 const products = ref([]);
 const activeBtn = ref('official');
@@ -64,23 +68,26 @@ const loading = ref(true);
 const error = ref('');
 
 const buttons = [
-  { type: 'official', title: '官方一番賞' },
-  { type: '3c', title: '3C一番賞' },
-  { type: 'bonus', title: '紅利賞' }
+  { type: 'official', title: '官方一番賞', category: 'OFFICIAL' },
+  { type: '3c', title: '3C一番賞', category: '3C' },
+  { type: 'bonus', title: '紅利賞', category: 'BONUS' }
 ];
 
 const filteredProducts = computed(() => {
   return products.value.filter(product => 
     product.productType === 'PRIZE' && 
-    (activeBtn.value === 'official' ? product.prizeCategory === 'OFFICIAL' :
-     activeBtn.value === '3c' ? product.prizeCategory === '3C' :
-     product.prizeCategory === 'BONUS')
+    product.prizeCategory === buttons.find(btn => btn.type === activeBtn.value)?.category
   );
 });
 
 const handleBtnClick = (btnType: string, btnTitle: string) => {
   activeBtn.value = btnType;
   title.value = btnTitle;
+};
+
+const showOneKuJiDialog = async () => {
+  const result = await dialogStore.openOneKujiDialog({}, 'box');
+  console.log(result);
 };
 
 const fetchProducts = async () => {
@@ -91,7 +98,9 @@ const fetchProducts = async () => {
     const response = await queryProducts();
     console.log('API response:', response);
     if (Array.isArray(response)) {
-      products.value = response.filter(product => product.productType === 'PRIZE');
+      products.value = response.filter(
+        (product) => product.productType === 'PRIZE'
+      );
     } else {
       throw new Error('API 返回的數據格式不正確');
     }
@@ -120,6 +129,11 @@ const getProductStatus = (product) => {
 
 onMounted(() => {
   console.log('Product component mounted, fetching products...');
+  fetchProducts();
+});
+
+// 監聽 activeBtn 變化，當切換按鈕時重新獲取產品列表
+watch(activeBtn, () => {
   fetchProducts();
 });
 </script>

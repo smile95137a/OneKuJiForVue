@@ -8,6 +8,12 @@ $root-block-style: '.downDialog';
   $p: &;
   $p__main: #{$p}__main;
 
+  &--oneKuJiDialog {
+    #{$p__main} {
+      box-shadow: none;
+    }
+  }
+
   &__overlay {
     position: absolute;
     inset: 0;
