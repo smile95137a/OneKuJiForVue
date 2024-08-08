@@ -16,7 +16,7 @@
         </thead>
         <tbody>
           <tr v-for="order in paginatedOrders" :key="order.id">
-            <td>{{ order.orderNumber }}</td>
+            <td>{{ order.id }}</td>
             <td>{{ order.userId }}</td>
             <td>{{ order.totalAmount }}</td>
             <td>{{ order.bonusPointsEarned }}</td>
@@ -61,16 +61,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="detail in paginatedOrderDetails" :key="detail.id">
-            <td>{{ detail.productId }}</td>
-            <td>{{ detail.productDetailId }}</td>
-            <td>{{ detail.productDetailName }}</td>
-            <td>{{ detail.quantity }}</td>
-            <td>{{ detail.unitPrice }}</td>
-            <td>{{ detail.totalPrice }}</td>
-            <td>{{ detail.resultStatus }}</td>
-            <td>{{ detail.bonusPointsEarned }}</td>
-          </tr>
+            <td>{{ orderDetails.productId }}</td>
+            <td>{{ orderDetails.productDetailId }}</td>
+            <td>{{ orderDetails.productDetailName }}</td>
+            <td>{{ orderDetails.quantity }}</td>
+            <td>{{ orderDetails.unitPrice }}</td>
+            <td>{{ orderDetails.totalPrice }}</td>
+            <td>{{ orderDetails.resultStatus }}</td>
+            <td>{{ orderDetails.bonusPointsEarned }}</td>
         </tbody>
       </table>
     </div>
