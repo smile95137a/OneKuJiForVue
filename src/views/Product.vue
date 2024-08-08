@@ -57,7 +57,7 @@ import ProductCard from '@/components/Frontend/ProductCard.vue';
 import { queryProducts } from '@/services/Front/Frontapi';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useDialogStore } from '@/stores/dialog'; // 請確保這個路徑是正確的
+import { useDialogStore } from '@/stores/dialogStore'; // ??
 
 const dialogStore = useDialogStore();
 const router = useRouter();
