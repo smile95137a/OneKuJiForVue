@@ -6,29 +6,70 @@
         <thead>
           <tr>
             <th>訂單編號</th>
-            <th>用戶id</th>
+            <th>用戶ID</th>
             <th>總金額</th>
             <th>獲得紅利</th>
             <th>創建時間</th>
             <th>訂單狀態</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(order, index) in orders" :key="order.orderId">
+          <tr v-for="order in paginatedOrders" :key="order.id">
             <td>{{ order.orderNumber }}</td>
             <td>{{ order.userId }}</td>
             <td>{{ order.totalAmount }}</td>
             <td>{{ order.bonusPointsEarned }}</td>
             <td>{{ formatDate(order.createdAt) }}</td>
             <td>
-              <!-- <select v-model="order.status">
-                <option value="AVAILABLE">上架</option>
-                <option value="UNAVAILABLE">下架</option>
-                <option value="NOT_AVAILABLE_YET">尚未上架</option>
-                <option value="SOLD_OUT">上架已售完</option>
-              </select> -->
-              {{order.status}}
+              <select v-model="order.status" @change="updateOrderStatus(order.id, order.status)">
+                <option value="準備發貨">準備發貨</option>
+                <option value="已發貨">已發貨</option>
+                <option value="已送達">已送達</option>
+                <option value="已取消">已取消</option>
+              </select>
             </td>
+            <td>
+              <button @click="viewOrderDetails(order.id)">查看訂單明細</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pagination">
+    <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
+    <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
+    <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
+  </div>
+
+  <div v-if="showOrderDetailsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" @click="closeModal">&times;</span>
+      <h3>訂單明細 - 訂單號: {{ selectedOrderId }}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>獎品ID</th>
+            <th>獎品詳情ID</th>
+            <th>獎品詳情名稱</th>
+            <th>數量</th>
+            <th>單價</th>
+            <th>總價</th>
+            <th>結果狀態</th>
+            <th>獲得的積分</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="detail in paginatedOrderDetails" :key="detail.id">
+            <td>{{ detail.productId }}</td>
+            <td>{{ detail.productDetailId }}</td>
+            <td>{{ detail.productDetailName }}</td>
+            <td>{{ detail.quantity }}</td>
+            <td>{{ detail.unitPrice }}</td>
+            <td>{{ detail.totalPrice }}</td>
+            <td>{{ detail.resultStatus }}</td>
+            <td>{{ detail.bonusPointsEarned }}</td>
           </tr>
         </tbody>
       </table>
@@ -37,34 +78,95 @@
 </template>
 
 <script lang="ts" setup>
-import { getAllOrder } from '@/services/api';
-import { onMounted, ref } from 'vue';
+import { getAllOrder, getOrderDetailsByOrderId } from '@/services/api';
+import { computed, onMounted, ref } from 'vue';
 
 const orders = ref<any[]>([]);
+const orderDetails = ref<any[]>([]);
+const selectedOrderId = ref<number | null>(null);
+const showOrderDetailsModal = ref(false);
+const currentPage = ref(1);
+const itemsPerPage = 10;
 
 onMounted(() => {
   getOrder();
-    });
-
+});
 
 const getOrder = async () => {
   const res = await getAllOrder();
   orders.value = res.data;
-}
+};
 
+const paginatedOrders = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return orders.value.slice(startIndex, endIndex);
+});
 
-const formatDate = (dateString: string) => {
-      const date = new Date(dateString);
-      return date.toLocaleString('zh-TW', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    };
+const totalPages = computed(() => Math.ceil(orders.value.length / itemsPerPage));
 
+const formatDate = (dateArray: number[]) => {
+  const [year, month, day, hour, minute, second] = dateArray;
+  const date = new Date(year, month - 1, day, hour, minute, second);
 
+  return `${date.getFullYear()}年${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}月${date
+    .getDate()
+    .toString()
+    .padStart(2, '0')}日${date
+    .getHours()
+    .toString()
+    .padStart(2, '0')}時${date
+    .getMinutes()
+    .toString()
+    .padStart(2, '0')}分${date
+    .getSeconds()
+    .toString()
+    .padStart(2, '0')}秒`;
+};
+
+const updateOrderStatus = async (orderId: number, newStatus: string) => {
+  // try {
+  //   await updateOrderStatusAPI(orderId, newStatus);
+  //   console.log(`已更新訂單 ${orderId} 的狀態為 ${newStatus}`);
+  // } catch (error) {
+  //   console.error('Error updating order status:', error);
+  // }
+};
+
+const viewOrderDetails = async (orderId: number) => {
+  try {
+    selectedOrderId.value = orderId;
+    const res = await getOrderDetailsByOrderId(orderId);
+    orderDetails.value = res.data;
+    showOrderDetailsModal.value = true;
+  } catch (error) {
+    console.error('Error fetching order details:', error);
+  }
+};
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value -= 1;
+  }
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value += 1;
+  }
+};
+
+const closeModal = () => {
+  showOrderDetailsModal.value = false;
+};
+
+const paginatedOrderDetails = computed(() => {
+  const startIndex = (currentPage.value - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  return orderDetails.value.slice(startIndex, endIndex);
+});
 </script>
 
 <style scoped>

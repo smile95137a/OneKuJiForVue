@@ -77,7 +77,7 @@
   <div v-if="showUpdateDetailModal" class="modal">
     <div class="modal-content">
       <span class="close-button" @click="showUpdateDetailModal = false">&times;</span>
-      <h2>編輯會員</h2>
+      <h2>編輯商品</h2>
       <form @submit.prevent="updateMember">
         <input type="hidden" v-model="editingMember.productId">
         <div>
@@ -98,6 +98,9 @@
         </div>
         <div>
           <label for="image">圖片:</label>
+          <div v-if="editingMember.image">
+            <img :src="editingMember.image" alt="Current Image" style="max-width: 200px;" />
+          </div>
           <input id="image" type="file" @change="handleFileUpload">
         </div>
         <button type="submit">更新</button>
@@ -113,7 +116,7 @@ import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 const apiClient = axios.create({
-  baseURL: 'https://a153-2402-7500-4ce-3589-a97b-f3fb-d6ec-8d49.ngrok-free.app/api', // 根据实际情况修改
+  baseURL: 'http://localhost:8080/api', // 根据实际情况修改
   headers: {
     'Content-Type': 'multipart/form-data',
   },
@@ -150,15 +153,27 @@ const fetchProducts = async () => {
   }
 };
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('zh-TW', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+const formatDate = (dateArray: number[]) => {
+  // JavaScript 的月份是从 0 开始的，所以减去 1
+  const [year, month, day, hour, minute, second] = dateArray;
+  const date = new Date(year, month - 1, day, hour, minute, second);
+
+  // 格式化输出
+  return `${date.getFullYear()}年${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}月${date
+    .getDate()
+    .toString()
+    .padStart(2, '0')}日${date
+    .getHours()
+    .toString()
+    .padStart(2, '0')}時${date
+    .getMinutes()
+    .toString()
+    .padStart(2, '0')}分${date
+    .getSeconds()
+    .toString()
+    .padStart(2, '0')}秒`;
 };
 
 const showUpdateDetailModal = ref(false);
@@ -168,6 +183,8 @@ const editingMember = reactive<any>({
   description: '',
   quantity: '',
   grade: '',
+  image: '', // 保存图片的 URL
+  imageFile: null as File | null, // 用于保存用户上传的图片文件
 });
 
 const totalPages = computed(() => Math.ceil(detail.value.length / itemsPerPage));
@@ -196,11 +213,12 @@ const updateMember = async () => {
     description: editingMember.description,
     quantity: editingMember.quantity,
     grade: editingMember.grade,
+    image: editingMember.image, // 保留原始 imageUrl
   }));
 
   // 如果有圖片，添加到 formData 中
-  if (editingMember.image instanceof File) {
-    formData.append('image', editingMember.image);
+  if (editingMember.imageFile) {
+    formData.append('image', editingMember.imageFile);
   }
 
   try {
@@ -285,7 +303,7 @@ const addDetail = async () => {
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    editingMember.value.image = target.files[0];
+    editingMember.imageFile = target.files[0]; // 更新 imageFile
   }
 };
 

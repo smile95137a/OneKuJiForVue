@@ -3,8 +3,9 @@ import p1 from '@/assets/image/login.png';
 import Card from '@/components/common/Card.vue';
 import { login, LoginRequest, register, RegisterRequest } from '@/services/Front/Frontapi';
 import axios from 'axios';
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
 const router = useRouter();
 
 const loginForm = reactive({
@@ -34,8 +35,6 @@ const handleLogin = async () => {
     const response = await login(loginData);
     console.log('Login response:', response);
     if (response.accessToken) {
-      // Token is already set in localStorage by the login function
-      // Redirect to dashboard or home page
       router.push('/dashboard');
     }
   } catch (error) {
@@ -71,10 +70,34 @@ const handleRegister = async () => {
     }
   }
 };
+
 const toggleRegistration = () => {
   isRegistering.value = !isRegistering.value;
   errorMessage.value = '';
 };
+
+const loginWithGoogle = () => {
+  window.location.href = 'http://localhost:8081/oauth2/authorization/google';
+};
+
+const handleOAuth2Callback = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessToken = urlParams.get('accessToken');
+
+  if (accessToken) {
+    localStorage.setItem('token', accessToken);
+    console.log('登录成功，AccessToken:', accessToken);
+    // 跳转到主页
+    router.push('/dashboard');
+  } else {
+    errorMessage.value = '登录失败，请稍后重试。';
+  }
+};
+
+// 调用 handleOAuth2Callback 以处理 OAuth2 回调
+onMounted(() => {
+  handleOAuth2Callback();
+});
 </script>
 
 <template>
@@ -84,8 +107,8 @@ const toggleRegistration = () => {
         <div class="login__form">
           <template v-if="!isRegistering">
             <div class="login__auth">
-              <div class="login__auth-btn">
-                <div class="login__auth-btn-icon">
+              <div class="login__auth-btn" @click="loginWithGoogle">
+                <div class="login__auth-btn-icon" >
                   <i class="fa-brands fa-google"></i>
                 </div>
                 <div class="login__auth-btn-text">Google 帳號登入</div>

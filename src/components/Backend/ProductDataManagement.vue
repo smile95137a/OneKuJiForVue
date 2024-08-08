@@ -1,11 +1,16 @@
 <template>
   <div class="product-data-management">
-    <button class="add-member-button" @click="showAddMemberModal = true">新增會員</button>
+    <button class="add-member-button" @click="showAddMemberModal = true">新增商品</button>
     <h2>商品資訊</h2>
     <div class="selection-bar">
       <button @click="fetchData('PRIZE')">一番賞</button>
       <button @click="fetchData('GACHA')">扭蛋</button>
       <button @click="fetchData('BLIND_BOX')">盲盒</button>
+    </div>
+    <div class="selection-bar" v-if="showOneKuJi">
+      <button @click="fetchOneKuJiData('FIGURE')">一番賞</button>
+      <button @click="fetchOneKuJiData('C3')">3C家電賞</button>
+      <button @click="fetchOneKuJiData('BONUS')">紅利賞</button>
     </div>
     <div class="product-table">
       <table>
@@ -44,10 +49,10 @@
     </div>
   </div>
   <div class="pagination">
-      <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
-      <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
-    </div>
+    <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
+    <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
+    <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
+  </div>
 
   <div v-if="showAddMemberModal" class="modal">
     <div class="modal-content">
@@ -159,6 +164,9 @@
         </div>
         <div>
           <label for="image">圖片:</label>
+          <div v-if="editingMember.imageUrl">
+            <img :src="editingMember.imageUrl" alt="Current Image" style="max-width: 200px;" />
+          </div>
           <input id="image" type="file" @change="handleFileUpload">
         </div>
         <button type="submit">更新</button>
@@ -169,19 +177,19 @@
 
 <script lang="ts" setup>
 
-import { deleteProduct, getProductByType } from '@/services/api';
+import { deleteProduct, getProductByOneKuJiType, getProductByType } from '@/services/api';
 
 //import { updateProductStatus } from '@/services/Front/Frontapi'
 import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 const apiClient = axios.create({
-  baseURL: 'https://9691-111-248-113-219.ngrok-free.app/api', // 根据实际情况修改
+  baseURL: 'http://localhost:8080/api', // 根据实际情况修改
   headers: {
     'Content-Type': 'multipart/form-data',
   },
 });
-
+const showOneKuJi = ref(false);
 
 const showAddMemberModal = ref(false);
 const currentPage = ref(1);
@@ -191,11 +199,27 @@ const itemsPerPage = 10;
 const showCreateDetail = ref(false);
 const fetchData = async (productType: any) => {
   try {
-    const res = await getProductByType(productType);
-    products.value = res.data;
+    if (productType === 'PRIZE') {
+      showOneKuJi.value = true;
+      products.value = [];
+    } else {
+      showOneKuJi.value = false;
+      const res = await getProductByType(productType);
+      products.value = res.data;
+    }
   } catch (error) {
     console.error('Failed to fetch data:', error);
-    products.value = []; // 清空數據，顯示"查無資料"
+    products.value = [];
+  }
+};
+
+const fetchOneKuJiData = async (subType: any) => {
+  try {
+    const res = await getProductByOneKuJiType(subType);
+    products.value = res.data;
+  } catch (error) {
+    console.error('Failed to fetch OneKuJi data:', error);
+    products.value = [];
   }
 };
 
@@ -220,7 +244,8 @@ const editingMember = reactive<any>({
   price: '',
   stockQuantity: '',
   soldQuantity: '',
-  imageUrl: null as File | null,
+  imageUrl: '', // 保存图片的 URL
+  imageFile: null as File | null, // 用于保存用户上传的图片文件
   startDate: '',
   endDate: '',
   productType: '',
@@ -260,10 +285,9 @@ const updateMember = async () => {
   const formData = new FormData();
   console.log('123123', editingMember);
 
-  // 将 productReq 作为 JSON 字符串添加到 formData 中
   formData.append('productReq', JSON.stringify({
-    productId: editingMember.productId, // 确保这里包含了 productId
-    productDetailId: editingMember.productDetailId, // 如果需要的话
+    productId: editingMember.productId,
+    productDetailId: editingMember.productDetailId,
     productName: editingMember.productName,
     description: editingMember.description,
     price: editingMember.price,
@@ -274,13 +298,13 @@ const updateMember = async () => {
     productType: editingMember.productType,
     prizeCategory: editingMember.prizeCategory,
     status: editingMember.status,
+    imageUrl: editingMember.imageUrl, // 保留原始 imageUrl
   }));
 
-  // 如果有图片，添加到 formData 中
-  if (editingMember.imageUrl instanceof File) {
-    formData.append('image', editingMember.imageUrl);
+  // 如果有新图片，添加到 formData 中
+  if (editingMember.imageFile) {
+    formData.append('image', editingMember.imageFile);
   }
-
   try {
     // 更新数据
     await apiClient.put(`/product/${editingMember.productId}`, formData, {
@@ -310,11 +334,11 @@ const addDetail = async () => {
     prizeCategory: newgMember.value.prizeCategory,
     status: newgMember.value.status,
   }));
-  
+
   if (newgMember.value.imageUrl) {
     formData.append('image', newgMember.value.imageUrl);
   }
-  
+
   try {
     await apiClient.post('/productDetail/add', formData, {
       headers: {
@@ -348,7 +372,9 @@ const addDetail = async () => {
 const handleDetail = async (detail: any) => {
   if (confirm(`確定要刪除產品 ${detail.productName} 嗎？`)) {
     try {
-      await deleteProduct(detail.productDetailId);
+      console.log(detail);
+
+      await deleteProduct(detail.productId);
       await fetchData(detail.productType);
     } catch (error) {
       console.error('刪除會員失敗:', error);
@@ -370,13 +396,15 @@ const previousPage = () => {
 
 
 onMounted(() => {
-  fetchData('PRIZE'); // 默認加載一番賞商品
+  fetchData('PRIZE').then(() => {
+    fetchOneKuJiData('FIGURE');
+  });
 });
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    editingMember.value.image = target.files[0];
+    editingMember.imageFile = target.files[0]; // 更新 imageFile
   }
 };
 </script>
@@ -453,6 +481,7 @@ th {
   border-radius: 4px;
   cursor: pointer;
 }
+
 .member-management {
   padding: 20px;
 }

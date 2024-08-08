@@ -163,7 +163,7 @@ export const publicApiRequestWithoutAuth = async <T>(
       }
     };
     
-    const response = await axios(config); // 使用 axios 而不是 api 實例
+    const response = await api(config);
     console.log(`Response received from ${url}:`, response.data);
     return response.data;
   } catch (error) {
@@ -301,8 +301,9 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
 
 export const register = async (data: RegisterRequest): Promise<any> => {
   try {
+
     console.log('Sending register request:', data);
-    const response = await publicApiRequestWithoutAuth<any>('/auth/register', 'post', data);
+    const response = await publicApiRequestWithoutAuth<any>('/user/register', 'post', data);
     console.log('Register response:', response);
     return response;
   } catch (error) {

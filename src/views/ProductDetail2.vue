@@ -11,7 +11,7 @@
           <p class="product-price">價格: <span>{{ product.price }}</span> 金/抽</p>
           <p class="product-stock">剩餘數量: <span>{{ product.stockQuantity }}</span></p>
           <p class="product-status">狀態: <span :class="statusClass">{{ getProductStatus(product) }}</span></p>
-          
+
           <button @click="drawPrize" :disabled="!canDraw" class="draw-button">抽獎</button>
           <button @click="viewDrawResult" class="view-button">檢視抽況</button>
         </div>
@@ -107,9 +107,10 @@ const drawPrize = async () => {
 
   try {
     const userId = 1; // 假設用戶 ID 為 1，實際應用中應該從用戶狀態獲取
-    const response: DrawOnePrizeResponse = await drawOnePrize(userId, product.value.productId, {
+    const responseObj: DrawOnePrizeResponse = await drawOnePrize(userId, product.value.productId, {
       productId: product.value.productId,
-      productDetailId: 0, // 假設為 0，實際應用中可能需要從產品詳情中獲取
+      productDetailId: 0, // 假设为 0，实际应用中可能需要从产品详情中获取
+      productName: product.value.productName,
       productType: product.value.productType,
       drawFrom: 'PRIZE',
       amount: 1,
@@ -117,7 +118,12 @@ const drawPrize = async () => {
       remainingDrawCount: 0
     });
 
-    drawResult.value = `恭喜您抽中了 ${response.code}！`;
+
+    if (responseObj) {
+      drawResult.value = `恭喜您抽中了 ${responseObj.productName}！`;
+    } else {
+      drawResult.value = "抱歉，抽獎結果為空。";
+    }
     showDrawResult.value = true;
   } catch (err) {
     console.error('抽獎失敗', err);
@@ -169,7 +175,8 @@ onMounted(() => {
   font-family: Arial, sans-serif;
 }
 
-.loading, .error {
+.loading,
+.error {
   text-align: center;
   font-size: 18px;
   margin-top: 50px;
@@ -202,12 +209,15 @@ onMounted(() => {
   margin-bottom: 15px;
 }
 
-.product-price, .product-stock, .product-status {
+.product-price,
+.product-stock,
+.product-status {
   font-size: 18px;
   margin-bottom: 10px;
 }
 
-.product-price span, .product-stock span {
+.product-price span,
+.product-stock span {
   font-weight: bold;
   color: #e44d26;
 }
@@ -216,11 +226,20 @@ onMounted(() => {
   font-weight: bold;
 }
 
-.status-upcoming { color: #ffa500; }
-.status-ongoing { color: #4caf50; }
-.status-ended { color: #f44336; }
+.status-upcoming {
+  color: #ffa500;
+}
 
-.draw-button, .view-button {
+.status-ongoing {
+  color: #4caf50;
+}
+
+.status-ended {
+  color: #f44336;
+}
+
+.draw-button,
+.view-button {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
