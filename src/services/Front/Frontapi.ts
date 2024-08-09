@@ -1,11 +1,16 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
 
-const api: AxiosInstance = axios.create({
+export const api: AxiosInstance = axios.create({
   baseURL: 'http://localhost:8081',
   timeout: 1000000,
   headers: {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': true
+    'ngrok-skip-browser-warning': true,
   },
 });
 
@@ -159,10 +164,9 @@ export const publicApiRequestWithoutAuth = async <T>(
       url,
       data,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     };
-    
 
     const response = await api(config); // 使用 axios 而不是 api 實例
     console.log(`Response received from ${url}:`, response.data);
@@ -174,7 +178,7 @@ export const publicApiRequestWithoutAuth = async <T>(
         status: error.response?.status,
         statusText: error.response?.statusText,
         headers: error.response?.headers,
-        data: error.response?.data
+        data: error.response?.data,
       });
     } else {
       console.error(`Unexpected error in public API request to ${url}:`, error);
@@ -196,7 +200,7 @@ export const publicApiRequest = async <T>(
       url,
       data,
     };
-    
+
     const response = await api(config);
     console.log(`Response received from ${url}:`, response.data);
     return response.data;
@@ -207,7 +211,7 @@ export const publicApiRequest = async <T>(
         status: error.response?.status,
         statusText: error.response?.statusText,
         headers: error.response?.headers,
-        data: error.response?.data
+        data: error.response?.data,
       });
     } else {
       console.error(`Unexpected error in public API request to ${url}:`, error);
@@ -237,9 +241,13 @@ export const queryUsers = async (): Promise<User[]> => {
   }
 };
 
-export const getProductDetail = async (productDetailId: number): Promise<ProductDetail> => {
+export const getProductDetail = async (
+  productDetailId: number
+): Promise<ProductDetail> => {
   try {
-    const response: AxiosResponse<ProductDetail> = await api.get(`/productDetail/${productDetailId}`);
+    const response: AxiosResponse<ProductDetail> = await api.get(
+      `/productDetail/${productDetailId}`
+    );
     return response.data;
   } catch (error) {
     console.error('Error fetching product detail:', error);
@@ -249,7 +257,9 @@ export const getProductDetail = async (productDetailId: number): Promise<Product
 
 export const queryProductDetails = async (): Promise<ProductDetail[]> => {
   try {
-    const response: AxiosResponse<ProductDetail[]> = await api.get('/productDetail/query');
+    const response: AxiosResponse<ProductDetail[]> = await api.get(
+      '/productDetail/query'
+    );
     return response.data;
   } catch (error) {
     console.error('Error querying product details:', error);
@@ -259,7 +269,9 @@ export const queryProductDetails = async (): Promise<ProductDetail[]> => {
 
 export const getProduct = async (productId: number): Promise<Product> => {
   try {
-    const response: AxiosResponse<Product> = await api.get(`/product/${productId}`);
+    const response: AxiosResponse<Product> = await api.get(
+      `/product/${productId}`
+    );
     return response.data;
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -271,9 +283,16 @@ export const queryProducts = async (): Promise<Product[]> => {
   return publicApiRequest<Product[]>('/product/query');
 };
 
-export const drawOnePrize = async (userId: number, productId: number, data: DrawOnePrizeRequest): Promise<DrawOnePrizeResponse> => {
+export const drawOnePrize = async (
+  userId: number,
+  productId: number,
+  data: DrawOnePrizeRequest
+): Promise<DrawOnePrizeResponse> => {
   try {
-    const response: AxiosResponse<DrawOnePrizeResponse> = await api.put(`/draw/oneprize?userId=${userId}&productId=${productId}`, data);
+    const response: AxiosResponse<DrawOnePrizeResponse> = await api.put(
+      `/draw/oneprize?userId=${userId}&productId=${productId}`,
+      data
+    );
     return response.data;
   } catch (error) {
     console.error('Error in drawOnePrize:', error);
@@ -302,9 +321,12 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
 
 export const register = async (data: RegisterRequest): Promise<any> => {
   try {
-
     console.log('Sending register request:', data);
-    const response = await publicApiRequestWithoutAuth<any>('/user/register', 'post', data);
+    const response = await publicApiRequestWithoutAuth<any>(
+      '/user/register',
+      'post',
+      data
+    );
     console.log('Register response:', response);
     return response;
   } catch (error) {

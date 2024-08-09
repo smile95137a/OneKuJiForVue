@@ -1,7 +1,11 @@
 <template>
-  <div :class="['productCard', customClass]">
+  <router-link :class="['productCard', customClass]" :to="getProductDetailLink">
     <div class="productCard__img">
-      <img :src="imagePath" alt="Product Card Image" @error="handleImageError" />
+      <img
+        :src="imagePath"
+        alt="Product Card Image"
+        @error="handleImageError"
+      />
       <div class="productCard__img-status">{{ imgStatus }}</div>
       <div class="productCard__img-detail">
         <div class="productCard__img-balance">
@@ -24,13 +28,14 @@
       <div class="productCard__detail-title">{{ title }}</div>
       <div class="productCard__detail-content">{{ content }}</div>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import { defineProps, computed } from 'vue';
 
 interface IproductCardProps {
+  productId?: number;
   customClass?: string;
   imagePath: string;
   imgStatus?: string;
@@ -40,45 +45,28 @@ interface IproductCardProps {
   unitText?: string;
   title?: string;
   content?: string;
+  productType?: string;
 }
 
 const props = defineProps<IproductCardProps>();
 
+const getProductDetailLink = computed(() => {
+  if (props.productType === 'PRIZE' || props.productType === 'BLIND_BOX') {
+    return `/product-detail1/${props.productId}`;
+  } else if (props.productType === 'GACHA') {
+    return `/product-detail2/${props.productId}`;
+  } else {
+    return `#`;
+  }
+});
+
 const handleImageError = (event: Event) => {
-  console.error('Image failed to load:', (event.target as HTMLImageElement).src);
-  // 设置一个默认图片
+  console.error(
+    'Image failed to load:',
+    (event.target as HTMLImageElement).src
+  );
   (event.target as HTMLImageElement).src = '/path/to/default/image.jpg';
 };
 </script>
 
-<style scoped>
-/* 样式部分 */
-.productCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ccc;
-  padding: 20px;
-  margin: 10px;
-}
-
-.productCard__img {
-  width: 100%;
-  height: 200px;
-  background-color: #f0f0f0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
-
-.productCard__img img {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.productCard__detail {
-  padding-top: 10px;
-}
-</style>
+<style scoped></style>
