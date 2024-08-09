@@ -16,7 +16,7 @@
         </div>
         <div class="product-detail__title">
           <p class="product-detail__text">
-            一番賞關於我轉生變成史萊姆這檔事(代理版)_FVAA
+            一番賞關於我轉1生變成史萊姆這檔事(代理版)_FVAA
           </p>
         </div>
         <div class="product-detail__other">

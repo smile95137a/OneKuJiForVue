@@ -9,13 +9,24 @@ interface OneKujiDialogOptions {
   customClass?: string;
 }
 
+interface ConfirmDialogData {
+  remainingQuantity: number;
+  count: number;
+  total: number;
+}
+
 export const useDialogStore = defineStore('dialog', () => {
   const isConfirmDialogOpen = ref(false);
+  const confirmDialogData = ref<ConfirmDialogData | null>(null);
   const customClass = ref<string | undefined>(undefined);
   let resolveConfirmPromise: (value: boolean) => void;
 
-  const openConfirmDialog = (options: DialogOptions = {}): Promise<boolean> => {
+  const openConfirmDialog = (
+    options: DialogOptions = {},
+    data: ConfirmDialogData
+  ): Promise<boolean> => {
     isConfirmDialogOpen.value = true;
+    confirmDialogData.value = data;
     customClass.value = options.customClass;
     return new Promise((resolve) => {
       resolveConfirmPromise = resolve;
@@ -55,6 +66,7 @@ export const useDialogStore = defineStore('dialog', () => {
 
   return {
     isConfirmDialogOpen,
+    confirmDialogData,
     customClass,
     openConfirmDialog,
     closeConfirmDialog,

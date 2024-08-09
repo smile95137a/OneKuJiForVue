@@ -53,64 +53,52 @@
           {{ product?.description }}
         </div>
       </div>
-      <!-- <Card title="商品一覽" customClass="mcard--product-detail-one">
+
+      <Card title="商品一覽" customClass="mcard--product-detail-one">
         <div class="product-detail-one__products">
           <ProductCard2
-            v-for="(product, index) in products3"
+            v-for="(product, index) in productDetail"
             :key="index"
-            :customClass="product.customClass"
-            :imagePath="product.imagePath"
-            :productHeightText="product.productHeightText"
-            :balanceText="product.balanceText"
-            :balanceNum="product.balanceNum"
-            :title="product.title"
+            :customClass="`productCard2--${product.grade.toLowerCase()}`"
+            :imagePath="product.image"
+            :productHeightText="product.description"
+            :balanceText="product.quantity"
+            :balanceNum="product.quantity"
+            :title="product.productName"
           />
         </div>
-      </Card> -->
+      </Card>
 
-      <!-- <Card title="賞品介紹" customClass="mcard--product-detail-one">
+      <Card title="賞品介紹" customClass="mcard--product-detail-one">
         <div class="product-detail-one__productIntroduce">
           <div
             class="product-detail-one__productIntroduce-box product-detail-one__productIntroduce-box--one"
           >
             <div
-              v-for="(product, index) in products4.filter(
+              v-for="(product, index) in productDetail?.filter(
                 (_, index) => index % 2 !== 0
               )"
               :key="index"
               class="product-detail-one__productIntroduce-img"
             >
-              <img :src="product.imagePath" alt="" />
+              <img :src="product.image" alt="" />
             </div>
           </div>
           <div
             class="product-detail-one__productIntroduce-box product-detail-one__productIntroduce-box--two"
           >
             <div
-              v-for="(product, index) in products4.filter(
+              v-for="(product, index) in productDetail?.filter(
                 (_, index) => index % 2 === 0
               )"
               :key="index"
               class="product-detail-one__productIntroduce-img"
             >
-              <img :src="product.imagePath" alt="" />
+              <img :src="product.image" alt="" />
             </div>
           </div>
         </div>
-      </Card> -->
-
-      <!-- <Card title="檢視抽況" customClass="mcard--product-detail-one">
-        <div class="product-detail-one__text">剩餘數量：31 / 總數量：40</div>
-        <div class="product-detail-one__tickets">
-          <div
-            v-for="(product, index) in products5"
-            :key="index"
-            class="product-detail-one__tickets-img"
-          >
-            <img :src="product.imagePath" alt="" />
-          </div>
-        </div>
-      </Card> -->
+      </Card>
 
       <Card title="檢視抽況" customClass="mcard--product-detail-one">
         <div class="product-detail-one__text">
@@ -126,9 +114,9 @@
                 ? 'product-detail-one__boxs-img--active'
                 : '',
             ]"
-            @click="handleTicket(ticket)"
+            @click="!ticket.isDrawn ? handleTicket(ticket) : null"
           >
-            <img :src="ticket1" alt="" />
+            <img :src="getTicketImg(ticket)" alt="" />
           </div>
         </div>
       </Card>
@@ -147,10 +135,7 @@
         >
           立即兌換
         </div>
-        <div
-          class="product-detail-one__btn product-detail-one__btn--random"
-          @click="showConfirmDialog"
-        >
+        <div class="product-detail-one__btn product-detail-one__btn--random">
           隨機選擇
         </div>
         <div class="product-detail-one__btn product-detail-one__btn--im">
@@ -165,18 +150,30 @@
 import boxClose from '@/assets/image/box-close.png';
 import boxOpen from '@/assets/image/box-open.png';
 import btnIcon from '@/assets/image/btn-icon.png';
-import ticket1 from '@/assets/image/ticket1.png';
+import ticketImg from '@/assets/image/ticket.png';
+import ticketImgA from '@/assets/image/ticketF.png';
+import ticketImgB from '@/assets/image/ticketB.png';
+import ticketImgC from '@/assets/image/ticketC.png';
+import ticketImgD from '@/assets/image/ticketF.png';
+import ticketImgE from '@/assets/image/ticketE.png';
+import ticketImgF from '@/assets/image/ticketF.png';
+import ticketImgG from '@/assets/image/ticketF.png';
 import Card from '@/components/common/Card.vue';
 import { useDialogStore } from '@/stores';
 import { useRoute } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
 import { Product } from '@/services/Front/Frontapi';
-import { getProduct, getProductDetail } from '@/services/Front/productService';
+import {
+  getProduct,
+  getProductDetail,
+  ProductDetail,
+} from '@/services/Front/productService';
 import { executeDraw, getDrawStatus } from '@/services/Front/drawService';
-
+import ProductCard2 from '@/components/Frontend/ProductCard2.vue';
 const route = useRoute();
 const productId = Number(route.params.id);
 const product = ref<Product | null>(null);
+const productDetail = ref<ProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);
 
@@ -197,6 +194,7 @@ const fetchProductDetail = async () => {
   try {
     const data = await getProductDetail(productId);
     if (data) {
+      productDetail.value = data;
     } else {
       throw new Error('Product not found');
     }
@@ -225,10 +223,6 @@ onMounted(() => {
 });
 
 const dialogStore = useDialogStore();
-const showConfirmDialog = async () => {
-  const result = await dialogStore.openConfirmDialog();
-  console.log(result);
-};
 
 const remainingQuantity = computed(() => {
   return ticketList.value
@@ -242,8 +236,38 @@ const handleTicket = (ticket: any) => {
 const handleExchange = async () => {
   const { productId, number } = activeTicket.value;
   await dialogStore.openOneKujiDialog({}, 'ticket');
-  const data = await executeDraw(productId, 1, number);
-  console.log(data);
+  const { amount } = await executeDraw(productId, 1, number);
+  activeTicket.value = null;
+  fetchDrawStatus();
+  await dialogStore.openConfirmDialog(
+    { customClass: '' },
+    {
+      remainingQuantity: remainingQuantity.value - 1,
+      count: 1,
+      total: amount,
+    }
+  );
+};
+
+const getTicketImg = (ticket: any) => {
+  const { productType } = product.value;
+  const { grade, isDrawn } = ticket;
+
+  if (productType === 'PRIZE') {
+    const ticketImages: Record<string, string> = {
+      A: ticketImgA,
+      B: ticketImgB,
+      C: ticketImgC,
+      D: ticketImgD,
+      E: ticketImgE,
+      F: ticketImgF,
+      G: ticketImgG,
+    };
+
+    return isDrawn ? ticketImages[grade] || ticketImg : ticketImg;
+  } else {
+    return isDrawn ? boxOpen : boxClose;
+  }
 };
 </script>
 
