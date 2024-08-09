@@ -66,7 +66,7 @@
 
 <script setup lang="ts">
 import { useSlidebarStore } from '@/stores';
-import { useUserStore } from '@/stores/userStores';
+import { useUserStore } from '@/stores/userstore';
 import { useRouter } from 'vue-router';
 import logoImg from '@/assets/image/logo1.png';
 

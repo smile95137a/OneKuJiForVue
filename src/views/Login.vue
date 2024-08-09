@@ -5,7 +5,7 @@
         <div class="login__form">
           <template v-if="!isRegistering">
             <div class="login__auth">
-              <div class="login__auth-btn" @click="loginWithGoogle">
+              <div class="login__auth-btn" @click="handleGoogleLogin">
                 <div class="login__auth-btn-icon" >
                   <i class="fa-brands fa-google"></i>
                 </div>
@@ -96,16 +96,16 @@
 </template>
 
 <script setup lang="ts">
-import p1 from '@/assets/image/login.png';
-import Card from '@/components/common/Card.vue';
-import { login, LoginRequest, register, RegisterRequest } from '@/services/Front/Frontapi';
-import { useUserStore } from '@/stores/userstore';
-import axios from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userstore';
+import { login, LoginRequest, register, RegisterRequest, loginWithGoogle, handleOAuth2Callback } from '@/services/Front/Frontapi';
+import Card from '@/components/common/Card.vue';
+import p1 from '@/assets/image/login.png';
+import axios from 'axios';
 
 const router = useRouter();
-const userstore = useUserStore();
+const userStore = useUserStore();
 
 const loginForm = reactive({
   username: '',
@@ -126,24 +126,24 @@ const errorMessage = ref('');
 
 const handleLogin = async () => {
   try {
-    console.log('Attempting login with:', loginForm);
+    console.log('嘗試登入:', loginForm);
     const loginData: LoginRequest = {
       username: loginForm.username,
       password: loginForm.password,
     };
     const response = await login(loginData);
-    console.log('Login response:', response);
+    console.log('登入回應:', response);
     if (response.accessToken) {
-      localStorage.setItem('token', response.accessToken); // Store JWT token
-      userstore.login(loginForm.username);
+      localStorage.setItem('token', response.accessToken);
+      userStore.login(response.username);
       router.push('/home');
     }
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('登入錯誤:', error);
     if (axios.isAxiosError(error) && error.response) {
-      errorMessage.value = `登錄失敗: ${error.response.data.message || '請檢查您的憑證。'}`;
+      errorMessage.value = `登入失敗: ${error.response.data.message || '請檢查您的帳號密碼。'}`;
     } else {
-      errorMessage.value = '登錄失敗。請檢查您的憑證。';
+      errorMessage.value = '登入失敗。請檢查您的帳號密碼。';
     }
   }
 };
@@ -159,11 +159,11 @@ const handleRegister = async () => {
       address: registrationForm.address
     };
     const response = await register(registerData);
-    console.log('Registration successful', response);
+    console.log('註冊成功', response);
     isRegistering.value = false;
-    errorMessage.value = '註冊成功。請登錄。';
+    errorMessage.value = '註冊成功。請登入。';
   } catch (error) {
-    console.error('Registration failed', error);
+    console.error('註冊失敗', error);
     if (axios.isAxiosError(error) && error.response) {
       errorMessage.value = `註冊失敗: ${error.response.data.message || '請稍後再試。'}`;
     } else {
@@ -177,26 +177,29 @@ const toggleRegistration = () => {
   errorMessage.value = '';
 };
 
-const loginWithGoogle = () => {
-  window.location.href = 'http://localhost:8081/oauth2/authorization/google';
-};
-
-const handleOAuth2Callback = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const accessToken = urlParams.get('accessToken');
-
-  if (accessToken) {
-    localStorage.setItem('token', accessToken);
-    console.log('登录成功，AccessToken:', accessToken);
-    userstore.login('Google User'); // 假設使用 Google 登入的用戶名為 'Google User'
-    router.push('/home');
-  } else {
-    errorMessage.value = '登录失败，请稍后重试。';
-  }
+const handleGoogleLogin = () => {
+  loginWithGoogle();
 };
 
 onMounted(() => {
-  handleOAuth2Callback();
+  const urlParams = new URLSearchParams(window.location.search);
+  const accessToken = urlParams.get('accessToken');
+  const userId = urlParams.get('userId');
+  const username = urlParams.get('username');
+
+  if (accessToken && userId && username) {
+    handleOAuth2Callback(accessToken, userId, username)
+      .then(() => {
+        userStore.login(username);
+        router.push('/home');
+      })
+      .catch((error) => {
+        console.error('OAuth2 回調錯誤:', error);
+        errorMessage.value = '登入失敗，請稍後再試。';
+      });
+  } else if (urlParams.get('error')) {
+    errorMessage.value = '登入失敗，請稍後再試。';
+  }
 });
 </script>
 

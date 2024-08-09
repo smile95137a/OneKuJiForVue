@@ -1,3 +1,4 @@
+import { useUserStore } from '@/stores/userstore';
 import axios, {
   AxiosError,
   AxiosInstance,
@@ -46,7 +47,6 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     if (error.response && error.response.status === 401) {
       removeJwtToken();
-      // 可以在這裡添加重定向到登錄頁面的邏輯
     }
     return Promise.reject(error);
   }
@@ -133,7 +133,7 @@ export interface DrawOnePrizeResponse {
 export interface LoginRequest {
   username: string;
   password: string;
-  userId?: number; // 將 userId 設為可選
+  userId?: number;
 }
 
 export interface LoginResponse {
@@ -158,7 +158,7 @@ export const publicApiRequestWithoutAuth = async <T>(
   data?: any
 ): Promise<T> => {
   try {
-    console.log(`Sending ${method.toUpperCase()} request to ${url}`);
+    console.log(`發送 ${method.toUpperCase()} 請求到 ${url}`);
     const config: AxiosRequestConfig = {
       method,
       url,
@@ -168,12 +168,12 @@ export const publicApiRequestWithoutAuth = async <T>(
       },
     };
 
-    const response = await api(config); // 使用 axios 而不是 api 實例
-    console.log(`Response received from ${url}:`, response.data);
+    const response = await api(config);
+    console.log(`從 ${url} 收到回應:`, response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(`Error in public API request to ${url}:`, {
+      console.error(`公開 API 請求 ${url} 出錯:`, {
         message: error.message,
         status: error.response?.status,
         statusText: error.response?.statusText,
@@ -181,7 +181,7 @@ export const publicApiRequestWithoutAuth = async <T>(
         data: error.response?.data,
       });
     } else {
-      console.error(`Unexpected error in public API request to ${url}:`, error);
+      console.error(`公開 API 請求 ${url} 發生意外錯誤:`, error);
     }
     throw error;
   }
@@ -194,7 +194,7 @@ export const publicApiRequest = async <T>(
   data?: any
 ): Promise<T> => {
   try {
-    console.log(`Sending ${method.toUpperCase()} request to ${url}`);
+    console.log(`發送 ${method.toUpperCase()} 請求到 ${url}`);
     const config: AxiosRequestConfig = {
       method,
       url,
@@ -202,11 +202,11 @@ export const publicApiRequest = async <T>(
     };
 
     const response = await api(config);
-    console.log(`Response received from ${url}:`, response.data);
+    console.log(`從 ${url} 收到回應:`, response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(`Error in public API request to ${url}:`, {
+      console.error(`公開 API 請求 ${url} 出錯:`, {
         message: error.message,
         status: error.response?.status,
         statusText: error.response?.statusText,
@@ -214,7 +214,7 @@ export const publicApiRequest = async <T>(
         data: error.response?.data,
       });
     } else {
-      console.error(`Unexpected error in public API request to ${url}:`, error);
+      console.error(`公開 API 請求 ${url} 發生意外錯誤:`, error);
     }
     throw error;
   }
@@ -226,7 +226,7 @@ export const getUserInfo = async (userId: number): Promise<User> => {
     const response: AxiosResponse<User> = await api.get(`/user/${userId}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching user info:', error);
+    console.error('獲取用戶信息出錯:', error);
     throw error;
   }
 };
@@ -236,7 +236,7 @@ export const queryUsers = async (): Promise<User[]> => {
     const response: AxiosResponse<User[]> = await api.get('/user/query');
     return response.data;
   } catch (error) {
-    console.error('Error querying users:', error);
+    console.error('查詢用戶出錯:', error);
     throw error;
   }
 };
@@ -250,7 +250,7 @@ export const getProductDetail = async (
     );
     return response.data;
   } catch (error) {
-    console.error('Error fetching product detail:', error);
+    console.error('獲取產品詳情出錯:', error);
     throw error;
   }
 };
@@ -262,7 +262,7 @@ export const queryProductDetails = async (): Promise<ProductDetail[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error('Error querying product details:', error);
+    console.error('查詢產品詳情出錯:', error);
     throw error;
   }
 };
@@ -274,7 +274,7 @@ export const getProduct = async (productId: number): Promise<Product> => {
     );
     return response.data;
   } catch (error) {
-    console.error('Error fetching product:', error);
+    console.error('獲取產品出錯:', error);
     throw error;
   }
 };
@@ -295,25 +295,27 @@ export const drawOnePrize = async (
     );
     return response.data;
   } catch (error) {
-    console.error('Error in drawOnePrize:', error);
+    console.error('抽獎出錯:', error);
     throw error;
   }
 };
 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
-    console.log('Sending login request:', data);
+    console.log('發送登入請求:', data);
     const response = await api.post<LoginResponse>('/auth/login', data);
-    console.log('Login response:', response.data);
+    console.log('登入回應:', response.data);
     if (response.data.accessToken) {
       setJwtToken(response.data.accessToken);
+      const userStore = useUserStore();
+      userStore.login(response.data.username);
     }
     return response.data;
   } catch (error) {
-    console.error('Error during login:', error);
+    console.error('登入過程中出錯:', error);
     if (axios.isAxiosError(error)) {
-      console.error('Response:', error.response);
-      console.error('Request:', error.request);
+      console.error('回應:', error.response);
+      console.error('請求:', error.request);
     }
     throw error;
   }
@@ -321,23 +323,40 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
 
 export const register = async (data: RegisterRequest): Promise<any> => {
   try {
-    console.log('Sending register request:', data);
+    console.log('發送註冊請求:', data);
     const response = await publicApiRequestWithoutAuth<any>(
       '/user/register',
       'post',
       data
     );
-    console.log('Register response:', response);
+    console.log('註冊回應:', response);
     return response;
   } catch (error) {
-    console.error('Error during registration:', error);
+    console.error('註冊過程中出錯:', error);
     throw error;
   }
 };
 
 export const logout = () => {
   removeJwtToken();
-  // 可以在這裡添加其他登出邏輯，如重定向到登錄頁面
+};
+
+export const loginWithGoogle = () => {
+  window.location.href = `${api.defaults.baseURL}/oauth2/authorization/google`;
+};
+
+export const handleOAuth2Callback = async (
+  accessToken: string,
+  userId: string,
+  username: string
+): Promise<{ userId: string; username: string }> => {
+  setJwtToken(accessToken);
+  
+  // 更新用戶存儲
+  const userStore = useUserStore();
+  userStore.login(username);
+  
+  return { userId, username };
 };
 
 export default api;
