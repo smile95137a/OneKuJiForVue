@@ -11,6 +11,7 @@
   </div>
   <ConfirmDialog />
   <OneKuJiDialog />
+  <LoadingMask v-if="loadingStore.isLoading" />
 </template>
 
 <script setup lang="ts">
@@ -21,10 +22,12 @@ import { useRoute } from 'vue-router';
 import { onMounted } from 'vue';
 import { useUserStore } from '@/stores/userstore';
 import OneKuJiDialog from './components/common/OneKuJiDialog.vue';
+import LoadingMask from './components/common/LoadingMask.vue';
+import { useLoadingStore } from './stores';
 
 const route = useRoute();
 const userStore = useUserStore();
-
+const loadingStore = useLoadingStore();
 onMounted(() => {
   const token = localStorage.getItem('token');
   if (token) {

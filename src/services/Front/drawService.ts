@@ -26,11 +26,11 @@ export interface PrizeNumber {
 
 export const drawPrize = async (
   userId: number,
-  drawRequests: DrawRequest[],
+  drawRequests: any,
   productId: number
 ): Promise<DrawResult> => {
   try {
-    const response = await api.put('/draw/oneprize', drawRequests, {
+    const response = await api.post('/draw/oneprize', drawRequests, {
       params: { userId, productId },
     });
     return response.data;

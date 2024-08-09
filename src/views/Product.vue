@@ -1,6 +1,5 @@
 <template>
   <div class="product">
-    <button @click="showOneKuJiDialog">點擊我</button>
     <div class="product__title">
       <div class="product__text" data-text="一番賞">一番賞</div>
     </div>
@@ -73,24 +72,23 @@ const error = ref('');
 const buttons = [
   { type: 'official', title: '官方一番賞', category: 'FIGURE' },
   { type: '3c', title: '3C一番賞', category: 'C3' },
-  { type: 'bonus', title: '紅利賞', category: 'BONUS' }
+  { type: 'bonus', title: '紅利賞', category: 'BONUS' },
 ];
 
 const filteredProducts = computed(() => {
-  const buttonCategory = buttons.find(btn => btn.type === activeBtn.value)?.category;
-  return products.value.filter(product => 
-    product.productType === 'PRIZE' && product.prizeCategory === buttonCategory
+  const buttonCategory = buttons.find(
+    (btn) => btn.type === activeBtn.value
+  )?.category;
+  return products.value.filter(
+    (product) =>
+      product.productType === 'PRIZE' &&
+      product.prizeCategory === buttonCategory
   );
 });
 
 const handleBtnClick = (btnType: string, btnTitle: string) => {
   activeBtn.value = btnType;
   title.value = btnTitle;
-};
-
-const showOneKuJiDialog = async () => {
-  const result = await dialogStore.openOneKujiDialog({}, 'box');
-  console.log(result);
 };
 
 const fetchProducts = async () => {
@@ -100,10 +98,12 @@ const fetchProducts = async () => {
   try {
     const response = await queryProducts();
     if (Array.isArray(response)) {
-      products.value = response.filter(product => product.productType === 'PRIZE').map(product => ({
-        ...product,
-        imageUrl: ensureFullImageUrl(product.imageUrl)
-      }));
+      products.value = response
+        .filter((product) => product.productType === 'PRIZE')
+        .map((product) => ({
+          ...product,
+          imageUrl: ensureFullImageUrl(product.imageUrl),
+        }));
     } else {
       throw new Error('API 返回的數據格式不正確');
     }
@@ -142,43 +142,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.product {
-  padding: 20px;
-}
-
-.product__list-products {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.product__btn {
-  cursor: pointer;
-  padding: 10px 20px;
-  margin-right: 10px;
-  background-color: #f0f0f0;
-  border-radius: 5px;
-}
-
-.product__btn--active {
-  background-color: #007bff;
-  color: white;
-}
-
-.product__loading,
-.product__error,
-.product__no-data {
-  text-align: center;
-  padding: 20px;
-  font-size: 18px;
-}
-
-.product__error {
-  color: red;
-}
-
-.product__no-data {
-  color: #666;
-}
-</style>
+<style scoped></style>

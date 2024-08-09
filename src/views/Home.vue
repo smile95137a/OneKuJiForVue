@@ -80,6 +80,7 @@ import bg from '@/assets/image/bg1.jpeg';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 import { Product, queryProducts } from '@/services/Front/Frontapi';
+import { useLoadingStore } from '@/stores';
 import axios from 'axios';
 import { Navigation } from 'swiper/modules';
 import 'swiper/scss';
@@ -90,11 +91,13 @@ import { onMounted, ref } from 'vue';
 const prizeProducts = ref<Product[]>([]);
 const blindBoxProducts = ref<Product[]>([]);
 const gachaProducts = ref<Product[]>([]);
+const loadingStore = useLoadingStore();
 
 const fetchProducts = async () => {
   try {
+    loadingStore.startLoading();
     const products = await queryProducts();
-
+    loadingStore.stopLoading();
     prizeProducts.value = products.filter(
       (p: Product) => p.productType === 'PRIZE'
     );
@@ -105,6 +108,7 @@ const fetchProducts = async () => {
       (p: Product) => p.productType === 'GACHA'
     );
   } catch (error) {
+    loadingStore.stopLoading();
     if (axios.isAxiosError(error)) {
       console.error('Config:', error.config);
     } else {
@@ -124,7 +128,6 @@ const getProductStatus = (product: Product): string => {
 };
 
 onMounted(() => {
-  console.log('Component mounted, fetching products...');
   fetchProducts();
 });
 </script>

@@ -213,7 +213,7 @@ $root-block-name: '.product-detail';
       padding: 24px 0;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 16px;
+      gap: 48px;
       justify-items: center;
 
       @include screen(md) {

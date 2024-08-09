@@ -151,15 +151,15 @@ import boxClose from '@/assets/image/box-close.png';
 import boxOpen from '@/assets/image/box-open.png';
 import btnIcon from '@/assets/image/btn-icon.png';
 import ticketImg from '@/assets/image/ticket.png';
-import ticketImgA from '@/assets/image/ticketF.png';
-import ticketImgB from '@/assets/image/ticketB.png';
-import ticketImgC from '@/assets/image/ticketC.png';
-import ticketImgD from '@/assets/image/ticketF.png';
-import ticketImgE from '@/assets/image/ticketE.png';
-import ticketImgF from '@/assets/image/ticketF.png';
-import ticketImgG from '@/assets/image/ticketF.png';
+import ticketImgA from '@/assets/image/ticket_A.png';
+import ticketImgB from '@/assets/image/ticket_B.png';
+import ticketImgC from '@/assets/image/ticket_C.png';
+import ticketImgD from '@/assets/image/ticket_D.png';
+import ticketImgE from '@/assets/image/ticket_E.png';
+import ticketImgF from '@/assets/image/ticket_F.png';
+import ticketImgG from '@/assets/image/ticket_G.png';
 import Card from '@/components/common/Card.vue';
-import { useDialogStore } from '@/stores';
+import { useDialogStore, useLoadingStore } from '@/stores';
 import { useRoute } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
 import { Product } from '@/services/Front/Frontapi';
@@ -176,7 +176,7 @@ const product = ref<Product | null>(null);
 const productDetail = ref<ProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);
-
+const loadingStore = useLoadingStore();
 const fetchProduct = async () => {
   try {
     const data = await getProduct(productId);
@@ -234,9 +234,16 @@ const handleTicket = (ticket: any) => {
   activeTicket.value = ticket;
 };
 const handleExchange = async () => {
+  const { productType } = product.value;
   const { productId, number } = activeTicket.value;
-  await dialogStore.openOneKujiDialog({}, 'ticket');
+  loadingStore.startLoading();
   const { amount } = await executeDraw(productId, 1, number);
+
+  loadingStore.stopLoading();
+  await dialogStore.openOneKujiDialog(
+    {},
+    productType === 'PRIZE' ? 'ticket' : 'box'
+  );
   activeTicket.value = null;
   fetchDrawStatus();
   await dialogStore.openConfirmDialog(
