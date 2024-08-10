@@ -1,13 +1,8 @@
 import {
-  getJwtToken,
-  getUserId,
-  getUsername,
+  getAuthToken,
   publicApiRequest,
   removeUserInfo,
-  setAuthToken,
-  setJwtToken,
-  setUserId,
-  setUsername
+  setAuthToken
 } from '@/services/Front/Frontapi';
 import { defineStore } from 'pinia';
 
@@ -22,9 +17,9 @@ export interface UserInfo {
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    userId: getUserId(),
-    username: getUsername() || '',
-    isLoggedIn: !!getJwtToken(),
+    userId: null as number | null,
+    username: '',
+    isLoggedIn: !!getAuthToken(),
     userInfo: null as UserInfo | null,
   }),
   actions: {
@@ -33,13 +28,10 @@ export const useUserStore = defineStore('user', {
         this.username = username;
         this.userId = userId;
         this.isLoggedIn = true;
-        setJwtToken(token);
-        setUserId(userId);
-        setUsername(username);
         setAuthToken(token);
       } else {
         console.error('Login failed: Invalid user data');
-        // 可以在這裡觸發一個錯誤通知
+        // 可以在这里触发一个错误通知
       }
     },
     logout() {
@@ -47,8 +39,7 @@ export const useUserStore = defineStore('user', {
       this.userId = null;
       this.isLoggedIn = false;
       this.userInfo = null;
-      removeUserInfo();
-      setAuthToken('');
+      removeUserInfo(); // 确保也会清除 API 中的 token
     },
     async fetchUserInfo() {
       try {

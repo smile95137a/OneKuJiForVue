@@ -6,7 +6,7 @@
           <template v-if="!isRegistering">
             <div class="login__auth">
               <div class="login__auth-btn" @click="handleGoogleLogin">
-                <div class="login__auth-btn-icon" >
+                <div class="login__auth-btn-icon">
                   <i class="fa-brands fa-google"></i>
                 </div>
                 <div class="login__auth-btn-text">Google 帳號登入</div>
@@ -96,10 +96,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userstore';
-import { login, LoginRequest, register, RegisterRequest, loginWithGoogle, handleOAuth2Callback, setAuthToken } from '@/services/Front/Frontapi';
+import { login, LoginRequest, register, RegisterRequest, loginWithGoogle, handleOAuth2Callback } from '@/services/Front/Frontapi';
 import Card from '@/components/common/Card.vue';
 import p1 from '@/assets/image/login.png';
 
@@ -148,7 +148,7 @@ const handleRegister = async () => {
       nickname: registrationForm.nickname,
       email: registrationForm.email,
       phoneNumber: registrationForm.phoneNumber,
-      address: registrationForm.address
+      address: registrationForm.address,
     };
     const response = await register(registerData);
     console.log('註冊成功', response);
@@ -178,12 +178,11 @@ onMounted(() => {
   if (accessToken && userId && username) {
     handleOAuth2Callback(accessToken, userId, username)
       .then(() => {
-        setAuthToken(accessToken);
         userStore.login(username, parseInt(userId, 10), accessToken);
         router.push('/home');
       })
       .catch((error) => {
-        console.error('OAuth2 回調錯誤:', error);
+        console.error('OAuth2 回调错误:', error);
         errorMessage.value = '登入失敗，請稍後再試。';
       });
   } else if (urlParams.get('error')) {
