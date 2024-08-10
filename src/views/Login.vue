@@ -99,10 +99,9 @@
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userstore';
-import { login, LoginRequest, register, RegisterRequest, loginWithGoogle, handleOAuth2Callback } from '@/services/Front/Frontapi';
+import { login, LoginRequest, register, RegisterRequest, loginWithGoogle, handleOAuth2Callback, setAuthToken } from '@/services/Front/Frontapi';
 import Card from '@/components/common/Card.vue';
 import p1 from '@/assets/image/login.png';
-import axios from 'axios';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -126,25 +125,18 @@ const errorMessage = ref('');
 
 const handleLogin = async () => {
   try {
-    console.log('嘗試登入:', loginForm);
     const loginData: LoginRequest = {
       username: loginForm.username,
       password: loginForm.password,
     };
     const response = await login(loginData);
-    console.log('登入回應:', response);
     if (response.accessToken) {
-      localStorage.setItem('token', response.accessToken);
-      userStore.login(response.username);
+      userStore.login(response.username, response.userId, response.accessToken);
       router.push('/home');
     }
   } catch (error) {
     console.error('登入錯誤:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      errorMessage.value = `登入失敗: ${error.response.data.message || '請檢查您的帳號密碼。'}`;
-    } else {
-      errorMessage.value = '登入失敗。請檢查您的帳號密碼。';
-    }
+    errorMessage.value = error.message || '登入失敗，請稍後再試。';
   }
 };
 
@@ -164,11 +156,7 @@ const handleRegister = async () => {
     errorMessage.value = '註冊成功。請登入。';
   } catch (error) {
     console.error('註冊失敗', error);
-    if (axios.isAxiosError(error) && error.response) {
-      errorMessage.value = `註冊失敗: ${error.response.data.message || '請稍後再試。'}`;
-    } else {
-      errorMessage.value = '註冊失敗。請稍後再試。';
-    }
+    errorMessage.value = error.message || '註冊失敗。請稍後再試。';
   }
 };
 
@@ -190,7 +178,8 @@ onMounted(() => {
   if (accessToken && userId && username) {
     handleOAuth2Callback(accessToken, userId, username)
       .then(() => {
-        userStore.login(username);
+        setAuthToken(accessToken);
+        userStore.login(username, parseInt(userId, 10), accessToken);
         router.push('/home');
       })
       .catch((error) => {
