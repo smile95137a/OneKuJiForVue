@@ -1,7 +1,7 @@
 <template>
   <div class="product3">
     <div class="product3__title">
-      <div class="product3__text" data-text="GACHA">GACHA</div>
+      <div class="product3__text" data-text="">扭蛋</div>
     </div>
     <div class="product3__btns">
       <div class="product3__btns-selects">
@@ -24,7 +24,7 @@
             <input
               type="text"
               v-model="searchQuery"
-              placeholder="搜索 GACHA..."
+              placeholder="搜索 扭蛋..."
             />
           </div>
           <div class="product3__input-icon font-size-28">
@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <Card title="GACHA" customClass="mcard--home">
+    <Card title="扭蛋" customClass="mcard--home">
       <div class="product3__list">
         <div class="product3__list-title">
           <div class="product3__list-filter">

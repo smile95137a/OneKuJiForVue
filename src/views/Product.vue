@@ -58,9 +58,9 @@
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 import { queryProducts } from '@/services/Front/Frontapi';
+import { useDialogStore } from '@/stores/dialogStore';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useDialogStore } from '@/stores/dialogStore';
 
 const dialogStore = useDialogStore();
 const router = useRouter();
@@ -71,9 +71,9 @@ const loading = ref(true);
 const error = ref('');
 
 const buttons = [
-  { type: 'official', title: '官方一番賞', category: 'FIGURE' },
-  { type: '3c', title: '3C一番賞', category: 'C3' },
-  { type: 'bonus', title: '紅利賞', category: 'BONUS' },
+  { type: 'official', title: '官方一番賞', category: '一番賞' },
+  { type: '3c', title: '3C一番賞', category: '家電一番賞' },
+  { type: 'bonus', title: '紅利賞', category: '紅利一番賞' },
 ];
 
 const filteredProducts = computed(() => {
@@ -105,6 +105,9 @@ const fetchProducts = async () => {
           ...product,
           imageUrl: ensureFullImageUrl(product.imageUrl),
         }));
+
+        console.log('1231231' , products.value);
+        
     } else {
       throw new Error('API 返回的數據格式不正確');
     }
@@ -135,7 +138,8 @@ const ensureFullImageUrl = (url: string) => {
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
-  return `http://localhost:8081${url.startsWith('/') ? '' : '/'}${url}`;
+  // return `http://localhost:8081${url.startsWith('/') ? '' : '/'}${url}`;
+  return `https://3574-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app${url.startsWith('/') ? '' : '/'}${url}`;
 };
 
 onMounted(() => {

@@ -5,7 +5,8 @@ import axios, { AxiosResponse } from 'axios';
 // 创建一个 axios 实例
 const apiClient = axios.create({
 
-  baseURL: 'http://localhost:8080/api',
+  // baseURL: 'http://localhost:8080/api',
+  baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api',
 
   headers: {
     'Content-Type': 'application/json',
@@ -40,7 +41,8 @@ export const getUsers = (): Promise<AxiosResponse<Member[]>> => {
 };
 
 export const loginJwt = axios.create({
-  baseURL: 'http://localhost:8080/api', // 确保与后端地址一致
+  // baseURL: 'http://localhost:8080/api', // 确保与后端地址一致
+  baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 确保与后端地址一致
   headers: {
     'Content-Type': 'application/json', 'ngrok-skip-browser-warning':true
   }

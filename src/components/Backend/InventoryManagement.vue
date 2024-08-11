@@ -67,7 +67,10 @@
         </div>
         <div>
           <label for="image">圖片:</label>
-          <input id="image" type="file" @change="handleFileUpload">
+          <div v-if="newgMember.image">
+            <img :src="newgMember.image" alt="Current Image" style="max-width: 200px;" />
+          </div>
+          <input id="image" type="file" @change="handleFileUploadnew">
         </div>
         <button type="submit">提交</button>
       </form>
@@ -116,7 +119,8 @@ import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api', // 根据实际情况修改
+  // baseURL: 'http://localhost:8080/api', // 根据实际情况修改
+  baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 根据实际情况修改
   headers: {
     'Content-Type': 'multipart/form-data',
   },
@@ -127,13 +131,14 @@ const detail = ref<any[]>([]);
 const itemsPerPage = 10;
 const showCreateDetail = ref(false);
 const newgMember = ref({
-  productId: '',
-  productName: '',
-  description: '',
-  quantity: '',
-  grade: '',
-  image: null as File | null,
-});
+      productId: '',
+      productName: '',
+      description: '',
+      quantity: '',
+      grade: '',
+      image: '', // 保存图片的 URL
+      imageFile: null // 用于保存用户上传的图片文件
+    });
 
 const fetchDetailData = async () => {
   try {
@@ -267,32 +272,42 @@ onMounted(() => {
 
 const addDetail = async () => {
   const formData = new FormData();
-  formData.append('productDetailReq', JSON.stringify({
+
+  // 构建产品详细信息对象
+  const productDetailReq = {
     productId: newgMember.value.productId,
     productName: newgMember.value.productName,
     description: newgMember.value.description,
     quantity: newgMember.value.quantity,
     grade: newgMember.value.grade,
-  }));
-  if (newgMember.value.image) {
-    formData.append('image', newgMember.value.image);
+  };
+
+  formData.append('productDetailReq', JSON.stringify(productDetailReq));
+
+  // 附加图片文件
+  if (newgMember.value.imageFile) {
+    formData.append('image', newgMember.value.imageFile);
   }
+
   try {
     await apiClient.post('/productDetail/add', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    // Reset form
+
+    // 重置表单
     newgMember.value = {
       productId: '',
       productName: '',
       description: '',
       quantity: '',
       grade: '',
-      image: null,
+      image: '',
+      imageFile: null
     };
-    // Fetch data or update UI as needed
+
+    // 更新 UI 或获取新数据
     await fetchDetailData();
     showCreateDetail.value = false;
   } catch (error) {
@@ -306,6 +321,14 @@ const handleFileUpload = (event: Event) => {
     editingMember.imageFile = target.files[0]; // 更新 imageFile
   }
 };
+
+const handleFileUploadnew = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        newgMember.value.imageFile = file; // 保存文件对象
+        newgMember.value.image = URL.createObjectURL(file); // 显示预览
+      }
+    };
 
 
 </script>
