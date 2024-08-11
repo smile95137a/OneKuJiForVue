@@ -49,6 +49,7 @@
             :unitText="'/抽'"
             :title="product.productName"
             :content="product.description"
+            @click="navigateToDetail(product.productId)"
             :product-type="product.productType"
             :product-id="product.productId"
           />
@@ -93,7 +94,7 @@ const getProductStatus = (product: Product): string => {
 };
 
 const navigateToDetail = (productId: number) => {
-  router.push({ name: 'ProductDetail2', params: { id: productId.toString() } });
+  router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });
 };
 
 onMounted(() => {

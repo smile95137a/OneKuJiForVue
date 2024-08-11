@@ -77,6 +77,19 @@ api.interceptors.response.use(
   }
 );
 
+export const getOrderById = async (userId: any) => {
+  try {
+    const response = await api.get(`/order/${userId}`);
+    return response.data; // 返回订单数据
+  } catch (error) {
+    console.error('获取订单信息时出错:', error);
+    if (error.response && error.response.status === 404) {
+      throw new Error('订单未找到');
+    }
+    throw new Error('无法获取订单信息，请稍后再试');
+  }
+};
+
 export interface LoginRequest {
   username: string;
   password: string;
