@@ -51,6 +51,8 @@
           :unitText="'/抽'"
           :title="product.productName"
           :content="product.description"
+          :product-type="product.productType"
+          :product-id="product.productId"
         />
       </div>
     </Card>
@@ -69,6 +71,8 @@
           :unitText="'/抽'"
           :title="product.productName"
           :content="product.description"
+          :product-type="product.productType"
+          :product-id="product.productId"
         />
       </div>
     </Card>

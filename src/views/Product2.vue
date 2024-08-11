@@ -50,6 +50,8 @@
             :title="product.productName"
             :content="product.description"
             @click="navigateToDetail(product.productId)"
+            :product-type="product.productType"
+            :product-id="product.productId"
           />
         </div>
       </div>
@@ -71,7 +73,9 @@ const fetchProducts = async () => {
   try {
     console.log('Fetching products for BLIND_BOX...');
     const products = await queryProducts();
-    BLIND_BOXProducts.value = products.filter(product => product.productType === 'BLIND_BOX');
+    BLIND_BOXProducts.value = products.filter(
+      (product) => product.productType === 'BLIND_BOX'
+    );
     console.log('BLIND_BOX products:', BLIND_BOXProducts.value);
   } catch (error) {
     console.error('Error fetching BLIND_BOX products:', error);
@@ -79,14 +83,14 @@ const fetchProducts = async () => {
 };
 
 const getProductStatus = (product: Product): string => {
-    const now = new Date();
-    const startDate = new Date(product.startDate);
-    const endDate = new Date(product.endDate);
-    console.log(`开始时间: ${startDate}, 结束时间: ${endDate}`);
+  const now = new Date();
+  const startDate = new Date(product.startDate);
+  const endDate = new Date(product.endDate);
+  console.log(`开始时间: ${startDate}, 结束时间: ${endDate}`);
 
-    if (now < startDate) return '即將開始';
-    if (now > endDate) return '已結束';
-    return '開抽中';
+  if (now < startDate) return '即將開始';
+  if (now > endDate) return '已結束';
+  return '開抽中';
 };
 
 const navigateToDetail = (productId: number) => {
@@ -110,7 +114,8 @@ onMounted(() => {
   gap: 20px;
 }
 
-.product2__btns, .product2__list {
+.product2__btns,
+.product2__list {
   margin-top: 20px;
 }
 </style>

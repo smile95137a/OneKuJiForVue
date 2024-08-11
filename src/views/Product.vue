@@ -46,6 +46,8 @@
             :title="product.productName"
             :content="product.description"
             @click="navigateToDetail(product.productId)"
+            :product-type="product.productType"
+            :product-id="product.productId"
           />
         </div>
       </div>
