@@ -88,24 +88,34 @@
           <input id="grade" v-model="newgMember.soldQuantity" required>
         </div>
         <div>
-          <label for="grade">活動開始日期:</label>
-          <input id="grade" v-model="newgMember.startDate" required>
+          <label for="start-date">活動開始日期:</label>
+          <input id="start-date" type="datetime-local" v-model="newgMember.startDate" required>
         </div>
         <div>
-          <label for="grade">活動結束日期:</label>
-          <input id="grade" v-model="newgMember.endDate" required>
+          <label for="end-date">活動結束日期:</label>
+          <input id="end-date" type="datetime-local" v-model="newgMember.endDate" required>
         </div>
-        <div>
-          <label for="grade">一番賞類別:</label>
-          <input id="grade" v-model="newgMember.prizeCategory">
+
+        <!-- 只有當產品類型為一番賞時才顯示此部分 -->
+        <div v-if="newgMember.productType === 'PRIZE'">
+          <label for="prizeCategory">一番賞類別:</label>
+          <select id="prizeCategory" v-model="newgMember.prizeCategory">
+            <option value="FIGURE">一番賞</option>
+            <option value="C3">家電一番賞</option>
+            <option value="BONUS">紅利一番賞</option>
+          </select>
         </div>
+
         <div>
           <label for="grade">狀態:</label>
           <input id="grade" v-model="newgMember.status" required>
         </div>
         <div>
           <label for="image">圖片:</label>
-          <input id="image" type="file" @change="handleFileUpload">
+          <div v-if="newgMember.imageUrl">
+            <img :src="newgMember.imageUrl" alt="Current Image" style="max-width: 200px;" />
+          </div>
+          <input id="image" type="file" @change="handleFileUploadNew">
         </div>
         <button type="submit">提交</button>
       </form>
@@ -184,7 +194,8 @@ import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api', // 根据实际情况修改
+  // baseURL: 'http://localhost:8080/api', // 根据实际情况修改
+  baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 根据实际情况修改
   headers: {
     'Content-Type': 'multipart/form-data',
   },
@@ -256,15 +267,16 @@ const editingMember = reactive<any>({
 const newgMember = ref({
   productName: '',
   description: '',
-  price: '',
-  stockQuantity: '',
-  soldQuantity: '',
-  imageUrl: null as File | null,
+  price: 0, // 假设 price 应该是数字类型
+  stockQuantity: 0, // 数量应该是整数
+  soldQuantity: 0, // 数量应该是整数
+  imageUrl: '', // 保存图片的 URL
+  imageFile: null as File | null, // 用于保存用户上传的图片文件
   startDate: '',
   endDate: '',
   productType: '',
   prizeCategory: '',
-  status: '',
+  status: ''
 });
 
 const totalPages = computed(() => Math.ceil(detail.value.length / itemsPerPage));
@@ -320,40 +332,52 @@ const updateMember = async () => {
     console.error('更新进货失败:', error);
   }
 };
+
 const addDetail = async () => {
   const formData = new FormData();
-  formData.append('productReq', JSON.stringify({
+
+  // 添加产品详情信息
+  const productDetailReq = {
+    productId: newgMember.value.productId,
     productName: newgMember.value.productName,
     description: newgMember.value.description,
     price: newgMember.value.price,
     stockQuantity: newgMember.value.stockQuantity,
     soldQuantity: newgMember.value.soldQuantity,
-    startDate: newgMember.value.startDate,
-    endDate: newgMember.value.endDate,
+    startDate: new Date(newgMember.value.startDate),
+    endDate: new Date(newgMember.value.endDate),
     productType: newgMember.value.productType,
     prizeCategory: newgMember.value.prizeCategory,
     status: newgMember.value.status,
-  }));
+    imageUrl: newgMember.value.imageUrl, // 如果已存在 URL，保留
+  };
 
-  if (newgMember.value.imageUrl) {
-    formData.append('image', newgMember.value.imageUrl);
+  if (newgMember.value.productType === 'PRIZE') {
+  productDetailReq.prizeCategory = newgMember.value.prizeCategory;
+}
+
+  formData.append('productReq', JSON.stringify(productDetailReq));
+
+  // 确保文件被正确附加
+  if (newgMember.value.imageFile) {
+    formData.append('image', newgMember.value.imageFile);
   }
 
   try {
-    await apiClient.post('/productDetail/add', formData, {
+    await apiClient.post('/product/add', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
 
-    // Reset form
+    // 重置表单
     newgMember.value = {
       productName: '',
       description: '',
       price: '',
       stockQuantity: '',
       soldQuantity: '',
-      imageUrl: null,
+      imageUrl: '',
       startDate: '',
       endDate: '',
       productType: '',
@@ -361,13 +385,14 @@ const addDetail = async () => {
       status: '',
     };
 
-    // Fetch data or update UI as needed
+    // 更新 UI 或获取新数据
     await fetchData(newgMember.value.productType);
     showCreateDetail.value = false;
   } catch (error) {
     console.error('新增進貨失敗:', error);
   }
 };
+
 
 const handleDetail = async (detail: any) => {
   if (confirm(`確定要刪除產品 ${detail.productName} 嗎？`)) {
@@ -405,6 +430,14 @@ const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
     editingMember.imageFile = target.files[0]; // 更新 imageFile
+  }
+};
+
+const handleFileUploadNew = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files ? target.files[0] : null;
+  if (file) {
+    newgMember.value.imageFile = file; // 保存文件对象
   }
 };
 </script>
