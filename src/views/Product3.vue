@@ -21,7 +21,11 @@
       <div class="product3__btns-search">
         <div class="product3__input">
           <div class="product3__input-main">
-            <input type="text" v-model="searchQuery" placeholder="搜索 GACHA..." />
+            <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="搜索 GACHA..."
+            />
           </div>
           <div class="product3__input-icon font-size-28">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -51,7 +55,8 @@
             :unitText="'/抽'"
             :title="product.productName"
             :content="product.description"
-            @click="navigateToDetail(product.productId)"
+            :product-type="product.productType"
+            :product-id="product.productId"
           />
         </div>
       </div>
@@ -77,7 +82,9 @@ const fetchProducts = async () => {
     console.log('Fetching products for GACHA...');
     loading.value = true;
     const products = await queryProducts();
-    GACHAProducts.value = products.filter(product => product.productType === 'GACHA');
+    GACHAProducts.value = products.filter(
+      (product) => product.productType === 'GACHA'
+    );
     console.log('GACHA products:', GACHAProducts.value);
   } catch (err) {
     console.error('Error fetching GACHA products:', err);
@@ -88,13 +95,13 @@ const fetchProducts = async () => {
 };
 
 const getProductStatus = (product: Product): string => {
-    const now = new Date();
-    const startDate = new Date(product.startDate);
-    const endDate = new Date(product.endDate);
+  const now = new Date();
+  const startDate = new Date(product.startDate);
+  const endDate = new Date(product.endDate);
 
-    if (now < startDate) return '即將開始';
-    if (now > endDate) return '已結束';
-    return '開抽中';
+  if (now < startDate) return '即將開始';
+  if (now > endDate) return '已結束';
+  return '開抽中';
 };
 
 const navigateToDetail = (productId: number) => {
@@ -102,9 +109,14 @@ const navigateToDetail = (productId: number) => {
 };
 
 const filteredGACHAProducts = computed(() => {
-  return GACHAProducts.value.filter(product => 
-    product.productName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+  return GACHAProducts.value.filter(
+    (product) =>
+      product.productName
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase()) ||
+      product.description
+        .toLowerCase()
+        .includes(searchQuery.value.toLowerCase())
   );
 });
 
@@ -163,7 +175,8 @@ onMounted(() => {
   gap: 20px;
 }
 
-.product3__loading, .product3__error {
+.product3__loading,
+.product3__error {
   text-align: center;
   padding: 20px;
   font-size: 18px;
@@ -173,7 +186,7 @@ onMounted(() => {
   color: #ff4444;
 }
 
-input[type="text"] {
+input[type='text'] {
   width: 100%;
   padding: 8px;
   border: none;
