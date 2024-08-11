@@ -99,7 +99,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/userstore';
-import { login, LoginRequest, register, RegisterRequest, loginWithGoogle, handleOAuth2Callback } from '@/services/Front/Frontapi';
+import { login, LoginRequest, register, RegisterRequest, loginWithGoogle, handleOAuth2Callback, setAuthToken, setUserId, setUsername } from '@/services/Front/Frontapi';
 import Card from '@/components/common/Card.vue';
 import p1 from '@/assets/image/login.png';
 
@@ -131,6 +131,9 @@ const handleLogin = async () => {
     };
     const response = await login(loginData);
     if (response.accessToken) {
+      setAuthToken(response.accessToken);
+      setUserId(response.userId);
+      setUsername(response.username);
       userStore.login(response.username, response.userId, response.accessToken);
       router.push('/home');
     }
@@ -168,7 +171,6 @@ const toggleRegistration = () => {
 const handleGoogleLogin = () => {
   loginWithGoogle();
 };
-
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search);
   const accessToken = urlParams.get('accessToken');
@@ -178,11 +180,14 @@ onMounted(() => {
   if (accessToken && userId && username) {
     handleOAuth2Callback(accessToken, userId, username)
       .then(() => {
+        setAuthToken(accessToken);
+        setUserId(parseInt(userId, 10));
+        setUsername(username);
         userStore.login(username, parseInt(userId, 10), accessToken);
         router.push('/home');
       })
       .catch((error) => {
-        console.error('OAuth2 回调错误:', error);
+        console.error('OAuth2 回調錯誤:', error);
         errorMessage.value = '登入失敗，請稍後再試。';
       });
   } else if (urlParams.get('error')) {

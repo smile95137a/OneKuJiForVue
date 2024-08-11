@@ -66,11 +66,11 @@
 </template>
 
 <script setup lang="ts">
+import logoImg from '@/assets/image/logo1.png';
 import { useSlidebarStore } from '@/stores';
 import { useUserStore } from '@/stores/userstore';
-import { useRouter } from 'vue-router';
-import logoImg from '@/assets/image/logo1.png';
 import { computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 const slidebarStore = useSlidebarStore();
 const userStore = useUserStore();
@@ -80,8 +80,10 @@ const isUserLoggedIn = computed(() => userStore.isLoggedIn);
 
 const checkLoginStatus = () => {
   const token = localStorage.getItem('token');
-  if (token && !userStore.isLoggedIn) {
-    userStore.login(localStorage.getItem('username') || '');
+  const username = localStorage.getItem('username');
+  const userId = localStorage.getItem('userId');
+  if (token && username && userId && !userStore.isLoggedIn) {
+    userStore.login(username, parseInt(userId, 10), token);
   } else if (!token && userStore.isLoggedIn) {
     userStore.logout();
   }
@@ -91,6 +93,7 @@ const handleLogout = () => {
   userStore.logout();
   localStorage.removeItem('token');
   localStorage.removeItem('username');
+  localStorage.removeItem('userId');
   router.push('/login');
 };
 
@@ -101,6 +104,7 @@ onMounted(() => {
 watch(() => userStore.isLoggedIn, (newValue) => {
   if (newValue) {
     localStorage.setItem('username', userStore.username);
+    localStorage.setItem('userId', userStore.userId?.toString() || '');
   }
 });
 </script>

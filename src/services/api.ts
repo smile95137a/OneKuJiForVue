@@ -41,20 +41,22 @@ export const getUsers = (): Promise<AxiosResponse<Member[]>> => {
 };
 
 export const loginJwt = axios.create({
-  // baseURL: 'http://localhost:8080/api', // 确保与后端地址一致
-  baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 确保与后端地址一致
+   baseURL: 'http://localhost:8080/api', // 确保与后端地址一致
+  //baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 确保与后端地址一致
   headers: {
     'Content-Type': 'application/json', 'ngrok-skip-browser-warning':true
   }
 });
 
-export function setAuthToken(token: string) {
+// 确保 setAuthToken 可以处理 null，更新函数定义
+export function setAuthToken(token: string | null) {
   if (token) {
     loginJwt.defaults.headers.common['Authorization'] = token;
   } else {
     delete loginJwt.defaults.headers.common['Authorization'];
   }
 }
+
 
 export const getUserById = (userId: any) => {
   return apiClient.get(`/user/${userId}`);

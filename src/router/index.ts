@@ -1,13 +1,14 @@
-import { getCurrentUser } from '@/interfaces/auth';
 import { getAuthToken } from '@/services/Front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-// 导入组件
+
+// 導入組件
 import InventoryManagement from '@/components/Backend/InventoryManagement.vue';
 import MemberManagement from '@/components/Backend/MemberManagement.vue';
 import PermissionManagement from '@/components/Backend/PermissionsManagement.vue';
 import ProductDataManagement from '@/components/Backend/ProductDataManagement.vue';
 import ShipmentManagement from '@/components/Backend/ShipmentManagement.vue';
+import { useAdminStore } from '@/stores/adstore';
 import AdminDashboard from '@/views/AdminDashboard.vue';
 import AdminLogin from '@/views/AdminLogin.vue';
 import Home from '@/views/Home.vue';
@@ -23,7 +24,6 @@ import Product2 from '@/views/Product2.vue';
 import Product3 from '@/views/Product3.vue';
 import ProductDetail1 from '@/views/ProductDetail1.vue';
 import Register from '@/views/Register.vue';
-
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
@@ -139,45 +139,42 @@ const routes: Array<RouteRecordRaw> = [
   },
 ];
 
-
-// 路由守卫
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
 
-// 路由守衛
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
+  const adminStore = useAdminStore();
   const token = getAuthToken();
 
+  console.log('Routing from:', from.path, 'to:', to.path);
+  console.log('Token:', token, 'Is User Logged In:', userStore.isLoggedIn, 'Is Admin Logged In:', adminStore.isLoggedIn);
+
+  // 檢查路由是否需要認證
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (token) {
-      if (!userStore.isLoggedIn) {
-        try {
-          const user = await getCurrentUser();
-          userStore.login(user.username, user.id, token);
-        } catch (error) {
-          console.error('Error getting current user:', error);
-          userStore.logout();
-          next('/login');
-          return;
-        }
+    // 檢查是否為後台路由
+    if (to.path.startsWith('/admin')) {
+      console.log('Accessing admin route:', to.path);
+      if (adminStore.isLoggedIn) {
+        next();
+      } else {
+        console.log('Admin not logged in, redirecting to admin login');
+        next('/admin-login');
       }
-      next();
     } else {
-      next('/login');
+      // 前台路由
+      console.log('Accessing frontend secured route:', to.path);
+      if (userStore.isLoggedIn) {
+        next();
+      } else {
+        console.log('User not logged in, redirecting to frontend login');
+        next('/login');
+      }
     }
   } else {
-    if (token && !userStore.isLoggedIn) {
-      try {
-        const user = await getCurrentUser();
-        userStore.login(user.username, user.id, token);
-      } catch (error) {
-        console.error('Error getting current user:', error);
-        userStore.logout();
-      }
-    }
+    // 公開路由，直接通過
     next();
   }
 });

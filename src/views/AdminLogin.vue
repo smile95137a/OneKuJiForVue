@@ -1,10 +1,9 @@
-// AdminLogin.vue
 <template>
   <div class="login-container">
-    <h1>後台登入</h1>
+    <h1>後台登入界面</h1>
     <form @submit.prevent="login">
       <div class="form-group">
-        <label for="username">用戶名</label>
+        <label for="username">帳號</label>
         <input type="text" id="username" v-model="username" required />
       </div>
       <div class="form-group">
@@ -17,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { loginJwt, setAuthToken } from '@/services/api';
+import { useAdminStore } from '@/stores/adstore';
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -27,22 +26,14 @@ export default defineComponent({
     const username = ref('');
     const password = ref('');
     const router = useRouter();
+    const adminStore = useAdminStore();
 
     const login = async () => {
-      try {
-        const response = await loginJwt.post('/auth/login', {
-          username: username.value,
-          password: password.value
-        });
-        const token = response.data.accessToken;
-        console.log("獲取到的token:", token);
-        localStorage.setItem('token', token);
-        setAuthToken(token); // 設置認證頭
+      const success = await adminStore.login(username.value, password.value);
+      if (success) {
         router.push('/admin');
-        console.log("localStorage 中的 token:", localStorage.getItem('token')); // 確認 token 是否正確儲存
-      } catch (error) {
-        console.error('Error logging in:', error);
-        alert('登入失敗')
+      } else {
+        alert('登入失敗，請檢查帳號密碼');
       }
     };
 
