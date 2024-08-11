@@ -1,10 +1,4 @@
-import { useUserStore } from '@/stores/userstore';
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-} from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
 export const api: AxiosInstance = axios.create({
   // baseURL: 'http://localhost:8081',
@@ -16,25 +10,58 @@ export const api: AxiosInstance = axios.create({
   },
 });
 
-const TOKEN_KEY = 'token';
+// 用于在内存中存储 JWT 令牌
+let jwtToken: string | null = null;
+let userId: number | null = null;
+let username: string | null = null;
 
-export const setJwtToken = (token: string) => {
-  localStorage.setItem(TOKEN_KEY, token);
+// 设置 JWT 令牌
+export const setAuthToken = (token: string | null) => {
+  jwtToken = token;
+  if (token) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete api.defaults.headers.common['Authorization'];
+  }
 };
 
-export const getJwtToken = (): string | null => {
-  return localStorage.getItem(TOKEN_KEY);
+// 获取 JWT 令牌
+export const getAuthToken = (): string | null => {
+  return jwtToken;
 };
 
-export const removeJwtToken = () => {
-  localStorage.removeItem(TOKEN_KEY);
+// 设置用户 ID
+export const setUserId = (id: number | null) => {
+  userId = id;
 };
 
+// 获取用户 ID
+export const getUserId = (): number | null => {
+  return userId;
+};
+
+// 设置用户名
+export const setUsername = (name: string | null) => {
+  username = name;
+};
+
+// 获取用户名
+export const getUsername = (): string | null => {
+  return username;
+};
+
+// 移除用户信息
+export const removeUserInfo = () => {
+  setAuthToken(null);
+  setUserId(null);
+  setUsername(null);
+};
+
+// 请求拦截器，添加 JWT 令牌到请求头
 api.interceptors.request.use(
   (config) => {
-    const token = getJwtToken();
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+    if (jwtToken) {
+      config.headers['Authorization'] = `Bearer ${jwtToken}`;
     }
     return config;
   },
@@ -43,47 +70,49 @@ api.interceptors.request.use(
   }
 );
 
+// 响应拦截器，处理 401 错误
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     if (error.response && error.response.status === 401) {
-      removeJwtToken();
+      removeUserInfo();
+      // 可以在这里添加登出逻辑
     }
     return Promise.reject(error);
   }
 );
 
-// 接口定義
-export interface User {
-  id: number;
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  userId: number;
+  username: string;
+}
+
+export interface RegisterRequest {
   username: string;
   password: string;
   nickname: string;
   email: string;
   phoneNumber: string;
   address: string;
-  createDate: string;
-  updateDate: string;
-  roles: {
-    id: number;
-    name: string;
-  }[];
-  status: string;
 }
 
-export interface ProductDetail {
-  productId: number;
-  description: string;
-  quantity: number;
-  size: string;
-  material: string;
-  productDetailId: number;
-  productName: string;
-  grade: string;
+export interface User {
+  id: number;
+  username: string;
+  nickname: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
   createDate: string;
   updateDate: string;
-  image: string;
-  secret: boolean;
+  roles: { id: number; name: string }[];
+  status: string;
 }
 
 export interface Product {
@@ -106,108 +135,33 @@ export interface Product {
   status: string;
 }
 
-export interface DrawOnePrizeRequest {
-  productId: number;
-  productDetailId: number;
-  productType: string;
-  drawFrom: string;
-  amount: number;
-  totalDrawCount: number;
-  remainingDrawCount: number;
-}
-
-export interface DrawOnePrizeResponse {
-  id: number;
-  userId: number;
-  productId: number;
-  productDetailId: number;
-  drawTime: string;
-  status: string;
-  amount: number;
-  code: string;
-  createDate: string;
-  updateDate: string;
-  totalDrawCount: number;
-  remainingDrawCount: number;
-}
-
-export interface LoginRequest {
-  username: string;
-  password: string;
-  userId?: number;
-}
-
-export interface LoginResponse {
-  accessToken: string;
-  userId: number;
-  username: string;
-}
-
-export interface RegisterRequest {
-  username: string;
-  password: string;
-  nickname: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-}
-
-// 公開 API 請求函數（不含 Authorization 頭）
-export const publicApiRequestWithoutAuth = async <T>(
-  url: string,
-  method: 'get' | 'post' = 'get',
-  data?: any
-): Promise<T> => {
-  try {
-    console.log(`發送 ${method.toUpperCase()} 請求到 ${url}`);
-    const config: AxiosRequestConfig = {
-      method,
-      url,
-      data,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    const response = await api(config);
-    console.log(`從 ${url} 收到回應:`, response.data);
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(`公開 API 請求 ${url} 出錯:`, {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        headers: error.response?.headers,
-        data: error.response?.data,
-      });
-    } else {
-      console.error(`公開 API 請求 ${url} 發生意外錯誤:`, error);
-    }
-    throw error;
-  }
-};
-
-// 公開 API 請求函數（含 Authorization 頭）
+// 通用的 API 请求函数
 export const publicApiRequest = async <T>(
   url: string,
-  method: 'get' | 'post' = 'get',
-  data?: any
+  method: 'get' | 'post' | 'put' | 'delete' = 'get',
+  data?: any,
+  withAuth: boolean = true
 ): Promise<T> => {
   try {
-    console.log(`發送 ${method.toUpperCase()} 請求到 ${url}`);
+    console.log(`发送 ${method.toUpperCase()} 请求到 ${url}`);
     const config: AxiosRequestConfig = {
       method,
       url,
       data,
     };
 
+    if (!withAuth) {
+      config.headers = {
+        'Content-Type': 'application/json',
+      };
+    }
+
     const response = await api(config);
-    console.log(`從 ${url} 收到回應:`, response.data);
+    console.log(`从 ${url} 收到响应:`, response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(`公開 API 請求 ${url} 出錯:`, {
+      console.error(`API 请求 ${url} 出错:`, {
         message: error.message,
         status: error.response?.status,
         statusText: error.response?.statusText,
@@ -215,149 +169,72 @@ export const publicApiRequest = async <T>(
         data: error.response?.data,
       });
     } else {
-      console.error(`公開 API 請求 ${url} 發生意外錯誤:`, error);
+      console.error(`API 请求 ${url} 发生意外错误:`, error);
     }
     throw error;
   }
 };
 
-// API 函數
-export const getUserInfo = async (userId: number): Promise<User> => {
-  try {
-    const response: AxiosResponse<User> = await api.get(`/user/${userId}`);
-    return response.data;
-  } catch (error) {
-    console.error('獲取用戶信息出錯:', error);
-    throw error;
-  }
-};
-
-export const queryUsers = async (): Promise<User[]> => {
-  try {
-    const response: AxiosResponse<User[]> = await api.get('/user/query');
-    return response.data;
-  } catch (error) {
-    console.error('查詢用戶出錯:', error);
-    throw error;
-  }
-};
-
-export const getProductDetail = async (
-  productDetailId: number
-): Promise<ProductDetail> => {
-  try {
-    const response: AxiosResponse<ProductDetail> = await api.get(
-      `/productDetail/${productDetailId}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error('獲取產品詳情出錯:', error);
-    throw error;
-  }
-};
-
-export const queryProductDetails = async (): Promise<ProductDetail[]> => {
-  try {
-    const response: AxiosResponse<ProductDetail[]> = await api.get(
-      '/productDetail/query'
-    );
-    return response.data;
-  } catch (error) {
-    console.error('查詢產品詳情出錯:', error);
-    throw error;
-  }
-};
-
-export const getProduct = async (productId: number): Promise<Product> => {
-  try {
-    const response: AxiosResponse<Product> = await api.get(
-      `/product/${productId}`
-    );
-    return response.data;
-  } catch (error) {
-    console.error('獲取產品出錯:', error);
-    throw error;
-  }
-};
-
-export const queryProducts = async (): Promise<Product[]> => {
-  return publicApiRequest<Product[]>('/product/query');
-};
-
-export const drawOnePrize = async (
-  userId: number,
-  productId: number,
-  data: DrawOnePrizeRequest
-): Promise<DrawOnePrizeResponse> => {
-  try {
-    const response: AxiosResponse<DrawOnePrizeResponse> = await api.put(
-      `/draw/oneprize?userId=${userId}&productId=${productId}`,
-      data
-    );
-    return response.data;
-  } catch (error) {
-    console.error('抽獎出錯:', error);
-    throw error;
-  }
-};
-
+// 登录函数
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
-    console.log('發送登入請求:', data);
-    const response = await api.post<LoginResponse>('/auth/login', data);
-    console.log('登入回應:', response.data);
-    if (response.data.accessToken) {
-      setJwtToken(response.data.accessToken);
-      const userStore = useUserStore();
-      userStore.login(response.data.username);
+    console.log('发起登录请求:', data);
+    const response = await publicApiRequest<LoginResponse>('/auth/login', 'post', data, false);
+    console.log('登录响应:', response);
+    if (response && response.accessToken && response.userId && response.username) {
+      setAuthToken(response.accessToken);
+      setUserId(response.userId);
+      setUsername(response.username);
+      return response;
+    } else {
+      throw new Error('Invalid login response');
     }
-    return response.data;
   } catch (error) {
-    console.error('登入過程中出錯:', error);
-    if (axios.isAxiosError(error)) {
-      console.error('回應:', error.response);
-      console.error('請求:', error.request);
+    console.error('登录过程中出错:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || '登录失败，请检查您的帐号密码。');
+    } else {
+      throw new Error('登录失败，请稍后再试。');
     }
-    throw error;
   }
 };
 
+// 注册函数
 export const register = async (data: RegisterRequest): Promise<any> => {
-  try {
-    console.log('發送註冊請求:', data);
-    const response = await publicApiRequestWithoutAuth<any>(
-      '/user/register',
-      'post',
-      data
-    );
-    console.log('註冊回應:', response);
-    return response;
-  } catch (error) {
-    console.error('註冊過程中出錯:', error);
-    throw error;
-  }
+  return publicApiRequest<any>('/user/register', 'post', data, false);
 };
 
-export const logout = () => {
-  removeJwtToken();
+// 获取用户信息
+export const getUserInfo = async (userId: number): Promise<User> => {
+  return publicApiRequest<User>(`/user/${userId}`, 'get');
 };
 
+// 查询产品
+export const queryProducts = async (): Promise<Product[]> => {
+  return publicApiRequest<Product[]>('/product/query', 'get');
+};
+
+// 获取产品详情
+export const getProduct = async (productId: number): Promise<Product> => {
+  return publicApiRequest<Product>(`/product/${productId}`, 'get');
+};
+
+// 使用 Google 登录
 export const loginWithGoogle = () => {
   window.location.href = `${api.defaults.baseURL}/oauth2/authorization/google`;
 };
 
+// 处理 OAuth2 回调
 export const handleOAuth2Callback = async (
   accessToken: string,
   userId: string,
   username: string
-): Promise<{ userId: string; username: string }> => {
-  setJwtToken(accessToken);
-  
-  // 更新用戶存儲
-  const userStore = useUserStore();
-  userStore.login(username);
-  
-  return { userId, username };
+): Promise<{ userId: number; username: string }> => {
+  setAuthToken(accessToken);
+  const userIdNumber = parseInt(userId, 10);
+  setUserId(userIdNumber);
+  setUsername(username);
+  return { userId: userIdNumber, username };
 };
 
 export default api;

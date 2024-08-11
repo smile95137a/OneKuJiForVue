@@ -1,3 +1,4 @@
+// api.ts
 import { User } from '@/interfaces/auth';
 import { Member } from '@/interfaces/Member';
 import axios, { AxiosResponse } from 'axios';
