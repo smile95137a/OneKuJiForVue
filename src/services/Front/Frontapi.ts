@@ -121,6 +121,8 @@ export interface User {
   updateDate: string;
   roles: { id: number; name: string }[];
   status: string;
+  balance: number;
+  bonus: number;
 }
 
 export interface Product {
