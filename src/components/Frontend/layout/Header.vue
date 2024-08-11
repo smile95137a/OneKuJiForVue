@@ -76,7 +76,6 @@ const router = useRouter();
 
 const handleLogout = () => {
   userStore.logout();
-  localStorage.removeItem('token');
   router.push('/login');
 };
 </script>

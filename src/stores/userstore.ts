@@ -1,8 +1,12 @@
 import {
   getAuthToken,
+  getUserId,
+  getUsername,
   publicApiRequest,
   removeUserInfo,
-  setAuthToken
+  setAuthToken,
+  setUserId,
+  setUsername
 } from '@/services/Front/Frontapi';
 import { defineStore } from 'pinia';
 
@@ -17,8 +21,8 @@ export interface UserInfo {
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    userId: null as number | null,
-    username: '',
+    userId: getUserId(),
+    username: getUsername() || '',
     isLoggedIn: !!getAuthToken(),
     userInfo: null as UserInfo | null,
   }),
@@ -29,9 +33,10 @@ export const useUserStore = defineStore('user', {
         this.userId = userId;
         this.isLoggedIn = true;
         setAuthToken(token);
+        setUserId(userId);
+        setUsername(username);
       } else {
         console.error('Login failed: Invalid user data');
-        // 可以在这里触发一个错误通知
       }
     },
     logout() {
@@ -39,7 +44,7 @@ export const useUserStore = defineStore('user', {
       this.userId = null;
       this.isLoggedIn = false;
       this.userInfo = null;
-      removeUserInfo(); // 确保也会清除 API 中的 token
+      removeUserInfo();
     },
     async fetchUserInfo() {
       try {
@@ -49,7 +54,7 @@ export const useUserStore = defineStore('user', {
           return response;
         }
       } catch (error) {
-        console.error('获取用户信息时出错:', error);
+        console.error('獲取用戶信息時出錯:', error);
         throw error;
       }
     },
@@ -61,7 +66,7 @@ export const useUserStore = defineStore('user', {
           return response;
         }
       } catch (error) {
-        console.error('更新用户信息时出错:', error);
+        console.error('更新用戶信息時出錯:', error);
         throw error;
       }
     },

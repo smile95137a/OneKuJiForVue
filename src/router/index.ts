@@ -1,7 +1,7 @@
 import { getCurrentUser } from '@/interfaces/auth';
+import { getAuthToken } from '@/services/Front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-
 // 导入组件
 import InventoryManagement from '@/components/Backend/InventoryManagement.vue';
 import MemberManagement from '@/components/Backend/MemberManagement.vue';
@@ -139,25 +139,27 @@ const routes: Array<RouteRecordRaw> = [
   },
 ];
 
+
+// 路由守卫
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
 
-// 路由守卫
+// 路由守衛
 router.beforeEach(async (to, _from, next) => {
   const userStore = useUserStore();
-  const token = localStorage.getItem('token');
+  const token = getAuthToken();
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (token) {
       if (!userStore.isLoggedIn) {
         try {
           const user = await getCurrentUser();
-          userStore.login(user.username);
+          userStore.login(user.username, user.id, token);
         } catch (error) {
           console.error('Error getting current user:', error);
-          localStorage.removeItem('token');
+          userStore.logout();
           next('/login');
           return;
         }
@@ -170,10 +172,10 @@ router.beforeEach(async (to, _from, next) => {
     if (token && !userStore.isLoggedIn) {
       try {
         const user = await getCurrentUser();
-        userStore.login(user.username);
+        userStore.login(user.username, user.id, token);
       } catch (error) {
         console.error('Error getting current user:', error);
-        localStorage.removeItem('token');
+        userStore.logout();
       }
     }
     next();
