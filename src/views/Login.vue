@@ -96,12 +96,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/userstore';
-import { login, LoginRequest, register, RegisterRequest, loginWithGoogle, handleOAuth2Callback, setAuthToken, setUserId, setUsername } from '@/services/Front/Frontapi';
-import Card from '@/components/common/Card.vue';
 import p1 from '@/assets/image/login.png';
+import Card from '@/components/common/Card.vue';
+import { handleOAuth2Callback, login, LoginRequest, loginWithGoogle, register, RegisterRequest, setAuthToken, setUserId, setUsername } from '@/services/Front/Frontapi';
+import { useUserStore } from '@/stores/userstore';
+import { onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -171,30 +171,50 @@ const toggleRegistration = () => {
 const handleGoogleLogin = () => {
   loginWithGoogle();
 };
-onMounted(() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const accessToken = urlParams.get('accessToken');
-  const userId = urlParams.get('userId');
-  const username = urlParams.get('username');
 
-  if (accessToken && userId && username) {
-    handleOAuth2Callback(accessToken, userId, username)
-      .then(() => {
-        setAuthToken(accessToken);
-        setUserId(parseInt(userId, 10));
-        setUsername(username);
-        userStore.login(username, parseInt(userId, 10), accessToken);
-        router.push('/home');
-      })
-      .catch((error) => {
-        console.error('OAuth2 回調錯誤:', error);
-        errorMessage.value = '登入失敗，請稍後再試。';
-      });
-  } else if (urlParams.get('error')) {
-    errorMessage.value = '登入失敗，請稍後再試。';
+const handleOAuth2Response = async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  const error = urlParams.get('error');
+
+  if (code) {
+    try {
+      const response = await handleOAuth2Callback(code);
+      setAuthToken(response.accessToken);
+      setUserId(response.userId);
+      setUsername(response.username);
+      userStore.login(response.username, response.userId, response.accessToken);
+      router.push('/home');
+    } catch (error) {
+      console.error('OAuth2 回調錯誤:', error);
+      errorMessage.value = 'Google 登入失敗，請稍後再試。';
+    }
+  } else if (error) {
+    if (error === 'access_denied') {
+      errorMessage.value = '您已取消 Google 登入。';
+    } else {
+      errorMessage.value = 'Google 登入過程中發生錯誤，請重試。';
+    }
   }
+};
+
+onMounted(() => {
+  // 檢查 URL 是否包含 OAuth2 相關參數
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('code') || urlParams.has('error')) {
+    handleOAuth2Response();
+  }
+  // 可以在這裡添加其他需要在組件掛載時執行的邏輯
 });
 </script>
+
+<style scoped>
+.login__error {
+  color: red;
+  margin-top: 10px;
+  text-align: center;
+}
+</style>
 
 <style scoped>
 .login__error {

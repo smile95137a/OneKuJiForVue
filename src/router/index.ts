@@ -19,17 +19,25 @@ import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 import Rewards from '@/views/MemberCenter/Rewards.vue';
 import NotFound from '@/views/NotFound.vue';
+import OAuth2Callback from '@/views/OAuth2Callback.vue';
 import Product from '@/views/Product.vue';
 import Product2 from '@/views/Product2.vue';
 import Product3 from '@/views/Product3.vue';
 import ProductDetail1 from '@/views/ProductDetail1.vue';
 import Register from '@/views/Register.vue';
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     component: Login,
     meta: { layout: 'default' },
   },
+    {
+    path: '/oauth2/callback',
+    name: 'OAuth2Callback',
+    component: OAuth2Callback
+  },
+
   {
     path: '/register',
     component: Register,

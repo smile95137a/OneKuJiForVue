@@ -224,19 +224,26 @@ export const getProduct = async (productId: number): Promise<Product> => {
 };
 
 export const loginWithGoogle = () => {
-  window.location.href = `${api.defaults.baseURL}/oauth2/authorization/google`;
+  const redirectUri = encodeURIComponent('http://localhost:5173/oauth2/callback');
+  const state = encodeURIComponent(JSON.stringify({ redirect: '/home' }));
+  window.location.href = `${api.defaults.baseURL}/oauth2/authorization/google?redirect_uri=${redirectUri}&state=${state}`;
+};
+export const handleOAuth2Callback = async (code: string): Promise<LoginResponse> => {
+  try {
+    const response = await publicApiRequest<LoginResponse>('/auth/oauth2/google/success', 'get', { code }, false);
+    if (response && response.accessToken && response.userId && response.username) {
+      setAuthToken(response.accessToken);
+      setUserId(response.userId);
+      setUsername(response.username);
+      return response;
+    } else {
+      throw new Error('Invalid OAuth2 response');
+    }
+  } catch (error) {
+    console.error('OAuth2 登錄過程中出錯:', error);
+    throw new Error('OAuth2 登錄失敗，請稍後再試。');
+  }
 };
 
-export const handleOAuth2Callback = async (
-  accessToken: string,
-  userId: string,
-  username: string
-): Promise<{ userId: number; username: string }> => {
-  setAuthToken(accessToken);
-  const userIdNumber = parseInt(userId, 10);
-  setUserId(userIdNumber);
-  setUsername(username);
-  return { userId: userIdNumber, username };
-};
 
 export default api;
