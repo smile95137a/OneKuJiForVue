@@ -59,12 +59,7 @@
           <ProductCard2
             v-for="(product, index) in productDetail"
             :key="index"
-            :customClass="`productCard2--${product.grade.toLowerCase()}`"
-            :imagePath="product.image"
-            :productHeightText="product.description"
-            :balanceText="product.quantity"
-            :balanceNum="product.quantity"
-            :title="product.productName"
+            :product="product"
           />
         </div>
       </Card>

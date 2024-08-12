@@ -47,16 +47,7 @@
           <ProductCard
             v-for="product in filteredGACHAProducts"
             :key="product.productId"
-            :imagePath="product.imageUrl"
-            :imgStatus="getProductStatus(product)"
-            :balanceText="`剩餘${product.stockQuantity}抽`"
-            :money="product.price.toString()"
-            :unitIcon="'金'"
-            :unitText="'/抽'"
-            :title="product.productName"
-            :content="product.description"
-            :product-type="product.productType"
-            :product-id="product.productId"
+            :product="product"
           />
         </div>
       </div>

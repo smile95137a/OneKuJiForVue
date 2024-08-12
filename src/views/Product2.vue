@@ -41,17 +41,7 @@
           <ProductCard
             v-for="(product, index) in BLIND_BOXProducts"
             :key="index"
-            :imagePath="product.imageUrl"
-            :imgStatus="getProductStatus(product)"
-            :balanceText="`剩餘${product.stockQuantity}抽`"
-            :money="product.price.toString()"
-            :unitIcon="'金'"
-            :unitText="'/抽'"
-            :title="product.productName"
-            :content="product.description"
-            @click="navigateToDetail(product.productId)"
-            :product-type="product.productType"
-            :product-id="product.productId"
+            :product="product"
           />
         </div>
       </div>

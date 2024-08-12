@@ -61,16 +61,8 @@
           <ProductCard
             v-for="(product, index) in productAll"
             :key="index"
-            :productId="product.productId"
-            :productType="product.productType"
+            :product="product"
             :customClass="`productCard--style2 productCard--like`"
-            :imagePath="product.imageUrl"
-            :imgStatus="'開抽中'"
-            :balanceText="`剩餘${product.soldQuantity}抽`"
-            :money="product.price"
-            :unitIcon="'金'"
-            :unitText="'/抽'"
-            :title="product.productName"
           />
         </div>
       </div>

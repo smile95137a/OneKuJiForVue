@@ -22,17 +22,7 @@
         <ProductCard
           v-for="product in prizeProducts"
           :key="product.productId"
-          :customClass="''"
-          :imagePath="product.imageUrl"
-          :imgStatus="getProductStatus(product)"
-          :balanceText="`剩餘${product.stockQuantity}抽`"
-          :money="product.price.toString()"
-          :unitIcon="'金'"
-          :unitText="'/抽'"
-          :title="product.productName"
-          :content="product.description"
-          :product-type="product.productType"
-          :product-id="product.productId"
+          :product="product"
         />
       </div>
     </Card>
@@ -42,17 +32,7 @@
         <ProductCard
           v-for="product in blindBoxProducts"
           :key="product.productId"
-          :customClass="''"
-          :imagePath="product.imageUrl"
-          :imgStatus="getProductStatus(product)"
-          :balanceText="`剩餘${product.stockQuantity}抽`"
-          :money="product.price.toString()"
-          :unitIcon="'金'"
-          :unitText="'/抽'"
-          :title="product.productName"
-          :content="product.description"
-          :product-type="product.productType"
-          :product-id="product.productId"
+          :product="product"
         />
       </div>
     </Card>
@@ -63,16 +43,7 @@
           v-for="product in gachaProducts"
           :key="product.productId"
           :customClass="'productCard3--style2 m-y-36'"
-          :imagePath="product.imageUrl"
-          :imgStatus="getProductStatus(product)"
-          :balanceText="`剩餘${product.stockQuantity}抽`"
-          :money="product.price.toString()"
-          :unitIcon="'金'"
-          :unitText="'/抽'"
-          :title="product.productName"
-          :content="product.description"
-          :product-type="product.productType"
-          :product-id="product.productId"
+          :product="product"
         />
       </div>
     </Card>
@@ -119,16 +90,6 @@ const fetchProducts = async () => {
       console.error('An unexpected error occurred:', error);
     }
   }
-};
-
-const getProductStatus = (product: Product): string => {
-  const now = new Date();
-  const startDate = new Date(product.startDate);
-  const endDate = new Date(product.endDate);
-
-  if (now < startDate) return '即將開始';
-  if (now > endDate) return '已結束';
-  return '開抽中';
 };
 
 onMounted(() => {
