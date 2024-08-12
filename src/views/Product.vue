@@ -36,17 +36,7 @@
           <ProductCard
             v-for="product in filteredProducts"
             :key="product.productId"
-            :customClass="''"
-            :imagePath="product.imageUrl"
-            :imgStatus="getProductStatus(product)"
-            :balanceText="`剩餘${product.stockQuantity}抽`"
-            :money="product.price.toString()"
-            :unitIcon="'金'"
-            :unitText="'/抽'"
-            :title="product.productName"
-            :content="product.description"
-            :product-type="product.productType"
-            :product-id="product.productId"
+            :product="product"
           />
         </div>
       </div>
@@ -106,8 +96,7 @@ const fetchProducts = async () => {
           imageUrl: ensureFullImageUrl(product.imageUrl),
         }));
 
-        console.log('1231231' , products.value);
-        
+      console.log('1231231', products.value);
     } else {
       throw new Error('API 返回的數據格式不正確');
     }
@@ -139,7 +128,9 @@ const ensureFullImageUrl = (url: string) => {
     return url;
   }
   // return `http://localhost:8081${url.startsWith('/') ? '' : '/'}${url}`;
-  return `https://3574-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app${url.startsWith('/') ? '' : '/'}${url}`;
+  return `https://3574-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app${
+    url.startsWith('/') ? '' : '/'
+  }${url}`;
 };
 
 onMounted(() => {
