@@ -20,7 +20,11 @@
       <div class="footer__infos">
         <div class="footer__info">
           <div class="footer__info-text">公司信箱：</div>
-          <div class="footer__info-text">abc@gmail.com</div>
+          <div class="footer__info-text">easonandjenny@gmail.com.com</div>
+        </div>
+        <div class="footer__info">
+          <div class="footer__info-text">公司統編：</div>
+          <div class="footer__info-text">47075614</div>
         </div>
         <div class="footer__info">
           <div class="footer__info-text">公司電話：</div>
@@ -28,11 +32,15 @@
         </div>
         <div class="footer__info">
           <div class="footer__info-text">公司名稱：</div>
-          <div class="footer__info-text">再來一抽有限公司</div>
+          <div class="footer__info-text">再來一抽娛樂有限公司</div>
         </div>
         <div class="footer__info">
           <div class="footer__info-text">客服服務時間：</div>
-          <div class="footer__info-text">週一至週五 8:00-17:00</div>
+          <div class="footer__info-text">週一至週五 09:00~17:00</div>
+        </div>
+        <div class="footer__info">
+          <div class="footer__info-text">官方LINE：</div>
+          <div class="footer__info-text">@again888</div>
         </div>
       </div>
     </div>

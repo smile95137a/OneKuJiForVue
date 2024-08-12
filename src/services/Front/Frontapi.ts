@@ -224,7 +224,7 @@ export const getProduct = async (productId: number): Promise<Product> => {
 };
 
 export const loginWithGoogle = () => {
-  const redirectUri = encodeURIComponent('http://localhost:5173/oauth2/callback');
+  const redirectUri = encodeURIComponent('https://c01b-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/oauth2/callback');
   const state = encodeURIComponent(JSON.stringify({ redirect: '/home' }));
   window.location.href = `${api.defaults.baseURL}/oauth2/authorization/google?redirect_uri=${redirectUri}&state=${state}`;
 };

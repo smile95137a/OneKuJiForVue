@@ -100,6 +100,7 @@ import p1 from '@/assets/image/login.png';
 import Card from '@/components/common/Card.vue';
 import { handleOAuth2Callback, login, LoginRequest, loginWithGoogle, register, RegisterRequest, setAuthToken, setUserId, setUsername } from '@/services/Front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
+import axios from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -172,31 +173,38 @@ const handleGoogleLogin = () => {
   loginWithGoogle();
 };
 
-const handleOAuth2Response = async () => {
+const handleOAuth2Response = async (code: string) => {
+  try {
+    // 发送 POST 请求到后端回调接口
+    const response = await axios.post('https://3574-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/auth/oauth2/callback', { code });
+
+    // 处理响应
+    const { accessToken, userId, username } = response.data;
+    return { accessToken, userId, username };
+  } catch (error) {
+    console.error('OAuth2 回调处理错误:', error);
+    throw error;
+  }
+};
+
+onMounted(async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
-  const error = urlParams.get('error');
 
   if (code) {
     try {
       const response = await handleOAuth2Callback(code);
-      setAuthToken(response.accessToken);
-      setUserId(response.userId);
-      setUsername(response.username);
       userStore.login(response.username, response.userId, response.accessToken);
       router.push('/home');
     } catch (error) {
-      console.error('OAuth2 回調錯誤:', error);
-      errorMessage.value = 'Google 登入失敗，請稍後再試。';
+      console.error('OAuth2 回调处理错误:', error);
+      router.push('/login?error=oauth2_failed');
     }
-  } else if (error) {
-    if (error === 'access_denied') {
-      errorMessage.value = '您已取消 Google 登入。';
-    } else {
-      errorMessage.value = 'Google 登入過程中發生錯誤，請重試。';
-    }
+  } else {
+    router.push('/login?error=no_code');
   }
-};
+});
+
 
 onMounted(() => {
   // 檢查 URL 是否包含 OAuth2 相關參數

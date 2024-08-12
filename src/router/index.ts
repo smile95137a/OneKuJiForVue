@@ -32,10 +32,10 @@ const routes: Array<RouteRecordRaw> = [
     component: Login,
     meta: { layout: 'default' },
   },
-    {
-    path: '/oauth2/callback',
-    name: 'OAuth2Callback',
-    component: OAuth2Callback
+  {
+    path: '/auth/oauth2/google/success',
+    name: 'OAuth2Success',
+    component: OAuth2Callback,  // 这里使用你的处理成功的组件
   },
 
   {
