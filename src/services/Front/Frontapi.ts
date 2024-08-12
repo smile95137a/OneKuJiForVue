@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
 export const api: AxiosInstance = axios.create({
-  baseURL: 'https://3574-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app',
+  baseURL: 'http://localhost:8081',
   timeout: 1000000,
   headers: {
     'Content-Type': 'application/json',
@@ -224,10 +224,15 @@ export const getProduct = async (productId: number): Promise<Product> => {
 };
 
 export const loginWithGoogle = () => {
-  const redirectUri = encodeURIComponent('https://c01b-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/oauth2/callback');
-  const state = encodeURIComponent(JSON.stringify({ redirect: '/home' }));
+  const redirectUri = encodeURIComponent(`${window.location.origin}/oauth2/callback`);
+  const state = encodeURIComponent(JSON.stringify({ redirect: '/home', nonce: generateNonce() }));
   window.location.href = `${api.defaults.baseURL}/oauth2/authorization/google?redirect_uri=${redirectUri}&state=${state}`;
 };
+
+// 添加這個輔助函數來生成 nonce
+function generateNonce() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
 export const handleOAuth2Callback = async (code: string): Promise<LoginResponse> => {
   try {
     const response = await publicApiRequest<LoginResponse>('/auth/oauth2/google/success', 'get', { code }, false);
@@ -244,6 +249,5 @@ export const handleOAuth2Callback = async (code: string): Promise<LoginResponse>
     throw new Error('OAuth2 登錄失敗，請稍後再試。');
   }
 };
-
 
 export default api;

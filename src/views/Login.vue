@@ -98,9 +98,8 @@
 <script setup lang="ts">
 import p1 from '@/assets/image/login.png';
 import Card from '@/components/common/Card.vue';
-import { handleOAuth2Callback, login, LoginRequest, loginWithGoogle, register, RegisterRequest, setAuthToken, setUserId, setUsername } from '@/services/Front/Frontapi';
+import { login, LoginRequest, loginWithGoogle, register, RegisterRequest, setAuthToken, setUserId, setUsername } from '@/services/Front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
-import axios from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -173,56 +172,14 @@ const handleGoogleLogin = () => {
   loginWithGoogle();
 };
 
-const handleOAuth2Response = async (code: string) => {
-  try {
-    // 发送 POST 请求到后端回调接口
-    const response = await axios.post('https://3574-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/auth/oauth2/callback', { code });
-
-    // 处理响应
-    const { accessToken, userId, username } = response.data;
-    return { accessToken, userId, username };
-  } catch (error) {
-    console.error('OAuth2 回调处理错误:', error);
-    throw error;
-  }
-};
-
-onMounted(async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get('code');
-
-  if (code) {
-    try {
-      const response = await handleOAuth2Callback(code);
-      userStore.login(response.username, response.userId, response.accessToken);
-      router.push('/home');
-    } catch (error) {
-      console.error('OAuth2 回调处理错误:', error);
-      router.push('/login?error=oauth2_failed');
-    }
-  } else {
-    router.push('/login?error=no_code');
-  }
-});
-
-
 onMounted(() => {
-  // 檢查 URL 是否包含 OAuth2 相關參數
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('code') || urlParams.has('error')) {
-    handleOAuth2Response();
+  const error = urlParams.get('error');
+  if (error) {
+    errorMessage.value = error === 'oauth2_failed' ? 'Google 登入失敗，請稍後再試。' : '登入過程中發生錯誤。';
   }
-  // 可以在這裡添加其他需要在組件掛載時執行的邏輯
 });
 </script>
-
-<style scoped>
-.login__error {
-  color: red;
-  margin-top: 10px;
-  text-align: center;
-}
-</style>
 
 <style scoped>
 .login__error {
