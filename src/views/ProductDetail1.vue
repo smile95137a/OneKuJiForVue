@@ -54,7 +54,10 @@
         </div>
       </div>
 
-      <Card title="商品一覽" customClass="mcard--product-detail-one">
+      <Card customClass="mcard--product-detail-one">
+        <template #header>
+          <p class="mcard__text">商品一覽</p>
+        </template>
         <div class="product-detail-one__products">
           <ProductCard2
             v-for="(product, index) in productDetail"
@@ -64,7 +67,10 @@
         </div>
       </Card>
 
-      <Card title="賞品介紹" customClass="mcard--product-detail-one">
+      <Card customClass="mcard--product-detail-one">
+        <template #header>
+          <p class="mcard__text">賞品介紹</p>
+        </template>
         <div class="product-detail-one__productIntroduce">
           <div
             class="product-detail-one__productIntroduce-box product-detail-one__productIntroduce-box--one"
@@ -95,7 +101,10 @@
         </div>
       </Card>
 
-      <Card title="檢視抽況" customClass="mcard--product-detail-one">
+      <Card customClass="mcard--product-detail-one">
+        <template #header>
+          <p class="mcard__text">檢視抽況</p>
+        </template>
         <div class="product-detail-one__text">
           剩餘數量：{{ remainingQuantity }} / 總數量：{{ ticketList?.length }}
         </div>

@@ -1,0 +1,72 @@
+$root-block-name: '.mallCheckout';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+  $p__item: #{$p}__item;
+
+  &__items {
+    @include flex(null, null, column);
+    gap: 24px;
+  }
+  &__item {
+    &-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    &-main {
+    }
+  }
+
+  &__total {
+    margin-top: 24px;
+    padding: 0 64px;
+
+    @include flex(end, null, column);
+
+    &-item {
+      @include flex(center);
+      #{$p__text} {
+        @include flex(center, end);
+        &--title {
+          width: 80px;
+        }
+        &--money {
+          width: 92px;
+        }
+        &--totalMoney {
+          width: 92px;
+          font-size: 32px;
+          font-weight: 700;
+          color: #fe4206;
+        }
+      }
+    }
+  }
+
+  &__btns {
+    @include flex(null, end);
+    margin: 48px 0;
+    gap: 24px;
+  }
+
+  &__btn {
+    width: 100%;
+    max-width: 336px;
+    height: 72px;
+    border-radius: 90px;
+    cursor: pointer;
+    @include flex(center, center);
+    font-size: 36px;
+    font-weight: 900;
+
+    &--back {
+      border: 1px solid #fe4206;
+      color: #fe4206;
+    }
+    &--checkout {
+      background: #fe4206;
+      color: #fff;
+    }
+  }
+}

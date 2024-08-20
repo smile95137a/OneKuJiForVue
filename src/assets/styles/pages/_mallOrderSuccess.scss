@@ -1,0 +1,112 @@
+$root-block-name: '.mallOrderSuccess';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+  $p__item: #{$p}__item;
+
+  &__title {
+    @include flex(center, null, column);
+    margin-bottom: 24px;
+    #{$p__text} {
+      font-size: 60px;
+      font-weight: 400;
+      position: relative;
+      background: linear-gradient(272.26deg, #e5d36a -1.05%, #cf8046 98.1%);
+      -webkit-background-clip: text;
+      color: transparent;
+      &::after {
+        content: attr(data-text);
+        left: 0;
+        position: absolute;
+        text-shadow: -2px 0 1px #000, 0 2px 1px #000, 2px 0 1px #000,
+          0 -2px 1px #000;
+        top: 0;
+        z-index: -1;
+      }
+
+      &--subTitle {
+        font-size: 24px;
+        font-weight: 700;
+        color: #fe4206;
+      }
+    }
+  }
+
+  &__main {
+    padding: 32px;
+
+    #{$p__text} {
+      font-size: 20px;
+      font-weight: 400;
+
+      &--title {
+        font-weight: 700;
+      }
+    }
+
+    &-cell {
+      &--product {
+        @include flex;
+        gap: 24px;
+      }
+      &--delivery {
+        @include flex(null, null, column);
+      }
+    }
+    &-img {
+      width: 78px;
+      height: 98px;
+      background: #aeaeb2;
+      img {
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    &-list {
+      border-bottom: 1px solid #cf8046;
+      padding: 24px;
+    }
+    &-total {
+      @include flex(center, end);
+      margin: 24px 0;
+      #{$p__text} {
+        font-size: 20px;
+        font-weight: 400;
+
+        &--money {
+          font-size: 32px;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+
+  &__btns {
+    @include flex(null, center);
+    margin: 48px 0;
+    gap: 24px;
+  }
+
+  &__btn {
+    width: 100%;
+    max-width: 336px;
+    height: 72px;
+    border-radius: 90px;
+    cursor: pointer;
+    @include flex(center, center);
+    font-size: 36px;
+    font-weight: 900;
+
+    &--backHome {
+      border: 1px solid #fe4206;
+      color: #fe4206;
+    }
+    &--continue {
+      background: #fe4206;
+      color: #fff;
+    }
+  }
+}

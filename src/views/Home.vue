@@ -17,7 +17,11 @@
       </Swiper>
     </div>
 
-    <Card title="一番賞" customClass="mcard--home">
+    <Card customClass="mcard--home">
+      <template #header>
+        <p class="mcard__text">一番賞</p>
+      </template>
+
       <div class="home__products">
         <ProductCard
           v-for="product in prizeProducts"
@@ -27,7 +31,10 @@
       </div>
     </Card>
 
-    <Card title="盲盒" customClass="mcard--home">
+    <Card customClass="mcard--home">
+      <template #header>
+        <p class="mcard__text">盲盒</p>
+      </template>
       <div class="home__products">
         <ProductCard
           v-for="product in blindBoxProducts"
@@ -37,7 +44,10 @@
       </div>
     </Card>
 
-    <Card title="扭蛋" customClass="mcard--home">
+    <Card customClass="mcard--home">
+      <template #header>
+        <p class="mcard__text">扭蛋</p>
+      </template>
       <div class="home__products p-y-64">
         <ProductCard
           v-for="product in gachaProducts"

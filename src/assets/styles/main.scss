@@ -33,6 +33,10 @@
 @import 'pages/product-detail-one';
 @import 'pages/memberCenter';
 @import 'pages/loader';
+@import 'pages/mall';
+@import 'pages/mall-product';
+@import 'pages/mallCheckout';
+@import 'pages/mallOrderSuccess';
 // themes
 // ec6ab1 f29bcb f8cde5
 //
@@ -290,4 +294,28 @@ $letter-spacing-nums: 100;
       min-height: auto;
     }
   }
+}
+
+.text-align-left {
+  text-align: left;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+.text-align-center {
+  text-align: center;
+}
+
+.text-align-justify {
+  text-align: justify;
+}
+
+.text-align-end {
+  text-align: end;
+}
+
+.text-align-start {
+  text-align: start;
 }

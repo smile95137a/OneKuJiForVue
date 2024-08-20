@@ -1,7 +1,7 @@
 <template>
   <div :class="cardClass">
-    <div v-if="title" class="mcard__header">
-      <p class="mcard__text">{{ title }}</p>
+    <div v-if="$slots.header" class="mcard__header">
+      <slot name="header">{{ title }}</slot>
     </div>
     <div class="mcard__content">
       <slot></slot>

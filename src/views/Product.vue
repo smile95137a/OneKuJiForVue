@@ -17,7 +17,10 @@
       </div>
     </div>
 
-    <Card :title="title" customClass="mcard--home">
+    <Card customClass="mcard--home">
+      <template #header>
+        <p class="mcard__text">{{ title }}</p>
+      </template>
       <div class="product__list">
         <div class="product__list-title">
           <div class="product__list-filter">

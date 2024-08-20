@@ -1,5 +1,8 @@
 <template>
-  <Card :title="isRegistering ? '會員註冊' : '會員登入'" customClass="mcard--login">
+  <Card customClass="mcard--login">
+    <template #header>
+      <p class="mcard__text">{{ isRegistering ? '會員註冊' : '會員登入' }}</p>
+    </template>
     <div class="login__container">
       <div class="login__main">
         <div class="login__form">
@@ -25,11 +28,19 @@
             </div>
             <div class="login__form-inputs">
               <p class="login__text">帳號</p>
-              <input v-model="loginForm.username" type="text" class="login__form-input" />
+              <input
+                v-model="loginForm.username"
+                type="text"
+                class="login__form-input"
+              />
             </div>
             <div class="login__form-inputs">
               <p class="login__text">密碼</p>
-              <input v-model="loginForm.password" type="password" class="login__form-input" />
+              <input
+                v-model="loginForm.password"
+                type="password"
+                class="login__form-input"
+              />
             </div>
 
             <div class="login__forgot">
@@ -44,27 +55,51 @@
           <template v-else>
             <div class="login__form-inputs">
               <p class="login__text">帳號</p>
-              <input v-model="registrationForm.username" type="text" class="login__form-input" />
+              <input
+                v-model="registrationForm.username"
+                type="text"
+                class="login__form-input"
+              />
             </div>
             <div class="login__form-inputs">
               <p class="login__text">密碼</p>
-              <input v-model="registrationForm.password" type="password" class="login__form-input" />
+              <input
+                v-model="registrationForm.password"
+                type="password"
+                class="login__form-input"
+              />
             </div>
             <div class="login__form-inputs">
               <p class="login__text">暱稱</p>
-              <input v-model="registrationForm.nickname" type="text" class="login__form-input" />
+              <input
+                v-model="registrationForm.nickname"
+                type="text"
+                class="login__form-input"
+              />
             </div>
             <div class="login__form-inputs">
               <p class="login__text">電子郵件</p>
-              <input v-model="registrationForm.email" type="email" class="login__form-input" />
+              <input
+                v-model="registrationForm.email"
+                type="email"
+                class="login__form-input"
+              />
             </div>
             <div class="login__form-inputs">
               <p class="login__text">電話號碼</p>
-              <input v-model="registrationForm.phoneNumber" type="tel" class="login__form-input" />
+              <input
+                v-model="registrationForm.phoneNumber"
+                type="tel"
+                class="login__form-input"
+              />
             </div>
             <div class="login__form-inputs">
               <p class="login__text">地址</p>
-              <input v-model="registrationForm.address" type="text" class="login__form-input" />
+              <input
+                v-model="registrationForm.address"
+                type="text"
+                class="login__form-input"
+              />
             </div>
 
             <div class="login__btns">
@@ -81,7 +116,11 @@
           <div class="login__other-info">
             <p class="login__text">歡迎來到 再來一抽 官方網站!</p>
             <p class="login__text">
-              {{ isRegistering ? '已經有帳號了嗎？請立即登入！' : '如果你還沒有帳號，請立即註冊， 開啟更多功能哦！' }}
+              {{
+                isRegistering
+                  ? '已經有帳號了嗎？請立即登入！'
+                  : '如果你還沒有帳號，請立即註冊， 開啟更多功能哦！'
+              }}
             </p>
           </div>
           <div class="login__other-btn">
@@ -98,7 +137,16 @@
 <script setup lang="ts">
 import p1 from '@/assets/image/login.png';
 import Card from '@/components/common/Card.vue';
-import { login, LoginRequest, loginWithGoogle, register, RegisterRequest, setAuthToken, setUserId, setUsername } from '@/services/Front/Frontapi';
+import {
+  login,
+  LoginRequest,
+  loginWithGoogle,
+  register,
+  RegisterRequest,
+  setAuthToken,
+  setUserId,
+  setUsername,
+} from '@/services/Front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -176,7 +224,10 @@ onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search);
   const error = urlParams.get('error');
   if (error) {
-    errorMessage.value = error === 'oauth2_failed' ? 'Google 登入失敗，請稍後再試。' : '登入過程中發生錯誤。';
+    errorMessage.value =
+      error === 'oauth2_failed'
+        ? 'Google 登入失敗，請稍後再試。'
+        : '登入過程中發生錯誤。';
   }
 });
 </script>

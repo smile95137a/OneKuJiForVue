@@ -30,7 +30,10 @@
       </div>
     </div>
 
-    <Card title="盲盒" customClass="mcard--home">
+    <Card customClass="mcard--home">
+      <template #header>
+        <p class="mcard__text">盲盒</p>
+      </template>
       <div class="product2__list">
         <div class="product2__list-title">
           <div class="product2__list-filter">

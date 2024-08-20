@@ -2,7 +2,10 @@
   <div class="memberCenter">
     <MemberCenterNav />
     <div class="memberCenter__main">
-      <Card title="會員中心" customClass="mcard--memberCenter">
+      <Card customClass="mcard--memberCenter">
+        <template #header>
+          <p class="mcard__text">會員中心</p>
+        </template>
         <router-view></router-view>
       </Card>
     </div>

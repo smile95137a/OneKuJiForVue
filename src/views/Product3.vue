@@ -34,7 +34,10 @@
       </div>
     </div>
 
-    <Card title="扭蛋" customClass="mcard--home">
+    <Card customClass="mcard--home">
+      <template #header>
+        <p class="mcard__text">扭蛋</p>
+      </template>
       <div class="product3__list">
         <div class="product3__list-title">
           <div class="product3__list-filter">

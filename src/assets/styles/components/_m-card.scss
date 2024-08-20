@@ -29,7 +29,7 @@ $root-block-name: '.mcard';
     padding: 16px 0;
     height: 74px;
     background: linear-gradient(270.06deg, #e2b64b 0.06%, #eb9838 99.98%);
-    @include flex(center, center);
+    @include flex(center);
 
     #{$p__text} {
       font-size: 30px;

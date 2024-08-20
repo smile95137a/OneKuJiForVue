@@ -3,7 +3,10 @@ import Card from '@/components/common/Card.vue';
 </script>
 
 <template>
-  <Card title="註冊會員" customClass="mcard--register">
+  <Card customClass="mcard--register">
+    <template #header>
+      <p class="mcard__text">註冊會員</p>
+    </template>
     <div class="register__container">
       <div class="register__main">
         <div class="register__form">
