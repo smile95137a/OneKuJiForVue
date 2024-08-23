@@ -17,11 +17,14 @@
       </Swiper>
     </div>
 
-    <Card customClass="mcard--home" v-if="prizeProducts.length > 0">
+    <Card customClass="mcard--home">
       <template #header>
         <MCardHeader title="一番賞" />
       </template>
-      <div class="home__products">
+      <div v-if="prizeProducts.length === 0">
+        <NoData />
+      </div>
+      <div v-else class="home__products">
         <ProductCard
           v-for="product in prizeProducts"
           :key="product.productId"
@@ -30,11 +33,14 @@
       </div>
     </Card>
 
-    <Card customClass="mcard--home" v-if="blindBoxProducts.length > 0">
+    <Card customClass="mcard--home">
       <template #header>
         <MCardHeader title="盲盒" />
       </template>
-      <div class="home__products">
+      <div v-if="blindBoxProducts.length === 0">
+        <NoData />
+      </div>
+      <div v-else class="home__products">
         <ProductCard
           v-for="product in blindBoxProducts"
           :key="product.productId"
@@ -43,11 +49,14 @@
       </div>
     </Card>
 
-    <Card customClass="mcard--home" v-if="gachaProducts.length > 0">
+    <Card customClass="mcard--home">
       <template #header>
         <MCardHeader title="扭蛋" />
       </template>
-      <div class="home__products p-y-64">
+      <div v-if="gachaProducts.length === 0">
+        <NoData />
+      </div>
+      <div v-else class="home__products p-y-64">
         <ProductCard
           v-for="product in gachaProducts"
           :key="product.productId"
@@ -64,7 +73,7 @@ import bg from '@/assets/image/bg1.jpeg';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
-
+import NoData from '@/components/common/NoData.vue';
 import { getAllProducts } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import axios from 'axios';
