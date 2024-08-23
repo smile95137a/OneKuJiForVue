@@ -1,13 +1,12 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance } from 'axios';
 import { getAuthToken } from './AuthService';
 import { removeAllState } from '@/utils/Localstorage';
 
 export const api: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:8081',
+  baseURL: import.meta.env.VITE_BASE_API_URL,
   timeout: 1000000,
   headers: {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': true,
   },
 });
 

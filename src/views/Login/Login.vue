@@ -1,9 +1,7 @@
 <template>
   <Card customClass="mcard--login">
     <template #header>
-      <div class="w-100 flex items-center justify-center">
-        <p class="mcard__text">{{ isRegistering ? '會員註冊' : '會員登入' }}</p>
-      </div>
+      <MCardHeader :title="isRegistering ? '會員註冊' : '會員登入'" />
     </template>
     <div class="login__container">
       <div class="login__main">
@@ -149,6 +147,7 @@ import {
 import { useUserStore } from '@/stores/userstore';
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import MCardHeader from '@/components/common/MCardHeader.vue';
 
 const router = useRouter();
 const userStore = useUserStore();

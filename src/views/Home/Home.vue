@@ -19,11 +19,8 @@
 
     <Card customClass="mcard--home" v-if="prizeProducts.length > 0">
       <template #header>
-        <div class="w-100 flex items-center justify-center">
-          <p class="mcard__text">一番賞</p>
-        </div>
+        <MCardHeader title="一番賞" />
       </template>
-
       <div class="home__products">
         <ProductCard
           v-for="product in prizeProducts"
@@ -35,9 +32,7 @@
 
     <Card customClass="mcard--home" v-if="blindBoxProducts.length > 0">
       <template #header>
-        <div class="w-100 flex items-center justify-center">
-          <p class="mcard__text">盲盒</p>
-        </div>
+        <MCardHeader title="盲盒" />
       </template>
       <div class="home__products">
         <ProductCard
@@ -50,9 +45,7 @@
 
     <Card customClass="mcard--home" v-if="gachaProducts.length > 0">
       <template #header>
-        <div class="w-100 flex items-center justify-center">
-          <p class="mcard__text">扭蛋</p>
-        </div>
+        <MCardHeader title="扭蛋" />
       </template>
       <div class="home__products p-y-64">
         <ProductCard
@@ -70,6 +63,8 @@
 import bg from '@/assets/image/bg1.jpeg';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
+
 import { getAllProducts } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import axios from 'axios';

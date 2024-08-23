@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 $root-block-name: '.loader';
 
 #{$root-block-name} {
@@ -6,9 +8,10 @@ $root-block-name: '.loader';
   inset: 0;
   background-color: rgba(255, 255, 255, 0.7);
   @include flex(center, center);
+
   &__img {
     @include abs-center;
-    color: #eb9839;
+    color: #ec6ab1;
     font-size: 20px;
     font-weight: bold;
 
@@ -18,7 +21,7 @@ $root-block-name: '.loader';
       $slider-height: 8px;
 
       height: $slider-height;
-      border-radius: $slider-height / 2;
+      border-radius: math.div($slider-height, 2);
       animation: slide-right 0.7s ease-in-out infinite alternate;
     }
 
@@ -29,7 +32,7 @@ $root-block-name: '.loader';
     > *:nth-child(1) {
       @extend %slider;
       margin-left: -30px;
-      width: $img-width * 3 / 4;
+      width: math.div($img-width, 4) * 3;
       background-color: #f8cde5;
     }
 
@@ -43,7 +46,7 @@ $root-block-name: '.loader';
     > *:nth-child(3) {
       @extend %slider;
       margin-left: -40px;
-      width: $img-width / 1.5;
+      width: math.div($img-width, 1.5);
       background-color: #f8cdcf;
     }
   }

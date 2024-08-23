@@ -19,9 +19,7 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <div class="w-100 flex items-center justify-center">
-          <p class="mcard__text">{{ title }}</p>
-        </div>
+        <MCardHeader :title="title" />
       </template>
       <div class="product__list">
         <div class="product__list-title">
@@ -30,12 +28,8 @@
           </div>
         </div>
 
-        <div v-if="loading" class="product__loading">加載中...</div>
-        <div v-else-if="error" class="product__error">
-          {{ error }}
-        </div>
-        <div v-else-if="filteredProducts.length === 0" class="product__no-data">
-          沒有找到相關產品
+        <div v-if="filteredProducts.length === 0" class="product__no-data">
+          <NoData />
         </div>
         <div v-else class="product__list-products">
           <ProductCard
@@ -51,7 +45,9 @@
 
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
+import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
 import { getAllProducts } from '@/services/frontend/productService';
 import { useDialogStore } from '@/stores/dialogStore';
 import { computed, onMounted, ref } from 'vue';
@@ -62,7 +58,6 @@ const router = useRouter();
 const products = ref([]);
 const activeBtn = ref('official');
 const title = ref('官方一番賞');
-const loading = ref(true);
 const error = ref('');
 
 const buttons = [
@@ -89,7 +84,6 @@ const handleBtnClick = (btnType: string, btnTitle: string) => {
 
 const fetchProducts = async () => {
   if (products.value.length > 0) return;
-  loading.value = true;
   error.value = '';
   try {
     const response = await getAllProducts();
@@ -100,8 +94,6 @@ const fetchProducts = async () => {
           ...product,
           imageUrl: ensureFullImageUrl(product.imageUrl),
         }));
-
-      console.log('1231231', products.value);
     } else {
       throw new Error('API 返回的數據格式不正確');
     }
@@ -109,7 +101,6 @@ const fetchProducts = async () => {
     console.error('Error fetching products:', err);
     error.value = '獲取產品數據時出錯，請稍後再試';
   } finally {
-    loading.value = false;
   }
 };
 

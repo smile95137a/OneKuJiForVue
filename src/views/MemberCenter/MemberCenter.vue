@@ -4,9 +4,7 @@
     <div class="memberCenter__main">
       <Card customClass="mcard--memberCenter">
         <template #header>
-          <div class="w-100 flex items-center justify-center">
-            <p class="mcard__text">會員中心</p>
-          </div>
+          <MCardHeader title="會員中心" />
         </template>
         <router-view></router-view>
       </Card>
@@ -17,6 +15,7 @@
 <script setup lang="ts">
 import Card from '@/components/common/Card.vue';
 import MemberCenterNav from '@/components/Frontend/memberCenter/MemberCenterNav.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
 </script>
 
 <style scoped></style>

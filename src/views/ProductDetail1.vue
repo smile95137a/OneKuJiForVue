@@ -56,9 +56,7 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <div class="w-100 flex items-center justify-center">
-            <p class="mcard__text">商品一覽</p>
-          </div>
+          <MCardHeader title="商品一覽" />
         </template>
         <div class="product-detail-one__products">
           <ProductCard2
@@ -71,9 +69,7 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <div class="w-100 flex items-center justify-center">
-            <p class="mcard__text">賞品介紹</p>
-          </div>
+          <MCardHeader title="賞品介紹" />
         </template>
         <div class="product-detail-one__productIntroduce">
           <div
@@ -107,9 +103,7 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <div class="w-100 flex items-center justify-center">
-            <p class="mcard__text">檢視抽況</p>
-          </div>
+          <MCardHeader title="檢視抽況" />
         </template>
         <div class="product-detail-one__text">
           剩餘數量：{{ remainingQuantity }} / 總數量：{{ ticketList?.length }}
@@ -172,8 +166,9 @@ import Card from '@/components/common/Card.vue';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { useRoute } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
-
 import ProductCard2 from '@/components/Frontend/ProductCard2.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
+
 import {
   getProduct,
   getProductDetail,

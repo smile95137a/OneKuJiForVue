@@ -1,0 +1,20 @@
+$root-block-name: '.noData';
+
+#{$root-block-name} {
+  @include flex(center, null, column);
+  padding: 72px 16px;
+  &__img {
+    width: 210px;
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  &__text {
+    letter-spacing: 0.5px;
+    color: #eb9838;
+    font-weight: bold;
+    margin-top: 4px;
+  }
+}

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import Card from '@/components/common/Card.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
 </script>
 
 <template>
   <Card customClass="mcard--register">
     <template #header>
-      <div class="w-100 flex items-center justify-center">
-        <p class="mcard__text">註冊會員</p>
-      </div>
+      <MCardHeader title="註冊會員" />
     </template>
     <div class="register__container">
       <div class="register__main">

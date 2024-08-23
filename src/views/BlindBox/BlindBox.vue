@@ -5,18 +5,8 @@
     </div>
     <div class="product2__btns">
       <div class="product2__btns-selects">
-        <div class="product2__input product2__input--select">
-          <div class="product2__input-main">全部狀態</div>
-          <div class="product2__input-icon">
-            <i class="fa-solid fa-caret-down"></i>
-          </div>
-        </div>
-        <div class="product2__input product2__input--select">
-          <div class="product2__input-main">全部廠商</div>
-          <div class="product2__input-icon">
-            <i class="fa-solid fa-caret-down"></i>
-          </div>
-        </div>
+        <MSelect :options="options1" v-model="selectedValue1" />
+        <MSelect :options="options2" v-model="selectedValue2" />
       </div>
       <div class="product2__btns-search">
         <div class="product2__input">
@@ -32,9 +22,7 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <div class="w-100 flex items-center justify-center">
-          <p class="mcard__text">盲盒</p>
-        </div>
+        <MCardHeader title="盲盒" />
       </template>
       <div class="product2__list">
         <div class="product2__list-title">
@@ -57,6 +45,8 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
+import MSelect from '@/components/common/MSelect.vue';
 import { getAllProducts } from '@/services/frontend/productService';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -72,6 +62,18 @@ const fetchProducts = async () => {
     );
   } catch (error) {}
 };
+const selectedValue1 = ref('');
+const options1 = ref([
+  { value: '', label: '全部狀態' },
+  { value: '1', label: '選項1' },
+  { value: '2', label: '選項2' },
+]);
+const selectedValue2 = ref('');
+const options2 = ref([
+  { value: '', label: '全部廠商' },
+  { value: '1', label: '選項1' },
+  { value: '2', label: '選項2' },
+]);
 
 const getProductStatus = (product: Product): string => {
   const now = new Date();

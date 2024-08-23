@@ -36,9 +36,7 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <div class="w-100 flex items-center justify-center">
-          <p class="mcard__text">扭蛋</p>
-        </div>
+        <MCardHeader title="扭蛋" />
       </template>
       <div class="product3__list">
         <div class="product3__list-title">
@@ -63,6 +61,8 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
+
 import { getAllProducts } from '@/services/frontend/productService';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
