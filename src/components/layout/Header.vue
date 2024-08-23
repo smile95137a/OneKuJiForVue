@@ -15,37 +15,61 @@
           <div class="header__nav-item header__nav-item--logo">
             <img :src="logoImg" class="header__logo-img" alt="Logo" />
           </div>
-          <router-link class="header__nav-item" to="/ichiban">
+          <router-link
+            class="header__nav-item"
+            to="/ichiban"
+            active-class="header__nav-item--active"
+          >
             一番賞
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/blindox">
+          <router-link
+            class="header__nav-item"
+            to="/blindox"
+            active-class="header__nav-item--active"
+          >
             盲盒
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/mall">
+          <router-link
+            class="header__nav-item"
+            to="/mall"
+            active-class="header__nav-item--active"
+          >
             商城
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/gacha">
+          <router-link
+            class="header__nav-item"
+            to="/gacha"
+            active-class="header__nav-item--active"
+          >
             扭蛋抽獎
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/gacha">
+          <router-link
+            class="header__nav-item"
+            to="/news"
+            active-class="header__nav-item--active"
+          >
             最新消息
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/gacha">
+          <router-link
+            class="header__nav-item"
+            to="/customized-draw"
+            active-class="header__nav-item--active"
+          >
             客製化抽獎
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>

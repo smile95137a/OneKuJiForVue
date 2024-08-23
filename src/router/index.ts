@@ -27,6 +27,8 @@ import Mall from '@/views/Mall/Mall.vue';
 import MallProduct from '@/views/Mall/MallProduct.vue';
 import MallCheckout from '@/views/Mall/MallCheckout.vue';
 import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
+import News from '@/views/News/News.vue';
+import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import { getAuthToken } from '@/services/frontend/AuthService';
 
 const routes: Array<RouteRecordRaw> = [
@@ -102,6 +104,16 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/gacha',
     component: Gacha,
+    meta: { layout: 'default' },
+  },
+  {
+    path: '/news',
+    component: News,
+    meta: { layout: 'default' },
+  },
+  {
+    path: '/customized-draw',
+    component: CustomizedDraw,
     meta: { layout: 'default' },
   },
   {

@@ -100,6 +100,9 @@ $root-block-name: '.header';
       font-family: Noto Sans TC;
       font-size: 25px;
       font-weight: 500;
+      &--active {
+        color: #eb9838;
+      }
       @include screen(md) {
         width: 100%;
         @include flex(center, space-between);
