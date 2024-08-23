@@ -21,14 +21,14 @@
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/mall">
-            商城
+          <router-link class="header__nav-item" to="/blindox">
+            盲盒
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/blindox">
-            盲盒
+          <router-link class="header__nav-item" to="/mall">
+            商城
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
