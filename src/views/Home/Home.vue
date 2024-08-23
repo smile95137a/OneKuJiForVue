@@ -19,7 +19,7 @@
 
     <Card customClass="mcard--home" v-if="prizeProducts.length > 0">
       <template #header>
-        <div class="flex items-center justify-center">
+        <div class="w-100 flex items-center justify-center">
           <p class="mcard__text">一番賞</p>
         </div>
       </template>
@@ -35,7 +35,7 @@
 
     <Card customClass="mcard--home" v-if="blindBoxProducts.length > 0">
       <template #header>
-        <div class="flex items-center justify-center">
+        <div class="w-100 flex items-center justify-center">
           <p class="mcard__text">盲盒</p>
         </div>
       </template>
@@ -50,7 +50,7 @@
 
     <Card customClass="mcard--home" v-if="gachaProducts.length > 0">
       <template #header>
-        <div class="flex items-center justify-center">
+        <div class="w-100 flex items-center justify-center">
           <p class="mcard__text">扭蛋</p>
         </div>
       </template>
@@ -70,7 +70,7 @@
 import bg from '@/assets/image/bg1.jpeg';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { Product, queryProducts } from '@/services/front/Frontapi';
+import { getAllProducts } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import axios from 'axios';
 import { Navigation } from 'swiper/modules';
@@ -79,24 +79,24 @@ import 'swiper/scss/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { onMounted, ref } from 'vue';
 
-const prizeProducts = ref<Product[]>([]);
-const blindBoxProducts = ref<Product[]>([]);
-const gachaProducts = ref<Product[]>([]);
+const prizeProducts = ref<any[]>([]);
+const blindBoxProducts = ref<any[]>([]);
+const gachaProducts = ref<any[]>([]);
 const loadingStore = useLoadingStore();
 
 const fetchProducts = async () => {
   try {
     loadingStore.startLoading();
-    const products = await queryProducts();
+    const products = await getAllProducts();
     loadingStore.stopLoading();
     prizeProducts.value = products.filter(
-      (p: Product) => p.productType === 'PRIZE'
+      (p: any) => p.productType === 'PRIZE'
     );
     blindBoxProducts.value = products.filter(
-      (p: Product) => p.productType === 'BLIND_BOX'
+      (p: any) => p.productType === 'BLIND_BOX'
     );
     gachaProducts.value = products.filter(
-      (p: Product) => p.productType === 'GACHA'
+      (p: any) => p.productType === 'GACHA'
     );
   } catch (error) {
     loadingStore.stopLoading();

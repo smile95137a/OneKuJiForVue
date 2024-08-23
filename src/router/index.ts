@@ -1,4 +1,3 @@
-import { getAuthToken } from '@/services/front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
@@ -20,7 +19,6 @@ import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 import Rewards from '@/views/MemberCenter/Rewards.vue';
 import NotFound from '@/views/NotFound/NotFound.vue';
-import OAuth2Callback from '@/views/OAuth2Callback.vue';
 import Ichiban from '@/views/Ichiban/Ichiban.vue';
 import Blindox from '@/views/BlindBox/BlindBox.vue';
 import Gacha from '@/views/Gacha/Gacha.vue';
@@ -29,6 +27,7 @@ import Mall from '@/views/Mall/Mall.vue';
 import MallProduct from '@/views/Mall/MallProduct.vue';
 import MallCheckout from '@/views/Mall/MallCheckout.vue';
 import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
+import { getAuthToken } from '@/services/frontend/AuthService';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -36,12 +35,6 @@ const routes: Array<RouteRecordRaw> = [
     component: Login,
     meta: { layout: 'default' },
   },
-  {
-    path: '/auth/oauth2/google/success',
-    name: 'OAuth2Success',
-    component: OAuth2Callback, // 这里使用你的处理成功的组件
-  },
-
   {
     path: '/register',
     component: Register,

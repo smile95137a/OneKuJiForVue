@@ -5,7 +5,7 @@ import Card from '@/components/common/Card.vue';
 <template>
   <Card customClass="mcard--register">
     <template #header>
-      <div class="flex items-center justify-center">
+      <div class="w-100 flex items-center justify-center">
         <p class="mcard__text">註冊會員</p>
       </div>
     </template>

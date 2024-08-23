@@ -56,7 +56,7 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <div class="flex items-center justify-center">
+          <div class="w-100 flex items-center justify-center">
             <p class="mcard__text">商品一覽</p>
           </div>
         </template>
@@ -71,7 +71,7 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <div class="flex items-center justify-center">
+          <div class="w-100 flex items-center justify-center">
             <p class="mcard__text">賞品介紹</p>
           </div>
         </template>
@@ -107,7 +107,7 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <div class="flex items-center justify-center">
+          <div class="w-100 flex items-center justify-center">
             <p class="mcard__text">檢視抽況</p>
           </div>
         </template>
@@ -172,17 +172,17 @@ import Card from '@/components/common/Card.vue';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { useRoute } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
-import { Product } from '@/services/front/Frontapi';
+
+import ProductCard2 from '@/components/Frontend/ProductCard2.vue';
 import {
   getProduct,
   getProductDetail,
   ProductDetail,
-} from '@/services/front/productService';
-import { executeDraw, getDrawStatus } from '@/services/front/drawService';
-import ProductCard2 from '@/components/Frontend/ProductCard2.vue';
+} from '@/services/frontend/productService';
+import { getDrawStatus, executeDraw } from '@/services/frontend/drawService';
 const route = useRoute();
 const productId = Number(route.params.id);
-const product = ref<Product | null>(null);
+const product = ref<any | null>(null);
 const productDetail = ref<ProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);

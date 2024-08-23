@@ -32,7 +32,7 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <div class="flex items-center justify-center">
+        <div class="w-100 flex items-center justify-center">
           <p class="mcard__text">盲盒</p>
         </div>
       </template>
@@ -57,24 +57,20 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { Product, queryProducts } from '@/services/front/Frontapi';
+import { getAllProducts } from '@/services/frontend/productService';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const BLIND_BOXProducts = ref<Product[]>([]);
+const BLIND_BOXProducts = ref<any[]>([]);
 
 const fetchProducts = async () => {
   try {
-    console.log('Fetching products for BLIND_BOX...');
-    const products = await queryProducts();
+    const products = await getAllProducts();
     BLIND_BOXProducts.value = products.filter(
       (product) => product.productType === 'BLIND_BOX'
     );
-    console.log('BLIND_BOX products:', BLIND_BOXProducts.value);
-  } catch (error) {
-    console.error('Error fetching BLIND_BOX products:', error);
-  }
+  } catch (error) {}
 };
 
 const getProductStatus = (product: Product): string => {
@@ -93,7 +89,6 @@ const navigateToDetail = (productId: number) => {
 };
 
 onMounted(() => {
-  console.log('Product2 component mounted, fetching products...');
   fetchProducts();
 });
 </script>

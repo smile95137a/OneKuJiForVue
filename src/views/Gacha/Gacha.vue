@@ -36,7 +36,7 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <div class="flex items-center justify-center">
+        <div class="w-100 flex items-center justify-center">
           <p class="mcard__text">扭蛋</p>
         </div>
       </template>
@@ -63,12 +63,12 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { Product, queryProducts } from '@/services/front/Frontapi';
+import { getAllProducts } from '@/services/frontend/productService';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const GACHAProducts = ref<Product[]>([]);
+const GACHAProducts = ref<any[]>([]);
 const loading = ref(true);
 const error = ref('');
 const searchQuery = ref('');
@@ -77,7 +77,7 @@ const fetchProducts = async () => {
   try {
     console.log('Fetching products for GACHA...');
     loading.value = true;
-    const products = await queryProducts();
+    const products = await getAllProducts();
     GACHAProducts.value = products.filter(
       (product) => product.productType === 'GACHA'
     );
@@ -122,71 +122,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.product3 {
-  padding: 20px;
-}
-
-.product3__title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.product3__btns {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.product3__btns-selects {
-  display: flex;
-  gap: 10px;
-}
-
-.product3__input {
-  display: flex;
-  align-items: center;
-  background-color: #f0f0f0;
-  border-radius: 5px;
-  padding: 5px 10px;
-}
-
-.product3__input--select {
-  cursor: pointer;
-}
-
-.product3__input-main {
-  flex: 1;
-}
-
-.product3__input-icon {
-  margin-left: 10px;
-}
-
-.product3__list-products {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.product3__loading,
-.product3__error {
-  text-align: center;
-  padding: 20px;
-  font-size: 18px;
-}
-
-.product3__error {
-  color: #ff4444;
-}
-
-input[type='text'] {
-  width: 100%;
-  padding: 8px;
-  border: none;
-  background: transparent;
-  outline: none;
-}
-</style>
+<style scoped></style>

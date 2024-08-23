@@ -1,4 +1,4 @@
-import api from './Frontapi';
+import { api } from './FrontAPI';
 
 interface Product {
   productId: number;
@@ -37,9 +37,13 @@ export interface ProductDetail {
   secret: boolean;
 }
 
+const productBasePath = '/product';
+const productDetailBasePath = '/productDetail';
+
+// 獲取單個產品
 export const getProduct = async (productId: number): Promise<Product> => {
   try {
-    const response = await api.get(`/product/${productId}`);
+    const response = await api.get(`${productBasePath}/${productId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -47,11 +51,14 @@ export const getProduct = async (productId: number): Promise<Product> => {
   }
 };
 
+// 獲取單個產品詳情
 export const getProductDetail = async (
   productId: number
 ): Promise<ProductDetail[]> => {
   try {
-    const response = await api.get(`/productDetail/query/${productId}`);
+    const response = await api.get(
+      `${productDetailBasePath}/query/${productId}`
+    );
     return response.data;
   } catch (error) {
     console.error('Error fetching product detail:', error);
@@ -59,9 +66,10 @@ export const getProductDetail = async (
   }
 };
 
+// 獲取所有產品
 export const getAllProducts = async (): Promise<Product[]> => {
   try {
-    const response = await api.get('/product/query');
+    const response = await api.get(`${productBasePath}/query`);
     return response.data;
   } catch (error) {
     console.error('Error fetching all products:', error);
@@ -69,9 +77,10 @@ export const getAllProducts = async (): Promise<Product[]> => {
   }
 };
 
+// 獲取所有產品詳情
 export const getAllProductDetails = async (): Promise<ProductDetail[]> => {
   try {
-    const response = await api.get('/productDetail/query');
+    const response = await api.get(`${productDetailBasePath}/query`);
     return response.data;
   } catch (error) {
     console.error('Error fetching all product details:', error);

@@ -19,7 +19,7 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <div class="flex items-center justify-center">
+        <div class="w-100 flex items-center justify-center">
           <p class="mcard__text">{{ title }}</p>
         </div>
       </template>
@@ -52,7 +52,7 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { queryProducts } from '@/services/front/Frontapi';
+import { getAllProducts } from '@/services/frontend/productService';
 import { useDialogStore } from '@/stores/dialogStore';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -92,7 +92,7 @@ const fetchProducts = async () => {
   loading.value = true;
   error.value = '';
   try {
-    const response = await queryProducts();
+    const response = await getAllProducts();
     if (Array.isArray(response)) {
       products.value = response
         .filter((product) => product.productType === 'PRIZE')

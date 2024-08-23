@@ -29,7 +29,7 @@
 import { ref, onMounted } from 'vue';
 import c1 from '@/assets/image/coin-1.png';
 import c2 from '@/assets/image/coin-2.png';
-import { getUserInfo, getUserId } from '@/services/front/Frontapi'; // Adjust the import path as needed
+import { getUserById, getUserId } from '@/services/frontend/userService';
 
 const userBalance = ref(0);
 const userBonus = ref(0);
@@ -38,7 +38,7 @@ const fetchUserData = async () => {
   try {
     const userId = getUserId();
     if (userId) {
-      const userData = await getUserInfo(userId);
+      const userData = await getUserById(userId);
       userBalance.value = userData.balance;
       userBonus.value = userData.bonus;
     } else {
@@ -54,6 +54,4 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-// Your existing styles here
-</style>
+<style lang="scss" scoped></style>

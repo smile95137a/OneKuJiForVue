@@ -80,7 +80,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
 import { useUserStore } from '@/stores/userstore';
-import { getUserInfo, publicApiRequest } from '@/services/front/Frontapi';
+import { updateUser } from '@/services/frontend/userService';
 
 const userStore = useUserStore();
 const userInfo = ref({
@@ -122,7 +122,7 @@ const updateField = async (field: keyof typeof userInfo.value) => {
   try {
     if (userStore.userId) {
       const updatedData = { [field]: userInfo.value[field] };
-      await publicApiRequest(`/user/${userStore.userId}`, 'put', updatedData);
+      await updateUser(userStore.userId, updatedData);
       console.log(`${field} 更新成功`);
     }
   } catch (error) {
@@ -135,7 +135,7 @@ const updateDetailedAddress = async () => {
     if (userStore.userId) {
       const fullAddress =
         `${userInfo.value.address} ${detailedAddress.value}`.trim();
-      await publicApiRequest(`/user/${userStore.userId}`, 'put', {
+      await updateUser(userStore.userId, {
         address: fullAddress,
       });
       console.log('詳細地址更新成功');

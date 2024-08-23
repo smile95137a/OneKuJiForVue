@@ -1,4 +1,4 @@
-import api from './Frontapi';
+import { api } from './FrontAPI';
 
 const basePath = '/api/storeProduct';
 

@@ -1,4 +1,4 @@
-import api from './Frontapi';
+import { api } from './FrontAPI';
 
 export interface DrawRequest {
   userId: number;
@@ -24,13 +24,16 @@ export interface PrizeNumber {
   isDrawn: boolean;
 }
 
+const basePath = '/draw';
+
+// 抽獎
 export const drawPrize = async (
   userId: number,
   drawRequests: any,
   productId: number
 ): Promise<DrawResult> => {
   try {
-    const response = await api.post('/draw/oneprize', drawRequests, {
+    const response = await api.post(`${basePath}/oneprize`, drawRequests, {
       params: { userId, productId },
     });
     return response.data;
@@ -40,11 +43,12 @@ export const drawPrize = async (
   }
 };
 
+// 獲取抽獎狀態
 export const getDrawStatus = async (
   productId: number
 ): Promise<PrizeNumber[]> => {
   try {
-    const response = await api.get(`/draw/status/${productId}`);
+    const response = await api.get(`${basePath}/status/${productId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching draw status:', error);
@@ -52,13 +56,14 @@ export const getDrawStatus = async (
   }
 };
 
+// 執行抽獎
 export const executeDraw = async (
   productId: number,
   userId: number,
   prizeNumber: number
 ): Promise<DrawResult> => {
   try {
-    const response = await api.post(`/draw/execute/${productId}`, null, {
+    const response = await api.post(`${basePath}/execute/${productId}`, null, {
       params: { userId, prizeNumber },
     });
     return response.data;
@@ -68,12 +73,13 @@ export const executeDraw = async (
   }
 };
 
+// 執行隨機抽獎
 export const executeRandomDraw = async (
   productId: number,
   userId: number
 ): Promise<DrawResult> => {
   try {
-    const response = await api.post(`/draw/random/${productId}`, null, {
+    const response = await api.post(`${basePath}/random/${productId}`, null, {
       params: { userId },
     });
     return response.data;

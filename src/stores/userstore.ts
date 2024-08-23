@@ -1,13 +1,10 @@
+import { getAuthToken, setAuthToken } from '@/services/frontend/AuthService';
 import {
-  getAuthToken,
   getUserId,
   getUsername,
-  publicApiRequest,
-  removeUserInfo,
-  setAuthToken,
   setUserId,
   setUsername,
-} from '@/services/front/Frontapi';
+} from '@/services/frontend/userService';
 import { defineStore } from 'pinia';
 
 export interface UserInfo {

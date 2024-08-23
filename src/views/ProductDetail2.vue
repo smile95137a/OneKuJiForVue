@@ -81,7 +81,7 @@ import {
   ProductDetail,
 } from '@/services/front/productService';
 import { drawPrize } from '@/services/front/drawService';
-import { Product } from '@/services/front/Frontapi';
+import { Product } from '@/services/front/FrontAPI';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 
 const route = useRoute();

@@ -1,7 +1,7 @@
 <template>
   <Card customClass="mcard--login">
     <template #header>
-      <div class="flex items-center justify-center">
+      <div class="w-100 flex items-center justify-center">
         <p class="mcard__text">{{ isRegistering ? '會員註冊' : '會員登入' }}</p>
       </div>
     </template>
@@ -139,16 +139,13 @@
 <script setup lang="ts">
 import p1 from '@/assets/image/login.png';
 import Card from '@/components/common/Card.vue';
+import { login, setAuthToken } from '@/services/frontend/AuthService';
 import {
-  login,
-  LoginRequest,
-  loginWithGoogle,
-  register,
-  RegisterRequest,
-  setAuthToken,
+  registerUser,
   setUserId,
   setUsername,
-} from '@/services/front/Frontapi';
+} from '@/services/frontend/userService';
+
 import { useUserStore } from '@/stores/userstore';
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -175,7 +172,7 @@ const errorMessage = ref('');
 
 const handleLogin = async () => {
   try {
-    const loginData: LoginRequest = {
+    const loginData = {
       username: loginForm.username,
       password: loginForm.password,
     };
@@ -195,7 +192,7 @@ const handleLogin = async () => {
 
 const handleRegister = async () => {
   try {
-    const registerData: RegisterRequest = {
+    const registerData = {
       username: registrationForm.username,
       password: registrationForm.password,
       nickname: registrationForm.nickname,
@@ -203,7 +200,7 @@ const handleRegister = async () => {
       phoneNumber: registrationForm.phoneNumber,
       address: registrationForm.address,
     };
-    const response = await register(registerData);
+    const response = await registerUser(registerData);
     console.log('註冊成功', response);
     isRegistering.value = false;
     errorMessage.value = '註冊成功。請登入。';
@@ -218,9 +215,7 @@ const toggleRegistration = () => {
   errorMessage.value = '';
 };
 
-const handleGoogleLogin = () => {
-  loginWithGoogle();
-};
+const handleGoogleLogin = () => {};
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search);
