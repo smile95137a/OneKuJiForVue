@@ -30,9 +30,14 @@
             <i class="fa-solid fa-filter"></i>
           </div>
         </div>
-        <div class="product2__list-products">
+
+        <div v-if="blindBoxProducts.length === 0" class="product__no-data">
+          <NoData />
+        </div>
+
+        <div v-else class="product2__list-products">
           <ProductCard
-            v-for="(product, index) in BLIND_BOXProducts"
+            v-for="(product, index) in blindBoxProducts"
             :key="index"
             :product="product"
           />
@@ -47,17 +52,18 @@ import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import MSelect from '@/components/common/MSelect.vue';
+import NoData from '@/components/common/NoData.vue';
 import { getAllProducts } from '@/services/frontend/productService';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const BLIND_BOXProducts = ref<any[]>([]);
+const blindBoxProducts = ref<any[]>([]);
 
 const fetchProducts = async () => {
   try {
     const products = await getAllProducts();
-    BLIND_BOXProducts.value = products.filter(
+    blindBoxProducts.value = products.filter(
       (product) => product.productType === 'BLIND_BOX'
     );
   } catch (error) {}
