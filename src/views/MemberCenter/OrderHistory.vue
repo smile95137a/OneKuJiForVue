@@ -32,7 +32,10 @@
           class="memberCenter__orderHistoryForm-box memberCenter__orderHistoryForm-box--btns"
         >
           <div class="memberCenter__orderHistoryForm-btns">
-            <div class="memberCenter__orderHistoryForm-btn" @click="fetchOrders">
+            <div
+              class="memberCenter__orderHistoryForm-btn"
+              @click="fetchOrders"
+            >
               <span class="memberCenter__text">查詢</span>
             </div>
           </div>
@@ -66,7 +69,7 @@
 
 <script lang="ts" setup>
 import MemberCenterCoins from '@/components/Frontend/memberCenter/MemberCenterCoins.vue';
-import { getOrderById } from '@/services/Front/Frontapi';
+import { getOrderById } from '@/services/front/Frontapi';
 import { onMounted, ref } from 'vue';
 
 const startDate = ref('');
@@ -74,7 +77,7 @@ const endDate = ref('');
 const orders = ref([]);
 
 const fetchOrders = async () => {
-  let userId = localStorage.getItem('userId')
+  let userId = localStorage.getItem('userId');
   try {
     orders.value = await getOrderById(userId);
   } catch (error) {

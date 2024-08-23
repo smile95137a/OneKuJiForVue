@@ -1,4 +1,4 @@
-import { getAuthToken } from '@/services/Front/Frontapi';
+import { getAuthToken } from '@/services/front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
@@ -11,20 +11,20 @@ import ShipmentManagement from '@/components/Backend/ShipmentManagement.vue';
 import { useAdminStore } from '@/stores/adstore';
 import AdminDashboard from '@/views/AdminDashboard.vue';
 import AdminLogin from '@/views/AdminLogin.vue';
-import Home from '@/views/Home.vue';
-import Login from '@/views/Login.vue';
+import Home from '@/views/Home/Home.vue';
+import Login from '@/views/Login/Login.vue';
+import Register from '@/views/Register/Register.vue';
 import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
 import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 import Rewards from '@/views/MemberCenter/Rewards.vue';
-import NotFound from '@/views/NotFound.vue';
+import NotFound from '@/views/NotFound/NotFound.vue';
 import OAuth2Callback from '@/views/OAuth2Callback.vue';
-import Product from '@/views/Product.vue';
-import Product2 from '@/views/Product2.vue';
-import Product3 from '@/views/Product3.vue';
+import Ichiban from '@/views/Ichiban/Ichiban.vue';
+import Blindox from '@/views/BlindBox/BlindBox.vue';
+import Gacha from '@/views/Gacha/Gacha.vue';
 import ProductDetail1 from '@/views/ProductDetail1.vue';
-import Register from '@/views/Register.vue';
 import Mall from '@/views/Mall/Mall.vue';
 import MallProduct from '@/views/Mall/MallProduct.vue';
 import MallCheckout from '@/views/Mall/MallCheckout.vue';
@@ -97,18 +97,18 @@ const routes: Array<RouteRecordRaw> = [
     meta: { layout: 'default' },
   },
   {
-    path: '/product',
-    component: Product,
+    path: '/ichiban',
+    component: Ichiban,
     meta: { layout: 'default' },
   },
   {
-    path: '/product2',
-    component: Product2,
+    path: '/blindox',
+    component: Blindox,
     meta: { layout: 'default' },
   },
   {
-    path: '/product3',
-    component: Product3,
+    path: '/gacha',
+    component: Gacha,
     meta: { layout: 'default' },
   },
   {

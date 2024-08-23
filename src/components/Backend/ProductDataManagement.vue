@@ -1,6 +1,8 @@
 <template>
   <div class="product-data-management">
-    <button class="add-member-button" @click="showAddMemberModal = true">新增商品</button>
+    <button class="add-member-button" @click="showAddMemberModal = true">
+      新增商品
+    </button>
     <h2>商品資訊</h2>
     <div class="selection-bar">
       <button @click="fetchData('PRIZE')">一番賞</button>
@@ -38,10 +40,18 @@
                 <option value="SOLD_OUT">上架已售完</option>
               </select>
             </td>
-            <td><img :src="product.imageUrl" alt="Product Image" class="product-image" /></td>
+            <td>
+              <img
+                :src="product.imageUrl"
+                alt="Product Image"
+                class="product-image"
+              />
+            </td>
             <td>
               <button @click="editMember(product)">編輯</button>
-              <button class="delete-button" @click="handleDetail(product)">刪除</button>
+              <button class="delete-button" @click="handleDetail(product)">
+                刪除
+              </button>
             </td>
           </tr>
         </tbody>
@@ -51,12 +61,16 @@
   <div class="pagination">
     <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
     <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
-    <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
+    <button @click="nextPage" :disabled="currentPage === totalPages">
+      下一頁
+    </button>
   </div>
 
   <div v-if="showAddMemberModal" class="modal">
     <div class="modal-content">
-      <span class="close-button" @click="showAddMemberModal = false">&times;</span>
+      <span class="close-button" @click="showAddMemberModal = false"
+        >&times;</span
+      >
       <h2>新增主題</h2>
       <form @submit.prevent="addDetail">
         <div>
@@ -69,31 +83,41 @@
         </div>
         <div>
           <label for="productName">產品名稱:</label>
-          <input id="productName" v-model="newgMember.productName" required>
+          <input id="productName" v-model="newgMember.productName" required />
         </div>
         <div>
           <label for="description">描述:</label>
-          <input id="description" v-model="newgMember.description" required>
+          <input id="description" v-model="newgMember.description" required />
         </div>
         <div>
           <label for="quantity">價格:</label>
-          <input id="quantity" v-model="newgMember.price" required>
+          <input id="quantity" v-model="newgMember.price" required />
         </div>
         <div>
           <label for="grade">總數量:</label>
-          <input id="grade" v-model="newgMember.stockQuantity" required>
+          <input id="grade" v-model="newgMember.stockQuantity" required />
         </div>
         <div>
           <label for="grade">銷售數量:</label>
-          <input id="grade" v-model="newgMember.soldQuantity" required>
+          <input id="grade" v-model="newgMember.soldQuantity" required />
         </div>
         <div>
           <label for="start-date">活動開始日期:</label>
-          <input id="start-date" type="datetime-local" v-model="newgMember.startDate" required>
+          <input
+            id="start-date"
+            type="datetime-local"
+            v-model="newgMember.startDate"
+            required
+          />
         </div>
         <div>
           <label for="end-date">活動結束日期:</label>
-          <input id="end-date" type="datetime-local" v-model="newgMember.endDate" required>
+          <input
+            id="end-date"
+            type="datetime-local"
+            v-model="newgMember.endDate"
+            required
+          />
         </div>
 
         <!-- 只有當產品類型為一番賞時才顯示此部分 -->
@@ -108,14 +132,18 @@
 
         <div>
           <label for="grade">狀態:</label>
-          <input id="grade" v-model="newgMember.status" required>
+          <input id="grade" v-model="newgMember.status" required />
         </div>
         <div>
           <label for="image">圖片:</label>
           <div v-if="newgMember.imageUrl">
-            <img :src="newgMember.imageUrl" alt="Current Image" style="max-width: 200px;" />
+            <img
+              :src="newgMember.imageUrl"
+              alt="Current Image"
+              style="max-width: 200px"
+            />
           </div>
-          <input id="image" type="file" @change="handleFileUploadNew">
+          <input id="image" type="file" @change="handleFileUploadNew" />
         </div>
         <button type="submit">提交</button>
       </form>
@@ -124,10 +152,12 @@
 
   <div v-if="showUpdateDetailModal" class="modal">
     <div class="modal-content">
-      <span class="close-button" @click="showUpdateDetailModal = false">&times;</span>
+      <span class="close-button" @click="showUpdateDetailModal = false"
+        >&times;</span
+      >
       <h2>編輯會員</h2>
       <form @submit.prevent="updateMember">
-        <input type="hidden" v-model="editingMember.productId">
+        <input type="hidden" v-model="editingMember.productId" />
         <div>
           <label for="productId">選擇主產品類別:</label>
           <select id="productId" v-model="editingMember.productType" required>
@@ -138,46 +168,58 @@
         </div>
         <div>
           <label for="productName">產品名稱:</label>
-          <input id="productName" v-model="editingMember.productName" required>
+          <input
+            id="productName"
+            v-model="editingMember.productName"
+            required
+          />
         </div>
         <div>
           <label for="description">描述:</label>
-          <input id="description" v-model="editingMember.description" required>
+          <input
+            id="description"
+            v-model="editingMember.description"
+            required
+          />
         </div>
         <div>
           <label for="quantity">價格:</label>
-          <input id="quantity" v-model="editingMember.price" required>
+          <input id="quantity" v-model="editingMember.price" required />
         </div>
         <div>
           <label for="grade">總數量:</label>
-          <input id="grade" v-model="editingMember.stockQuantity" required>
+          <input id="grade" v-model="editingMember.stockQuantity" required />
         </div>
         <div>
           <label for="grade">銷售數量:</label>
-          <input id="grade" v-model="editingMember.soldQuantity" required>
+          <input id="grade" v-model="editingMember.soldQuantity" required />
         </div>
         <div>
           <label for="grade">活動開始日期:</label>
-          <input id="grade" v-model="editingMember.startDate" required>
+          <input id="grade" v-model="editingMember.startDate" required />
         </div>
         <div>
           <label for="grade">活動結束日期:</label>
-          <input id="grade" v-model="editingMember.endDate" required>
+          <input id="grade" v-model="editingMember.endDate" required />
         </div>
         <div>
           <label for="grade">一番賞類別:</label>
-          <input id="grade" v-model="editingMember.prizeCategory">
+          <input id="grade" v-model="editingMember.prizeCategory" />
         </div>
         <div>
           <label for="grade">狀態:</label>
-          <input id="grade" v-model="editingMember.status" required>
+          <input id="grade" v-model="editingMember.status" required />
         </div>
         <div>
           <label for="image">圖片:</label>
           <div v-if="editingMember.imageUrl">
-            <img :src="editingMember.imageUrl" alt="Current Image" style="max-width: 200px;" />
+            <img
+              :src="editingMember.imageUrl"
+              alt="Current Image"
+              style="max-width: 200px"
+            />
           </div>
-          <input id="image" type="file" @change="handleFileUpload">
+          <input id="image" type="file" @change="handleFileUpload" />
         </div>
         <button type="submit">更新</button>
       </form>
@@ -186,16 +228,20 @@
 </template>
 
 <script lang="ts" setup>
+import {
+  deleteProduct,
+  getProductByOneKuJiType,
+  getProductByType,
+} from '@/services/api';
 
-import { deleteProduct, getProductByOneKuJiType, getProductByType } from '@/services/api';
-
-//import { updateProductStatus } from '@/services/Front/Frontapi'
+//import { updateProductStatus } from '@/services/front/Frontapi'
 import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 
 const apiClient = axios.create({
   // baseURL: 'http://localhost:8080/api', // 根据实际情况修改
-  baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 根据实际情况修改
+  baseURL:
+    'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 根据实际情况修改
   headers: {
     'Content-Type': 'multipart/form-data',
   },
@@ -234,7 +280,6 @@ const fetchOneKuJiData = async (subType: any) => {
   }
 };
 
-
 // const updateStatus = async (productId: number, status: string) => {
 //   try {
 //     await updateProductStatus(productId, parseInt(status));
@@ -262,7 +307,6 @@ const editingMember = reactive<any>({
   productType: '',
   prizeCategory: '',
   status: '',
-
 });
 const newgMember = ref({
   productName: '',
@@ -276,10 +320,12 @@ const newgMember = ref({
   endDate: '',
   productType: '',
   prizeCategory: '',
-  status: ''
+  status: '',
 });
 
-const totalPages = computed(() => Math.ceil(detail.value.length / itemsPerPage));
+const totalPages = computed(() =>
+  Math.ceil(detail.value.length / itemsPerPage)
+);
 
 const paginatedproductDetail = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
@@ -292,26 +338,28 @@ const editMember = (member: any) => {
   showUpdateDetailModal.value = true;
 };
 
-
 const updateMember = async () => {
   const formData = new FormData();
   console.log('123123', editingMember);
 
-  formData.append('productReq', JSON.stringify({
-    productId: editingMember.productId,
-    productDetailId: editingMember.productDetailId,
-    productName: editingMember.productName,
-    description: editingMember.description,
-    price: editingMember.price,
-    stockQuantity: editingMember.stockQuantity,
-    soldQuantity: editingMember.soldQuantity,
-    startDate: editingMember.startDate,
-    endDate: editingMember.endDate,
-    productType: editingMember.productType,
-    prizeCategory: editingMember.prizeCategory,
-    status: editingMember.status,
-    imageUrl: editingMember.imageUrl, // 保留原始 imageUrl
-  }));
+  formData.append(
+    'productReq',
+    JSON.stringify({
+      productId: editingMember.productId,
+      productDetailId: editingMember.productDetailId,
+      productName: editingMember.productName,
+      description: editingMember.description,
+      price: editingMember.price,
+      stockQuantity: editingMember.stockQuantity,
+      soldQuantity: editingMember.soldQuantity,
+      startDate: editingMember.startDate,
+      endDate: editingMember.endDate,
+      productType: editingMember.productType,
+      prizeCategory: editingMember.prizeCategory,
+      status: editingMember.status,
+      imageUrl: editingMember.imageUrl, // 保留原始 imageUrl
+    })
+  );
 
   // 如果有新图片，添加到 formData 中
   if (editingMember.imageFile) {
@@ -353,8 +401,8 @@ const addDetail = async () => {
   };
 
   if (newgMember.value.productType === 'PRIZE') {
-  productDetailReq.prizeCategory = newgMember.value.prizeCategory;
-}
+    productDetailReq.prizeCategory = newgMember.value.prizeCategory;
+  }
 
   formData.append('productReq', JSON.stringify(productDetailReq));
 
@@ -393,7 +441,6 @@ const addDetail = async () => {
   }
 };
 
-
 const handleDetail = async (detail: any) => {
   if (confirm(`確定要刪除產品 ${detail.productName} 嗎？`)) {
     try {
@@ -418,7 +465,6 @@ const previousPage = () => {
     currentPage.value -= 1;
   }
 };
-
 
 onMounted(() => {
   fetchData('PRIZE').then(() => {
@@ -508,7 +554,7 @@ th {
 
 .add-member-button {
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -533,7 +579,7 @@ th {
 
 .add-member-button {
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -572,7 +618,7 @@ th {
   font-size: 24px;
   font-weight: bold;
   margin: 10px 0 0;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .search-section {
@@ -617,7 +663,7 @@ th {
 .pagination button {
   margin: 0 10px;
   padding: 5px 10px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -685,7 +731,7 @@ form input {
 form button {
   margin-top: 10px;
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;

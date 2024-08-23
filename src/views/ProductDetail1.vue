@@ -56,7 +56,9 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <p class="mcard__text">商品一覽</p>
+          <div class="flex items-center justify-center">
+            <p class="mcard__text">商品一覽</p>
+          </div>
         </template>
         <div class="product-detail-one__products">
           <ProductCard2
@@ -69,7 +71,9 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <p class="mcard__text">賞品介紹</p>
+          <div class="flex items-center justify-center">
+            <p class="mcard__text">賞品介紹</p>
+          </div>
         </template>
         <div class="product-detail-one__productIntroduce">
           <div
@@ -103,7 +107,9 @@
 
       <Card customClass="mcard--product-detail-one">
         <template #header>
-          <p class="mcard__text">檢視抽況</p>
+          <div class="flex items-center justify-center">
+            <p class="mcard__text">檢視抽況</p>
+          </div>
         </template>
         <div class="product-detail-one__text">
           剩餘數量：{{ remainingQuantity }} / 總數量：{{ ticketList?.length }}
@@ -166,13 +172,13 @@ import Card from '@/components/common/Card.vue';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { useRoute } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
-import { Product } from '@/services/Front/Frontapi';
+import { Product } from '@/services/front/Frontapi';
 import {
   getProduct,
   getProductDetail,
   ProductDetail,
-} from '@/services/Front/productService';
-import { executeDraw, getDrawStatus } from '@/services/Front/drawService';
+} from '@/services/front/productService';
+import { executeDraw, getDrawStatus } from '@/services/front/drawService';
 import ProductCard2 from '@/components/Frontend/ProductCard2.vue';
 const route = useRoute();
 const productId = Number(route.params.id);

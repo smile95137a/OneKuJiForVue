@@ -4,7 +4,9 @@
     <div class="memberCenter__main">
       <Card customClass="mcard--memberCenter">
         <template #header>
-          <p class="mcard__text">會員中心</p>
+          <div class="flex items-center justify-center">
+            <p class="mcard__text">會員中心</p>
+          </div>
         </template>
         <router-view></router-view>
       </Card>

@@ -8,29 +8,26 @@
         <img :src="logoImg" class="header__logo-img" alt="Logo" />
       </router-link>
       <div
-        :class="[
-          'header__nav',
-          { 'header__nav--open': slidebarStore.isOpen }
-        ]"
+        :class="['header__nav', { 'header__nav--open': slidebarStore.isOpen }]"
         @click="slidebarStore.closeSlidebar"
       >
         <div class="header__nav-items">
           <div class="header__nav-item header__nav-item--logo">
             <img :src="logoImg" class="header__logo-img" alt="Logo" />
           </div>
-          <router-link class="header__nav-item" to="/product">
+          <router-link class="header__nav-item" to="/ichiban">
             一番賞
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/product2">
+          <router-link class="header__nav-item" to="/blindox">
             盲盒
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <router-link class="header__nav-item" to="/product3">
+          <router-link class="header__nav-item" to="/gacha">
             扭蛋抽獎
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
@@ -40,7 +37,10 @@
       </div>
       <div class="header__btns">
         <template v-if="isUserLoggedIn">
-          <router-link class="header__btn header__btn--member" to="/member-center">
+          <router-link
+            class="header__btn header__btn--member"
+            to="/member-center"
+          >
             會員中心
           </router-link>
           <div class="header__btn header__btn--logout" @click="handleLogout">
@@ -101,15 +101,17 @@ onMounted(() => {
   checkLoginStatus();
 });
 
-watch(() => userStore.isLoggedIn, (newValue) => {
-  if (newValue) {
-    localStorage.setItem('username', userStore.username);
-    localStorage.setItem('userId', userStore.userId?.toString() || '');
+watch(
+  () => userStore.isLoggedIn,
+  (newValue) => {
+    if (newValue) {
+      localStorage.setItem('username', userStore.username);
+      localStorage.setItem('userId', userStore.userId?.toString() || '');
+    }
   }
-});
+);
 </script>
 
 <style scoped>
 /* 這裡保留原有的樣式 */
-
 </style>

@@ -6,8 +6,8 @@ import {
   removeUserInfo,
   setAuthToken,
   setUserId,
-  setUsername
-} from '@/services/Front/Frontapi';
+  setUsername,
+} from '@/services/front/Frontapi';
 import { defineStore } from 'pinia';
 
 export interface UserInfo {
@@ -49,7 +49,10 @@ export const useUserStore = defineStore('user', {
     async fetchUserInfo() {
       try {
         if (this.userId) {
-          const response = await publicApiRequest<UserInfo>(`/user/${this.userId}`, 'get');
+          const response = await publicApiRequest<UserInfo>(
+            `/user/${this.userId}`,
+            'get'
+          );
           this.userInfo = response;
           return response;
         }
@@ -61,7 +64,11 @@ export const useUserStore = defineStore('user', {
     async updateUserInfo(updatedInfo: Partial<UserInfo>) {
       try {
         if (this.userId) {
-          const response = await publicApiRequest<UserInfo>(`/user/${this.userId}`, 'put', updatedInfo);
+          const response = await publicApiRequest<UserInfo>(
+            `/user/${this.userId}`,
+            'put',
+            updatedInfo
+          );
           this.userInfo = { ...this.userInfo, ...response };
           return response;
         }

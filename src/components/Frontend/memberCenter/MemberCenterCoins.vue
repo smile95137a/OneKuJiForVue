@@ -29,7 +29,7 @@
 import { ref, onMounted } from 'vue';
 import c1 from '@/assets/image/coin-1.png';
 import c2 from '@/assets/image/coin-2.png';
-import { getUserInfo, getUserId } from '@/services/Front/Frontapi'; // Adjust the import path as needed
+import { getUserInfo, getUserId } from '@/services/front/Frontapi'; // Adjust the import path as needed
 
 const userBalance = ref(0);
 const userBonus = ref(0);

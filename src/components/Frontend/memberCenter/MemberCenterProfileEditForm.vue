@@ -15,7 +15,9 @@
           />
         </div>
         <div class="memberCenter__profileEditForm-form-inputs m-t-20">
-          <p class="memberCenter__text memberCenter__text--required">收貨姓名</p>
+          <p class="memberCenter__text memberCenter__text--required">
+            收貨姓名
+          </p>
           <input
             v-model="userInfo.fullName"
             type="text"
@@ -42,7 +44,9 @@
           />
         </div>
       </div>
-      <div class="memberCenter__profileEditForm-form memberCenter__profileEditForm-form--other">
+      <div
+        class="memberCenter__profileEditForm-form memberCenter__profileEditForm-form--other"
+      >
         <div class="memberCenter__profileEditForm-form-inputs m-t-20">
           <p class="memberCenter__text">LINE ID</p>
           <input
@@ -53,7 +57,9 @@
           />
         </div>
         <div class="memberCenter__profileEditForm-form-inputs m-t-20">
-          <p class="memberCenter__text memberCenter__text--required">收貨手機</p>
+          <p class="memberCenter__text memberCenter__text--required">
+            收貨手機
+          </p>
           <input
             v-model="userInfo.phoneNumber"
             type="text"
@@ -74,7 +80,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch } from 'vue';
 import { useUserStore } from '@/stores/userstore';
-import { getUserInfo, publicApiRequest } from '@/services/Front/Frontapi';
+import { getUserInfo, publicApiRequest } from '@/services/front/Frontapi';
 
 const userStore = useUserStore();
 const userInfo = ref({
@@ -94,14 +100,14 @@ const fetchUserInfo = async () => {
     if (userStore.userId) {
       const response = await getUserInfo(userStore.userId);
       userInfo.value = response;
-      
+
       // 分割地址
       const addressParts = userInfo.value.address.split(' ');
       if (addressParts.length > 1) {
         userInfo.value.address = addressParts[0];
         detailedAddress.value = addressParts.slice(1).join(' ');
       }
-      
+
       // 設置 LINE ID
       lineId.value = response.lineId || '';
     }
@@ -127,8 +133,11 @@ const updateField = async (field: keyof typeof userInfo.value) => {
 const updateDetailedAddress = async () => {
   try {
     if (userStore.userId) {
-      const fullAddress = `${userInfo.value.address} ${detailedAddress.value}`.trim();
-      await publicApiRequest(`/user/${userStore.userId}`, 'put', { address: fullAddress });
+      const fullAddress =
+        `${userInfo.value.address} ${detailedAddress.value}`.trim();
+      await publicApiRequest(`/user/${userStore.userId}`, 'put', {
+        address: fullAddress,
+      });
       console.log('詳細地址更新成功');
     }
   } catch (error) {
@@ -139,7 +148,9 @@ const updateDetailedAddress = async () => {
 const updateLineId = async () => {
   try {
     if (userStore.userId) {
-      await publicApiRequest(`/user/${userStore.userId}`, 'put', { lineId: lineId.value });
+      await publicApiRequest(`/user/${userStore.userId}`, 'put', {
+        lineId: lineId.value,
+      });
       console.log('LINE ID 更新成功');
     }
   } catch (error) {
@@ -164,15 +175,16 @@ const updateAllUserInfo = async () => {
 };
 
 // 監聽 userId 的變化，當它變化時重新獲取用戶信息
-watch(() => userStore.userId, (newUserId) => {
-  if (newUserId) {
-    fetchUserInfo();
+watch(
+  () => userStore.userId,
+  (newUserId) => {
+    if (newUserId) {
+      fetchUserInfo();
+    }
   }
-});
+);
 </script>
 
 <style lang="scss" scoped>
-
-  // 您的樣式代碼...
-
+// 您的樣式代碼...
 </style>

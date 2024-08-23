@@ -187,9 +187,19 @@ export const publicApiRequest = async <T>(
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
     console.log('發起登錄請求:', data);
-    const response = await publicApiRequest<LoginResponse>('/auth/login', 'post', data, false);
+    const response = await publicApiRequest<LoginResponse>(
+      '/auth/login',
+      'post',
+      data,
+      false
+    );
     console.log('登錄響應:', response);
-    if (response && response.accessToken && response.userId && response.username) {
+    if (
+      response &&
+      response.accessToken &&
+      response.userId &&
+      response.username
+    ) {
       setAuthToken(response.accessToken);
       setUserId(response.userId);
       setUsername(response.username);
@@ -200,7 +210,9 @@ export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   } catch (error) {
     console.error('登錄過程中出錯:', error);
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || '登錄失敗，請檢查您的帳號密碼。');
+      throw new Error(
+        error.response.data.message || '登錄失敗，請檢查您的帳號密碼。'
+      );
     } else {
       throw new Error('登錄失敗，請稍後再試。');
     }
@@ -224,19 +236,38 @@ export const getProduct = async (productId: number): Promise<Product> => {
 };
 
 export const loginWithGoogle = () => {
-  const redirectUri = encodeURIComponent(`${window.location.origin}/oauth2/callback`);
-  const state = encodeURIComponent(JSON.stringify({ redirect: '/home', nonce: generateNonce() }));
+  const redirectUri = encodeURIComponent(
+    `${window.location.origin}/oauth2/callback`
+  );
+  const state = encodeURIComponent(
+    JSON.stringify({ redirect: '/home', nonce: generateNonce() })
+  );
   window.location.href = `${api.defaults.baseURL}/oauth2/authorization/google?redirect_uri=${redirectUri}&state=${state}`;
 };
 
 // 添加這個輔助函數來生成 nonce
 function generateNonce() {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
-export const handleOAuth2Callback = async (code: string): Promise<LoginResponse> => {
+export const handleOAuth2Callback = async (
+  code: string
+): Promise<LoginResponse> => {
   try {
-    const response = await publicApiRequest<LoginResponse>('/auth/oauth2/google/success', 'get', { code }, false);
-    if (response && response.accessToken && response.userId && response.username) {
+    const response = await publicApiRequest<LoginResponse>(
+      '/auth/oauth2/google/success',
+      'get',
+      { code },
+      false
+    );
+    if (
+      response &&
+      response.accessToken &&
+      response.userId &&
+      response.username
+    ) {
       setAuthToken(response.accessToken);
       setUserId(response.userId);
       setUsername(response.username);

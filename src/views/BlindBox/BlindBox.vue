@@ -32,7 +32,9 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <p class="mcard__text">盲盒</p>
+        <div class="flex items-center justify-center">
+          <p class="mcard__text">盲盒</p>
+        </div>
       </template>
       <div class="product2__list">
         <div class="product2__list-title">
@@ -55,7 +57,7 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { Product, queryProducts } from '@/services/Front/Frontapi';
+import { Product, queryProducts } from '@/services/front/Frontapi';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -96,19 +98,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.product2 {
-  padding: 20px;
-}
-
-.product2__list-products {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.product2__btns,
-.product2__list {
-  margin-top: 20px;
-}
-</style>
+<style scoped></style>

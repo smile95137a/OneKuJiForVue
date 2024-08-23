@@ -1,7 +1,9 @@
 <template>
   <Card customClass="mcard--login">
     <template #header>
-      <p class="mcard__text">{{ isRegistering ? '會員註冊' : '會員登入' }}</p>
+      <div class="flex items-center justify-center">
+        <p class="mcard__text">{{ isRegistering ? '會員註冊' : '會員登入' }}</p>
+      </div>
     </template>
     <div class="login__container">
       <div class="login__main">
@@ -146,7 +148,7 @@ import {
   setAuthToken,
   setUserId,
   setUsername,
-} from '@/services/Front/Frontapi';
+} from '@/services/front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';

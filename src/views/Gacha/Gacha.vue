@@ -1,7 +1,7 @@
 <template>
   <div class="product3">
     <div class="product3__title">
-      <div class="product3__text" data-text="">扭蛋</div>
+      <div class="product3__text" data-text="扭蛋">扭蛋</div>
     </div>
     <div class="product3__btns">
       <div class="product3__btns-selects">
@@ -36,7 +36,9 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <p class="mcard__text">扭蛋</p>
+        <div class="flex items-center justify-center">
+          <p class="mcard__text">扭蛋</p>
+        </div>
       </template>
       <div class="product3__list">
         <div class="product3__list-title">
@@ -61,7 +63,7 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { Product, queryProducts } from '@/services/Front/Frontapi';
+import { Product, queryProducts } from '@/services/front/Frontapi';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 

@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { handleOAuth2Callback } from '@/services/Front/Frontapi';
+import { handleOAuth2Callback } from '@/services/front/Frontapi';
 import { useUserStore } from '@/stores/userstore';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';

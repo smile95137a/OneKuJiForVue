@@ -17,9 +17,11 @@
       </Swiper>
     </div>
 
-    <Card customClass="mcard--home">
+    <Card customClass="mcard--home" v-if="prizeProducts.length > 0">
       <template #header>
-        <p class="mcard__text">一番賞</p>
+        <div class="flex items-center justify-center">
+          <p class="mcard__text">一番賞</p>
+        </div>
       </template>
 
       <div class="home__products">
@@ -31,9 +33,11 @@
       </div>
     </Card>
 
-    <Card customClass="mcard--home">
+    <Card customClass="mcard--home" v-if="blindBoxProducts.length > 0">
       <template #header>
-        <p class="mcard__text">盲盒</p>
+        <div class="flex items-center justify-center">
+          <p class="mcard__text">盲盒</p>
+        </div>
       </template>
       <div class="home__products">
         <ProductCard
@@ -44,9 +48,11 @@
       </div>
     </Card>
 
-    <Card customClass="mcard--home">
+    <Card customClass="mcard--home" v-if="gachaProducts.length > 0">
       <template #header>
-        <p class="mcard__text">扭蛋</p>
+        <div class="flex items-center justify-center">
+          <p class="mcard__text">扭蛋</p>
+        </div>
       </template>
       <div class="home__products p-y-64">
         <ProductCard
@@ -64,7 +70,7 @@
 import bg from '@/assets/image/bg1.jpeg';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { Product, queryProducts } from '@/services/Front/Frontapi';
+import { Product, queryProducts } from '@/services/front/Frontapi';
 import { useLoadingStore } from '@/stores';
 import axios from 'axios';
 import { Navigation } from 'swiper/modules';

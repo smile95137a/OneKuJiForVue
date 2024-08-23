@@ -19,7 +19,9 @@
 
     <Card customClass="mcard--home">
       <template #header>
-        <p class="mcard__text">{{ title }}</p>
+        <div class="flex items-center justify-center">
+          <p class="mcard__text">{{ title }}</p>
+        </div>
       </template>
       <div class="product__list">
         <div class="product__list-title">
@@ -50,7 +52,7 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
-import { queryProducts } from '@/services/Front/Frontapi';
+import { queryProducts } from '@/services/front/Frontapi';
 import { useDialogStore } from '@/stores/dialogStore';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';

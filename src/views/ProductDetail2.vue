@@ -79,9 +79,9 @@ import {
   getProduct,
   getProductDetail,
   ProductDetail,
-} from '@/services/Front/productService';
-import { drawPrize } from '@/services/Front/drawService';
-import { Product } from '@/services/Front/Frontapi';
+} from '@/services/front/productService';
+import { drawPrize } from '@/services/front/drawService';
+import { Product } from '@/services/front/Frontapi';
 import ProductCard from '@/components/Frontend/ProductCard.vue';
 
 const route = useRoute();
