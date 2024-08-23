@@ -87,7 +87,7 @@ $root-block-name: '.header';
     }
     &-items {
       @include flex(center);
-      gap: 38px;
+      gap: 48px;
       flex-wrap: wrap;
       @include screen(md) {
         @include flex(null, null, column);
@@ -96,7 +96,6 @@ $root-block-name: '.header';
     }
 
     &-item {
-      min-width: 100px;
       height: 36px;
       font-family: Noto Sans TC;
       font-size: 25px;
