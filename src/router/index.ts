@@ -119,13 +119,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: { layout: 'default' },
   },
   {
-    path: '/product-detail1',
-    component: ProductDetail1,
-    meta: { layout: 'default' },
-  },
-  {
     path: '/product-detail1/:id',
-    name: 'productDetail1',
+    name: 'ProductDetail1',
     component: () => import('@/views/ProductDetail1.vue'),
     meta: { layout: 'default' },
   },

@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="breadcrumbs">
-      <div class="breadcrumbs__items">
-        <div class="breadcrumbs__item">首頁</div>
-        <div class="breadcrumbs__item">扭蛋抽獎</div>
-        <div class="breadcrumbs__item breadcrumbs__item--active">
-          {{ product?.productName }}
-        </div>
-      </div>
-    </div>
+    <Breadcrumbs :items="breadcrumbItems" />
     <div class="product-detail-one">
       <div class="product-detail-one__main">
         <div class="product-detail-one__img">
@@ -106,7 +98,7 @@
           <MCardHeader title="檢視抽況" />
         </template>
         <div class="product-detail-one__text">
-          剩餘數量：{{ remainingQuantity }} / 總數量：{{ ticketList?.length }}
+          剩餘數量：{{ remainingQuantity }} / 總數量：{{ ~~ticketList?.length }}
         </div>
         <div class="product-detail-one__boxs">
           <div
@@ -127,7 +119,7 @@
     </div>
 
     <div class="product-detail-one__backBtns">
-      <router-link class="product-detail-one__backBtn" to="/product">
+      <router-link class="product-detail-one__backBtn" to="/ichiban">
         返回一番賞
       </router-link>
     </div>
@@ -168,45 +160,62 @@ import { useRoute } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
 import ProductCard2 from '@/components/frontend/ProductCard2.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
-
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import { getProductById } from '@/services/frontend/productService';
 import { getDrawStatus, executeDraw } from '@/services/frontend/drawService';
 import {
   getProductDetailById,
   IProductDetail,
 } from '@/services/frontend/productDetailService';
+import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
+
 const route = useRoute();
 const productId = Number(route.params.id);
+const breadcrumbItems = ref([{ name: '首頁' }]);
 const product = ref<any | null>(null);
 const productDetail = ref<IProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);
 const loadingStore = useLoadingStore();
-const fetchProduct = async () => {
-  try {
-    const { data } = await getProductById(productId);
-    if (data) {
-      product.value = data;
-    } else {
-      throw new Error('Product not found');
-    }
-  } catch (err) {
-    console.error(err);
-  }
-};
+const dialogStore = useDialogStore();
 
-const fetchProductDetail = async () => {
+const remainingQuantity = computed(() => {
+  if (!ticketList.value) {
+    return 0;
+  }
+  return ticketList.value.filter((x) => !x.isDrawn).length;
+});
+
+onMounted(async () => {
   try {
-    const { data } = await getProductDetailById(productId);
-    if (data) {
-      productDetail.value = data;
-    } else {
-      throw new Error('Product not found');
+    const [productResponse, productDetailResponse, drawStatusResponse] =
+      await Promise.all([
+        getProductById(productId),
+        getProductDetailById(productId),
+        getDrawStatus(productId),
+      ]);
+
+    if (productResponse.data) {
+      product.value = productResponse.data;
+      const { productType } = productResponse.data;
+      const productTypeLabel = PRODUCT_TYPE_LABELS[productType];
+      if (productTypeLabel) {
+        breadcrumbItems.value.push({ name: productTypeLabel });
+      }
+      breadcrumbItems.value.push({ name: productResponse.data.productName });
+      console.log(breadcrumbItems.value);
+    }
+
+    if (productDetailResponse.data) {
+      productDetail.value = productDetailResponse.data;
+    }
+    if (drawStatusResponse) {
+      ticketList.value = drawStatusResponse.data;
     }
   } catch (err) {
-    console.error(err);
+    console.error('An error occurred:', err);
   }
-};
+});
 
 const fetchDrawStatus = async () => {
   try {
@@ -221,23 +230,10 @@ const fetchDrawStatus = async () => {
   }
 };
 
-onMounted(() => {
-  fetchProductDetail();
-  fetchProduct();
-  fetchDrawStatus();
-});
-
-const dialogStore = useDialogStore();
-
-const remainingQuantity = computed(() => {
-  return ticketList.value
-    ? ticketList.value.filter((x) => !x.isDrawn).length
-    : 0;
-});
-
 const handleTicket = (ticket: any) => {
   activeTicket.value = ticket;
 };
+
 const handleExchange = async () => {
   const { productType } = product.value;
   const { productId, number } = activeTicket.value;

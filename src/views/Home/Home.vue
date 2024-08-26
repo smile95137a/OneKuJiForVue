@@ -29,6 +29,7 @@
           v-for="product in prizeProducts"
           :key="product.productId"
           :product="product"
+          @click="navigateToDetail(product)"
         />
       </div>
     </Card>
@@ -45,6 +46,7 @@
           v-for="product in blindBoxProducts"
           :key="product.productId"
           :product="product"
+          @click="navigateToDetail(product)"
         />
       </div>
     </Card>
@@ -62,6 +64,7 @@
           :key="product.productId"
           :customClass="'productCard3--style2 m-y-36'"
           :product="product"
+          @click="navigateToDetail(product)"
         />
       </div>
     </Card>
@@ -81,7 +84,9 @@ import 'swiper/scss';
 import 'swiper/scss/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const prizeProducts = ref<IProduct[]>([]);
 const blindBoxProducts = ref<IProduct[]>([]);
 const gachaProducts = ref<IProduct[]>([]);
@@ -108,6 +113,21 @@ const fetchProducts = async () => {
   } catch (error) {
     loadingStore.stopLoading();
     console.log(error);
+  }
+};
+const navigateToDetail = (product: IProduct) => {
+  const { productType, productId } = product;
+
+  if (productType === 'PRIZE' || productType === 'BLIND_BOX') {
+    router.push({
+      name: 'ProductDetail1',
+      params: { id: productId.toString() },
+    });
+  } else if (productType === 'GACHA') {
+    router.push({
+      name: 'ProductDetail2',
+      params: { id: productId.toString() },
+    });
   }
 };
 
