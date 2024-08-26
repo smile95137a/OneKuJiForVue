@@ -1,14 +1,6 @@
 <template>
   <div>
-    <div class="breadcrumbs">
-      <div class="breadcrumbs__items">
-        <div class="breadcrumbs__item">首頁</div>
-        <div class="breadcrumbs__item">扭蛋抽獎</div>
-        <div class="breadcrumbs__item breadcrumbs__item--active">
-          {{ product?.productName }}
-        </div>
-      </div>
-    </div>
+    <Breadcrumbs :items="breadcrumbItems" />
     <div class="product-detail">
       <div class="product-detail__main">
         <div class="product-detail__img">
@@ -59,7 +51,7 @@
         </div>
         <div class="product-detail__likes-products">
           <ProductCard
-            v-for="(product, index) in productAll"
+            v-for="(product, index) in gachaList"
             :key="index"
             :product="product"
             :customClass="`productCard--style2 productCard--like`"
@@ -71,132 +63,102 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDialogStore, useLoadingStore } from '@/stores';
-import {
-  getAllProducts,
-  getProduct,
-  getProductDetail,
-  ProductDetail,
-} from '@/services/front/productService';
-import { drawPrize } from '@/services/front/drawService';
-import { Product } from '@/services/front/FrontAPI';
 import ProductCard from '@/components/frontend/ProductCard.vue';
+import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
+import { getProductDetailById } from '@/services/frontend/productDetailService';
+import {
+  getAllProduct,
+  getProductById,
+  IProduct,
+} from '@/services/frontend/productService';
 
 const route = useRoute();
-const productId = ref(Number(route.params.id));
-const product = ref<Product | null>(null);
-const productDetail = ref<ProductDetail[] | null>(null);
-const productAll = ref<any[] | null>(null);
+const productId = Number(route.params.id);
+const breadcrumbItems = ref([{ name: '首頁' }]);
+const product = ref<IProduct | null>(null);
+const productDetail = ref<any[] | null>(null);
+const gachaList = ref<IProduct[] | null>(null);
 const dialogStore = useDialogStore();
 const loadingStore = useLoadingStore();
 
-const fetchProduct = async (id: number) => {
+onMounted(async () => {
+  loadingStore.startLoading();
   try {
-    const data = await getProduct(id);
-    if (data) {
-      product.value = data;
-    } else {
-      throw new Error('Product not found');
-    }
-  } catch (err) {
-    console.error(err);
-  }
-};
+    const [productRes, productDetailRes, allProductRes] = await Promise.all([
+      getProductById(productId),
+      getProductDetailById(productId),
+      getAllProduct(),
+    ]);
 
-const fetchProductDetail = async (id: number) => {
-  try {
-    const data = await getProductDetail(id);
-    if (data) {
-      productDetail.value = data;
-    } else {
-      throw new Error('Product not found');
+    if (productRes.data) {
+      product.value = productRes.data;
+      const { productType } = productRes.data;
+      const productTypeLabel = PRODUCT_TYPE_LABELS[productType];
+      if (productTypeLabel) {
+        breadcrumbItems.value.push({ name: productTypeLabel });
+      }
+      breadcrumbItems.value.push({ name: productRes.data.productName });
+      console.log(breadcrumbItems.value);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
 
-const fetchAllProduct = async () => {
-  try {
-    const data = await getAllProducts();
-    if (data) {
-      const gachaList = data.filter(
+    if (productDetailRes.data) {
+      productDetail.value = productDetailRes.data;
+    }
+    if (allProductRes.data) {
+      gachaList.value = allProductRes.data.filter(
         (x) =>
           x.productId !== product.value?.productId && x.productType === 'GACHA'
       );
-      productAll.value = gachaList;
-    } else {
-      throw new Error('Product not found');
     }
   } catch (err) {
-    console.error(err);
+    console.error('An error occurred:', err);
   }
-};
-
-onMounted(async () => {
-  loadingStore.startLoading();
-  await fetchProduct(productId.value);
-  await fetchProductDetail(productId.value);
-  await fetchAllProduct();
   loadingStore.stopLoading();
 });
 
-watch(
-  () => route.params.id,
-  async (newId) => {
-    loadingStore.startLoading();
-    productId.value = Number(newId);
-    await fetchProduct(productId.value);
-    await fetchProductDetail(productId.value);
-    await fetchAllProduct();
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-    loadingStore.stopLoading();
-  }
-);
+
 
 const handleDraw = async () => {
-  try {
-    const {
-      productId,
-      productName,
-      productType,
-      prizeCategory,
-      price,
-      stockQuantity,
-      soldQuantity,
-    } = product.value!;
-    const { productDetailId } = productDetail.value!;
-    console.log(productDetail.value);
+  // try {
+  //   const {
+  //     productId,
+  //     productName,
+  //     productType,
+  //     prizeCategory,
+  //     price,
+  //     stockQuantity,
+  //     soldQuantity,
+  //   } = product.value!;
+  //   const { productDetailId } = productDetail.value!;
+  //   console.log(productDetail.value);
 
-    loadingStore.startLoading();
-    const { amount } = await drawPrize(
-      1,
-      {
-        productDetailId,
-        productName,
-        productType,
-        prizeCategory,
-        amount: price,
-        totalDrawCount: stockQuantity,
-        remainingDrawCount: soldQuantity,
-      },
-      productId
-    );
-    loadingStore.stopLoading();
-    await dialogStore.openOneKujiDialog({}, 'gacha');
-    await dialogStore.openConfirmDialog(
-      { customClass: '' },
-      {
-        remainingQuantity: 0,
-        count: 1,
-        total: amount,
-      }
-    );
+  //   loadingStore.startLoading();
+  //   const { amount } = await drawPrize(
+  //     1,
+  //     {
+  //       productDetailId,
+  //       productName,
+  //       productType,
+  //       prizeCategory,
+  //       amount: price,
+  //       totalDrawCount: stockQuantity,
+  //       remainingDrawCount: soldQuantity,
+  //     },
+  //     productId
+  //   );
+  //   loadingStore.stopLoading();
+  //   await dialogStore.openOneKujiDialog({}, 'gacha');
+  //   await dialogStore.openConfirmDialog(
+  //     { customClass: '' },
+  //     {
+  //       remainingQuantity: 0,
+  //       count: 1,
+  //       total: amount,
+  //     }
+  //   );
   } catch (error) {
     alert('error');
     loadingStore.stopLoading();

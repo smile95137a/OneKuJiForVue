@@ -187,6 +187,7 @@ const remainingQuantity = computed(() => {
 });
 
 onMounted(async () => {
+  loadingStore.startLoading();
   try {
     const [productResponse, productDetailResponse, drawStatusResponse] =
       await Promise.all([
@@ -215,6 +216,7 @@ onMounted(async () => {
   } catch (err) {
     console.error('An error occurred:', err);
   }
+  loadingStore.stopLoading();
 });
 
 const fetchDrawStatus = async () => {
