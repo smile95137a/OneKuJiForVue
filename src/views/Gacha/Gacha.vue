@@ -3,7 +3,20 @@
     <div class="product3__title">
       <div class="product3__text" data-text="扭蛋抽獎">扭蛋抽獎</div>
     </div>
-    <NoData />
+    <div class="product3__list">
+      <div v-if="products.length === 0" class="product__no-data">
+        <NoData />
+      </div>
+
+      <div v-else class="product3__list-products">
+        <ProductCard
+          v-for="(product, index) in products"
+          :key="index"
+          :product="product"
+          @click="navigateToDetail(product.productId)"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -11,8 +24,9 @@
 import NoData from '@/components/common/NoData.vue';
 import { IProduct, getAllProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import ProductCard from '@/components/frontend/ProductCard.vue';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -24,11 +38,9 @@ const fetchProducts = async () => {
     const { success, message, data } = await getAllProduct();
     loadingStore.stopLoading();
     if (success) {
-      products.value = data
-        .filter((product) => product.productType === 'GACHA')
-        .map((product) => ({
-          ...product,
-        }));
+      products.value = data.filter(
+        (product) => product.productType === 'GACHA'
+      );
     } else {
       console.log(message);
     }
