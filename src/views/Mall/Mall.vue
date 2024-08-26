@@ -4,23 +4,54 @@
       <div class="mall__text" data-text="商城">商城</div>
     </div>
     <div class="mall__btns">
-      <div
-        v-for="btn in buttonLabels"
-        :key="btn.id"
-        :class="['mall__btn', { 'mall__btn--active': activeBtn === btn.id }]"
+      <label
+        v-for="category in categories"
+        :key="category.categoryId"
+        class="mall__btn"
+        :class="{
+          'mall__btn--active': selectedTypes.includes(category.categoryId),
+        }"
+        :for="String(category.categoryId)"
       >
-        {{ btn.label }}
-      </div>
+        <input
+          type="checkbox"
+          :value="category.categoryId"
+          v-model="selectedTypes"
+          @change="handleTypeChange"
+          :id="String(category.categoryId)"
+        />
+        {{ category.categoryName }}
+      </label>
     </div>
     <Card customClass="card--mall">
       <template #header>
         <div class="mall__sort">
-          <div class="mall__sort-btn">最新</div>
-          <div class="mall__sort-btn">最熱銷</div>
-          <div class="mall__sort-btn">
+          <div
+            class="mall__sort-btn"
+            :class="{ active: sortOrder === 'newest' }"
+            @click="setSortOrder('newest')"
+          >
+            最新
+          </div>
+          <div
+            class="mall__sort-btn"
+            :class="{ active: sortOrder === 'bestseller' }"
+            @click="setSortOrder('bestseller')"
+          >
+            最熱銷
+          </div>
+          <div
+            class="mall__sort-btn"
+            :class="{ active: sortOrder === 'price-asc' }"
+            @click="setSortOrder('price-asc')"
+          >
             價格低到高<i class="fa-solid fa-arrow-up-short-wide"></i>
           </div>
-          <div class="mall__sort-btn">
+          <div
+            class="mall__sort-btn"
+            :class="{ active: sortOrder === 'price-desc' }"
+            @click="setSortOrder('price-desc')"
+          >
             價格高到低<i class="fa-solid fa-arrow-up-wide-short"></i>
           </div>
         </div>
@@ -28,10 +59,11 @@
       <div class="product__list">
         <div class="product__list-products">
           <ProductCard
-            v-for="product in products"
-            :key="product.productId"
+            v-for="(product, index) in showProducts"
+            :key="index"
             :product="product"
             :card-type="'mall'"
+            @click="goToProductDetail(product.productId)"
           />
         </div>
       </div>
@@ -40,64 +72,125 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
 import Card from '@/components/common/Card.vue';
-import ProductCard from '@/components/Frontend/ProductCard.vue';
-const buttonLabels: any[] = [
-  { id: 'type1', label: '全部' },
-  { id: 'type2', label: '日系品牌' },
-  { id: 'type3', label: '美系品牌' },
-  { id: 'type4', label: '模型' },
-  { id: 'type5', label: '扭蛋' },
-  { id: 'type6', label: '盒玩' },
-  { id: 'type7', label: '一番賞' },
-  { id: 'type8', label: '樂高/積木' },
-  { id: 'type9', label: 'PVC人偶' },
-  { id: 'type10', label: '日本景品' },
-  { id: 'type11', label: '可動人偶' },
-  { id: 'type12', label: '紙牌/桌遊' },
-  { id: 'type13', label: '懷舊童玩' },
-];
+import ProductCard from '@/components/frontend/ProductCard.vue';
+import { useRouter } from 'vue-router';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import {
+  getAllStoreProducts,
+  getPagedStoreProducts,
+  IStoreProduct,
+} from '@/services/frontend/storeProductService';
+import {
+  getAllCategories,
+  IStoreCategory,
+} from '@/services/frontend/storeCategoryService';
 
-const activeBtn = 'type1';
+const products = ref<IStoreProduct[]>([]);
+const showProducts = ref<IStoreProduct[]>([]);
+const categories = ref<IStoreCategory[]>([]);
+const loading = ref(false);
+const limit = ref(20);
+const offset = ref(0);
+const allLoaded = ref(false);
+const sortOrder = ref('newest');
+const selectedTypes = ref<number[]>([]);
+const router = useRouter();
 
-const products = ref([
-  {
-    productId: 'p1',
-    productName: 'Product 1',
-    money: 100,
-    spMoney: 100,
-    imageUrl: '/path/to/product1.jpg',
-  },
-  {
-    productId: 'p2',
-    productName: 'Product 2',
-    money: 100,
-    spMoney: 100,
-    imageUrl: '/path/to/product2.jpg',
-  },
-  {
-    productId: 'p3',
-    productName: 'Product 3',
-    money: 100,
-    spMoney: 100,
-    imageUrl: '/path/to/product3.jpg',
-  },
-  {
-    productId: 'p4',
-    productName: 'Product 4',
-    money: 100,
-    spMoney: 100,
-    imageUrl: '/path/to/product4.jpg',
-  },
-  {
-    productId: 'p5',
-    productName: 'Product 5',
-    money: 100,
-    spMoney: 100,
-    imageUrl: '/path/to/product5.jpg',
-  },
-]);
+const loadCategories = async () => {
+  try {
+    const { data } = await getAllCategories();
+    categories.value = data;
+  } catch (error) {
+    console.error('获取类别时发生错误:', error);
+  }
+};
+
+const loadMoreProducts = async () => {
+  if (allLoaded.value || loading.value) return;
+
+  loading.value = true;
+  try {
+    // const { data } = await getPagedStoreProducts(limit.value, offset.value);
+    const { data } = await getAllStoreProducts();
+
+    const newProducts = data;
+    if (newProducts.length < limit.value) {
+      allLoaded.value = true;
+    }
+
+    products.value = [...products.value, ...newProducts];
+    offset.value += limit.value;
+
+    filterAndSortProducts();
+  } catch (error) {
+    console.error('加载产品时发生错误:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleScroll = () => {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight;
+  const clientHeight = window.innerHeight;
+
+  if (scrollTop + clientHeight >= scrollHeight - 10 && !loading.value) {
+    loadMoreProducts();
+  }
+};
+
+const setSortOrder = (order: string) => {
+  sortOrder.value = order;
+  filterAndSortProducts();
+};
+
+const handleTypeChange = () => {
+  filterAndSortProducts();
+};
+
+const filterAndSortProducts = () => {
+  let filteredProducts = products.value;
+
+  if (selectedTypes.value.length > 0) {
+    filteredProducts = filteredProducts.filter((product: IStoreProduct) =>
+      selectedTypes.value.includes(~~product.categoryId)
+    );
+  }
+
+  if (sortOrder.value === 'newest') {
+    // filteredProducts.sort(
+    //   (a: IStoreProduct, b: IStoreProduct) =>
+    //     new Date(b.date).getTime() - new Date(a.date).getTime()
+    // );
+  } else if (sortOrder.value === 'bestseller') {
+    // filteredProducts.sort(
+    //   (a: IStoreProduct, b: IStoreProduct) => b.sales - a.sales
+    // );
+  } else if (sortOrder.value === 'price-asc') {
+    filteredProducts.sort(
+      (a: IStoreProduct, b: IStoreProduct) => a.price - b.price
+    );
+  } else if (sortOrder.value === 'price-desc') {
+    filteredProducts.sort(
+      (a: IStoreProduct, b: IStoreProduct) => b.price - a.price
+    );
+  }
+
+  showProducts.value = filteredProducts;
+};
+
+const goToProductDetail = (productId: number) => {
+  router.push({ name: 'MallProduct', params: { id: productId } });
+};
+
+onMounted(() => {
+  loadCategories();
+  window.addEventListener('scroll', handleScroll);
+  loadMoreProducts();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
-
-<style scoped></style>

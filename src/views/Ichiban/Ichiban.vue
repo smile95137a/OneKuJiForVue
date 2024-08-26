@@ -36,6 +36,7 @@
             v-for="product in filteredProducts"
             :key="product.productId"
             :product="product"
+            @click="navigateToDetail(product.productId)"
           />
         </div>
       </div>
@@ -46,19 +47,18 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import NoData from '@/components/common/NoData.vue';
-import ProductCard from '@/components/Frontend/ProductCard.vue';
+import ProductCard from '@/components/frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
-import { getAllProducts } from '@/services/frontend/productService';
-import { useDialogStore } from '@/stores/dialogStore';
 import { computed, onMounted, ref } from 'vue';
+import { getAllProduct, IProduct } from '@/services/frontend/productService';
+import { useLoadingStore } from '@/stores';
 import { useRouter } from 'vue-router';
 
-const dialogStore = useDialogStore();
 const router = useRouter();
-const products = ref([]);
+const loadingStore = useLoadingStore();
+const products = ref<IProduct[]>([]);
 const activeBtn = ref('official');
 const title = ref('官方一番賞');
-const error = ref('');
 
 const buttons = [
   { type: 'official', title: '官方一番賞', category: '一番賞' },
@@ -83,50 +83,26 @@ const handleBtnClick = (btnType: string, btnTitle: string) => {
 };
 
 const fetchProducts = async () => {
-  if (products.value.length > 0) return;
-  error.value = '';
   try {
-    const response = await getAllProducts();
-    if (Array.isArray(response)) {
-      products.value = response
+    loadingStore.startLoading();
+    const { success, message, data } = await getAllProduct();
+    loadingStore.stopLoading();
+    if (success) {
+      products.value = data
         .filter((product) => product.productType === 'PRIZE')
         .map((product) => ({
           ...product,
-          imageUrl: ensureFullImageUrl(product.imageUrl),
         }));
     } else {
-      throw new Error('API 返回的數據格式不正確');
+      console.log(message);
     }
-  } catch (err) {
-    console.error('Error fetching products:', err);
-    error.value = '獲取產品數據時出錯，請稍後再試';
-  } finally {
+  } catch (error) {
+    loadingStore.stopLoading();
+    console.log(error);
   }
 };
-
 const navigateToDetail = (productId: number) => {
-  router.push({ name: 'productDetail1', params: { id: productId.toString() } });
-};
-
-const getProductStatus = (product) => {
-  const now = new Date();
-  const startDate = new Date(product.startDate);
-  const endDate = new Date(product.endDate);
-
-  if (now < startDate) return '即將開始';
-  if (now > endDate) return '已結束';
-  return '開抽中';
-};
-
-const ensureFullImageUrl = (url: string) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-  // return `http://localhost:8081${url.startsWith('/') ? '' : '/'}${url}`;
-  return `https://3574-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app${
-    url.startsWith('/') ? '' : '/'
-  }${url}`;
+  router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });
 };
 
 onMounted(() => {

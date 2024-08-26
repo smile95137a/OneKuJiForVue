@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts" setup>
-import MemberCenterCoins from '@/components/Frontend/memberCenter/MemberCenterCoins.vue';
+import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
 import { getOrderById } from '@/services/frontend/orderService';
 import { onMounted, ref } from 'vue';
 

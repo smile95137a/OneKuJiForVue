@@ -125,7 +125,7 @@
 </template>
 
 <script lang="ts" setup>
-import MemberCenterCoins from '@/components/Frontend/memberCenter/MemberCenterCoins.vue';
+import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
 import c1 from '@/assets/image/coin-1.png';
 </script>
 

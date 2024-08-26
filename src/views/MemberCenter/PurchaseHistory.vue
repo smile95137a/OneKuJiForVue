@@ -95,7 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import MemberCenterCoins from '@/components/Frontend/memberCenter/MemberCenterCoins.vue';
+import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
 </script>
 
 <style lang="scss" scoped></style>

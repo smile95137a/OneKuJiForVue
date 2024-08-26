@@ -41,7 +41,10 @@ $root-block-name: '.mall';
     border-radius: 50px;
     border: 2px solid #000000;
     @include flex(center, center);
-
+    cursor: pointer;
+    input {
+      display: none;
+    }
     font-size: 25px;
     font-weight: 400;
 
@@ -67,6 +70,10 @@ $root-block-name: '.mall';
       font-size: 24px;
       font-weight: 700;
       color: #fff;
+      cursor: pointer;
+      &.active {
+        color: #f2bc7e;
+      }
     }
   }
 }

@@ -171,6 +171,16 @@ $root-block-name: '.header';
       background: #eb9838;
       color: #fff;
     }
+    &--member {
+      background: #eb9838;
+      color: #fff;
+      width: 150px;
+      height: 56px;
+      @include screen(md) {
+        width: 76px;
+        height: 30px;
+      }
+    }
   }
 }
 

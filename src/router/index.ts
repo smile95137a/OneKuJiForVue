@@ -2,11 +2,11 @@ import { useUserStore } from '@/stores/userstore';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 // 導入組件
-import InventoryManagement from '@/components/Backend/InventoryManagement.vue';
-import MemberManagement from '@/components/Backend/MemberManagement.vue';
-import PermissionManagement from '@/components/Backend/PermissionsManagement.vue';
-import ProductDataManagement from '@/components/Backend/ProductDataManagement.vue';
-import ShipmentManagement from '@/components/Backend/ShipmentManagement.vue';
+import InventoryManagement from '@/components/backend/InventoryManagement.vue';
+import MemberManagement from '@/components/backend/MemberManagement.vue';
+import PermissionManagement from '@/components/backend/PermissionsManagement.vue';
+import ProductDataManagement from '@/components/backend/ProductDataManagement.vue';
+import ShipmentManagement from '@/components/backend/ShipmentManagement.vue';
 import { useAdminStore } from '@/stores/adstore';
 import AdminDashboard from '@/views/AdminDashboard.vue';
 import AdminLogin from '@/views/AdminLogin.vue';
@@ -30,6 +30,7 @@ import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
 import News from '@/views/News/News.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import { getAuthToken } from '@/services/frontend/AuthService';
+import { useAuthStore } from '@/stores';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -49,7 +50,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: { layout: 'default' },
   },
   {
-    path: '/mall-product',
+    path: '/mall-product/:id',
+    name: 'MallProduct',
     component: MallProduct,
     meta: { layout: 'default' },
   },
@@ -186,6 +188,7 @@ router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
   const adminStore = useAdminStore();
   const token = getAuthToken();
+  const authStore = useAuthStore();
 
   console.log('Routing from:', from.path, 'to:', to.path);
   console.log(
@@ -209,12 +212,9 @@ router.beforeEach(async (to, from, next) => {
         next('/admin-login');
       }
     } else {
-      // 前台路由
-      console.log('Accessing frontend secured route:', to.path);
-      if (userStore.isLoggedIn) {
+      if (authStore.isLogin) {
         next();
       } else {
-        console.log('User not logged in, redirecting to frontend login');
         next('/login');
       }
     }

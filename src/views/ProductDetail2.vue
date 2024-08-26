@@ -82,7 +82,7 @@ import {
 } from '@/services/front/productService';
 import { drawPrize } from '@/services/front/drawService';
 import { Product } from '@/services/front/FrontAPI';
-import ProductCard from '@/components/Frontend/ProductCard.vue';
+import ProductCard from '@/components/frontend/ProductCard.vue';
 
 const route = useRoute();
 const productId = ref(Number(route.params.id));

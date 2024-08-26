@@ -54,7 +54,7 @@ import 'swiper/scss';
 import 'swiper/scss/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 
-import ProductCard from '@/components/Frontend/ProductCard.vue';
+import ProductCard from '@/components/frontend/ProductCard.vue';
 
 const props = defineProps({
   sliderClass: {

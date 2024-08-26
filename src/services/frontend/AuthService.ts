@@ -24,13 +24,13 @@ export const login = async (data: any): Promise<JWTAuthResponse> => {
 };
 
 export const setAuthToken = (token: string | null) => {
-  saveState('jwtToken', token);
+  saveState('frontendJwtToken', token);
 };
 
 export const getAuthToken = (): string | null => {
-  return loadState<string>('jwtToken') || null;
+  return loadState<string>('frontendJwtToken') || null;
 };
 
 export const removeAuthToken = () => {
-  removeState('jwtToken');
+  removeState('frontendJwtToken');
 };

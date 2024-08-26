@@ -51,13 +51,19 @@ $root-block-name: '.register';
         }
       }
       margin-bottom: 4px;
+      &--error {
+        color: #fe4206;
+      }
     }
 
     &-input {
       @include w_h(100%, 50px);
-      padding: 13px 20px 0px 20px;
+      padding: 14px 20px;
       border-radius: 8px;
       border: 1px solid #d4d4d4;
+      &--error {
+        border: 1px solid #fe4206;
+      }
     }
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <router-link :class="['productCard', customClass]" :to="getProductDetailLink">
+  <div :class="['productCard', customClass]">
     <div class="productCard__img">
       <img
         :src="product.imageUrl"
@@ -23,14 +23,14 @@
         {{ product.description }}
       </div>
     </div>
-  </router-link>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { defineProps, computed } from 'vue';
 import pd1 from '@/assets/image/pd1.png';
-import ProductContentMain from '@/components/Frontend/ProductContentMain.vue';
-import ProductContentMall from '@/components/Frontend/ProductContentMall.vue';
+import ProductContentMain from '@/components/frontend/ProductContentMain.vue';
+import ProductContentMall from '@/components/frontend/ProductContentMall.vue';
 
 interface IproductCardProps {
   index?: number;
@@ -40,18 +40,7 @@ interface IproductCardProps {
   isRank?: boolean;
 }
 
-const props = defineProps<IproductCardProps>();
-
-const getProductDetailLink = computed(() => {
-  const { productType, productId } = props.product;
-  if (productType === 'PRIZE' || productType === 'BLIND_BOX') {
-    return `/product-detail1/${productId}`;
-  } else if (productType === 'GACHA') {
-    return `/product-detail2/${productId}`;
-  } else {
-    return `#`;
-  }
-});
+defineProps<IproductCardProps>();
 
 const handleImageError = (event: Event) => {
   console.error(

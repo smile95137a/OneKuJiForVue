@@ -166,25 +166,25 @@ import Card from '@/components/common/Card.vue';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { useRoute } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
-import ProductCard2 from '@/components/Frontend/ProductCard2.vue';
+import ProductCard2 from '@/components/frontend/ProductCard2.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 
-import {
-  getProduct,
-  getProductDetail,
-  ProductDetail,
-} from '@/services/frontend/productService';
+import { getProductById } from '@/services/frontend/productService';
 import { getDrawStatus, executeDraw } from '@/services/frontend/drawService';
+import {
+  getProductDetailById,
+  IProductDetail,
+} from '@/services/frontend/productDetailService';
 const route = useRoute();
 const productId = Number(route.params.id);
 const product = ref<any | null>(null);
-const productDetail = ref<ProductDetail[] | null>(null);
+const productDetail = ref<IProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);
 const loadingStore = useLoadingStore();
 const fetchProduct = async () => {
   try {
-    const data = await getProduct(productId);
+    const { data } = await getProductById(productId);
     if (data) {
       product.value = data;
     } else {
@@ -197,7 +197,7 @@ const fetchProduct = async () => {
 
 const fetchProductDetail = async () => {
   try {
-    const data = await getProductDetail(productId);
+    const { data } = await getProductDetailById(productId);
     if (data) {
       productDetail.value = data;
     } else {

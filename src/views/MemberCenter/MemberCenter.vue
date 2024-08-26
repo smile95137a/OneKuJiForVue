@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import Card from '@/components/common/Card.vue';
-import MemberCenterNav from '@/components/Frontend/memberCenter/MemberCenterNav.vue';
+import MemberCenterNav from '@/components/frontend/memberCenter/MemberCenterNav.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 </script>
 

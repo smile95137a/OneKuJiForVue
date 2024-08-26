@@ -71,44 +71,43 @@
 <script lang="ts" setup>
 import bg from '@/assets/image/bg1.jpeg';
 import Card from '@/components/common/Card.vue';
-import ProductCard from '@/components/Frontend/ProductCard.vue';
+import ProductCard from '@/components/frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import NoData from '@/components/common/NoData.vue';
-import { getAllProducts } from '@/services/frontend/productService';
+import { getAllProduct, IProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
-import axios from 'axios';
 import { Navigation } from 'swiper/modules';
 import 'swiper/scss';
 import 'swiper/scss/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { onMounted, ref } from 'vue';
 
-const prizeProducts = ref<any[]>([]);
-const blindBoxProducts = ref<any[]>([]);
-const gachaProducts = ref<any[]>([]);
+const prizeProducts = ref<IProduct[]>([]);
+const blindBoxProducts = ref<IProduct[]>([]);
+const gachaProducts = ref<IProduct[]>([]);
 const loadingStore = useLoadingStore();
 
 const fetchProducts = async () => {
   try {
     loadingStore.startLoading();
-    const products = await getAllProducts();
+    const { success, message, data } = await getAllProduct();
     loadingStore.stopLoading();
-    prizeProducts.value = products.filter(
-      (p: any) => p.productType === 'PRIZE'
-    );
-    blindBoxProducts.value = products.filter(
-      (p: any) => p.productType === 'BLIND_BOX'
-    );
-    gachaProducts.value = products.filter(
-      (p: any) => p.productType === 'GACHA'
-    );
+    if (success) {
+      prizeProducts.value = data.filter(
+        (p: IProduct) => p.productType === 'PRIZE'
+      );
+      blindBoxProducts.value = data.filter(
+        (p: IProduct) => p.productType === 'BLIND_BOX'
+      );
+      gachaProducts.value = data.filter(
+        (p: IProduct) => p.productType === 'GACHA'
+      );
+    } else {
+      console.log(message);
+    }
   } catch (error) {
     loadingStore.stopLoading();
-    if (axios.isAxiosError(error)) {
-      console.error('Config:', error.config);
-    } else {
-      console.error('An unexpected error occurred:', error);
-    }
+    console.log(error);
   }
 };
 

@@ -7,9 +7,9 @@
 </template>
 
 <script lang="ts" setup>
-import MemberCenterCoins from '@/components/Frontend/memberCenter/MemberCenterCoins.vue';
-import MemberCenterProfileEditForm from '@/components/Frontend/memberCenter/MemberCenterProfileEditForm.vue';
-import MemberCenterProfileEditInvoiceForm from '@/components/Frontend/memberCenter/MemberCenterProfileEditInvoiceForm.vue';
+import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
+import MemberCenterProfileEditForm from '@/components/frontend/memberCenter/MemberCenterProfileEditForm.vue';
+import MemberCenterProfileEditInvoiceForm from '@/components/frontend/memberCenter/MemberCenterProfileEditInvoiceForm.vue';
 </script>
 
 <style lang="scss" scoped></style>

@@ -1,19 +1,20 @@
-import { api } from './FrontAPI';
+import { api } from './FrontAPI'; // 引入API實例
 
-export interface ApiResponse<T> {
-  code: number;
-  message: string | null;
-  data: T;
-}
-
+// 定義與後端 Order 模型對應的接口
 export interface Order {
-  orderId: number;
+  id: number;
+  orderNumber: string;
   userId: number;
-  productId: number;
-  quantity: number;
-  price: number;
+  totalAmount: number;
+  bonusPointsEarned: number;
+  bonusPointsUsed: number;
   status: string;
-  createdAt: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  createdAt: string; // ISO 日期字符串
+  updatedAt: string; // ISO 日期字符串
+  paidAt?: string; // 可選的 ISO 日期字符串
+  notes?: string;
 }
 
 const basePath = '/order';
@@ -27,17 +28,17 @@ export const getOrderById = async (
     );
     return response.data;
   } catch (error) {
-    console.error('Error fetching order by ID:', error);
+    console.error('獲取訂單時發生錯誤:', error);
     throw error;
   }
 };
 
 export const ecpayCheckout = async (userId: number): Promise<string> => {
   try {
-    const response = await api.post<string>('/ecpayCheckout', userId);
+    const response = await api.post<string>('/ecpayCheckout', { userId });
     return response.data;
   } catch (error) {
-    console.error('Error initiating ecpay checkout:', error);
+    console.error('處理綠界支付請求時發生錯誤:', error);
     throw error;
   }
 };
@@ -53,7 +54,7 @@ export const handleEcpayNotification = async (
     });
     return response.data;
   } catch (error) {
-    console.error('Error handling ecpay notification:', error);
+    console.error('處理綠界支付通知時發生錯誤:', error);
     throw error;
   }
 };

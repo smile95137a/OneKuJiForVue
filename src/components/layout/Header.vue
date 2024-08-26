@@ -1,3 +1,18 @@
+<script setup lang="ts">
+import logoImg from '@/assets/image/logo1.png';
+import { useAuthStore, useSlidebarStore } from '@/stores';
+import { useRouter } from 'vue-router';
+
+const slidebarStore = useSlidebarStore();
+const authStore = useAuthStore();
+const router = useRouter();
+
+const handleLogout = () => {
+  authStore.clearAuthData();
+  router.push('/home');
+};
+</script>
+
 <template>
   <div class="header">
     <div class="header__main">
@@ -78,7 +93,7 @@
         </div>
       </div>
       <div class="header__btns">
-        <template v-if="isUserLoggedIn">
+        <template v-if="authStore.isLogin">
           <router-link
             class="header__btn header__btn--member"
             to="/member-center"
@@ -106,54 +121,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import logoImg from '@/assets/image/logo1.png';
-import { useSlidebarStore } from '@/stores';
-import { useUserStore } from '@/stores/userstore';
-import { computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
-
-const slidebarStore = useSlidebarStore();
-const userStore = useUserStore();
-const router = useRouter();
-
-const isUserLoggedIn = computed(() => userStore.isLoggedIn);
-
-const checkLoginStatus = () => {
-  const token = localStorage.getItem('token');
-  const username = localStorage.getItem('username');
-  const userId = localStorage.getItem('userId');
-  if (token && username && userId && !userStore.isLoggedIn) {
-    userStore.login(username, parseInt(userId, 10), token);
-  } else if (!token && userStore.isLoggedIn) {
-    userStore.logout();
-  }
-};
-
-const handleLogout = () => {
-  userStore.logout();
-  localStorage.removeItem('token');
-  localStorage.removeItem('username');
-  localStorage.removeItem('userId');
-  router.push('/login');
-};
-
-onMounted(() => {
-  checkLoginStatus();
-});
-
-watch(
-  () => userStore.isLoggedIn,
-  (newValue) => {
-    if (newValue) {
-      localStorage.setItem('username', userStore.username);
-      localStorage.setItem('userId', userStore.userId?.toString() || '');
-    }
-  }
-);
-</script>
-
-<style scoped>
-/* 這裡保留原有的樣式 */
-</style>

@@ -28,7 +28,6 @@ api.interceptors.response.use(
   async (error: AxiosError) => {
     if (error.response && error.response.status === 401) {
       removeAllState();
-      window.location.href = '/home';
     }
     return Promise.reject(error);
   }

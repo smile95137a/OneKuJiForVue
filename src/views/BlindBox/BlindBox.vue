@@ -31,15 +31,16 @@
           </div>
         </div>
 
-        <div v-if="blindBoxProducts.length === 0" class="product__no-data">
+        <div v-if="products.length === 0" class="product__no-data">
           <NoData />
         </div>
 
         <div v-else class="product2__list-products">
           <ProductCard
-            v-for="(product, index) in blindBoxProducts"
+            v-for="(product, index) in products"
             :key="index"
             :product="product"
+            @click="navigateToDetail(product.productId)"
           />
         </div>
       </div>
@@ -49,25 +50,39 @@
 
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
-import ProductCard from '@/components/Frontend/ProductCard.vue';
+import ProductCard from '@/components/frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import MSelect from '@/components/common/MSelect.vue';
 import NoData from '@/components/common/NoData.vue';
-import { getAllProducts } from '@/services/frontend/productService';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { IProduct, getAllProduct } from '@/services/frontend/productService';
+import { useLoadingStore } from '@/stores';
 
 const router = useRouter();
-const blindBoxProducts = ref<any[]>([]);
+const loadingStore = useLoadingStore();
+const products = ref<IProduct[]>([]);
 
 const fetchProducts = async () => {
   try {
-    const products = await getAllProducts();
-    blindBoxProducts.value = products.filter(
-      (product) => product.productType === 'BLIND_BOX'
-    );
-  } catch (error) {}
+    loadingStore.startLoading();
+    const { success, message, data } = await getAllProduct();
+    loadingStore.stopLoading();
+    if (success) {
+      products.value = data
+        .filter((product) => product.productType === 'BLIND_BOX')
+        .map((product) => ({
+          ...product,
+        }));
+    } else {
+      console.log(message);
+    }
+  } catch (error) {
+    loadingStore.stopLoading();
+    console.log(error);
+  }
 };
+
 const selectedValue1 = ref('');
 const options1 = ref([
   { value: '', label: '全部狀態' },
@@ -80,17 +95,6 @@ const options2 = ref([
   { value: '1', label: '選項1' },
   { value: '2', label: '選項2' },
 ]);
-
-const getProductStatus = (product: Product): string => {
-  const now = new Date();
-  const startDate = new Date(product.startDate);
-  const endDate = new Date(product.endDate);
-  console.log(`开始时间: ${startDate}, 结束时间: ${endDate}`);
-
-  if (now < startDate) return '即將開始';
-  if (now > endDate) return '已結束';
-  return '開抽中';
-};
 
 const navigateToDetail = (productId: number) => {
   router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });

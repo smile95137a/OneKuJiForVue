@@ -1,89 +1,42 @@
-import { api } from './FrontAPI';
+import { api } from './FrontAPI'; // 引入API實例
 
-interface Product {
+export interface IProduct {
   productId: number;
   productName: string;
   description: string;
   price: number;
+  sliverPrice: number;
   stockQuantity: number;
-  soldQuantity: number;
-  rarity: number;
-  createdAt: string;
-  startDate: string;
-  endDate: string;
-  createdUser: string;
-  updateUser: string;
-  updatedAt: string;
+  imageUrl: string;
   productType: string;
   prizeCategory: string;
   status: string;
 }
 
-export interface ProductDetail {
-  productId: number;
-  description: string;
-  rarity: number;
-  size: string;
-  material: string | null;
-  quantity: number;
-  productDetailId: number;
-  productName: string;
-  grade: string;
-  createDate: string;
-  updateDate: string;
-  image: string;
-  prizeNumber: number | null;
-  drawnNumbers: string | null;
-  secret: boolean;
-}
+const basePath = '/product';
 
-const productBasePath = '/product';
-const productDetailBasePath = '/productDetail';
-
-// 獲取單個產品
-export const getProduct = async (productId: number): Promise<Product> => {
+export const getAllProduct = async (): Promise<ApiResponse<IProduct[]>> => {
   try {
-    const response = await api.get(`${productBasePath}/${productId}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    throw error;
-  }
-};
-
-// 獲取單個產品詳情
-export const getProductDetail = async (
-  productId: number
-): Promise<ProductDetail[]> => {
-  try {
-    const response = await api.get(
-      `${productDetailBasePath}/query/${productId}`
+    const response = await api.get<ApiResponse<IProduct[]>>(
+      `${basePath}/query`
     );
     return response.data;
   } catch (error) {
-    console.error('Error fetching product detail:', error);
+    console.error('獲取所有產品時發生錯誤:', error);
     throw error;
   }
 };
 
-// 獲取所有產品
-export const getAllProducts = async (): Promise<Product[]> => {
+export const getProductById = async (
+  id: number
+): Promise<ApiResponse<IProduct>> => {
   try {
-    const response = await api.get(`${productBasePath}/query`);
+    const response = await api.get<ApiResponse<IProduct>>(
+      `${basePath}/query/${id}`
+    );
     return response.data;
   } catch (error) {
-    console.error('Error fetching all products:', error);
-    throw error;
-  }
-};
-
-// 獲取所有產品詳情
-export const getAllProductDetails = async (): Promise<ProductDetail[]> => {
-  try {
-    const response = await api.get(`${productDetailBasePath}/query`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching all product details:', error);
+    console.error('獲取產品詳情時發生錯誤:', error);
     throw error;
   }
 };

@@ -96,7 +96,7 @@
 
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
-import Breadcrumbs from '@/components/Frontend/Breadcrumbs.vue';
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import pd1 from '@/assets/image/pd1.png';
 const breadcrumbItems = [
   { name: '首頁' },

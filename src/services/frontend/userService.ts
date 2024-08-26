@@ -1,63 +1,59 @@
-import { saveState, removeState, loadState } from '@/utils/Localstorage';
+import { saveState, loadState, removeState } from '@/utils/Localstorage';
 import { api } from './FrontAPI';
 
-export interface User {
-  [key: string]: any;
-}
-
-export interface UserDto {
-  [key: string]: any;
+export interface IUser {
+  userName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  confirmPassword: string;
+  nickName: string;
+  addressName: string;
+  city: string;
+  area: string;
+  address: string;
+  lineId: string;
 }
 
 const basePath = '/user';
 
-export const getAllUsers = async (): Promise<User[]> => {
+export const getUserById = async (
+  userId: number
+): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.get(`${basePath}/query`);
+    const response = await api.get<ApiResponse<any>>(`${basePath}/${userId}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('獲取使用者時發生錯誤:', error);
     throw error;
   }
 };
 
-export const getUserById = async (userId: number): Promise<User> => {
+export const registerUser = async (user: IUser): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.get(`${basePath}/${userId}`);
+    const response = await api.post<ApiResponse<any>>(
+      `${basePath}/register`,
+      user
+    );
     return response.data;
   } catch (error) {
-    if (error.response && error.response.status === 404) {
-      console.error('User not found:', error);
-    } else {
-      console.error('Error fetching user:', error);
-    }
-    throw error;
-  }
-};
-
-export const registerUser = async (userDto: UserDto): Promise<string> => {
-  try {
-    const response = await api.post(`${basePath}/register`, userDto);
-    return response.data;
-  } catch (error) {
-    console.error('Error registering user:', error);
+    console.error('註冊使用者時發生錯誤:', error);
     throw error;
   }
 };
 
 export const updateUser = async (
   userId: number,
-  userDto: UserDto
-): Promise<string> => {
+  user: IUser
+): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.put(`${basePath}/${userId}`, userDto);
+    const response = await api.put<ApiResponse<any>>(
+      `${basePath}/${userId}`,
+      user
+    );
     return response.data;
   } catch (error) {
-    if (error.response && error.response.status === 404) {
-      console.error('User not found:', error);
-    } else {
-      console.error('Error updating user:', error);
-    }
+    console.error('更新使用者時發生錯誤:', error);
     throw error;
   }
 };

@@ -29,7 +29,7 @@
       <!--  -->
       <div class="mall-product__detail">
         <div class="mall-product__detail-title">
-          預購10月免訂金 代理版 S.H.Figuarts SHF 七龍珠 孫悟空 (迷你) -DAIMA-
+          {{ product?.productName }}
         </div>
         <div class="mall-product__detail-prices">
           <div class="mall-product__detail-priceMain">
@@ -77,7 +77,7 @@
             <div class="mall-product__detail-otherLogistics-other">
               <i class="fa-solid fa-truck"></i>
               <div class="mall-product__detail-otherLogistics-other-text">
-                $60-$150
+                ${{ product?.shippingPrice }}
               </div>
               <div class="mall-product__detail-otherLogistics-other-icon">
                 <img :src="se" />
@@ -96,7 +96,10 @@
           </div>
         </div>
         <div class="mall-product__detail-action">
-          <div class="mall-product__detail-action-btn">
+          <div
+            class="mall-product__detail-action-btn"
+            @click="addProductToCart()"
+          >
             <div class="mall-product__detail-action-btn-icon">
               <i class="fa-solid fa-cart-plus"></i>
             </div>
@@ -104,6 +107,7 @@
           </div>
           <div
             class="mall-product__detail-action-btn mall-product__detail-action-btn--red"
+            @click="buyItNow()"
           >
             <div class="mall-product__detail-action-btn-icon"></div>
             <div class="mall-product__detail-action-btn-text">立即購買!</div>
@@ -175,26 +179,7 @@
         }"
       >
         <div v-if="activeTab === '詳情'">
-          下標前請先參閱賣場規定，同意與了解後在考慮下標，一但下標即表示同意賣場所以規定。
-          訂金200元或全額付清
-          貨到付款免訂金，非貨到付款的請記得匯訂金或付清，並留言告知以便確認。
-          免訂金每人限購2個，超過須支付訂金。
-          網路下標門市取貨的會酌收20元手續費。
-          下標前請先參閱賣場規定，同意與了解後在考慮下標，一但下標即表示同意賣場所以規定。
-          訂金200元或全額付清
-          貨到付款免訂金，非貨到付款的請記得匯訂金或付清，並留言告知以便確認。
-          免訂金每人限購2個，超過須支付訂金。
-          網路下標門市取貨的會酌收20元手續費。
-          下標前請先參閱賣場規定，同意與了解後在考慮下標，一但下標即表示同意賣場所以規定。
-          訂金200元或全額付清
-          貨到付款免訂金，非貨到付款的請記得匯訂金或付清，並留言告知以便確認。
-          免訂金每人限購2個，超過須支付訂金。
-          網路下標門市取貨的會酌收20元手續費。
-          下標前請先參閱賣場規定，同意與了解後在考慮下標，一但下標即表示同意賣場所以規定。
-          訂金200元或全額付清
-          貨到付款免訂金，非貨到付款的請記得匯訂金或付清，並留言告知以便確認。
-          免訂金每人限購2個，超過須支付訂金。
-          網路下標門市取貨的會酌收20元手續費。
+          {{ product?.description }}
         </div>
         <div v-if="activeTab === '規格'">
           <p>規格相關的資訊可以放在這裡。</p>
@@ -237,8 +222,8 @@
 </template>
 
 <script lang="ts" setup>
-import Breadcrumbs from '@/components/Frontend/Breadcrumbs.vue';
-import MallProductSlider from '@/components/Frontend/MallProductSlider.vue';
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
+import MallProductSlider from '@/components/frontend/MallProductSlider.vue';
 import pd1 from '@/assets/image/pd1.png';
 import se from '@/assets/image/711.png';
 import familyMart from '@/assets/image/familyMart.png';
@@ -247,11 +232,52 @@ import lineImg from '@/assets/image/line.png';
 import metaImg from '@/assets/image/meta.png';
 import linkImg from '@/assets/image/link.png';
 import { onMounted, ref } from 'vue';
-const breadcrumbItems = [
-  { name: '首頁' },
-  { name: '扭蛋抽獎' },
-  { name: '扭蛋抽獎' },
-];
+import { useRoute } from 'vue-router';
+import {
+  getStoreProductById,
+  IStoreProduct,
+} from '@/services/frontend/storeProductService';
+import { useCartStore } from '@/stores';
+
+const breadcrumbItems = [{ name: '首頁' }, { name: '商城' }];
+
+const route = useRoute();
+const storeProductId = Number(route.params.id);
+const product = ref<IStoreProduct | null>(null);
+const cartStore = useCartStore();
+onMounted(() => {
+  fetchProduct();
+});
+
+const addProductToCart = () => {
+  const cartItem = {
+    id: product.value?.productName,
+    name: product.value?.productName,
+    price: product.value?.productName,
+  };
+
+  cartStore.addToCart(cartItem);
+};
+
+const buyItNow = () => {
+  console.log(123);
+};
+
+const fetchProduct = async () => {
+  try {
+    const { success, data, message } = await getStoreProductById(
+      storeProductId
+    );
+    if (success) {
+      product.value = data;
+      breadcrumbItems.push({ name: data.productName });
+    } else {
+      console.log(message);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 const products = [
   {
@@ -479,19 +505,6 @@ const showToggle = ref(false);
 const contentDiv = ref<HTMLElement | null>(null);
 
 const maxHeight = 100; // 指定內容的最大高度（超過此高度會顯示展開按鈕）
-
-const fullContent = `
-  下標前請先參閱賣場規定，同意與了解後再考慮下標，一旦下標即表示同意賣場所以規定。
-  訂金200元或全額付清
-  貨到付款免訂金，非貨到付款的請記得匯訂金或付清，並留言告知以便確認。
-  免訂金每人限購2個，超過須支付訂金。
-  網路下標門市取貨的會酌收20元手續費。
-  下標前請先參閱賣場規定，同意與了解後再考慮下標，一旦下標即表示同意賣場所以規定。
-  訂金200元或全額付清
-  貨到付款免訂金，非貨到付款的請記得匯訂金或付清，並留言告知以便確認。
-  免訂金每人限購2個，超過須支付訂金。
-  網路下標門市取貨的會酌收20元手續費。
-`;
 
 const toggleExpand = () => {
   expanded.value = !expanded.value;
