@@ -1,3 +1,69 @@
+<script lang="ts" setup>
+import Card from '@/components/common/Card.vue';
+import NoData from '@/components/common/NoData.vue';
+import ProductCard from '@/components/frontend/ProductCard.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
+import { computed, onMounted, ref } from 'vue';
+import { getAllProduct, IProduct } from '@/services/frontend/productService';
+import { useLoadingStore } from '@/stores';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const loadingStore = useLoadingStore();
+const products = ref<IProduct[]>([]);
+const activeBtn = ref('official');
+const title = ref('官方一番賞');
+
+const buttons = [
+  { type: 'official', title: '官方一番賞', category: 'FIGURE' },
+  { type: '3c', title: '3C一番賞', category: 'C3' },
+  { type: 'bonus', title: '紅利賞', category: 'BONUS' },
+];
+
+const filteredProducts = computed(() => {
+  const buttonCategory = buttons.find(
+    (btn) => btn.type === activeBtn.value
+  )?.category;
+  console.log(123);
+
+  return products.value.filter(
+    (product) =>
+      product.productType === 'PRIZE' &&
+      product.prizeCategory === buttonCategory
+  );
+});
+
+const handleBtnClick = (btnType: string, btnTitle: string) => {
+  activeBtn.value = btnType;
+  title.value = btnTitle;
+};
+
+const fetchProducts = async () => {
+  try {
+    loadingStore.startLoading();
+    const { success, message, data } = await getAllProduct();
+    loadingStore.stopLoading();
+    if (success) {
+      products.value = data;
+    } else {
+      console.log(message);
+    }
+  } catch (error) {
+    loadingStore.stopLoading();
+    console.log(error);
+  }
+};
+const navigateToDetail = (productId: number) => {
+  router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });
+};
+
+onMounted(() => {
+  fetchProducts();
+});
+</script>
+
+<style scoped></style>
+
 <template>
   <div class="product">
     <div class="product__title">
@@ -43,71 +109,3 @@
     </Card>
   </div>
 </template>
-
-<script lang="ts" setup>
-import Card from '@/components/common/Card.vue';
-import NoData from '@/components/common/NoData.vue';
-import ProductCard from '@/components/frontend/ProductCard.vue';
-import MCardHeader from '@/components/common/MCardHeader.vue';
-import { computed, onMounted, ref } from 'vue';
-import { getAllProduct, IProduct } from '@/services/frontend/productService';
-import { useLoadingStore } from '@/stores';
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-const loadingStore = useLoadingStore();
-const products = ref<IProduct[]>([]);
-const activeBtn = ref('official');
-const title = ref('官方一番賞');
-
-const buttons = [
-  { type: 'official', title: '官方一番賞', category: '一番賞' },
-  { type: '3c', title: '3C一番賞', category: '家電一番賞' },
-  { type: 'bonus', title: '紅利賞', category: '紅利一番賞' },
-];
-
-const filteredProducts = computed(() => {
-  const buttonCategory = buttons.find(
-    (btn) => btn.type === activeBtn.value
-  )?.category;
-  return products.value.filter(
-    (product) =>
-      product.productType === 'PRIZE' &&
-      product.prizeCategory === buttonCategory
-  );
-});
-
-const handleBtnClick = (btnType: string, btnTitle: string) => {
-  activeBtn.value = btnType;
-  title.value = btnTitle;
-};
-
-const fetchProducts = async () => {
-  try {
-    loadingStore.startLoading();
-    const { success, message, data } = await getAllProduct();
-    loadingStore.stopLoading();
-    if (success) {
-      products.value = data
-        .filter((product) => product.productType === 'PRIZE')
-        .map((product) => ({
-          ...product,
-        }));
-    } else {
-      console.log(message);
-    }
-  } catch (error) {
-    loadingStore.stopLoading();
-    console.log(error);
-  }
-};
-const navigateToDetail = (productId: number) => {
-  router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });
-};
-
-onMounted(() => {
-  fetchProducts();
-});
-</script>
-
-<style scoped></style>

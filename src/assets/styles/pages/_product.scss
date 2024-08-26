@@ -40,6 +40,7 @@ $root-block-name: '.product';
     height: 53px;
     border-radius: 50px;
     border: 2px solid #000000;
+    cursor: pointer;
     @include flex(center, center);
 
     font-size: 25px;
