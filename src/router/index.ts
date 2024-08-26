@@ -71,19 +71,27 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresAuth: true, layout: 'default' },
     children: [
       {
+        path: '',
+        redirect: { name: 'ProfileEdit' },
+      },
+      {
         path: 'profile-edit',
+        name: 'ProfileEdit',
         component: ProfileEdit,
       },
       {
         path: 'purchase-history',
+        name: 'PurchaseHistory',
         component: PurchaseHistory,
       },
       {
         path: 'rewards',
+        name: 'Rewards',
         component: Rewards,
       },
       {
         path: 'order-history',
+        name: 'OrderHistory',
         component: OrderHistory,
       },
     ],
