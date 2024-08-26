@@ -11,7 +11,11 @@
       <div class="product2__btns-search">
         <div class="product2__input">
           <div class="product2__input-main">
-            <input type="text" />
+            <input
+              type="text"
+              v-model="searchTerm"
+              placeholder="搜尋商品名稱"
+            />
           </div>
           <div class="product2__input-icon font-size-28">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -31,13 +35,13 @@
           </div>
         </div>
 
-        <div v-if="products.length === 0" class="product__no-data">
+        <div v-if="filteredProducts.length === 0" class="product__no-data">
           <NoData />
         </div>
 
         <div v-else class="product2__list-products">
           <ProductCard
-            v-for="(product, index) in products"
+            v-for="(product, index) in filteredProducts"
             :key="index"
             :product="product"
             @click="navigateToDetail(product.productId)"
@@ -54,7 +58,7 @@ import ProductCard from '@/components/frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import MSelect from '@/components/common/MSelect.vue';
 import NoData from '@/components/common/NoData.vue';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { IProduct, getAllProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
@@ -62,6 +66,16 @@ import { useLoadingStore } from '@/stores';
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const products = ref<IProduct[]>([]);
+const searchTerm = ref('');
+
+const filteredProducts = computed(() => {
+  if (!searchTerm.value) {
+    return products.value;
+  }
+  return products.value.filter((product) =>
+    product.productName.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
 
 const fetchProducts = async () => {
   try {
@@ -69,11 +83,9 @@ const fetchProducts = async () => {
     const { success, message, data } = await getAllProduct();
     loadingStore.stopLoading();
     if (success) {
-      products.value = data
-        .filter((product) => product.productType === 'BLIND_BOX')
-        .map((product) => ({
-          ...product,
-        }));
+      products.value = data.filter(
+        (product) => product.productType === 'BLIND_BOX'
+      );
     } else {
       console.log(message);
     }
