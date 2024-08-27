@@ -1,18 +1,14 @@
 <template>
   <div :class="['productCard', customClass]">
     <div class="productCard__img">
-      <div v-if="isLoading" class="productCard__img-loader">
-        <img :src="p1" loading="lazy" />
-      </div>
       <img
-        v-else
-        :src="pd1"
+        v-show="!isLoading"
+        :src="product.imageUrls[0]"
         @error="handleImageError"
         @load="handleImageLoad"
         loading="lazy"
       />
 
-      <img :src="pd1" alt="Product Card Image" @error="handleImageError" />
       <ProductContentMain
         v-if="!cardType || cardType === 'main'"
         :product="product"
@@ -34,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, onMounted } from 'vue';
 import p1 from '@/assets/image/login.png';
 import pd1 from '@/assets/image/pd1.png';
 import ProductContentMain from '@/components/frontend/ProductContentMain.vue';
@@ -56,13 +52,18 @@ const handleImageLoad = () => {
 };
 
 const handleImageError = (event: Event) => {
-  console.error(
-    'Image failed to load:',
-    (event.target as HTMLImageElement).src
-  );
-  (event.target as HTMLImageElement).src = pd1;
+  (event.target as HTMLImageElement).src = p1;
   isLoading.value = false;
 };
+
+onMounted(() => {
+  const img = new Image();
+  img.src = pd1;
+  img.onload = handleImageLoad;
+  img.onerror = handleImageError;
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+/* Add your styles here */
+</style>

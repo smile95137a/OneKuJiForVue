@@ -14,6 +14,7 @@
           :key="index"
           :product="product"
           @click="navigateToDetail(product.productId)"
+          :customClass="'productCard--style2 productCard--like'"
         />
       </div>
     </div>

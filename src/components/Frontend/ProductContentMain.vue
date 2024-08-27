@@ -7,7 +7,7 @@
       </div>
       <div class="productCard__img-price">
         <p class="productCard__img-money">
-          <span class="productCard__text">{{ product.money }}</span>
+          <span class="productCard__text">{{ product.price }}</span>
         </p>
         <p class="productCard__img-unit">
           <span class="productCard__text productCard__text--icon"> 金 </span>
