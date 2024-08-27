@@ -1,8 +1,9 @@
 <template>
-  hello world
-  <div v-if="redirectTo">
-    <router-view v-if="false" />
-    <router-link :to="redirectTo" />
+  <div>
+    <p>Hello World</p>
+    <div v-if="redirectTo">
+      <p>Redirecting to the specified route...</p>
+    </div>
   </div>
 </template>
 
@@ -15,16 +16,21 @@ const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
-const redirectTo = ref('/login');
+const redirectTo = ref<string | null>(null);
 
 onMounted(() => {
   const accessToken = extractUrlParameter('token');
   if (accessToken) {
-    console.log(accessToken);
+    authStore.setToken(accessToken);
+    redirectTo.value = '/home';
+    router.push(redirectTo.value);
+  } else {
+    redirectTo.value = '/login';
+    router.push(redirectTo.value);
   }
 });
 
-const extractUrlParameter = (key) => {
-  return route.query[key] || null;
+const extractUrlParameter = (key: string): string | null => {
+  return (route.query[key] as string) || null;
 };
 </script>

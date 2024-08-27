@@ -84,6 +84,7 @@ import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import { login } from '@/services/frontend/AuthService';
 import { useAuthStore, useLoadingStore } from '@/stores';
+import { getLoginUrl } from '@/utils/AuthUtils';
 import { useForm } from 'vee-validate';
 import { useRouter } from 'vue-router';
 import * as yup from 'yup';
@@ -126,7 +127,7 @@ const forwardRegistration = () => {
 };
 
 const handleOauthLogin = (provider: string) => {
-  console.log(`OAuth login with ${provider}`);
+  location.href = getLoginUrl(provider);
 };
 </script>
 
