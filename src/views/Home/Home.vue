@@ -135,7 +135,6 @@ onMounted(() => {
           v-for="product in gachaProducts"
           :key="product.productId"
           :customClass="'productCard--style2 m-y-36'"
-          x
           :product="product"
           @click="navigateToDetail(product)"
         />
