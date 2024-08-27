@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isOpen" :class="['dialog', customClass]">
+  <div v-if="isOpen" :class="['dialog', customClass, sizeClass]">
     <div class="dialog__overlay" @click="handleClose(false)"></div>
     <div class="dialog__main">
       <slot></slot>
@@ -8,17 +8,34 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
+import { computed } from 'vue';
 
-defineProps({
-  isOpen: Boolean,
-  customClass: {
-    type: String,
-    default: '',
-  },
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean;
+    customClass?: string;
+    size?: 'sm' | 'md' | 'lg';
+  }>(),
+  {
+    customClass: '',
+    size: 'md',
+  }
+);
+
+const emit = defineEmits<{
+  (e: 'close', result: boolean): void;
+}>();
+
+const sizeClass = computed(() => {
+  switch (props.size) {
+    case 'sm':
+      return 'dialog--sm';
+    case 'lg':
+      return 'dialog--lg';
+    default:
+      return 'dialog--md';
+  }
 });
-
-const emit = defineEmits(['close']);
 
 const handleClose = (result: boolean) => {
   emit('close', result);

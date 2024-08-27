@@ -56,7 +56,15 @@ $root-block-name: '.productCard';
   }
   &__img {
     position: relative;
-
+    &-loader {
+      @include w_h(800px, 800px);
+      background-color: #fff;
+      @include flex(center, center);
+      img {
+        width: 100%;
+        height: auto;
+      }
+    }
     &::after {
       content: '';
       display: flex;

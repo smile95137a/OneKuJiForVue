@@ -1,6 +1,10 @@
 <template>
   <div
-    :class="['mselect', { error: !!error, 'mselect--open': isOpen }]"
+    :class="[
+      'mselect',
+      customClass,
+      { error: !!error, 'mselect--open': isOpen },
+    ]"
     ref="selectRef"
   >
     <div class="mselect__select" @click="toggleSelectBox">
@@ -49,9 +53,9 @@ interface MSelectProps {
   options: Option[];
   modelValue: string;
   error?: string;
+  customClass?: string;
 }
 
-// 接收props
 const props = defineProps<MSelectProps>();
 const emit = defineEmits(['update:modelValue']);
 
@@ -89,7 +93,3 @@ const selectedLabel = computed(() => {
   );
 });
 </script>
-
-<style scoped>
-/* 添加與樣式相關的CSS */
-</style>

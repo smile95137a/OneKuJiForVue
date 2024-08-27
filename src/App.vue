@@ -11,6 +11,7 @@
   </div>
   <ConfirmDialog />
   <OneKuJiDialog />
+  <InfoDialog />
   <LoadingMask v-if="loadingStore.isLoading" />
 </template>
 
@@ -20,6 +21,7 @@ import Header from '@/components/layout/Header.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import { useRoute } from 'vue-router';
 import OneKuJiDialog from './components/common/OneKuJiDialog.vue';
+import InfoDialog from './components/common/InfoDialog.vue';
 import LoadingMask from './components/common/LoadingMask.vue';
 import { useLoadingStore } from './stores';
 

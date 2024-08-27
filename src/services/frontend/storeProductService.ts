@@ -17,36 +17,22 @@ export interface IStoreProduct {
 const basePath = '/storeProduct';
 
 export const getPagedStoreProducts = async (
-  limit: number,
-  offset: number
+  page: number,
+  size: number
 ): Promise<ApiResponse<IStoreProduct[]>> => {
   try {
     const response = await api.get<ApiResponse<IStoreProduct[]>>(
       `${basePath}/query`,
       {
         params: {
-          limit,
-          offset,
+          page,
+          size,
         },
       }
     );
     return response.data;
   } catch (error) {
     console.error('分頁獲取產品數據時發生錯誤:', error);
-    throw error;
-  }
-};
-
-export const getAllStoreProducts = async (): Promise<
-  ApiResponse<IStoreProduct[]>
-> => {
-  try {
-    const response = await api.get<ApiResponse<IStoreProduct[]>>(
-      `${basePath}/query`
-    );
-    return response.data;
-  } catch (error) {
-    console.error('獲取所有產品時發生錯誤:', error);
     throw error;
   }
 };

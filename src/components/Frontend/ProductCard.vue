@@ -1,11 +1,18 @@
 <template>
   <div :class="['productCard', customClass]">
     <div class="productCard__img">
+      <div v-if="isLoading" class="productCard__img-loader">
+        <img :src="p1" loading="lazy" />
+      </div>
       <img
-        :src="product.imageUrl"
-        alt="Product Card Image"
+        v-else
+        :src="pd1"
         @error="handleImageError"
+        @load="handleImageLoad"
+        loading="lazy"
       />
+
+      <img :src="pd1" alt="Product Card Image" @error="handleImageError" />
       <ProductContentMain
         v-if="!cardType || cardType === 'main'"
         :product="product"
@@ -27,7 +34,8 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, computed } from 'vue';
+import { defineProps, ref } from 'vue';
+import p1 from '@/assets/image/login.png';
 import pd1 from '@/assets/image/pd1.png';
 import ProductContentMain from '@/components/frontend/ProductContentMain.vue';
 import ProductContentMall from '@/components/frontend/ProductContentMall.vue';
@@ -41,6 +49,11 @@ interface IproductCardProps {
 }
 
 defineProps<IproductCardProps>();
+const isLoading = ref(true);
+
+const handleImageLoad = () => {
+  isLoading.value = false;
+};
 
 const handleImageError = (event: Event) => {
   console.error(
@@ -48,6 +61,7 @@ const handleImageError = (event: Event) => {
     (event.target as HTMLImageElement).src
   );
   (event.target as HTMLImageElement).src = pd1;
+  isLoading.value = false;
 };
 </script>
 

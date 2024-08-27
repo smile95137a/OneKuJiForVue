@@ -70,7 +70,6 @@ import ProductCard from '@/components/frontend/ProductCard.vue';
 import { useRouter } from 'vue-router';
 import { onMounted, onBeforeUnmount, ref } from 'vue';
 import {
-  getAllStoreProducts,
   getPagedStoreProducts,
   IStoreProduct,
 } from '@/services/frontend/storeProductService';
@@ -83,8 +82,8 @@ const products = ref<IStoreProduct[]>([]);
 const showProducts = ref<IStoreProduct[]>([]);
 const categories = ref<IStoreCategory[]>([]);
 const loading = ref(false);
-const limit = ref(20);
-const offset = ref(0);
+const page = ref(0);
+const size = ref(20);
 const allLoaded = ref(false);
 const sortOrder = ref('newest');
 const selectedTypes = ref<number[]>([]);
@@ -95,7 +94,7 @@ const loadCategories = async () => {
     const { data } = await getAllCategories();
     categories.value = data;
   } catch (error) {
-    console.error('获取类别时发生错误:', error);
+    console.error('獲取類別時發生錯誤:', error);
   }
 };
 
@@ -104,20 +103,18 @@ const loadMoreProducts = async () => {
 
   loading.value = true;
   try {
-    // const { data } = await getPagedStoreProducts(limit.value, offset.value);
-    const { data } = await getAllStoreProducts();
-
+    const { data } = await getPagedStoreProducts(size.value, page.value);
     const newProducts = data;
-    if (newProducts.length < limit.value) {
+    if (newProducts.length < size.value) {
       allLoaded.value = true;
     }
 
     products.value = [...products.value, ...newProducts];
-    offset.value += limit.value;
+    page.value++;
 
     filterAndSortProducts();
   } catch (error) {
-    console.error('加载产品时发生错误:', error);
+    console.error('加載產品時發生錯誤:', error);
   } finally {
     loading.value = false;
   }

@@ -1,13 +1,35 @@
 <script setup lang="ts">
 import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
+import MSelect from '@/components/common/MSelect.vue';
 import { registerUser } from '@/services/frontend/userService';
-import { useLoadingStore } from '@/stores';
+import { useDialogStore, useLoadingStore } from '@/stores';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
+import { useRouter } from 'vue-router';
+import { onMounted, ref, watch } from 'vue';
+import {
+  getAllCityNames,
+  getAreaListByCityName,
+} from '@/services/frontend/taiwanCitiesService';
+
+const cityOptions = ref<{ value: string; label: string }[]>([]);
+const areaOptions = ref<{ value: string; label: string }[]>([]);
+
+onMounted(() => {
+  const cityNames = getAllCityNames();
+  cityOptions.value = [
+    { value: '', label: '全部城市' },
+    ...cityNames.map((city) => ({ value: city, label: city })),
+  ];
+  areaOptions.value = [{ value: '', label: '全部區' }];
+});
+
+const router = useRouter();
 const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
 const schema = yup.object({
-  userName: yup.string().required('使用者是必填項'),
+  username: yup.string().required('使用者是必填項'),
   email: yup.string().required('Email 是必填項').email('Email 格式不正確'),
   phoneNumber: yup.string().required('手機是必填項'),
   password: yup.string().required('密碼是必填項').min(6, '密碼最少6個字符'),
@@ -23,7 +45,7 @@ const schema = yup.object({
   lineId: yup.string(),
 });
 
-const { defineField, handleSubmit, errors } = useForm({
+const { defineField, handleSubmit, errors, setFieldValue } = useForm({
   validationSchema: schema,
   initialValues: {
     username: '',
@@ -40,21 +62,6 @@ const { defineField, handleSubmit, errors } = useForm({
   },
 });
 
-const onSubmit = handleSubmit(async (values) => {
-  try {
-    loadingStore.startLoading();
-    const { success, message, data } = await registerUser(values);
-    loadingStore.stopLoading();
-    if (success) {
-      alert('註冊成功');
-    } else {
-      console.log(message);
-    }
-  } catch (error) {
-    loadingStore.stopLoading();
-    console.log(error);
-  }
-});
 const [username, usernameProps] = defineField('username');
 const [email, emailProps] = defineField('email');
 const [phoneNumber, phoneNumberProps] = defineField('phoneNumber');
@@ -66,6 +73,42 @@ const [city, cityProps] = defineField('city');
 const [area, areaProps] = defineField('area');
 const [address, addressProps] = defineField('address');
 const [lineId, lineIdProps] = defineField('lineId');
+
+watch(city, (newCity) => {
+  if (newCity) {
+    setFieldValue('area', '');
+    const areas = getAreaListByCityName(newCity);
+    areaOptions.value = [
+      { value: '', label: '全部區' },
+      ...areas.map((area) => ({
+        value: area.areaName,
+        label: area.areaName,
+      })),
+    ];
+  } else {
+    areaOptions.value = [];
+  }
+});
+
+const onSubmit = handleSubmit(async (values) => {
+  try {
+    loadingStore.startLoading();
+    const { success, message, data } = await registerUser(values);
+    loadingStore.stopLoading();
+    if (success) {
+      await dialogStore.openInfoDialog({
+        title: '系統消息',
+        message: '恭喜您，註冊成功！我們很高興您成為我們的一員。',
+      });
+      router.push('/home');
+    } else {
+      console.log(message);
+    }
+  } catch (error) {
+    loadingStore.stopLoading();
+    console.log(error);
+  }
+});
 </script>
 
 <template>
@@ -185,22 +228,22 @@ const [lineId, lineIdProps] = defineField('lineId');
             <div class="register__form-inputs--addr">
               <div class="register__form-inputs w-50 m-t-20">
                 <p class="register__text">收貨地址</p>
-                <input
-                  class="register__form-input"
+                <MSelect
+                  :options="cityOptions"
                   v-model="city"
                   v-bind="cityProps"
-                  :class="{ 'register__form-input--error': errors.city }"
+                  customClass="mselect--registerForm"
                 />
                 <p class="register__text register__text--error">
                   {{ errors.city }}
                 </p>
               </div>
               <div class="register__form-inputs w-50 m-t-20">
-                <input
-                  class="register__form-input"
+                <MSelect
+                  :options="areaOptions"
                   v-model="area"
                   v-bind="areaProps"
-                  :class="{ 'register__form-input--error': errors.area }"
+                  customClass="mselect--registerForm"
                 />
                 <p class="register__text register__text--error">
                   {{ errors.area }}

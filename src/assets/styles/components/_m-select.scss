@@ -10,9 +10,21 @@ $root-block-name: '.mselect';
   border: 2px solid #7c7c7c;
   border-radius: 50px;
   color: #7c7c7c;
+  $p: &;
+  $p__select: #{$p}__select;
 
   &--open {
     border: 1px solid #eb9838;
+  }
+
+  &--registerForm {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #d4d4d4;
+    #{$p__select} {
+      font-size: 14px;
+      letter-spacing: 0.30000001192092896px;
+    }
   }
 
   &__select {
@@ -37,6 +49,11 @@ $root-block-name: '.mselect';
     right: 0;
     left: 0;
     z-index: 999;
+    height: 300px;
+    overflow: auto;
+    &::-webkit-scrollbar {
+      width: 0px;
+    }
   }
   &__option {
     background: #fff;

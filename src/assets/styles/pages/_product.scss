@@ -45,7 +45,7 @@ $root-block-name: '.product';
 
     font-size: 25px;
     font-weight: 400;
-
+    transition: opacity 0.3s ease, transform 0.3s ease;
     @include screen(md) {
       width: 157px;
       height: 34px;
@@ -56,6 +56,9 @@ $root-block-name: '.product';
     }
     &--active {
       background: #fed706;
+    }
+    &:hover {
+      transform: scale(1.05);
     }
   }
 

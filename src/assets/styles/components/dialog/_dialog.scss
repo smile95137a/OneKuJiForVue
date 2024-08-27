@@ -14,6 +14,30 @@ $root-block-style: '.downDialog';
     }
   }
 
+  &--info {
+    #{$p__main} {
+      height: 320px;
+    }
+  }
+
+  // &--sm {
+  //   #{$p__main} {
+  //     width: 300px;
+  //   }
+  // }
+
+  // &--md {
+  //   #{$p__main} {
+  //     width: 500px;
+  //   }
+  // }
+
+  // &--lg {
+  //   #{$p__main} {
+  //     width: 800px;
+  //   }
+  // }
+
   &__overlay {
     position: absolute;
     inset: 0;
