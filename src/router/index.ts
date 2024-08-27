@@ -29,10 +29,15 @@ import MallCheckout from '@/views/Mall/MallCheckout.vue';
 import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
 import News from '@/views/News/News.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
+import OAuth2Redirect from '@/views/OAuth2Redirect/OAuth2Redirect.vue';
 import { getAuthToken } from '@/services/frontend/AuthService';
 import { useAuthStore } from '@/stores';
 
 const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/oauth2/redirect',
+    component: OAuth2Redirect,
+  },
   {
     path: '/login',
     component: Login,
