@@ -121,8 +121,6 @@ onMounted(async () => {
   loadingStore.stopLoading();
 });
 
-
-
 const handleDraw = async () => {
   // try {
   //   const {
@@ -136,7 +134,6 @@ const handleDraw = async () => {
   //   } = product.value!;
   //   const { productDetailId } = productDetail.value!;
   //   console.log(productDetail.value);
-
   //   loadingStore.startLoading();
   //   const { amount } = await drawPrize(
   //     1,
@@ -161,10 +158,10 @@ const handleDraw = async () => {
   //       total: amount,
   //     }
   //   );
-  } catch (error) {
-    alert('error');
-    loadingStore.stopLoading();
-  }
+  // } catch (error) {
+  //   alert('error');
+  //   loadingStore.stopLoading();
+  // }
 };
 </script>
 
