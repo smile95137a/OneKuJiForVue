@@ -1,14 +1,7 @@
 <template>
   <div :class="['productCard', customClass]">
     <div class="productCard__img">
-      <img
-        v-show="!isLoading"
-        :src="product.imageUrls[0]"
-        @error="handleImageError"
-        @load="handleImageLoad"
-        loading="lazy"
-      />
-
+      <MImage :src="product.imageUrls[0]" />
       <ProductContentMain
         v-if="!cardType || cardType === 'main'"
         :product="product"
@@ -30,12 +23,12 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, ref, onMounted } from 'vue';
-import p1 from '@/assets/image/login.png';
-import pd1 from '@/assets/image/pd1.png';
+import { defineProps } from 'vue';
 import ProductContentMain from '@/components/frontend/ProductContentMain.vue';
 import ProductContentMall from '@/components/frontend/ProductContentMall.vue';
+import MImage from '@/components/frontend/MImage.vue';
 
+MImage.vue;
 interface IproductCardProps {
   index?: number;
   product: any;
@@ -45,23 +38,6 @@ interface IproductCardProps {
 }
 
 defineProps<IproductCardProps>();
-const isLoading = ref(true);
-
-const handleImageLoad = () => {
-  isLoading.value = false;
-};
-
-const handleImageError = (event: Event) => {
-  (event.target as HTMLImageElement).src = p1;
-  isLoading.value = false;
-};
-
-onMounted(() => {
-  const img = new Image();
-  img.src = pd1;
-  img.onload = handleImageLoad;
-  img.onerror = handleImageError;
-});
 </script>
 
 <style scoped>
