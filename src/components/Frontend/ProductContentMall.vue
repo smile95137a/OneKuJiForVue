@@ -5,10 +5,10 @@
       <div v-if="!isRank" class="productCard__img-status">預購</div>
       <div class="productCard__img-price">
         <p class="productCard__img-money" v-if="!isRank">
-          <del class="productCard__text">$ {{ product.money }}</del>
+          <del class="productCard__text">$ {{ product.price }}</del>
         </p>
         <p class="productCard__img-spMoney">
-          <span class="productCard__text">$ {{ product.spMoney }}</span>
+          <span class="productCard__text">$ {{ product.specialPrice }}</span>
         </p>
       </div>
     </div>

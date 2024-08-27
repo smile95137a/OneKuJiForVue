@@ -4,7 +4,7 @@ $root-block-name: '.noData';
   @include flex(center, null, column);
   padding: 72px 16px;
   &__img {
-    width: 210px;
+    width: 180px;
     img {
       width: 100%;
       height: auto;
@@ -16,5 +16,7 @@ $root-block-name: '.noData';
     color: #eb9838;
     font-weight: bold;
     margin-top: 4px;
+    font-size: 20px;
+    letter-spacing: 2px;
   }
 }

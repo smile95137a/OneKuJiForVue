@@ -37,12 +37,14 @@
         <div class="product-detail__action-btn" @click="handleDraw">開抽！</div>
       </div>
       <div class="product-detail__infos">
-        <div class="product-detail__info product-detail__info--one">
-          {{ product?.description }}
-        </div>
-        <div class="product-detail__info product-detail__info--two">
-          {{ product?.description }}
-        </div>
+        <div
+          class="product-detail__info product-detail__info--one"
+          v-html="product?.description"
+        ></div>
+        <div
+          class="product-detail__info product-detail__info--two"
+          v-html="product?.description"
+        ></div>
       </div>
 
       <div class="product-detail__likes">

@@ -38,12 +38,14 @@
       </div>
 
       <div class="product-detail-one__infos">
-        <div class="product-detail-one__info product-detail-one__info--one">
-          {{ product?.description }}
-        </div>
-        <div class="product-detail-one__info product-detail-one__info--two">
-          {{ product?.description }}
-        </div>
+        <div
+          class="product-detail-one__info product-detail-one__info--one"
+          v-html="product?.description"
+        ></div>
+        <div
+          class="product-detail-one__info product-detail-one__info--two"
+          v-html="product?.description"
+        ></div>
       </div>
 
       <Card customClass="mcard--product-detail-one">

@@ -35,13 +35,6 @@
           </div>
           <div
             class="mall__sort-btn"
-            :class="{ active: sortOrder === 'bestseller' }"
-            @click="setSortOrder('bestseller')"
-          >
-            最熱銷
-          </div>
-          <div
-            class="mall__sort-btn"
             :class="{ active: sortOrder === 'price-asc' }"
             @click="setSortOrder('price-asc')"
           >
@@ -169,11 +162,11 @@ const filterAndSortProducts = () => {
     // );
   } else if (sortOrder.value === 'price-asc') {
     filteredProducts.sort(
-      (a: IStoreProduct, b: IStoreProduct) => a.price - b.price
+      (a: IStoreProduct, b: IStoreProduct) => a.specialPrice - b.specialPrice
     );
   } else if (sortOrder.value === 'price-desc') {
     filteredProducts.sort(
-      (a: IStoreProduct, b: IStoreProduct) => b.price - a.price
+      (a: IStoreProduct, b: IStoreProduct) => b.specialPrice - a.specialPrice
     );
   }
 

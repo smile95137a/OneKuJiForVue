@@ -178,9 +178,7 @@
           overflow: expanded ? 'visible' : 'hidden',
         }"
       >
-        <div v-if="activeTab === '詳情'">
-          {{ product?.description }}
-        </div>
+        <div v-if="activeTab === '詳情'" v-html="product?.description"></div>
         <div v-if="activeTab === '規格'">
           <p>規格相關的資訊可以放在這裡。</p>
         </div>
