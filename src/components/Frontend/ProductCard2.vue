@@ -4,15 +4,15 @@
     @click="handleClick"
   >
     <div class="productCard2__img">
-      <img :src="product.image" alt="productCard2 Image" />
+      <MImage :src="product.imageUrls[0]" />
       <div class="productCard2__img-pHeightText">{{ product.description }}</div>
       <div class="productCard2__img-detail">
         <div class="productCard2__img-balance">
           <p class="productCard2__text productCard2__text--title">
-            {{ product.quantity }}
+            {{ gradeDescription }}
           </p>
           <p class="productCard2__text productCard2__text--num">
-            {{ product.quantity }}
+            {{ product.stockQuantity }}/{{ product.quantity }}
           </p>
         </div>
       </div>
@@ -24,15 +24,29 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import MImage from '@/components/frontend/MImage.vue';
+import { computed, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 
 interface IProductCard2Props {
   product: any;
   customClass?: string;
 }
+const props = defineProps<IProductCard2Props>();
 
-defineProps<IProductCard2Props>();
+const ProductGrade = {
+  A: 'Ａ賞',
+  B: 'Ｂ賞',
+  C: 'Ｃ賞',
+  D: 'Ｄ賞',
+  E: 'Ｅ賞',
+  F: 'Ｆ賞',
+  G: 'Ｇ賞',
+  H: 'H賞',
+  LAST: '最後賞',
+};
+
+const gradeDescription = computed(() => ProductGrade[props.product.grade]);
 
 const router = useRouter();
 

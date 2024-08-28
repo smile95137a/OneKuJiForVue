@@ -4,7 +4,7 @@
     <div class="product-detail-one">
       <div class="product-detail-one__main">
         <div class="product-detail-one__img">
-          <img :src="product?.imageUrl" :alt="product?.productName" />
+          <MImage :src="product?.imageUrls[0]" />
         </div>
         <div class="product-detail-one__title">
           <p class="product-detail-one__text">
@@ -26,9 +26,15 @@
             </p>
           </div>
           <div class="product-detail-one__action-btns">
-            <div class="product-detail-one__action-btn">開抽！</div>
+            <div
+              class="product-detail-one__action-btn"
+              @click="scrollToIntroduce(true)"
+            >
+              開抽！
+            </div>
             <div
               class="product-detail-one__action-btn product-detail-one__action-btn--status"
+              @click="scrollToIntroduce()"
             >
               <img :src="btnIcon" alt="" />
               <span>檢視抽況</span>
@@ -76,7 +82,7 @@
               :key="index"
               class="product-detail-one__productIntroduce-img"
             >
-              <img :src="product.image" alt="" />
+              <MImage :src="product.imageUrls[0]" />
             </div>
           </div>
           <div
@@ -89,7 +95,7 @@
               :key="index"
               class="product-detail-one__productIntroduce-img"
             >
-              <img :src="product.image" alt="" />
+              <MImage :src="product.imageUrls[0]" />
             </div>
           </div>
         </div>
@@ -99,7 +105,7 @@
         <template #header>
           <MCardHeader title="檢視抽況" />
         </template>
-        <div class="product-detail-one__text">
+        <div class="product-detail-one__text" ref="introduceSection">
           剩餘數量：{{ remainingQuantity }} / 總數量：{{ ~~ticketList?.length }}
         </div>
         <div class="product-detail-one__boxs">
@@ -125,19 +131,16 @@
         返回一番賞
       </router-link>
     </div>
-    <div class="product-detail-one__option">
+    <div class="product-detail-one__option" v-if="showOption">
       <div class="product-detail-one__btns">
-        <div
-          class="product-detail-one__btn product-detail-one__btn--exchange"
-          @click="handleExchange"
-        >
-          立即兌換
-        </div>
         <div class="product-detail-one__btn product-detail-one__btn--random">
           隨機選擇
         </div>
-        <div class="product-detail-one__btn product-detail-one__btn--im">
-          返回
+        <div
+          class="product-detail-one__btn product-detail-one__btn--im"
+          @click="handleExchange"
+        >
+          立即兌換
         </div>
       </div>
     </div>
@@ -170,6 +173,7 @@ import {
   IProductDetail,
 } from '@/services/frontend/productDetailService';
 import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
+import MImage from '@/components/frontend/MImage.vue';
 
 const route = useRoute();
 const productId = Number(route.params.id);
@@ -180,6 +184,8 @@ const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
+const introduceSection = ref<HTMLElement | null>(null);
+const showOption = ref(false);
 
 const remainingQuantity = computed(() => {
   if (!ticketList.value) {
@@ -187,6 +193,11 @@ const remainingQuantity = computed(() => {
   }
   return ticketList.value.filter((x) => !x.isDrawn).length;
 });
+
+const scrollToIntroduce = (isShowOption = false) => {
+  showOption.value = isShowOption;
+  introduceSection.value?.scrollIntoView({ behavior: 'smooth' });
+};
 
 onMounted(async () => {
   loadingStore.startLoading();
@@ -239,6 +250,14 @@ const handleTicket = (ticket: any) => {
 };
 
 const handleExchange = async () => {
+  if (!activeTicket.value) {
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '請先選擇要抽的項目。',
+    });
+    return;
+  }
+
   const { productType } = product.value;
   const { productId, number } = activeTicket.value;
   loadingStore.startLoading();

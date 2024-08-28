@@ -28,7 +28,6 @@ import ProductContentMain from '@/components/frontend/ProductContentMain.vue';
 import ProductContentMall from '@/components/frontend/ProductContentMall.vue';
 import MImage from '@/components/frontend/MImage.vue';
 
-MImage.vue;
 interface IproductCardProps {
   index?: number;
   product: any;

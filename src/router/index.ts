@@ -190,6 +190,13 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  },
 });
 
 router.beforeEach(async (to, from, next) => {
@@ -198,25 +205,13 @@ router.beforeEach(async (to, from, next) => {
   const token = getAuthToken();
   const authStore = useAuthStore();
 
-  console.log('Routing from:', from.path, 'to:', to.path);
-  console.log(
-    'Token:',
-    token,
-    'Is User Logged In:',
-    userStore.isLoggedIn,
-    'Is Admin Logged In:',
-    adminStore.isLoggedIn
-  );
-
   // 檢查路由是否需要認證
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     // 檢查是否為後台路由
     if (to.path.startsWith('/admin')) {
-      console.log('Accessing admin route:', to.path);
       if (adminStore.isLoggedIn) {
         next();
       } else {
-        console.log('Admin not logged in, redirecting to admin login');
         next('/admin-login');
       }
     } else {

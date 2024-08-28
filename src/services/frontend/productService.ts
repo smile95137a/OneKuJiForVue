@@ -7,10 +7,16 @@ export interface IProduct {
   price: number;
   sliverPrice: number;
   stockQuantity: number;
-  imageUrl: string;
+  imageUrls: string[];
   productType: string;
   prizeCategory: string;
   status: string;
+  bonusPrice: number | null;
+  length: number;
+  width: number;
+  height: number;
+  specification: string;
+  size: number;
 }
 
 const basePath = '/product';

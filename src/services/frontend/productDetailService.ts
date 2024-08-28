@@ -1,18 +1,25 @@
 import { api } from './FrontAPI';
 
 export interface IProductDetail {
+  productDetailId: number;
   productId: number;
-  productName: string;
   description: string;
   note: string;
   size: string;
   quantity: number;
   stockQuantity: number;
+  productName: string;
   grade: string;
   price: number;
   sliverPrice: number;
-  imageUrl: string;
-  prizeNumber: string;
+  imageUrls: string[];
+  length: number;
+  width: number;
+  height: number;
+  specification: string;
+  status: string | null;
+  prizeNumber: string | null;
+  drawnNumbers: string | null;
 }
 
 const basePath = '/productDetail';
