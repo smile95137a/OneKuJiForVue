@@ -19,10 +19,10 @@ const areaOptions = ref<{ value: string; label: string }[]>([]);
 onMounted(() => {
   const cityNames = getAllCityNames();
   cityOptions.value = [
-    { value: '', label: '全部城市' },
+    { value: '', label: '縣市' },
     ...cityNames.map((city) => ({ value: city, label: city })),
   ];
-  areaOptions.value = [{ value: '', label: '全部區' }];
+  areaOptions.value = [{ value: '', label: '行政區' }];
 });
 
 const router = useRouter();
@@ -79,14 +79,14 @@ watch(city, (newCity) => {
     setFieldValue('area', '');
     const areas = getAreaListByCityName(newCity);
     areaOptions.value = [
-      { value: '', label: '全部區' },
+      { value: '', label: '行政區' },
       ...areas.map((area) => ({
         value: area.areaName,
         label: area.areaName,
       })),
     ];
   } else {
-    areaOptions.value = [];
+    areaOptions.value = [{ value: '', label: '行政區' }];
   }
 });
 

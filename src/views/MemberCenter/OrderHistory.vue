@@ -5,14 +5,17 @@
       <div class="memberCenter__orderHistoryForm-title">
         <p class="memberCenter__text">訂單紀錄</p>
       </div>
-      <div class="memberCenter__orderHistoryForm-main">
+      <form
+        class="memberCenter__orderHistoryForm-main"
+        @submit.prevent="submitForm"
+      >
         <div class="memberCenter__orderHistoryForm-box">
           <div class="memberCenter__orderHistoryForm-form-inputs m-t-20">
             <p class="memberCenter__text">起始時間</p>
             <input
               type="date"
-              v-model="startDate"
               class="memberCenter__orderHistoryForm-form-input"
+              v-model="startDate"
             />
           </div>
         </div>
@@ -23,8 +26,8 @@
             </p>
             <input
               type="date"
-              v-model="endDate"
               class="memberCenter__orderHistoryForm-form-input"
+              v-model="endDate"
             />
           </div>
         </div>
@@ -32,34 +35,31 @@
           class="memberCenter__orderHistoryForm-box memberCenter__orderHistoryForm-box--btns"
         >
           <div class="memberCenter__orderHistoryForm-btns">
-            <div
-              class="memberCenter__orderHistoryForm-btn"
-              @click="fetchOrders"
-            >
+            <button type="submit" class="memberCenter__orderHistoryForm-btn">
               <span class="memberCenter__text">查詢</span>
-            </div>
+            </button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
+    <NoData v-if="orders.length === 0" />
 
-    <div class="memberCenter__table">
+    <div v-else class="memberCenter__table">
       <table>
         <thead>
           <tr>
-            <th class="w-30">日期</th>
-            <th class="w-50">訂單號</th>
-            <th class="w-20">總金額</th>
+            <th class="w-20">日期</th>
+            <th class="w-20">訂單編號</th>
+            <th class="w-20">內容</th>
+            <th class="w-20">狀態</th>
+            <th class="w-20">明細</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="order in orders" :key="order.id">
-            <td>{{ order.createdAt }}</td>
-            <td>{{ order.orderNumber }}</td>
-            <td>{{ order.totalAmount }}</td>
-          </tr>
-          <tr v-if="orders.length === 0">
-            <td colspan="3">沒有找到相關訂單</td>
+            <td></td>
+            <td></td>
+            <td></td>
           </tr>
         </tbody>
       </table>
@@ -68,28 +68,26 @@
 </template>
 
 <script lang="ts" setup>
+import NoData from '@/components/common/NoData.vue';
 import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
-import { getOrderById } from '@/services/frontend/orderService';
-import { onMounted, ref } from 'vue';
+import { useForm } from 'vee-validate';
+import { ref } from 'vue';
 
-const startDate = ref('');
-const endDate = ref('');
 const orders = ref([]);
 
-const fetchOrders = async () => {
-  let userId = localStorage.getItem('userId');
-  try {
-    orders.value = await getOrderById(userId);
-  } catch (error) {
-    console.error('获取订单失败:', error);
-  }
-};
+const { defineField, handleSubmit, errors, values } = useForm({
+  initialValues: {
+    startDate: '',
+    endDate: '',
+  },
+});
 
-onMounted(() => {
-  fetchOrders();
+const [startDate] = defineField('startDate');
+const [endDate] = defineField('endDate');
+
+const submitForm = handleSubmit(async (values) => {
+  console.log(values);
 });
 </script>
 
-<style lang="scss" scoped>
-/* 您可以在此添加样式 */
-</style>
+<style lang="scss" scoped></style>
