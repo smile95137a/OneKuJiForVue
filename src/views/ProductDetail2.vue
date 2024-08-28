@@ -4,7 +4,7 @@
     <div class="product-detail">
       <div class="product-detail__main">
         <div class="product-detail__img">
-          <img :src="product?.imageUrl" :alt="product?.productName" />
+          <MImage :src="product?.imageUrls[0]" />
         </div>
         <div class="product-detail__title">
           <p class="product-detail__text">
@@ -17,7 +17,7 @@
             :key="index"
             class="product-detail__other-img"
           >
-            <img :src="x.image" :alt="`Image ${index}`" />
+            <MImage :src="x.imageUrls[0]" />
           </div>
         </div>
       </div>
@@ -70,18 +70,23 @@ import { useRoute } from 'vue-router';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
-import { getProductDetailById } from '@/services/frontend/productDetailService';
+import {
+  getProductDetailById,
+  IProductDetail,
+} from '@/services/frontend/productDetailService';
 import {
   getAllProduct,
   getProductById,
   IProduct,
 } from '@/services/frontend/productService';
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
+import MImage from '@/components/frontend/MImage.vue';
 
 const route = useRoute();
 const productId = Number(route.params.id);
 const breadcrumbItems = ref([{ name: '首頁' }]);
 const product = ref<IProduct | null>(null);
-const productDetail = ref<any[] | null>(null);
+const productDetail = ref<IProductDetail[] | null>(null);
 const gachaList = ref<IProduct[] | null>(null);
 const dialogStore = useDialogStore();
 const loadingStore = useLoadingStore();
@@ -103,7 +108,6 @@ onMounted(async () => {
         breadcrumbItems.value.push({ name: productTypeLabel });
       }
       breadcrumbItems.value.push({ name: productRes.data.productName });
-      console.log(breadcrumbItems.value);
     }
 
     if (productDetailRes.data) {

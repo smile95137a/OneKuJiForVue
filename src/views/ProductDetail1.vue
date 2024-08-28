@@ -166,7 +166,7 @@ import { computed, onMounted, ref } from 'vue';
 import ProductCard2 from '@/components/frontend/ProductCard2.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
-import { getProductById } from '@/services/frontend/productService';
+import { getProductById, IProduct } from '@/services/frontend/productService';
 import { getDrawStatus, executeDraw } from '@/services/frontend/drawService';
 import {
   getProductDetailById,
@@ -178,7 +178,7 @@ import MImage from '@/components/frontend/MImage.vue';
 const route = useRoute();
 const productId = Number(route.params.id);
 const breadcrumbItems = ref([{ name: '首頁' }]);
-const product = ref<any | null>(null);
+const product = ref<IProduct | null>(null);
 const productDetail = ref<IProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);
