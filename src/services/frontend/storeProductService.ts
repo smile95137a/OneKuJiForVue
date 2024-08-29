@@ -1,17 +1,23 @@
 import { api } from './FrontAPI';
 
 export interface IStoreProduct {
+  storeProductId: number;
   productName: string;
   description: string;
   price: number;
   stockQuantity: number;
-  imageUrl: string;
+  imageUrls: string[];
   categoryId: string;
   status: string;
-  specialPrice?: number;
+  specialPrice: number;
   shippingMethod: string;
   size: number;
   shippingPrice: number;
+  length: number;
+  width: number;
+  height: number;
+  specification: string;
+  createdAt: string;
 }
 
 const basePath = '/storeProduct';

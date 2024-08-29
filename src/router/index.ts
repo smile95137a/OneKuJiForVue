@@ -30,7 +30,6 @@ import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
 import News from '@/views/News/News.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import OAuth2Redirect from '@/views/OAuth2Redirect/OAuth2Redirect.vue';
-import { getAuthToken } from '@/services/frontend/AuthService';
 import { useAuthStore } from '@/stores';
 
 const routes: Array<RouteRecordRaw> = [
@@ -202,7 +201,6 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
   const adminStore = useAdminStore();
-  const token = getAuthToken();
   const authStore = useAuthStore();
 
   // 檢查路由是否需要認證

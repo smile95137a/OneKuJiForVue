@@ -9,13 +9,13 @@
           <div class="login__auth">
             <div class="login__auth-btn" @click="handleOauthLogin('google')">
               <div class="login__auth-btn-icon">
-                <i class="fa-brands fa-google"></i>
+                <img :src="googleLogo" />
               </div>
               <div class="login__auth-btn-text">Google 帳號登入</div>
             </div>
             <div class="login__auth-btn" @click="handleOauthLogin('facebook')">
               <div class="login__auth-btn-icon">
-                <i class="fa-brands fa-facebook-f"></i>
+                <img :src="fbLogo" />
               </div>
               <div class="login__auth-btn-text">Facebook 帳號登入</div>
             </div>
@@ -80,10 +80,12 @@
 
 <script setup lang="ts">
 import p1 from '@/assets/image/login.png';
+import googleLogo from '@/assets/image/google.svg';
+import fbLogo from '@/assets/image/fb.svg';
 import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import { login } from '@/services/frontend/AuthService';
-import { useAuthStore, useLoadingStore } from '@/stores';
+import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import { getLoginUrl } from '@/utils/AuthUtils';
 import { useForm } from 'vee-validate';
 import { useRouter } from 'vue-router';
@@ -92,6 +94,7 @@ import * as yup from 'yup';
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const authStore = useAuthStore();
+const dialogStore = useDialogStore();
 const schema = yup.object({
   username: yup.string().required('帳號為必填'),
   password: yup.string().required('密碼為必填'),
@@ -111,11 +114,19 @@ const [password, passwordProps] = defineField('password');
 const onSubmit = handleSubmit(async (values) => {
   try {
     loadingStore.startLoading();
-    const { accessToken, username } = await login(values);
-    authStore.setToken(accessToken);
-    authStore.setUser({ username });
+    const { success, data } = await login(values);
     loadingStore.stopLoading();
-    router.push('/home');
+    if (success) {
+      authStore.setToken(data.accessToken);
+      authStore.setUser(data.user);
+      loadingStore.stopLoading();
+      router.push('/home');
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '登入失敗，請檢查您的帳號和密碼，然後再試一次。',
+      });
+    }
   } catch (error) {
     loadingStore.stopLoading();
     console.log(error);

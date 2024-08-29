@@ -3,17 +3,36 @@ import { api } from './FrontAPI';
 
 export interface JWTAuthResponse {
   accessToken: string;
-  userId: string;
-  username: string;
+  user: IUser;
 }
 
-export interface ILoginUser {
-  [key: string]: any;
+export interface IUser {
+  id: number;
+  userUid: string;
+  username: string;
+  password: string | null;
+  natId: string | null;
+  nickname: string | null;
+  email: string | null;
+  phoneNumber: string | null;
+  address: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  roleId: number | null;
+  status: string | null;
+  balance: number | null;
+  bonus: number | null;
+  sliverCoin: number | null;
+  provider: string | null;
+  roles: string | null;
+  drawCount: number | null;
 }
 
 const basePath = '/auth';
 
-export const login = async (data: any): Promise<JWTAuthResponse> => {
+export const login = async (
+  data: any
+): Promise<ApiResponse<JWTAuthResponse>> => {
   try {
     const response = await api.post(`${basePath}/login`, data);
     return response.data;
@@ -24,13 +43,13 @@ export const login = async (data: any): Promise<JWTAuthResponse> => {
 };
 
 export const setAuthToken = (token: string | null) => {
-  saveState('frontendJwtToken', token);
+  saveState('fToken', token);
 };
 
 export const getAuthToken = (): string | null => {
-  return loadState<string>('frontendJwtToken') || null;
+  return loadState<string>('fToken') || null;
 };
 
 export const removeAuthToken = () => {
-  removeState('frontendJwtToken');
+  removeState('fToken');
 };

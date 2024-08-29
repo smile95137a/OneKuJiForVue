@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
 
 export interface CartItem {
   id: number;
@@ -8,52 +9,55 @@ export interface CartItem {
   isSelected?: boolean;
 }
 
-interface CartState {
-  items: CartItem[];
-}
+export const useCartStore = defineStore('cartStore', () => {
+  const items = ref<CartItem[]>([]);
 
-export const useCartStore = defineStore('cartStore', {
-  state: (): CartState => ({
-    items: [],
-  }),
+  const totalItems = computed(() =>
+    items.value.reduce(
+      (total, item) => (item.isSelected ? total + item.quantity : total),
+      0
+    )
+  );
 
-  getters: {
-    totalItems: (state): number => {
-      return state.items
-        .filter((item) => item.isSelected)
-        .reduce((total, item) => total + item.quantity, 0);
-    },
-    totalPrice: (state): number => {
-      return state.items
-        .filter((item) => item.isSelected)
-        .reduce((total, item) => total + item.price * item.quantity, 0);
-    },
-  },
+  const totalPrice = computed(() =>
+    items.value.reduce(
+      (total, item) =>
+        item.isSelected ? total + item.price * item.quantity : total,
+      0
+    )
+  );
 
-  actions: {
-    addToCart(product: any, isSelected = true) {
-      const item = this.items.find((item) => item.id === product.id);
-      if (item) {
-        item.quantity += 1;
-      } else {
-        this.items.push({
-          ...product,
-          quantity: 1,
-          isSelected: isSelected,
-        });
-      }
-    },
-    removeFromCart(productId: number) {
-      this.items = this.items.filter((item) => item.id !== productId);
-    },
-    toggleSelection(productId: number) {
-      const item = this.items.find((item) => item.id === productId);
-      if (item) {
-        item.isSelected = !item.isSelected;
-      }
-    },
-    clearCart() {
-      this.items = [];
-    },
-  },
+  const addToCart = (product: CartItem, isSelected = true) => {
+    const item = items.value.find((item) => item.id === product.id);
+    if (item) {
+      item.quantity += product.quantity;
+    } else {
+      items.value.push({ ...product, isSelected });
+    }
+  };
+
+  const removeFromCart = (productId: number) => {
+    items.value = items.value.filter((item) => item.id !== productId);
+  };
+
+  const toggleSelection = (productId: number) => {
+    const item = items.value.find((item) => item.id === productId);
+    if (item) {
+      item.isSelected = !item.isSelected;
+    }
+  };
+
+  const clearCart = () => {
+    items.value.length = 0;
+  };
+
+  return {
+    items,
+    totalItems,
+    totalPrice,
+    addToCart,
+    removeFromCart,
+    toggleSelection,
+    clearCart,
+  };
 });

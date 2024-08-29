@@ -56,7 +56,7 @@
             :key="index"
             :product="product"
             :card-type="'mall'"
-            @click="goToProductDetail(product.productId)"
+            @click="goToProductDetail(product.storeProductId)"
           />
         </div>
       </div>
@@ -83,16 +83,20 @@ const showProducts = ref<IStoreProduct[]>([]);
 const categories = ref<IStoreCategory[]>([]);
 const loading = ref(false);
 const page = ref(0);
-const size = ref(20);
+const size = ref(3);
 const allLoaded = ref(false);
 const sortOrder = ref('newest');
-const selectedTypes = ref<number[]>([]);
+const selectedTypes = ref<number[]>([0]);
 const router = useRouter();
 
 const loadCategories = async () => {
   try {
     const { data } = await getAllCategories();
-    categories.value = data;
+    const allCategory: IStoreCategory = {
+      categoryId: 0,
+      categoryName: '全部',
+    };
+    categories.value = [allCategory, ...data];
   } catch (error) {
     console.error('獲取類別時發生錯誤:', error);
   }
@@ -103,7 +107,7 @@ const loadMoreProducts = async () => {
 
   loading.value = true;
   try {
-    const { data } = await getPagedStoreProducts(size.value, page.value);
+    const { data } = await getPagedStoreProducts(page.value, size.value);
     const newProducts = data;
     if (newProducts.length < size.value) {
       allLoaded.value = true;
@@ -142,7 +146,7 @@ const handleTypeChange = () => {
 const filterAndSortProducts = () => {
   let filteredProducts = products.value;
 
-  if (selectedTypes.value.length > 0) {
+  if (selectedTypes.value.length > 0 && !selectedTypes.value.includes(0)) {
     filteredProducts = filteredProducts.filter((product: IStoreProduct) =>
       selectedTypes.value.includes(~~product.categoryId)
     );

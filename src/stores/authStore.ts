@@ -15,14 +15,14 @@ export const useAuthStore = defineStore('auth', () => {
 
   const setToken = (accessToken: string) => {
     token.value = accessToken;
-    saveState('token', accessToken);
+    saveState('fToken', accessToken);
   };
 
   const clearAuthData = () => {
     user.value = null;
     token.value = null;
     removeState('user');
-    removeState('token');
+    removeState('fToken');
   };
 
   return {

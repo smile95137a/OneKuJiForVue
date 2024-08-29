@@ -24,7 +24,6 @@ const filteredProducts = computed(() => {
   const buttonCategory = buttons.find(
     (btn) => btn.type === activeBtn.value
   )?.category;
-  console.log(123);
 
   return products.value.filter(
     (product) =>

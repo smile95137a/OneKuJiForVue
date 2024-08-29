@@ -1,7 +1,7 @@
 <template>
   <img
     v-show="!isLoading"
-    :src="src"
+    :src="srcURL"
     @error="handleImageError"
     @load="handleImageLoad"
     loading="lazy"
@@ -13,10 +13,11 @@ import { defineProps, ref, onMounted } from 'vue';
 import img from '@/assets/image/login.png';
 
 interface IImageLoaderProps {
-  src: string;
+  src: any;
 }
-
 const props = defineProps<IImageLoaderProps>();
+const apiURL = import.meta.env.VITE_BASE_API_URL as string;
+const srcURL = `${apiURL}${props.src}`;
 
 const isLoading = ref(true);
 
@@ -35,7 +36,7 @@ const handleImageError = (event: Event | string | number | object) => {
 
 onMounted(() => {
   const img = new Image();
-  img.src = props.src;
+  img.src = srcURL;
   img.onload = handleImageLoad;
   img.onerror = handleImageError;
 });
