@@ -6,15 +6,7 @@ export interface DrawRequest {
   productId: number;
 }
 
-export interface DrawResult {
-  drawId: number;
-  userId: number;
-  productId: number;
-  prizeNumber: number;
-  drawDate: string;
-  success: boolean;
-  message: string;
-}
+
 
 export interface PrizeNumber {
   prizeNumberId: number;
@@ -31,7 +23,7 @@ export const drawPrize = async (
   userId: number,
   drawRequests: any,
   productId: number
-): Promise<DrawResult> => {
+): Promise<ApiResponse<any[]>> => {
   try {
     const response = await api.post(`${basePath}/oneprize`, drawRequests, {
       params: { userId, productId },
@@ -46,7 +38,7 @@ export const drawPrize = async (
 // 獲取抽獎狀態
 export const getDrawStatus = async (
   productId: number
-): Promise<PrizeNumber[]> => {
+): Promise<ApiResponse<PrizeNumber[]>> => {
   try {
     const response = await api.get(`${basePath}/status/${productId}`);
     return response.data;
@@ -59,12 +51,12 @@ export const getDrawStatus = async (
 // 執行抽獎
 export const executeDraw = async (
   productId: number,
-  userId: number,
+  userUid: string,
   prizeNumber: number
-): Promise<DrawResult> => {
+): Promise<ApiResponse<DrawResult>> => {
   try {
     const response = await api.post(`${basePath}/execute/${productId}`, null, {
-      params: { userId, prizeNumber },
+      params: { userUid, prizeNumber },
     });
     return response.data;
   } catch (error) {
@@ -76,11 +68,11 @@ export const executeDraw = async (
 // 執行隨機抽獎
 export const executeRandomDraw = async (
   productId: number,
-  userId: number
-): Promise<DrawResult> => {
+  userUid: string
+): Promise<ApiResponse<DrawResult>> => {
   try {
     const response = await api.post(`${basePath}/random/${productId}`, null, {
-      params: { userId },
+      params: { userUid },
     });
     return response.data;
   } catch (error) {

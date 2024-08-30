@@ -160,20 +160,20 @@ import ticketImgE from '@/assets/image/ticket_E.png';
 import ticketImgF from '@/assets/image/ticket_F.png';
 import ticketImgG from '@/assets/image/ticket_G.png';
 import Card from '@/components/common/Card.vue';
-import { useDialogStore, useLoadingStore } from '@/stores';
-import { useRoute } from 'vue-router';
-import { computed, onMounted, ref } from 'vue';
-import ProductCard2 from '@/components/frontend/ProductCard2.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
-import { getProductById, IProduct } from '@/services/frontend/productService';
-import { getDrawStatus, executeDraw } from '@/services/frontend/drawService';
+import MImage from '@/components/frontend/MImage.vue';
+import ProductCard2 from '@/components/frontend/ProductCard2.vue';
+import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
+import { executeDraw, getDrawStatus } from '@/services/frontend/drawService';
 import {
   getProductDetailById,
   IProductDetail,
 } from '@/services/frontend/productDetailService';
-import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
-import MImage from '@/components/frontend/MImage.vue';
+import { getProductById, IProduct } from '@/services/frontend/productService';
+import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 const route = useRoute();
 const productId = Number(route.params.id);
@@ -184,6 +184,7 @@ const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
+const authStore = useAuthStore();
 const introduceSection = ref<HTMLElement | null>(null);
 const showOption = ref(false);
 
@@ -223,7 +224,10 @@ onMounted(async () => {
     if (productDetailResponse.data) {
       productDetail.value = productDetailResponse.data;
     }
-    if (drawStatusResponse) {
+    console.log( drawStatusResponse);
+    
+    if (drawStatusResponse.data) {
+
       ticketList.value = drawStatusResponse.data;
     }
   } catch (err) {
@@ -234,7 +238,7 @@ onMounted(async () => {
 
 const fetchDrawStatus = async () => {
   try {
-    const data = await getDrawStatus(productId);
+    const {data} = await getDrawStatus(productId);
     if (data) {
       ticketList.value = data;
     } else {
@@ -246,6 +250,7 @@ const fetchDrawStatus = async () => {
 };
 
 const handleTicket = (ticket: any) => {
+  showOption.value = true;
   activeTicket.value = ticket;
 };
 
@@ -261,28 +266,40 @@ const handleExchange = async () => {
   const { productType } = product.value;
   const { productId, number } = activeTicket.value;
   loadingStore.startLoading();
-  const { amount } = await executeDraw(productId, 1, number);
-
-  loadingStore.stopLoading();
+  try {
+    
+    const { data } = await executeDraw(productId, authStore.user.userUid, number);
+    loadingStore.stopLoading();
   await dialogStore.openOneKujiDialog(
     {},
     productType === 'PRIZE' ? 'ticket' : 'box'
   );
   activeTicket.value = null;
   fetchDrawStatus();
+  const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
+
   await dialogStore.openConfirmDialog(
     { customClass: '' },
     {
       remainingQuantity: remainingQuantity.value - 1,
       count: 1,
-      total: amount,
+      total: totalAmount,
     }
   );
+} catch (error:any) {
+    loadingStore.stopLoading();
+   const {message} = error.response.data;
+   await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message
+      });
+  }
+
 };
 
 const getTicketImg = (ticket: any) => {
   const { productType } = product.value;
-  const { grade, isDrawn } = ticket;
+  const { level, isDrawn } = ticket;
 
   if (productType === 'PRIZE') {
     const ticketImages: Record<string, string> = {
@@ -295,7 +312,7 @@ const getTicketImg = (ticket: any) => {
       G: ticketImgG,
     };
 
-    return isDrawn ? ticketImages[grade] || ticketImg : ticketImg;
+    return isDrawn ? ticketImages[level] || ticketImg : ticketImg;
   } else {
     return isDrawn ? boxOpen : boxClose;
   }
