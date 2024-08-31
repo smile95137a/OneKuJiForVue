@@ -57,6 +57,13 @@ const navigateToDetail = (productId: number) => {
 };
 
 onMounted(() => {
+  const queryType = router.currentRoute.value.query.type as string;
+  const selectedButton = buttons.find((btn) => btn.type === queryType);
+  if (selectedButton) {
+    activeBtn.value = selectedButton.type;
+    title.value = selectedButton.title;
+  }
+
   fetchProducts();
 });
 </script>

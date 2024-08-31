@@ -65,7 +65,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: { layout: 'default' },
   },
   {
-    path: '/mall-order-success',
+    path: '/mall-order-success/:orderNumber',
+    name: 'MallOrderSuccess',
     component: MallOrderSuccess,
     meta: { layout: 'default' },
   },

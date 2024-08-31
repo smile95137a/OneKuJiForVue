@@ -139,7 +139,7 @@ $root-block-name: '.productCard';
     }
 
     &-price {
-      width: 200px;
+      min-width: 200px;
       height: 68px;
       @include flex(end, end, row);
       position: absolute;

@@ -132,8 +132,30 @@
       </router-link>
     </div>
     <div class="product-detail-one__option" v-if="showOption">
+      <div class="product-detail-one__random" v-if="showOptionRandom">
+        <div class="product-detail-one__random-inputs">
+          <input
+            type="number"
+            class="product-detail-one__random-input"
+            placeholder="輸入自訂數量"
+            step="1"
+            min="1"
+          />
+          <div class="product-detail-one__random-btn">自選隨機</div>
+        </div>
+        <div class="product-detail-one__random-list">
+          <div class="product-detail-one__random-list-item">1</div>
+          <div class="product-detail-one__random-list-item">3</div>
+          <div class="product-detail-one__random-list-item">5</div>
+          <div class="product-detail-one__random-list-item">10</div>
+        </div>
+      </div>
+
       <div class="product-detail-one__btns">
-        <div class="product-detail-one__btn product-detail-one__btn--random">
+        <div
+          class="product-detail-one__btn product-detail-one__btn--random"
+          @click="toggleShowOptionRandom"
+        >
           隨機選擇
         </div>
         <div
@@ -175,18 +197,22 @@ import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
+const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
+const authStore = useAuthStore();
+
 const route = useRoute();
 const productId = Number(route.params.id);
+
 const breadcrumbItems = ref([{ name: '首頁' }]);
 const product = ref<IProduct | null>(null);
 const productDetail = ref<IProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
 const activeTicket = ref<any | null>(null);
-const loadingStore = useLoadingStore();
-const dialogStore = useDialogStore();
-const authStore = useAuthStore();
+
 const introduceSection = ref<HTMLElement | null>(null);
 const showOption = ref(false);
+const showOptionRandom = ref(false);
 
 const remainingQuantity = computed(() => {
   if (!ticketList.value) {
@@ -194,11 +220,6 @@ const remainingQuantity = computed(() => {
   }
   return ticketList.value.filter((x) => !x.isDrawn).length;
 });
-
-const scrollToIntroduce = (isShowOption = false) => {
-  showOption.value = isShowOption;
-  introduceSection.value?.scrollIntoView({ behavior: 'smooth' });
-};
 
 onMounted(async () => {
   loadingStore.startLoading();
@@ -224,28 +245,37 @@ onMounted(async () => {
     if (productDetailResponse.data) {
       productDetail.value = productDetailResponse.data;
     }
-    console.log( drawStatusResponse);
-    
-    if (drawStatusResponse.data) {
 
+    if (drawStatusResponse.data) {
       ticketList.value = drawStatusResponse.data;
     }
-  } catch (err) {
-    console.error('An error occurred:', err);
+  } catch (error: any) {
+    const { message } = error.response.data;
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message,
+    });
   }
   loadingStore.stopLoading();
 });
 
 const fetchDrawStatus = async () => {
   try {
-    const {data} = await getDrawStatus(productId);
+    const { data } = await getDrawStatus(productId);
     if (data) {
       ticketList.value = data;
     } else {
-      throw new Error('Draw status not found');
+      dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '系統錯誤',
+      });
     }
-  } catch (err) {
-    console.error(err);
+  } catch (error: any) {
+    const { message } = error.response.data;
+    dialogStore.openInfoDialog({
+      title: '系統通知',
+      message,
+    });
   }
 };
 
@@ -255,6 +285,14 @@ const handleTicket = (ticket: any) => {
 };
 
 const handleExchange = async () => {
+  if (!authStore.isLogin) {
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '請先登入',
+    });
+    return;
+  }
+
   if (!activeTicket.value) {
     await dialogStore.openInfoDialog({
       title: '系統消息',
@@ -263,38 +301,56 @@ const handleExchange = async () => {
     return;
   }
 
-  const { productType } = product.value;
-  const { productId, number } = activeTicket.value;
-  loadingStore.startLoading();
-  try {
-    
-    const { data } = await executeDraw(productId, authStore.user.userUid, number);
-    loadingStore.stopLoading();
-  await dialogStore.openOneKujiDialog(
-    {},
-    productType === 'PRIZE' ? 'ticket' : 'box'
-  );
-  activeTicket.value = null;
-  fetchDrawStatus();
-  const totalAmount = data.reduce((sum, item) => sum + item.amount, 0);
+  if (product.value) {
+    const { productType } = product.value;
+    const { productId, number } = activeTicket.value;
+    try {
+      loadingStore.startLoading();
+      const response = await executeDraw(
+        productId,
+        authStore.user.userUid,
+        number
+      );
+      loadingStore.stopLoading();
 
-  await dialogStore.openConfirmDialog(
-    { customClass: '' },
-    {
-      remainingQuantity: remainingQuantity.value - 1,
-      count: 1,
-      total: totalAmount,
-    }
-  );
-} catch (error:any) {
-    loadingStore.stopLoading();
-   const {message} = error.response.data;
-   await dialogStore.openInfoDialog({
+      if (response && response.data) {
+        const { data } = response;
+
+        await dialogStore.openOneKujiDialog(
+          {},
+          productType === 'PRIZE' ? 'ticket' : 'box'
+        );
+
+        activeTicket.value = null;
+
+        const totalAmount = data.reduce(
+          (sum: number, item: any) => sum + item.amount,
+          0
+        );
+
+        await fetchDrawStatus();
+        await dialogStore.openConfirmDialog(
+          { customClass: '' },
+          {
+            remainingQuantity: remainingQuantity.value - 1,
+            count: 1,
+            total: totalAmount,
+          }
+        );
+      } else {
+        throw new Error('Invalid response from executeDraw');
+      }
+    } catch (error: any) {
+      loadingStore.stopLoading();
+      console.log(error);
+
+      const errorMessage = error.response?.data?.message || '未知錯誤';
+      await dialogStore.openInfoDialog({
         title: '系統通知',
-        message
+        message: errorMessage,
       });
+    }
   }
-
 };
 
 const getTicketImg = (ticket: any) => {
@@ -316,6 +372,15 @@ const getTicketImg = (ticket: any) => {
   } else {
     return isDrawn ? boxOpen : boxClose;
   }
+};
+
+const scrollToIntroduce = (isShowOption = false) => {
+  showOption.value = isShowOption;
+  introduceSection.value?.scrollIntoView({ behavior: 'smooth' });
+};
+
+const toggleShowOptionRandom = () => {
+  showOptionRandom.value = !showOptionRandom.value;
 };
 </script>
 

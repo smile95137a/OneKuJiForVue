@@ -17,6 +17,8 @@ export interface IProduct {
   height: number;
   specification: string;
   size: number;
+  detailQuantity: number | null;
+  detailStockQuantity: number | null;
 }
 
 const basePath = '/product';

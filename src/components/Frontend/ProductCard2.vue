@@ -1,7 +1,6 @@
 <template>
   <div
     :class="['productCard2', `productCard2--${product.grade.toLowerCase()}`]"
-    @click="handleClick"
   >
     <div class="productCard2__img">
       <MImage :src="product.imageUrls[0]" />
@@ -12,7 +11,7 @@
             {{ gradeDescription }}
           </p>
           <p class="productCard2__text productCard2__text--num">
-            {{ product.stockQuantity }}/{{ product.quantity }}
+            {{ product.quantity }}/{{ product.stockQuantity }}
           </p>
         </div>
       </div>
@@ -26,7 +25,6 @@
 <script lang="ts" setup>
 import MImage from '@/components/frontend/MImage.vue';
 import { computed, defineProps } from 'vue';
-import { useRouter } from 'vue-router';
 
 interface IProductCard2Props {
   product: any;
@@ -47,12 +45,6 @@ const ProductGrade = {
 };
 
 const gradeDescription = computed(() => ProductGrade[props.product.grade]);
-
-const router = useRouter();
-
-const handleClick = () => {
-  router.push('/productDetail2');
-};
 </script>
 
 <style scoped></style>

@@ -1,60 +1,76 @@
-import { api } from './FrontAPI'; // 引入API實例
-
-// 定義與後端 Order 模型對應的接口
-export interface Order {
-  id: number;
-  orderNumber: string;
-  userId: number;
-  totalAmount: number;
-  bonusPointsEarned: number;
-  bonusPointsUsed: number;
-  status: string;
-  paymentMethod: string;
-  paymentStatus: string;
-  createdAt: string; // ISO 日期字符串
-  updatedAt: string; // ISO 日期字符串
-  paidAt?: string; // 可選的 ISO 日期字符串
-  notes?: string;
-}
+import { api } from './FrontAPI';
 
 const basePath = '/order';
 
 export const getOrderById = async (
-  userId: number
-): Promise<ApiResponse<Order[]>> => {
+  userUid: string
+): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.get<ApiResponse<Order[]>>(
-      `${basePath}/${userId}`
+    const response = await api.get<ApiResponse<any>>(`${basePath}/${userUid}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching order data:', error);
+    throw error;
+  }
+};
+
+export const getStoreProductOrderByOrderNumber = async (
+  orderNumber: string
+): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.get<ApiResponse<any>>(
+      `${basePath}/storeProduct/${orderNumber}`
     );
     return response.data;
   } catch (error) {
-    console.error('獲取訂單時發生錯誤:', error);
+    console.error('Error fetching store product order data:', error);
+    throw error;
+  }
+};
+
+export const payCartItem = async (
+  payCart: any
+): Promise<ApiResponse<boolean>> => {
+  try {
+    const response = await api.post<ApiResponse<boolean>>(
+      `${basePath}/storeProduct/pay`,
+      payCart
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error processing payment:', error);
     throw error;
   }
 };
 
 export const ecpayCheckout = async (userId: number): Promise<string> => {
   try {
-    const response = await api.post<string>('/ecpayCheckout', { userId });
+    const response = await api.post<string>(`${basePath}/ecpayCheckout`, {
+      userId,
+    });
     return response.data;
   } catch (error) {
-    console.error('處理綠界支付請求時發生錯誤:', error);
+    console.error('Error initiating ecpay checkout:', error);
     throw error;
   }
 };
 
 export const handleEcpayNotification = async (
-  paymentData: Record<string, string>
+  paymentData: any
 ): Promise<string> => {
   try {
-    const response = await api.post<string>('/returnUrl', paymentData, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
+    const response = await api.post<string>(
+      `${basePath}/returnUrl`,
+      paymentData,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('處理綠界支付通知時發生錯誤:', error);
+    console.error('Error handling ecpay notification:', error);
     throw error;
   }
 };

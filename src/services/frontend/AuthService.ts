@@ -43,13 +43,13 @@ export const login = async (
 };
 
 export const setAuthToken = (token: string | null) => {
-  saveState('fToken', token);
+  saveState('ftoken', token);
 };
 
 export const getAuthToken = (): string | null => {
-  return loadState<string>('fToken') || null;
+  return loadState<string>('ftoken') || null;
 };
 
 export const removeAuthToken = () => {
-  removeState('fToken');
+  removeState('ftoken');
 };

@@ -1,170 +1,162 @@
 <template>
   <Breadcrumbs :items="breadcrumbItems" />
   <div class="mallCheckout">
-    <div class="mallCheckout__items">
-      <!-- 商品資訊 -->
-      <div class="mallCheckout__item">
-        <div class="mallCheckout__item-title">商品資訊</div>
-        <div class="mallCheckout__item-main">
-          <Card v-for="item in cartStore.items" :key="item.id">
-            <div class="cart-item">
-              <input
-                type="checkbox"
-                v-model="item.isSelected"
-                class="cart-item__checkbox"
-              />
-              <span
-                >{{ item.name }} - {{ item.quantity }}件 - ${{
-                  item.price
-                }}</span
-              >
-              <div class="cart-item__quantity">
-                <button @click="decreaseQuantity(item)">-</button>
-                <span>{{ item.quantity }}</span>
-                <button @click="increaseQuantity(item)">+</button>
-              </div>
-            </div>
-          </Card>
+    <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
+      商品資訊
+    </div>
+    <Card v-for="item in items" :key="item.cartItemId" custom-class="m-b-24">
+      <div class="mallCheckout__product">
+        <div
+          class="mallCheckout__product-item mallCheckout__product-item--selected"
+        >
+          <input type="checkbox" v-model="item.isSelected" />
+        </div>
+        <div class="mallCheckout__product-item mallCheckout__product-item--img">
+          <MImage src="" />
+        </div>
+        <div
+          class="mallCheckout__product-item mallCheckout__product-item--name"
+        >
+          <p class="mallCheckout__text">{{ item.productName }}</p>
+        </div>
+        <div
+          class="mallCheckout__product-item mallCheckout__product-item--quantity"
+        >
+          <button
+            class="mallCheckout__product-quantityBtn mallCheckout__product-quantityBtn--decrease"
+            @click="decreaseQuantity(item)"
+          >
+            -
+          </button>
+          <span>{{ item.quantity }}</span>
+          <button
+            class="mallCheckout__product-quantityBtn mallCheckout__product-quantityBtn--increase"
+            @click="increaseQuantity(item)"
+          >
+            +
+          </button>
+        </div>
+        <div
+          class="mallCheckout__product-item mallCheckout__product-item--price"
+        >
+          <p class="mallCheckout__text">${{ formatPrice(item.totalPrice) }}</p>
+        </div>
+        <div
+          class="mallCheckout__product-item mallCheckout__product-item--delete"
+        >
+          <i class="fa-solid fa-trash-can"></i>
         </div>
       </div>
-
-      <!-- 寄送資訊 -->
-      <div class="mallCheckout__item">
-        <div class="mallCheckout__item-title">寄送資訊</div>
-        <div class="mallCheckout__item-main">
-          <div class="mallCheckout__shipping">
-            <label>
+    </Card>
+    <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
+      寄送資訊
+    </div>
+    <Card>
+      <div class="p-t-48 p-b-100 p-x-48">
+        <div class="mallCheckout__shipping">
+          <div
+            class="mallCheckout__shipping-item mallCheckout__shipping-item--title"
+          >
+            寄送
+          </div>
+          <div
+            class="mallCheckout__shipping-item mallCheckout__shipping-item--options"
+          >
+            <div
+              v-for="option in shippingOptions"
+              :key="option.name"
+              class="mallCheckout__shipping-option"
+            >
               <input
                 type="radio"
-                name="shipping"
-                value="宅配"
+                :value="option.name"
                 v-model="shippingMethod"
               />
-              宅配 ({{ formatPrice(150) }})
-              <div class="mallCheckout__address">
-                收件地址：台北市中正區重慶南路一段1號1樓
-              </div>
-            </label>
-            <div class="mallCheckout__shipping-options">
-              <label v-for="method in shippingOptions" :key="method.name">
-                <input
-                  type="radio"
-                  name="shipping"
-                  :value="method.name"
-                  v-model="shippingMethod"
-                />
-                {{ method.name }} ({{ formatPrice(method.price) }})
-              </label>
-            </div>
-            <div class="mallCheckout__total-shipping">
-              {{ formatPrice(selectedShippingPrice) }}
+              <label>{{ option.name }} (${{ option.price }})</label>
             </div>
           </div>
-          <div class="mallCheckout__invoice">
-            <label for="invoice">發票</label>
-            <select id="invoice" v-model="invoiceOption">
-              <option value="donation">發票捐贈</option>
-              <option value="personal">個人發票</option>
-              <option value="company">公司發票</option>
-            </select>
+          <div
+            class="mallCheckout__shipping-item mallCheckout__shipping-item--price"
+          >
+            <p class="mallCheckout__text">${{ selectedShippingPrice }}</p>
+          </div>
+        </div>
+        <div class="mallCheckout__divider"></div>
+        <div class="mallCheckout__invoice">
+          <div
+            class="mallCheckout__invoice-item mallCheckout__invoice-item--title"
+          >
+            發票
+          </div>
+          <div
+            class="mallCheckout__invoice-item mallCheckout__invoice-item--select"
+          >
+            <MSelect
+              v-model="invoiceOption"
+              :options="[{ value: 'donation', label: '捐赠' }]"
+              customClass="mallCheckout__invoice-select"
+            />
           </div>
         </div>
       </div>
+    </Card>
 
-      <!-- 優惠及結帳 -->
-      <div class="mallCheckout__item">
-        <div class="mallCheckout__item-title">優惠及結帳</div>
-        <div class="mallCheckout__item-main">
-          <div class="mallCheckout__discount">
-            <label>
-              <input
-                type="radio"
-                name="discount"
-                value="coupon"
-                v-model="discountMethod"
-              />
-              優惠券
-              <select v-model="selectedCoupon">
-                <option
-                  v-for="coupon in coupons"
-                  :key="coupon.id"
-                  :value="coupon.id"
-                >
-                  {{ coupon.description }} (有效至{{ coupon.expiry }})
-                </option>
-              </select>
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="discount"
-                value="code"
-                v-model="discountMethod"
-              />
-              優惠碼
-              <input
-                type="text"
-                v-model="discountCode"
-                placeholder="請輸入優惠碼"
-              />
-            </label>
-            <div class="mallCheckout__total-discount">
-              - {{ formatPrice(discountAmount) }}
-            </div>
-          </div>
-          <div class="mallCheckout__payment">
-            <label>
-              <input
-                type="radio"
-                name="payment"
-                value="credit"
-                v-model="paymentMethod"
-              />
-              信用卡一次付清
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="payment"
-                value="store"
-                v-model="paymentMethod"
-              />
-              超商取貨付款
-            </label>
-          </div>
-        </div>
-      </div>
+    <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
+      優惠及結帳
     </div>
-
-    <!-- 結算總額 -->
+    <Card>
+      <div class="p-y-48 p-x-48">
+        <div class="mallCheckout__payment">
+          <div
+            class="mallCheckout__payment-item mallCheckout__payment-item--title"
+          >
+            付款
+          </div>
+          <div
+            class="mallCheckout__payment-item mallCheckout__payment-item--options"
+          >
+            <div
+              v-for="option in paymentOptions"
+              :key="option.name"
+              class="mallCheckout__payment-option"
+            >
+              <input
+                type="radio"
+                :value="option.value"
+                v-model="paymentMethod"
+              />
+              <label>{{ option.name }} </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
     <div class="mallCheckout__total">
       <div class="mallCheckout__total-item">
-        <p class="mallCheckout__text mallCheckout__text--title">商品總額：</p>
+        <p class="mallCheckout__text mallCheckout__text--title">商品：</p>
         <p class="mallCheckout__text mallCheckout__text--money">
-          ${{ cartStore.totalPrice }}
+          ${{ formatPrice(totalProductAmount) }}
         </p>
       </div>
       <div class="mallCheckout__total-item">
         <p class="mallCheckout__text mallCheckout__text--title">運費：</p>
         <p class="mallCheckout__text mallCheckout__text--money">
-          ${{ formatPrice(selectedShippingPrice) }}
+          ${{ formatPrice(totalShippingAmount) }}
         </p>
       </div>
       <div class="mallCheckout__total-item">
         <p class="mallCheckout__text mallCheckout__text--title">折扣：</p>
         <p class="mallCheckout__text mallCheckout__text--money">
-          - ${{ formatPrice(discountAmount) }}
+          -${{ formatPrice(totalDiscountAmount) }}
         </p>
       </div>
       <div class="mallCheckout__total-item m-t-36">
         <p class="mallCheckout__text mallCheckout__text--title">總金額：</p>
         <p class="mallCheckout__text mallCheckout__text--totalMoney">
-          ${{ finalAmount }}
+          ${{ formatPrice(finalAmount) }}
         </p>
       </div>
     </div>
-
-    <!-- 結帳按鈕 -->
     <div class="mallCheckout__btns">
       <div class="mallCheckout__btn mallCheckout__btn--back" @click="goBack">
         回上頁
@@ -182,14 +174,22 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
-import { useCartStore } from '@/stores';
-import { ref, computed } from 'vue';
+import MImage from '@/components/frontend/MImage.vue';
+import {
+  addCartItem,
+  removeCartItem,
+} from '@/services/frontend/cartItemService';
+import { getCart, ICartItem } from '@/services/frontend/cartService';
+import { payCartItem } from '@/services/frontend/orderService';
+import { useDialogStore, useLoadingStore } from '@/stores';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-
+import MSelect from '@/components/common/MSelect.vue';
 const router = useRouter();
+const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
 const breadcrumbItems = [{ name: '首頁' }, { name: '結帳' }];
-
-const cartStore = useCartStore();
+const items = ref<ICartItem[]>([]);
 
 const shippingOptions = [
   { name: '7-11 超商取貨', price: 60 },
@@ -198,7 +198,14 @@ const shippingOptions = [
   { name: '中華郵政郵寄', price: 100 },
 ];
 
-const shippingMethod = ref('宅配');
+const paymentOptions = [
+  { name: '信用卡一次付清', value: 'creditCard' },
+  { name: '超商取貨付款', value: 'store' },
+];
+
+const shippingMethod = ref(shippingOptions[0].name);
+const paymentMethod = ref(paymentOptions[0].value);
+
 const selectedShippingPrice = computed(() => {
   const selectedOption = shippingOptions.find(
     (option) => option.name === shippingMethod.value
@@ -214,22 +221,36 @@ const discountMethod = ref('coupon');
 const selectedCoupon = ref(coupons[0].id);
 const discountCode = ref('');
 const discountAmount = computed(() => {
-  if (discountMethod.value === 'coupon') {
-    const selected = coupons.find(
-      (coupon) => coupon.id === selectedCoupon.value
-    );
-    return selected ? 50 : 0;
-  } else if (discountMethod.value === 'code' && discountCode.value) {
-    return 50; // 假設優惠碼固定折抵 $50
-  }
+  // if (discountMethod.value === 'coupon') {
+  //   const selected = coupons.find(
+  //     (coupon) => coupon.id === selectedCoupon.value
+  //   );
+  //   return selected ? 50 : 0;
+  // } else if (discountMethod.value === 'code' && discountCode.value) {
+  //   return 50; // 假設優惠碼固定折抵 $50
+  // }
   return 0;
 });
 
-const paymentMethod = ref('credit');
+const totalProductAmount = computed(() => {
+  return items.value
+    .filter((item) => item.isSelected) // 仅计算选中的商品
+    .reduce((sum, item) => sum + item.totalPrice, 0);
+});
+
+const totalShippingAmount = computed(() => {
+  return selectedShippingPrice.value;
+});
+
+const totalDiscountAmount = computed(() => {
+  return discountAmount.value;
+});
 
 const finalAmount = computed(() => {
   return (
-    cartStore.totalPrice + selectedShippingPrice.value - discountAmount.value
+    totalProductAmount.value +
+    totalShippingAmount.value -
+    totalDiscountAmount.value
   );
 });
 
@@ -237,64 +258,110 @@ const goBack = () => {
   router.back();
 };
 
-const checkout = () => {
-  console.log('Checkout:', {
-    totalAmount: finalAmount.value,
-    shippingMethod: shippingMethod.value,
-    paymentMethod: paymentMethod.value,
-    invoiceOption: invoiceOption.value,
-  });
-};
+const checkout = async () => {
+  const selectedItems = items.value.filter((item) => item.isSelected);
 
-const formatPrice = (price: number) => `${price}`;
+  const payCart = {
+    cartItemIds: selectedItems.map((x) => x.cartItemId),
+  };
 
-const increaseQuantity = (item: any) => {
-  cartStore.addToCart(item);
-};
-
-const decreaseQuantity = (item: any) => {
-  if (item.quantity > 1) {
-    item.quantity -= 1;
-  } else {
-    cartStore.removeFromCart(item.id);
+  try {
+    loadingStore.startLoading();
+    const { success, data } = await payCartItem(payCart);
+    loadingStore.stopLoading();
+    if (success) {
+      router.push({
+        name: 'MallOrderSuccess',
+        params: { orderNumber: data.toString() },
+      });
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: `支付失敗`,
+      });
+    }
+  } catch (error) {
+    loadingStore.stopLoading();
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message: `支付失敗`,
+    });
   }
 };
-</script>
 
-<style scoped>
-.mallCheckout__shipping {
-  padding: 10px;
-  background-color: #f8f0e5;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-.mallCheckout__address {
-  margin-top: 10px;
-  font-size: 14px;
-}
-.mallCheckout__shipping-options {
-  margin-top: 15px;
-}
-.mallCheckout__total-shipping {
-  margin-top: 10px;
-  color: #e74c3c;
-  font-size: 20px;
-  font-weight: bold;
-}
-.mallCheckout__invoice,
-.mallCheckout__discount,
-.mallCheckout__payment {
-  margin-top: 20px;
-}
-.mallCheckout__total-discount {
-  margin-top: 10px;
-  color: #e74c3c;
-  font-size: 20px;
-  font-weight: bold;
-}
-.mallCheckout__totalMoney {
-  font-size: 24px;
-  font-weight: bold;
-  color: #e74c3c;
-}
-</style>
+const formatPrice = (price: number) => `${price.toFixed(2)}`;
+
+const increaseQuantity = async (item: ICartItem) => {
+  loadingStore.startLoading();
+  const cartItem = {
+    storeProductId: item.storeProductId,
+    quantity: 1,
+  };
+  try {
+    const response = await addCartItem(cartItem);
+    if (response.success) {
+      await loadCartItems();
+    } else {
+      console.error('添加購物車失敗:', response.message);
+    }
+  } catch (error) {
+    console.error('添加購物車時發生錯誤:', error);
+  }
+  loadingStore.stopLoading();
+};
+
+const loadCartItems = async () => {
+  loadingStore.startLoading();
+  try {
+    const { success, data } = await getCart();
+    if (success) {
+      if (!data || data.length === 0) {
+        router.push('/home');
+      }
+      items.value = data.map((item) => {
+        const existingItem = items.value.find(
+          (i) => i.cartItemId === item.cartItemId
+        );
+        return {
+          ...item,
+          isSelected: existingItem ? existingItem.isSelected : true,
+        };
+      });
+    } else {
+      console.error('Failed to load cart items:', data.message);
+    }
+  } catch (error) {
+    console.error('Failed to load cart items:', error);
+  }
+  loadingStore.stopLoading();
+};
+
+const decreaseQuantity = async (item: ICartItem) => {
+  const loadingStore = useLoadingStore();
+  loadingStore.startLoading();
+
+  try {
+    const response =
+      item.quantity - 1 === 0
+        ? await removeCartItem(item.cartItemId)
+        : await addCartItem({
+            storeProductId: item.storeProductId,
+            quantity: -1,
+          });
+
+    if (response.success) {
+      await loadCartItems();
+    } else {
+      console.error(response.message);
+    }
+  } catch (error) {
+    console.error('操作購物車時發生錯誤:', error);
+  } finally {
+    loadingStore.stopLoading();
+  }
+};
+
+onMounted(async () => {
+  loadCartItems();
+});
+</script>

@@ -44,21 +44,23 @@
           <div class="mall-product__detail-otherNum">
             <div class="mall-product__detail-otherNum-title">數量</div>
             <div class="mall-product__detail-otherNum-other">
-              <div
+              <button
+                type="button"
                 class="mall-product__detail-otherNum-btn"
                 @click="decreaseQuantity"
               >
                 <i class="fa-solid fa-minus"></i>
-              </div>
+              </button>
               <div class="mall-product__detail-otherNum-text">
                 {{ quantity }}
               </div>
-              <div
+              <button
+                type="button"
                 class="mall-product__detail-otherNum-btn mall-product__detail-otherNum-btn--active"
                 @click="increaseQuantity"
               >
                 <i class="fa-solid fa-plus"></i>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -124,26 +126,99 @@
 <script lang="ts" setup>
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import pd1 from '@/assets/image/pd1.png';
-import se from '@/assets/image/711.png';
-import familyMart from '@/assets/image/familyMart.png';
-import hilife from '@/assets/image/hilife.png';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   getStoreProductById,
   IStoreProduct,
 } from '@/services/frontend/storeProductService';
-import { useCartStore } from '@/stores';
 import MImage from '@/components/frontend/MImage.vue';
+import { addCartItem } from '@/services/frontend/cartItemService';
+import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 
-const breadcrumbItems = ref([{ name: '首頁' }, { name: '商城' }]);
+const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
+const authStore = useAuthStore();
 const route = useRoute();
-
 const router = useRouter();
 const storeProductId = Number(route.params.id);
 
+const breadcrumbItems = ref([{ name: '首頁' }, { name: '商城' }]);
 const product = ref<IStoreProduct | null>(null);
-const cartStore = useCartStore();
+const quantity = ref(1);
+const tabs = ['詳情', '規格'];
+const activeTab = ref('詳情');
+const expanded = ref(false);
+const showToggle = ref(false);
+const contentDiv = ref<HTMLElement | null>(null);
+const maxHeight = 100;
+
+const increaseQuantity = () => {
+  quantity.value += 1;
+};
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) {
+    quantity.value -= 1;
+  }
+};
+
+const handleAddToCart = async (redirectToCheckout = false) => {
+  if (!authStore.isLogin) {
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '請先登入',
+    });
+    return;
+  }
+
+  if (product.value) {
+    const cartItem = {
+      storeProductId: product.value.storeProductId,
+      quantity: quantity.value,
+    };
+    try {
+      loadingStore.startLoading();
+      const response = await addCartItem(cartItem);
+      loadingStore.stopLoading();
+      if (response.success) {
+        if (redirectToCheckout) {
+          router.push('/mall-checkout');
+        } else {
+          await dialogStore.openInfoDialog({
+            title: '系統消息',
+            message: '商品成功加到購物車',
+          });
+        }
+      } else {
+        await dialogStore.openInfoDialog({
+          title: '系統消息',
+          message: `添加購物車失敗: ${response.message}`,
+        });
+      }
+    } catch (error) {
+      loadingStore.stopLoading();
+      console.error('添加購物車時發生錯誤:', error);
+      await dialogStore.openInfoDialog({
+        title: '系統消息',
+        message: '添加購物車時發生錯誤，請稍後再試。',
+      });
+    }
+  }
+};
+
+const addProductToCart = async () => {
+  await handleAddToCart();
+};
+
+const buyItNow = async () => {
+  await handleAddToCart(true);
+};
+
+const toggleExpand = () => {
+  expanded.value = !expanded.value;
+};
+
 onMounted(async () => {
   try {
     const { success, data, message } = await getStoreProductById(
@@ -158,61 +233,6 @@ onMounted(async () => {
   } catch (err) {
     console.error(err);
   }
-});
-const quantity = ref(1);
-
-const increaseQuantity = () => {
-  quantity.value += 1;
-};
-
-const decreaseQuantity = () => {
-  if (quantity.value > 1) {
-    quantity.value -= 1;
-  }
-};
-
-const addProductToCart = () => {
-  if (product.value) {
-    const cartItem = {
-      id: product.value.storeProductId,
-      name: product.value.productName,
-      price: product.value.specialPrice,
-      quantity: quantity.value,
-      isSelected: true,
-    };
-
-    cartStore.addToCart(cartItem);
-  }
-};
-
-const buyItNow = () => {
-  if (product.value) {
-    const cartItem = {
-      id: product.value.storeProductId,
-      name: product.value.productName,
-      price: product.value.specialPrice,
-      quantity: quantity.value,
-      isSelected: true,
-    };
-
-    cartStore.addToCart(cartItem);
-  }
-  router.push('/mall-checkout');
-};
-
-const tabs = ['詳情', '規格'];
-const activeTab = ref('詳情');
-const expanded = ref(false);
-const showToggle = ref(false);
-const contentDiv = ref<HTMLElement | null>(null);
-
-const maxHeight = 100; // 指定內容的最大高度（超過此高度會顯示展開按鈕）
-
-const toggleExpand = () => {
-  expanded.value = !expanded.value;
-};
-
-onMounted(() => {
   if (contentDiv.value) {
     showToggle.value = contentDiv.value.scrollHeight > maxHeight;
   }

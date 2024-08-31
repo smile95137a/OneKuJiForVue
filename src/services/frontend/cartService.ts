@@ -1,23 +1,31 @@
 import { api } from './FrontAPI';
-export interface CartItemRes {
-  productId: number;
-  productName: string;
+
+export interface ICartItem {
+  cartItemId: number;
+  cartId: number;
+  storeProductId: number;
+  storeProductName: string;
   quantity: number;
-  price: number;
+  unitPrice: string;
+  totalPrice: string;
+  isPay: boolean;
+  imageUrl: string;
+  productName: string;
+  specialPrice: string;
+  size: string;
+  isSelected: Boolean;
 }
 
 const basePath = '/cart';
 
-export const getCartItems = async (
-  userId: number
-): Promise<ApiResponse<CartItemRes[]>> => {
+export const getCart = async (): Promise<ApiResponse<ICartItem[]>> => {
   try {
-    const response = await api.get<ApiResponse<CartItemRes[]>>(
-      `${basePath}/query/${userId}`
+    const response = await api.get<ApiResponse<ICartItem[]>>(
+      `${basePath}/getCart`
     );
     return response.data;
   } catch (error) {
-    console.error('獲取購物車數據時發生錯誤:', error);
+    console.error('Error fetching cart data:', error);
     throw error;
   }
 };

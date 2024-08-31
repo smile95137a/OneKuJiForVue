@@ -1,12 +1,8 @@
 import { api } from './FrontAPI';
+
 export interface CartItem {
-  cartItemId: number;
-  cartId: number;
   storeProductId: number;
   quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  productDetailId: number;
 }
 
 const basePath = '/cartItem';
@@ -26,21 +22,16 @@ export const addCartItem = async (
   }
 };
 
-export const updateCartItemQuantity = async (
-  id: number,
-  quantity: number
+export const removeCartItem = async (
+  cartItemId: number
 ): Promise<ApiResponse<string>> => {
   try {
-    const response = await api.put<ApiResponse<string>>(
-      `${basePath}/update/${id}`,
-      null,
-      {
-        params: { quantity },
-      }
+    const response = await api.delete<ApiResponse<string>>(
+      `${basePath}/remove/${cartItemId}`
     );
     return response.data;
   } catch (error) {
-    console.error('Error updating cart item quantity:', error);
+    console.error('Error removing cart item:', error);
     throw error;
   }
 };

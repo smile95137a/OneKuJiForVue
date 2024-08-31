@@ -3,7 +3,9 @@
     <div class="productCard__img-status">{{ getProductStatus(product) }}</div>
     <div class="productCard__img-detail">
       <div class="productCard__img-balance">
-        <p class="productCard__text">剩餘 {{ product.stockQuantity }} 抽</p>
+        <p class="productCard__text">
+          剩餘 {{ product.detailQuantity || 0 }} 抽
+        </p>
       </div>
       <div class="productCard__img-price">
         <p class="productCard__img-money">
@@ -19,26 +21,15 @@
 </template>
 
 <script lang="ts" setup>
+import { IProduct } from '@/services/frontend/productService';
 import { defineProps } from 'vue';
 
-interface IproductContentAProps {
-  product: {
-    productName: string;
-    description: string;
-    price: number;
-    stockQuantity: number;
-    money: number;
-    startDate: string;
-    endDate: string;
-  };
-}
+defineProps<{ product: IProduct }>();
 
-defineProps<IproductContentAProps>();
-
-const getProductStatus = (product: any): string => {
-  const now = new Date();
-  const startDate = new Date(product.startDate);
-  const endDate = new Date(product.endDate);
+const getProductStatus = (product: IProduct): string => {
+  const now = new Date().getTime();
+  const startDate = new Date(product.startDate).getTime();
+  const endDate = new Date(product.endDate).getTime();
 
   if (now < startDate) return '即將開始';
   if (now > endDate) return '已結束';

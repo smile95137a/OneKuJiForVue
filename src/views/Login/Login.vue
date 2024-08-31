@@ -90,11 +90,19 @@ import { getLoginUrl } from '@/utils/AuthUtils';
 import { useForm } from 'vee-validate';
 import { useRouter } from 'vue-router';
 import * as yup from 'yup';
+import { onMounted } from 'vue';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const authStore = useAuthStore();
 const dialogStore = useDialogStore();
+
+onMounted(() => {
+  if (authStore.isLogin) {
+    router.push('/home');
+  }
+});
+
 const schema = yup.object({
   username: yup.string().required('帳號為必填'),
   password: yup.string().required('密碼為必填'),

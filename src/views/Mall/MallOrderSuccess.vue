@@ -1,6 +1,29 @@
+<script lang="ts" setup>
+import { ref, onMounted } from 'vue';
+import Card from '@/components/common/Card.vue';
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
+import { useRoute } from 'vue-router';
+import { getStoreProductOrderByOrderNumber } from '@/services/frontend/orderService';
+
+const breadcrumbItems = [{ name: '首頁' }, { name: '訂購成功' }];
+
+const route = useRoute();
+const orderNumber = route.params.orderNumber;
+const orderData = ref<any>(null); // 用于存储订单数据
+
+onMounted(async () => {
+  try {
+    const res = await getStoreProductOrderByOrderNumber(orderNumber as string);
+    orderData.value = res.data; // 假设返回的数据结构是 { data: {...} }
+    console.log('Order Data:', orderData.value);
+  } catch (error) {
+    console.error('Failed to load order data:', error);
+  }
+});
+</script>
 <template>
   <Breadcrumbs :items="breadcrumbItems" />
-  <div class="mallOrderSuccess">
+  <div class="mallOrderSuccess" v-if="orderData">
     <div class="mallOrderSuccess__title m-t-72">
       <p
         class="mallOrderSuccess__text mallOrderSuccess__text--title"
@@ -15,70 +38,39 @@
     <Card customClass="mcard--mallOrderSuccess">
       <div class="mallOrderSuccess__main">
         <div class="mallOrderSuccess__main-list">
-          <div className="grid gap-y-24">
-            <div className="col-100 grid ">
-              <div className="col-10 ">
+          <div
+            class="grid gap-y-24"
+            v-for="item in orderData.orderDetails"
+            :key="item.orderDetailId"
+          >
+            <div class="col-100 grid">
+              <div class="col-10">
                 <p class="mallOrderSuccess__text mallOrderSuccess__text--title">
                   商品資訊
                 </p>
               </div>
-              <div className="col-65 mallOrderSuccess__main-cell--product">
+              <div class="col-65 mallOrderSuccess__main-cell--product">
                 <div class="mallOrderSuccess__main-img">
-                  <img :src="pd1" />
+                  <img :src="item.storeProduct.imageUrls[0] || pd1" />
                 </div>
-
                 <p class="mallOrderSuccess__text">
-                  預購10月免訂金 代理版 S.H.Figuarts SHF 七龍珠 孫悟空 (迷你)
-                  -DAIMA-
+                  {{ item.storeProduct.productName }}
                 </p>
               </div>
-              <div className="col-25 ">
-                <p class="mallOrderSuccess__text text-align-end">$670</p>
-              </div>
-            </div>
-            <div className="col-100 grid">
-              <div className="col-10 ">
-                <p class="mallOrderSuccess__text mallOrderSuccess__text--title">
-                  寄送資訊
+              <div class="col-25">
+                <p class="mallOrderSuccess__text text-align-end">
+                  ${{ item.unitPrice * item.quantity }}
                 </p>
               </div>
-              <div className="col-65  mallOrderSuccess__main-cell--delivery">
-                <p class="mallOrderSuccess__text">
-                  宅配：台北市中正區重慶南路一段1號1樓
-                </p>
-                <p class="mallOrderSuccess__text">發票：個人二聯式發票</p>
-              </div>
-              <div className="col-25 ">
-                <p class="mallOrderSuccess__text text-align-end">$670</p>
-              </div>
-            </div>
-            <div className="col-100 grid">
-              <div className="col-10 ">
-                <p class="mallOrderSuccess__text">優惠</p>
-              </div>
-              <div className="col-65 ">滿$499折$50</div>
-              <div className="col-25 ">
-                <p class="mallOrderSuccess__text text-align-end">$670</p>
-              </div>
-            </div>
-            <div className="col-100 grid">
-              <div className="col-10 ">
-                <p class="mallOrderSuccess__text mallOrderSuccess__text--title">
-                  付款
-                </p>
-              </div>
-              <div className="col-65 ">信用卡一次付清</div>
-              <div className="col-25 "></div>
             </div>
           </div>
         </div>
-
         <div class="mallOrderSuccess__main-total">
           <p class="mallOrderSuccess__text mallOrderSuccess__text--title">
             總金額：
           </p>
           <p class="mallOrderSuccess__text mallOrderSuccess__text--money">
-            $ 770
+            ${{ orderData.totalAmount.toFixed(2) }}
           </p>
         </div>
       </div>
@@ -93,15 +85,3 @@
     </div>
   </div>
 </template>
-
-<script lang="ts" setup>
-import Card from '@/components/common/Card.vue';
-import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
-import pd1 from '@/assets/image/pd1.png';
-const breadcrumbItems = [
-  { name: '首頁' },
-  { name: '扭蛋抽獎' },
-  { name: '扭蛋抽獎' },
-  { name: '訂購商品' },
-];
-</script>
