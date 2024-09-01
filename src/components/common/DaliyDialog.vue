@@ -49,103 +49,105 @@
     </div>
   </Dialog>
 </template>
-
-<script setup>
+<script setup lang="ts">
 import Dialog from './Dialog.vue';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, Ref } from 'vue';
 import { useDialogStore } from '@/stores/dialogStore';
 import flag from '@/assets/image/flag.png';
 import center from '@/assets/image/center.png';
 import s from '@/assets/image/s.png';
+import { getAllSignIns, spinWheelAPI } from '@/services/frontend/signInService';
+import { getRandomNumberInRange } from '@/utils/RandomUtils';
+
+interface Prize {
+  text: string;
+  data: string;
+}
 
 const dialogStore = useDialogStore();
 
 const isOpen = computed(() => dialogStore.isDaliyDialogOpen);
 const customClass = computed(() => dialogStore.customClass);
-const spinResult = ref('');
+const spinResult = ref<string>('');
 
-const prizes = [
-  { text: '50', data: '50' },
-  { text: '100', data: '100' },
-  { text: '200', data: '200' },
-  { text: '300', data: '300' },
-  { text: '400', data: '400' },
-  { text: '500', data: '500' },
-  { text: '600', data: '600' },
-  { text: '700', data: '700' },
-];
+const prizes: Ref<Prize[]> = ref([]);
 
-const wheel = ref(null);
-const spinner = ref(null);
-const ticker = ref(null);
-const isSpinning = ref(false);
+const wheel = ref<HTMLElement | null>(null);
+const spinner = ref<HTMLElement | null>(null);
+const ticker = ref<HTMLElement | null>(null);
+const isSpinning = ref<boolean>(false);
 
 let rotation = 0;
 let currentSlice = 0;
-let tickerAnim = null;
-let prizeNodes = [];
+let tickerAnim: number | null = null;
+let prizeNodes: any = [];
 
-const prizeSlice = 360 / prizes.length;
-const prizeOffset = prizeSlice / 2;
-const selectedPrizeIndex = ref(0);
+const handleClose = (result: boolean) => {
+  dialogStore.closeDaliyDialog(result);
+};
 
+// 创建奖品节点并附加到转盘
 const createPrizeNodes = () => {
-  prizes.forEach(({ text, data }, i) => {
+  const prizeCount = prizes.value.length;
+  const prizeSlice = 360 / prizeCount;
+  const prizeOffset = prizeSlice / 2;
+
+  prizes.value.forEach(({ text, data }, i) => {
     const rotation = prizeSlice * i * -1 - prizeOffset;
     const div = document.createElement('div');
     div.classList.add('wheel__prize');
-    div.setAttribute('data-data', data);
+    div.setAttribute('data-value', data);
     div.style.setProperty('--rotate', `${rotation}deg`);
-    div.innerHTML = `<span class="text">${text}</span>`;
-    spinner.value.appendChild(div);
+    div.innerHTML = `<span class="wheel__text">${text}</span>`;
+    spinner.value?.appendChild(div);
   });
 
-  const prizeCount = prizes.length;
-  const segmentAngle = 360 / prizeCount;
   const lineWidth = 2;
-  const rotationOffset = segmentAngle / 2 + lineWidth;
-  spinner.value.style.transform = `rotate(calc(var(--rotate, ${rotationOffset}) * 1deg))`;
-  prizeNodes = spinner.value.querySelectorAll('.wheel__prize');
+  const rotationOffset = prizeSlice / 2 + lineWidth;
+  spinner.value?.style.setProperty(
+    'transform',
+    `rotate(calc(var(--rotate, ${rotationOffset}) * 1deg))`
+  );
+
+  prizeNodes = spinner.value?.querySelectorAll('.wheel__prize') || [];
 };
 
+// 创建SVG转盘
 const createSVGSpinner = () => {
-  const prizeCount = prizes.length;
+  const prizeCount = prizes.value.length;
   const segmentAngle = 360 / prizeCount;
   const lineWidth = 2;
-  const rotationOffset = segmentAngle / 2 + lineWidth;
-  const spinnerRadius = 150; // 圆盘半径
-  const centerX = spinnerRadius; // 圆心的X坐标
-  const centerY = spinnerRadius; // 圆心的Y坐标
+  const spinnerRadius = 150;
+  const centerX = spinnerRadius;
+  const centerY = spinnerRadius;
 
   const svgNS = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(svgNS, 'svg');
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', '100%');
-  svg.setAttribute('viewBox', '0 0 300 300'); // 固定的 viewBox，以确保比例正确
+  svg.setAttribute('viewBox', '0 0 300 300');
 
   const circle = document.createElementNS(svgNS, 'circle');
-  circle.setAttribute('cx', centerX);
-  circle.setAttribute('cy', centerY);
-  circle.setAttribute('r', spinnerRadius);
+  circle.setAttribute('cx', centerX.toString());
+  circle.setAttribute('cy', centerY.toString());
+  circle.setAttribute('r', spinnerRadius.toString());
   circle.setAttribute('fill', '#006400');
   svg.appendChild(circle);
 
   for (let i = 0; i < prizeCount; i++) {
     const angle = i * segmentAngle;
-    const x1 = centerX;
-    const y1 = centerY;
     const x2 =
       centerX + spinnerRadius * Math.cos((angle - 90) * (Math.PI / 180));
     const y2 =
       centerY + spinnerRadius * Math.sin((angle - 90) * (Math.PI / 180));
 
     const line = document.createElementNS(svgNS, 'line');
-    line.setAttribute('x1', x1);
-    line.setAttribute('y1', y1);
-    line.setAttribute('x2', x2);
-    line.setAttribute('y2', y2);
+    line.setAttribute('x1', centerX.toString());
+    line.setAttribute('y1', centerY.toString());
+    line.setAttribute('x2', x2.toString());
+    line.setAttribute('y2', y2.toString());
     line.setAttribute('stroke', '#e7bd62');
-    line.setAttribute('stroke-width', lineWidth);
+    line.setAttribute('stroke-width', lineWidth.toString());
     svg.appendChild(line);
 
     const textAngle = angle + segmentAngle / 2;
@@ -157,47 +159,43 @@ const createSVGSpinner = () => {
       (spinnerRadius - 30) * Math.sin((textAngle - 90) * (Math.PI / 180));
 
     const text = document.createElementNS(svgNS, 'text');
-    text.setAttribute('x', textX);
-    text.setAttribute('y', textY);
+    text.setAttribute('x', textX.toString());
+    text.setAttribute('y', textY.toString());
     text.setAttribute('fill', '#FFD700');
     text.setAttribute('font-size', '20');
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('dominant-baseline', 'middle');
+    svg.appendChild(text);
   }
 
-  spinner.value.innerHTML = ''; // 清空旧内容
-  spinner.value.appendChild(svg);
+  spinner.value?.appendChild(svg);
 };
 
+// 初始化转盘
 const setupWheel = () => {
   createSVGSpinner();
   createPrizeNodes();
 };
 
-const spinertia = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
+// 运行转盘指针动画
 const runTickerAnimation = () => {
-  const values = window
-    .getComputedStyle(spinner.value)
-    .transform.split('(')[1]
-    .split(')')[0]
-    .split(',');
-  const a = values[0];
-  const b = values[1];
-  let rad = Math.atan2(b, a);
+  const prizeCount = prizes.value.length;
+  const prizeSlice = 360 / prizeCount;
+  const [a, b] = window
+    .getComputedStyle(spinner.value!)
+    .transform.match(/matrix\((.*)\)/)?.[1]
+    .split(',')
+    .map(Number) ?? [1, 0];
 
+  let rad = Math.atan2(b, a);
   if (rad < 0) rad += 2 * Math.PI;
 
   const angle = Math.round(rad * (180 / Math.PI));
   const slice = Math.floor(angle / prizeSlice);
 
   if (currentSlice !== slice) {
-    ticker.value.style.animation = 'none';
-    setTimeout(() => (ticker.value.style.animation = null), 10);
+    ticker.value?.style.setProperty('animation', 'none');
+    setTimeout(() => ticker.value?.style.removeProperty('animation'), 10);
     currentSlice = slice;
   }
 
@@ -205,46 +203,81 @@ const runTickerAnimation = () => {
 };
 
 const selectPrize = () => {
+  const prizeCount = prizes.value.length;
+  const prizeSlice = 360 / prizeCount;
   const selected = Math.floor(rotation / prizeSlice);
-  spinResult.value = prizeNodes[selected].getAttribute('data-data');
-  prizeNodes[selected].classList.add('selected');
+  spinResult.value = prizeNodes[selected]?.getAttribute('data-value') || '';
+  prizeNodes[selected]?.classList.add('selected');
 };
 
-const spinWheel = () => {
+const spinWheel = async () => {
   if (!isSpinning.value) {
-    isSpinning.value = true;
-    rotation = Math.floor(Math.random() * 360 + spinertia(2000, 5000));
-    prizeNodes.forEach((prize) => prize.classList.remove('selected'));
-    wheel.value.classList.add('wheel--spinning');
-    spinner.value.style.setProperty('--rotate', rotation);
-    ticker.value.style.animation = 'none';
-    runTickerAnimation();
+    const { success, data, message } = await spinWheelAPI();
+    if (success) {
+      const choseIndex = prizes.value.findIndex(
+        (x) => x.data === data.sliverPrice
+      );
+      const prizeCount = prizes.value.length;
+      const prizeSlice = 360 / prizeCount;
+
+      isSpinning.value = true;
+      const r = getRandomNumberInRange(
+        choseIndex * prizeSlice,
+        (choseIndex + 1) * prizeSlice
+      );
+      rotation = getRandomNumberInRange(10, 20) * 360 + r;
+
+      prizeNodes.forEach((prize: Element) =>
+        prize.classList.remove('selected')
+      );
+      wheel.value?.classList.add('wheel--spinning');
+      spinner.value?.style.setProperty('--rotate', rotation.toString());
+      ticker.value?.style.setProperty('animation', 'none');
+
+      runTickerAnimation();
+    } else {
+      handleClose(true);
+      await dialogStore.openInfoDialog({
+        title: '系統消息',
+        message,
+      });
+    }
   }
 };
 
 const stopWheel = () => {
   if (isSpinning.value) {
-    cancelAnimationFrame(tickerAnim);
+    cancelAnimationFrame(tickerAnim!);
+    const prizeCount = prizes.value.length;
+    const prizeSlice = 360 / prizeCount;
     const currentRotation = rotation % 360;
-    spinner.value.style.setProperty('--rotate', currentRotation);
+
+    spinner.value?.style.setProperty('--rotate', currentRotation.toString());
     const selectedIndex = Math.floor(currentRotation / prizeSlice);
-    spinResult.value = prizes[selectedIndex].text;
+    spinResult.value = prizes.value[selectedIndex].text;
+
     isSpinning.value = false;
-    wheel.value.classList.remove('wheel--spinning');
-    prizeNodes[selectedIndex].classList.add('selected');
+    wheel.value?.classList.remove('wheel--spinning');
+    prizeNodes[selectedIndex]?.classList.add('selected');
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (spinner.value) {
+    const { data } = await getAllSignIns();
+    prizes.value = data.map((x) => ({
+      text: x.sliverPrice,
+      data: x.sliverPrice,
+    }));
     setupWheel();
+
     spinner.value.addEventListener('transitionend', () => {
-      cancelAnimationFrame(tickerAnim);
-      isSpinning.value = false;
+      cancelAnimationFrame(tickerAnim!);
       rotation %= 360;
       selectPrize();
-      wheel.value.classList.remove('wheel--spinning');
-      spinner.value.style.setProperty('--rotate', rotation);
+      isSpinning.value = false;
+      wheel.value?.classList.remove('wheel--spinning');
+      spinner.value?.style.setProperty('--rotate', rotation.toString());
     });
   } else {
     console.error('Spinner element is not found');

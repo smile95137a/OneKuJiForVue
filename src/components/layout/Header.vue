@@ -25,7 +25,6 @@ const handleDailySignIn = async () => {
         <i class="fa-solid fa-bars"></i>
       </div>
 
-      <button @click="handleDailySignIn">每日簽到</button>
       <router-link to="/home" class="header__logo">
         <img :src="logoImg" class="header__logo-img" alt="Logo" />
       </router-link>
@@ -97,6 +96,17 @@ const handleDailySignIn = async () => {
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
+          <div
+            class="header__nav-item"
+            active-class="header__nav-item--active"
+            @click="handleDailySignIn"
+            v-if="authStore.isLogin"
+          >
+            每日簽到
+            <div class="header__nav-item-icon">
+              <i class="fa-solid fa-angle-right"></i>
+            </div>
+          </div>
         </div>
       </div>
       <div class="header__btns">
