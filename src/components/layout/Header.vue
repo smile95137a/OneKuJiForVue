@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import logoImg from '@/assets/image/logo1.png';
-import { useAuthStore, useSlidebarStore } from '@/stores';
+import { useAuthStore, useDialogStore, useSlidebarStore } from '@/stores';
 import { useRouter } from 'vue-router';
 
 const slidebarStore = useSlidebarStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const dialogStore = useDialogStore();
 
 const handleLogout = () => {
   authStore.clearAuthData();
   router.push('/home');
+};
+
+const handleDailySignIn = async () => {
+  dialogStore.openDaliyDialog({});
 };
 </script>
 
@@ -19,6 +24,8 @@ const handleLogout = () => {
       <div class="header__menu" @click="slidebarStore.toggleSlidebar">
         <i class="fa-solid fa-bars"></i>
       </div>
+
+      <button @click="handleDailySignIn">每日簽到</button>
       <router-link to="/home" class="header__logo">
         <img :src="logoImg" class="header__logo-img" alt="Logo" />
       </router-link>

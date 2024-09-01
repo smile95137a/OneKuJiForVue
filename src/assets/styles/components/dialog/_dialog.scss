@@ -14,6 +14,12 @@ $root-block-style: '.downDialog';
     }
   }
 
+  &--daliyDialog {
+    #{$p__main} {
+      height: 600px;
+    }
+  }
+
   &--info {
     #{$p__main} {
       height: 320px;

@@ -1,4 +1,5 @@
 import { useConfirmDialog } from '@/hook/confirmDialog';
+import { useDaliyDialog } from '@/hook/daliyDialog';
 import { useInfoDialog } from '@/hook/infoDialog';
 import { useOneKujiDialog } from '@/hook/oneKujiDialog';
 import { defineStore } from 'pinia';
@@ -12,5 +13,6 @@ export const useDialogStore = defineStore('dialog', () => {
     ...confirmDialog,
     ...oneKujiDialog,
     ...infoDialog,
+    ...useDaliyDialog(),
   };
 });

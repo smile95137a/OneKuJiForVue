@@ -12,6 +12,7 @@
   <ConfirmDialog />
   <OneKuJiDialog />
   <InfoDialog />
+  <DaliyDialog v-if="dialogStore.isDaliyDialogOpen" />
   <LoadingMask v-if="loadingStore.isLoading" />
 </template>
 
@@ -23,10 +24,12 @@ import { useRoute } from 'vue-router';
 import OneKuJiDialog from './components/common/OneKuJiDialog.vue';
 import InfoDialog from './components/common/InfoDialog.vue';
 import LoadingMask from './components/common/LoadingMask.vue';
-import { useLoadingStore } from './stores';
+import { useDialogStore, useLoadingStore } from './stores';
+import DaliyDialog from '@/components/common/DaliyDialog.vue';
 
 const route = useRoute();
 const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
 </script>
 
 <style scoped>

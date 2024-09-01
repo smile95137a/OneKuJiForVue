@@ -15,6 +15,7 @@
 @import 'components/product-card2';
 @import 'components/dialog/dialog';
 @import 'components/dialog/confirm-dialog';
+@import 'components/dialog/daliy-dialog';
 @import 'components/dialog/onekuji-dialog';
 @import 'components/dialog/info-dialog';
 @import 'components/slider';
@@ -415,4 +416,111 @@ $letter-spacing-nums: 100;
 
 .flex-shrink-0 {
   flex-shrink: 0;
+}
+
+.wheel__seat {
+  width: 400px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.wheel {
+  --size: 320px;
+  --lg-hs: 0 3%;
+  --lg-stop: 50%;
+  --lg: linear-gradient(
+    hsl(var(--lg-hs) 0%) 0 var(--lg-stop),
+    hsl(var(--lg-hs) 20%) var(--lg-stop) 100%
+  );
+
+  $p: &;
+  $p__spinner: #{$p}__spinner;
+  $p__ticker: #{$p}__ticker;
+
+  position: relative;
+  display: grid;
+  grid-gap: calc(var(--size) / 20);
+  align-items: center;
+  grid-template-areas: 'spinner';
+  position: absolute;
+  top: -210px;
+  left: 50%;
+  transform: translateX(-50%) rotate(90deg);
+  > * {
+    grid-area: spinner;
+  }
+
+  &__center {
+    width: 50px;
+    height: 50px;
+    @include abs-center;
+  }
+
+  &__spinner {
+    position: relative;
+    display: grid;
+    align-items: center;
+    grid-template-areas: 'spinner';
+    width: var(--size);
+    height: var(--size);
+    transform: rotate(calc(var(--rotate, 25) * 1deg));
+    border-radius: 50%;
+    * {
+      grid-area: spinner;
+    }
+  }
+
+  &__ticker {
+    position: absolute;
+    width: 50px;
+    top: 50%;
+    left: -15px;
+    transform: translateY(-50%) rotate(-90deg);
+    img {
+      object-fit: contain;
+    }
+  }
+
+  &__prize {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 45px;
+    width: 50%;
+    height: 50%;
+    transform-origin: center right;
+    transform: rotate(var(--rotate));
+    user-select: none;
+    color: #e7bd62;
+    font-size: 24px;
+  }
+
+  &--spinning {
+    #{$p__spinner} {
+      transition: transform 8s cubic-bezier(0.1, -0.01, 0, 1);
+    }
+  }
+}
+
+@keyframes selected {
+  25% {
+    transform: scale(1.25);
+    text-shadow: 1vmin 1vmin 0 hsla(0 0% 0% / 0.1);
+  }
+  40% {
+    transform: scale(0.92);
+    text-shadow: 0 0 0 hsla(0 0% 0% / 0.2);
+  }
+  60% {
+    transform: scale(1.02);
+    text-shadow: 0.5vmin 0.5vmin 0 hsla(0 0% 0% / 0.1);
+  }
+  75% {
+    transform: scale(0.98);
+  }
+  85% {
+    transform: scale(1);
+  }
 }
