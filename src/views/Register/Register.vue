@@ -37,7 +37,7 @@ const schema = yup.object({
     .string()
     .oneOf([yup.ref('password')], '密碼不匹配')
     .required('確認密碼是必填項'),
-  nickName: yup.string().required('暱稱是必填項'),
+  nickname: yup.string().required('暱稱是必填項'),
   addressName: yup.string(),
   city: yup.string(),
   area: yup.string(),
@@ -53,7 +53,7 @@ const { defineField, handleSubmit, errors, setFieldValue } = useForm({
     phoneNumber: '',
     password: '',
     confirmPassword: '',
-    nickName: '',
+    nickname: '',
     addressName: '',
     city: '',
     area: '',
@@ -67,7 +67,7 @@ const [email, emailProps] = defineField('email');
 const [phoneNumber, phoneNumberProps] = defineField('phoneNumber');
 const [password, passwordProps] = defineField('password');
 const [confirmPassword, confirmPasswordProps] = defineField('confirmPassword');
-const [nickName, nickNameProps] = defineField('nickName');
+const [nickname, nicknameProps] = defineField('nickname');
 const [addressName, addressNameProps] = defineField('addressName');
 const [city, cityProps] = defineField('city');
 const [area, areaProps] = defineField('area');
@@ -193,12 +193,12 @@ const onSubmit = handleSubmit(async (values) => {
               <p class="register__text register__text--required">暱稱</p>
               <input
                 class="register__form-input"
-                v-model="nickName"
-                v-bind="nickNameProps"
-                :class="{ 'register__form-input--error': errors.nickName }"
+                v-model="nickname"
+                v-bind="nicknameProps"
+                :class="{ 'register__form-input--error': errors.nickname }"
               />
               <p class="register__text register__text--error">
-                {{ errors.nickName }}
+                {{ errors.nickname }}
               </p>
             </div>
             <div class="register__form-inputs m-t-20">

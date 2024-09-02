@@ -7,7 +7,9 @@
           <p class="memberCenter__text">代幣</p>
         </div>
         <div class="memberCenter__coins-num">
-          <p class="memberCenter__text">{{ userBalance }}</p>
+          <p class="memberCenter__text">
+            <NumberFormatter :number="userBalance" />
+          </p>
         </div>
       </div>
     </div>
@@ -18,7 +20,9 @@
           <p class="memberCenter__text">紅利點數</p>
         </div>
         <div class="memberCenter__coins-num">
-          <p class="memberCenter__text">{{ userBonus }}</p>
+          <p class="memberCenter__text">
+            <NumberFormatter :number="userBonus" />
+          </p>
         </div>
       </div>
     </div>
@@ -29,28 +33,24 @@
 import { ref, onMounted } from 'vue';
 import c1 from '@/assets/image/coin-1.png';
 import c2 from '@/assets/image/coin-2.png';
-import { getUserById, getUserId } from '@/services/frontend/userService';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import { getUserInfo } from '@/services/frontend/userService';
 
 const userBalance = ref(0);
 const userBonus = ref(0);
 
-const fetchUserData = async () => {
+const fetchUserInfo = async () => {
   try {
-    const userId = getUserId();
-    if (userId) {
-      const userData = await getUserById(userId);
-      userBalance.value = userData.balance;
-      userBonus.value = userData.bonus;
-    } else {
-      console.error('User ID not found');
-    }
+    const { data: userInfo } = await getUserInfo();
+    userBalance.value = userInfo.sliverCoin;
+    userBonus.value = userInfo.bonus;
   } catch (error) {
-    console.error('Error fetching user data:', error);
+    console.error('獲取用戶信息失敗:', error);
   }
 };
 
 onMounted(() => {
-  fetchUserData();
+  fetchUserInfo();
 });
 </script>
 

@@ -7,9 +7,10 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted } from 'vue';
 import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
 import MemberCenterProfileEditForm from '@/components/frontend/memberCenter/MemberCenterProfileEditForm.vue';
 import MemberCenterProfileEditInvoiceForm from '@/components/frontend/memberCenter/MemberCenterProfileEditInvoiceForm.vue';
-</script>
 
-<style lang="scss" scoped></style>
+onMounted(async () => {});
+</script>

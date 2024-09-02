@@ -3,22 +3,22 @@
     <div class="memberCenter__profileEditForm-title">
       <p class="memberCenter__text">會員資料修改</p>
     </div>
-    <form @submit.prevent="updateUserInfo">
+    <form @submit.prevent="onSubmit">
       <div class="memberCenter__profileEditForm-main">
         <div class="memberCenter__profileEditForm-form">
           <div class="memberCenter__profileEditForm-form-inputs m-t-20">
             <p class="memberCenter__text memberCenter__text--required">暱稱</p>
             <input
-              v-model="nickName"
+              v-model="nickname"
               class="memberCenter__profileEditForm-form-input"
               :class="{
                 'memberCenter__profileEditForm-form-input--error':
-                  errors.nickName,
+                  errors.nickname,
               }"
-              v-bind="nickNameProps"
+              v-bind="nicknameProps"
             />
             <span class="memberCenter__text memberCenter__text--error">{{
-              errors.nickName
+              errors.nickname
             }}</span>
           </div>
           <div class="memberCenter__profileEditForm-form-inputs m-t-20">
@@ -138,15 +138,20 @@
 <script lang="ts" setup>
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
-import { useUserStore } from '@/stores/userstore';
-import { onMounted, ref, watch } from 'vue';
+import { nextTick, onMounted, ref, watch } from 'vue';
 import {
   getAllCityNames,
   getAreaListByCityName,
 } from '@/services/frontend/taiwanCitiesService';
 import MSelect from '@/components/common/MSelect.vue';
+import { getUserInfo, updateUser } from '@/services/frontend/userService';
+import { useDialogStore, useLoadingStore } from '@/stores';
+
+const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
+
 const schema = yup.object({
-  nickName: yup.string().required('暱稱為必填項'),
+  nickname: yup.string().required('暱稱為必填項'),
   addressName: yup.string().required('收貨姓名為必填項'),
   city: yup.string(),
   area: yup.string(),
@@ -155,12 +160,10 @@ const schema = yup.object({
   phoneNumber: yup.string().required('收貨手機為必填項'),
 });
 
-const userStore = useUserStore();
-
 const { handleSubmit, errors, defineField, setFieldValue } = useForm({
   validationSchema: schema,
   initialValues: {
-    nickName: '',
+    nickname: '',
     addressName: '',
     city: '',
     area: '',
@@ -170,7 +173,7 @@ const { handleSubmit, errors, defineField, setFieldValue } = useForm({
   },
 });
 
-const [nickName, nickNameProps] = defineField('nickName');
+const [nickname, nicknameProps] = defineField('nickname');
 const [addressName, addressNameProps] = defineField('addressName');
 const [city, cityProps] = defineField('city');
 const [area, areaProps] = defineField('area');
@@ -183,10 +186,13 @@ const areaOptions = ref<{ value: string; label: string }[]>([]);
 
 const fetchUserInfo = async () => {
   try {
-    const userInfo = await userStore.fetchUserInfo();
-    setFieldValue('nickName', userInfo.nickName);
+    const { data: userInfo } = await getUserInfo();
+
+    setFieldValue('nickname', userInfo.nickname);
     setFieldValue('addressName', userInfo.addressName);
     setFieldValue('city', userInfo.city);
+    await nextTick();
+    setFieldValue('area', userInfo.area);
     setFieldValue('address', userInfo.address);
     setFieldValue('lineId', userInfo.lineId);
     setFieldValue('phoneNumber', userInfo.phoneNumber);
@@ -195,11 +201,29 @@ const fetchUserInfo = async () => {
   }
 };
 
-const updateUserInfo = handleSubmit(async (values) => {
+const onSubmit = handleSubmit(async (values) => {
   try {
-    console.log('更新后的用户信息:', values);
+    loadingStore.startLoading();
+    const { success } = await updateUser(values);
+    loadingStore.stopLoading();
+
+    if (success) {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '更新成功',
+      });
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '更新失敗',
+      });
+    }
   } catch (error) {
-    console.error('更新用户信息失败:', error);
+    loadingStore.stopLoading();
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message: '更新失敗，系統出錯',
+    });
   }
 });
 
@@ -210,7 +234,7 @@ onMounted(() => {
     ...cityNames.map((city) => ({ value: city, label: city })),
   ];
   areaOptions.value = [{ value: '', label: '行政區' }];
-  // fetchUserInfo();
+  fetchUserInfo();
 });
 
 watch(city, (newCity) => {
@@ -229,7 +253,3 @@ watch(city, (newCity) => {
   }
 });
 </script>
-
-<style lang="scss" scoped>
-// 您的样式代码...
-</style>
