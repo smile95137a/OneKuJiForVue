@@ -42,7 +42,7 @@ const userBonus = ref(0);
 const fetchUserInfo = async () => {
   try {
     const { data: userInfo } = await getUserInfo();
-    userBalance.value = userInfo.sliverCoin;
+    userBalance.value = userInfo.balance;
     userBonus.value = userInfo.bonus;
   } catch (error) {
     console.error('獲取用戶信息失敗:', error);
