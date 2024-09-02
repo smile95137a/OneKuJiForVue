@@ -2,24 +2,32 @@
 import { ref, onMounted } from 'vue';
 import Card from '@/components/common/Card.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { getStoreProductOrderByOrderNumber } from '@/services/frontend/orderService';
 
 const breadcrumbItems = [{ name: '首頁' }, { name: '訂購成功' }];
 
 const route = useRoute();
+const router = useRouter();
 const orderNumber = route.params.orderNumber;
-const orderData = ref<any>(null); // 用于存储订单数据
+const orderData = ref<any>(null);
 
 onMounted(async () => {
   try {
     const res = await getStoreProductOrderByOrderNumber(orderNumber as string);
-    orderData.value = res.data; // 假设返回的数据结构是 { data: {...} }
+    orderData.value = res.data;
     console.log('Order Data:', orderData.value);
   } catch (error) {
     console.error('Failed to load order data:', error);
   }
 });
+const goToHome = () => {
+  router.push('/home');
+};
+
+const continueShopping = () => {
+  router.push('/mall');
+};
 </script>
 <template>
   <Breadcrumbs :items="breadcrumbItems" />
@@ -76,10 +84,16 @@ onMounted(async () => {
       </div>
     </Card>
     <div class="mallOrderSuccess__btns">
-      <div class="mallOrderSuccess__btn mallOrderSuccess__btn--backHome">
+      <div
+        class="mallOrderSuccess__btn mallOrderSuccess__btn--backHome"
+        @click="goToHome"
+      >
         回首頁
       </div>
-      <div class="mallOrderSuccess__btn mallOrderSuccess__btn--continue">
+      <div
+        class="mallOrderSuccess__btn mallOrderSuccess__btn--continue"
+        @click="continueShopping"
+      >
         繼續購買
       </div>
     </div>

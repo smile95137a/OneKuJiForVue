@@ -195,6 +195,8 @@ import ticketImgE from '@/assets/image/ticket_E.png';
 import ticketImgF from '@/assets/image/ticket_F.png';
 import ticketImgG from '@/assets/image/ticket_G.png';
 import ticketImgH from '@/assets/image/ticket_H.png';
+import ticketImgI from '@/assets/image/ticket_I.png';
+import ticketImgBlank from '@/assets/image/ticket_blank.png';
 import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
@@ -380,9 +382,10 @@ const getTicketImg = (ticket: any) => {
       F: ticketImgF,
       G: ticketImgG,
       H: ticketImgH,
+      I: ticketImgI,
     };
 
-    return isDrawn ? ticketImages[level] || '' : ticketImg;
+    return isDrawn ? ticketImages[level] || ticketImgBlank : ticketImg;
   } else {
     return isDrawn ? boxOpen : boxClose;
   }
