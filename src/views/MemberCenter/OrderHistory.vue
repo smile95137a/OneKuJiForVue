@@ -45,24 +45,11 @@
     <NoData v-if="orders.length === 0" />
 
     <div v-else class="memberCenter__table">
-      <table>
-        <thead>
-          <tr>
-            <th class="w-20">日期</th>
-            <th class="w-20">訂單編號</th>
-            <th class="w-20">內容</th>
-            <th class="w-20">狀態</th>
-            <th class="w-20">明細</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="order in orders" :key="order.id">
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tbody>
-      </table>
+      <CTable :headers="headers">
+        <template v-for="(order, index) in orders" :key="index">
+          <CTableRow :data="createRowData(order)" />
+        </template>
+      </CTable>
     </div>
   </div>
 </template>
@@ -70,12 +57,17 @@
 <script lang="ts" setup>
 import NoData from '@/components/common/NoData.vue';
 import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
+import { queryOrder } from '@/services/frontend/orderService';
 import { useForm } from 'vee-validate';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import CTable from '@/components/common/CTable.vue';
+import CTableRow from '@/components/common/CTableRow.vue';
 
 const orders = ref([]);
+const router = useRouter();
 
-const { defineField, handleSubmit, errors, values } = useForm({
+const { defineField, handleSubmit } = useForm({
   initialValues: {
     startDate: '',
     endDate: '',
@@ -85,9 +77,58 @@ const { defineField, handleSubmit, errors, values } = useForm({
 const [startDate] = defineField('startDate');
 const [endDate] = defineField('endDate');
 
+const headers = [
+  { text: '日期', className: 'w-20' },
+  { text: '訂單編號', className: 'w-20' },
+  { text: '內容', className: 'w-20' },
+  { text: '狀態', className: 'w-20' },
+  { text: '明細', className: 'w-20' },
+];
+
 const submitForm = handleSubmit(async (values) => {
-  console.log(values);
+  try {
+    const response = await queryOrder(values);
+    orders.value = response.data || [];
+  } catch (error) {
+    console.error('Error fetching order data:', error);
+  }
 });
+
+const createRowData = (order) => [
+  {
+    content: formatDate(order.createdAt),
+    className: '',
+    dataTitle: '日期',
+  },
+  {
+    content: order.orderNumber,
+    className: '',
+    dataTitle: '訂單編號',
+  },
+  {
+    content: order.content,
+    className: '',
+    dataTitle: '內容',
+  },
+  {
+    content: order.resultStatus,
+    className: '',
+    dataTitle: '狀態',
+  },
+  {
+    content: '明細',
+    className: '',
+    dataTitle: '明細',
+  },
+];
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString();
+};
+
+const viewOrderDetail = (orderNumber: string) => {
+  router.push({ name: 'OrderDetail', params: { orderNumber } });
+};
 </script>
 
 <style lang="scss" scoped></style>
