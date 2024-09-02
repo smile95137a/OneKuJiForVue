@@ -114,13 +114,16 @@
             :key="index"
             :class="[
               'product-detail-one__boxs-img',
-              ticket.prizeNumberId === activeTicket?.prizeNumberId
+              activeTickets
+                ?.map((x) => x.prizeNumberId)
+                .includes(ticket.prizeNumberId)
                 ? 'product-detail-one__boxs-img--active'
                 : '',
             ]"
             @click="!ticket.isDrawn ? handleTicket(ticket) : null"
           >
             <img :src="getTicketImg(ticket)" alt="" />
+            <p>{{ index }}</p>
           </div>
         </div>
       </Card>
@@ -140,14 +143,24 @@
             placeholder="輸入自訂數量"
             step="1"
             min="1"
+            v-model.number="customQuantity"
           />
-          <div class="product-detail-one__random-btn">自選隨機</div>
+          <div
+            class="product-detail-one__random-btn"
+            @click="selectCustomRandom"
+          >
+            自選隨機
+          </div>
         </div>
-        <div class="product-detail-one__random-list">
-          <div class="product-detail-one__random-list-item">1</div>
-          <div class="product-detail-one__random-list-item">3</div>
-          <div class="product-detail-one__random-list-item">5</div>
-          <div class="product-detail-one__random-list-item">10</div>
+        <div class="product-detail-one__random-list m-t-20">
+          <div
+            v-for="item in [1, 3, 5, 10]"
+            :key="item"
+            :class="['product-detail-one__random-list-item']"
+            @click="selectRandomItem(item)"
+          >
+            {{ item }}
+          </div>
         </div>
       </div>
 
@@ -209,12 +222,12 @@ const breadcrumbItems = ref([{ name: '首頁' }]);
 const product = ref<IProduct | null>(null);
 const productDetail = ref<IProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
-const activeTicket = ref<any | null>(null);
+const activeTickets = ref<any[] | null>([]);
 
 const introduceSection = ref<HTMLElement | null>(null);
 const showOption = ref(false);
 const showOptionRandom = ref(false);
-
+const customQuantity = ref(1);
 const remainingQuantity = computed(() => {
   if (!ticketList.value) {
     return 0;
@@ -282,7 +295,7 @@ const fetchDrawStatus = async () => {
 
 const handleTicket = (ticket: any) => {
   showOption.value = true;
-  activeTicket.value = ticket;
+  activeTickets.value = [ticket];
 };
 
 const handleExchange = async () => {
@@ -294,7 +307,7 @@ const handleExchange = async () => {
     return;
   }
 
-  if (!activeTicket.value) {
+  if (activeTickets.value?.length === 0) {
     await dialogStore.openInfoDialog({
       title: '系統消息',
       message: '請先選擇要抽的項目。',
@@ -304,25 +317,26 @@ const handleExchange = async () => {
 
   if (product.value) {
     const { productType } = product.value;
-    const { productId, number } = activeTicket.value;
+    const ps = activeTickets.value?.map((x) =>
+      executeDraw(x.productId, authStore.user.userUid, x.number)
+    );
     try {
       loadingStore.startLoading();
-      const response = await executeDraw(
-        productId,
-        authStore.user.userUid,
-        number
-      );
+      const responses = await Promise.all(ps);
+      console.log(responses);
+
       loadingStore.stopLoading();
-
-      if (response && response.data) {
-        const { data } = response;
-
+      const allSuccessful = responses.every(
+        (response) => response && response.success
+      );
+      if (allSuccessful) {
         await dialogStore.openOneKujiDialog(
           {},
           productType === 'PRIZE' ? 'ticket' : 'box'
         );
 
-        activeTicket.value = null;
+        const data = responses.map((x) => x.data).flat(1);
+        activeTickets.value = [];
 
         const totalAmount = data.reduce(
           (sum: number, item: any) => sum + item.amount,
@@ -333,13 +347,11 @@ const handleExchange = async () => {
         await dialogStore.openConfirmDialog(
           { customClass: '' },
           {
-            remainingQuantity: remainingQuantity.value - 1,
-            count: 1,
+            remainingQuantity: remainingQuantity.value - data.length,
+            count: data.length,
             total: totalAmount,
           }
         );
-      } else {
-        throw new Error('Invalid response from executeDraw');
       }
     } catch (error: any) {
       loadingStore.stopLoading();
@@ -370,7 +382,7 @@ const getTicketImg = (ticket: any) => {
       H: ticketImgH,
     };
 
-    return isDrawn ? ticketImages[level] || ticketImg : ticketImg;
+    return isDrawn ? ticketImages[level] || '' : ticketImg;
   } else {
     return isDrawn ? boxOpen : boxClose;
   }
@@ -384,6 +396,34 @@ const scrollToIntroduce = (isShowOption = false) => {
 const toggleShowOptionRandom = () => {
   showOptionRandom.value = !showOptionRandom.value;
 };
+
+const selectRandomItem = (item: number) => {
+  const availableTickets = ticketList.value.filter((x) => !x.isDrawn);
+  const selectCount =
+    item > availableTickets.length ? availableTickets.length : item;
+  const shuffledTickets = availableTickets.sort(() => 0.5 - Math.random());
+  activeTickets.value = shuffledTickets.slice(0, selectCount);
+};
+
+const selectCustomRandom = () => {
+  const availableTickets = ticketList.value.filter((x) => !x.isDrawn);
+  const selectCount =
+    customQuantity.value > availableTickets.length
+      ? availableTickets.length
+      : customQuantity.value;
+  const shuffledTickets = availableTickets.sort(() => 0.5 - Math.random());
+  activeTickets.value = shuffledTickets.slice(0, selectCount);
+};
 </script>
 
-<style scoped></style>
+<style scoped>
+.product-detail-one__random-input::-webkit-outer-spin-button,
+.product-detail-one__random-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.product-detail-one__random-input[type='number'] {
+  -moz-appearance: textfield;
+}
+</style>

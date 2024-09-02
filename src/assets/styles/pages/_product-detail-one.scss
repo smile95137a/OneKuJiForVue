@@ -319,7 +319,7 @@ $root-block-name: '.product-detail-one';
     &-img {
       max-width: 190px;
       height: fit-content;
-      @include flex;
+      @include flex(center, null, column);
       &--active {
         border: 2px solid #e7a23e;
       }
@@ -395,7 +395,7 @@ $root-block-name: '.product-detail-one';
 
   &__random {
     position: absolute;
-    top: -200px;
+    top: -160px;
     left: 50%;
     transform: translateX(-50%);
 
@@ -404,15 +404,18 @@ $root-block-name: '.product-detail-one';
     padding: 20px;
     border-radius: 16px;
 
+    &-inputs {
+      @include flex(center, space-between);
+      gap: 20px;
+    }
     &-input {
-      width: 80px;
+      width: 100px;
       height: 40px;
       border-radius: 10px;
-      border: 2px solid #f4c22b; /* 边框颜色 */
+      border: 2px solid #fed706; /* 边框颜色 */
       background-color: white;
       text-align: center;
       font-size: 20px;
-      margin-right: 10px;
     }
 
     &-btn {
@@ -421,7 +424,7 @@ $root-block-name: '.product-detail-one';
       justify-content: center;
       padding: 10px 20px;
       border-radius: 10px;
-      background-color: #f4c22b; /* 按钮背景色 */
+      background-color: #fed706; /* 按钮背景色 */
       color: #2c231b; /* 按钮文字颜色 */
       font-size: 16px;
       cursor: pointer;
@@ -440,10 +443,10 @@ $root-block-name: '.product-detail-one';
         margin: 0 5px;
         border-radius: 10px;
         background-color: #2c231b; /* 背景色 */
-        color: #f4c22b; /* 字体颜色 */
+        color: #fed706; /* 字体颜色 */
         font-size: 20px;
         cursor: pointer;
-        border: 2px solid #f4c22b; /* 边框颜色 */
+        border: 2px solid #fed706; /* 边框颜色 */
       }
     }
   }
