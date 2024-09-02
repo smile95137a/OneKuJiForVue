@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://9691-111-248-113-219.ngrok-free.app ', // 后端服务地址
+        target: 'http://46.51.232.156/', // 后端服务地址
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
