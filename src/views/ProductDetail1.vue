@@ -349,7 +349,7 @@ const handleExchange = async () => {
         await dialogStore.openConfirmDialog(
           { customClass: '' },
           {
-            remainingQuantity: remainingQuantity.value - data.length,
+            remainingQuantity: remainingQuantity.value,
             count: data.length,
             total: totalAmount,
           }
