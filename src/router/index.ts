@@ -2,14 +2,14 @@ import { useUserStore } from '@/stores/userstore';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 // 導入組件
-import InventoryManagement from '@/components/backend/InventoryManagement.vue';
-import MemberManagement from '@/components/backend/MemberManagement.vue';
-import PermissionManagement from '@/components/backend/PermissionsManagement.vue';
-import ProductDataManagement from '@/components/backend/ProductDataManagement.vue';
-import ShipmentManagement from '@/components/backend/ShipmentManagement.vue';
+import InventoryManagement from '@/components/Backend/InventoryManagement.vue';
+import MemberManagement from '@/components/Backend/MemberManagement.vue';
+import PermissionManagement from '@/components/Backend/PermissionsManagement.vue';
+import ProductDataManagement from '@/components/Backend/ShipmentManagement.vue';
+import ShipmentManagement from '@/components/Backend/ShipmentManagement.vue';
 import { useAdminStore } from '@/stores/adstore';
-import AdminDashboard from '@/views/AdminDashboard.vue';
-import AdminLogin from '@/views/AdminLogin.vue';
+import AdminDashboard from '@/views/Control/AdminDashboard.vue';
+import AdminLogin from '@/views/Control/AdminDashboard.vue';
 import Home from '@/views/Home/Home.vue';
 import Login from '@/views/Login/Login.vue';
 import Register from '@/views/Register/Register.vue';

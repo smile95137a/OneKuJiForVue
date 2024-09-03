@@ -114,7 +114,7 @@
 
 
 <script lang="ts" setup>
-import { deleteDetail, getDetail, getProducts } from '@/services/api';
+import { deleteDetail, getDetail, getProducts } from '@/services/backend/api';
 import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
 

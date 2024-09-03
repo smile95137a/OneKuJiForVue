@@ -1,4 +1,4 @@
-import { loginJwt, setAuthToken } from '@/services/api';
+import { loginJwt, setAuthToken } from '@/services/backend/api';
 import { defineStore } from 'pinia';
 
 interface AdminUser {

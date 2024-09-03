@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import { getAuthToken } from './AuthService';
+import { getAuthToken } from '../frontend/AuthService';
 import { removeAllState } from '@/utils/Localstorage';
 
 export const api: AxiosInstance = axios.create({

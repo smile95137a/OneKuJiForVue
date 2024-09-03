@@ -5,7 +5,6 @@
       <button class="add-member-button" @click="showAddMemberModal = true">新增會員</button>
     </div>
 
-    <!-- 優化後的統計顯示 -->
     <div class="stats-container">
       <div class="stat-item" v-for="(item, index) in statItems" :key="index">
         <div class="stat-content">
@@ -15,7 +14,6 @@
       </div>
     </div>
 
-    <!-- 搜索功能 -->
     <div class="search-section">
       <input 
         v-model="searchInput" 
@@ -39,10 +37,9 @@
             <th>操作</th>
           </tr>
         </thead>
-        <tbody>  
-                 <!-- //v-for移除了index -->
-          <tr v-for="(member) in paginatedMembers" :key="member.id">
-            <td>{{ member.userType }}</td>
+        <tbody>
+          <tr v-for="member in paginatedMembers" :key="member.id">
+            <td>{{ member.roleId === 2 ? '正式會員' : '體驗會員' }}</td>
             <td>{{ member.id }}</td>
             <td>{{ member.nickname }}</td>
             <td>{{ member.phoneNumber }}</td>
@@ -65,92 +62,69 @@
       <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
     </div>
 
-    <!-- 新增會員模態框 -->
-    <div v-if="showAddMemberModal" class="modal">
-      <div class="modal-content">
-        <span class="close-button" @click="showAddMemberModal = false">&times;</span>
-        <h2>新增會員</h2>
+    <!-- Add Member Modal -->
+    <modal v-if="showAddMemberModal" @close="showAddMemberModal = false">
+      <template #header>
+        <h3>新增會員</h3>
+      </template>
+      <template #body>
         <form @submit.prevent="addMember">
-          <div>
-            <label for="username">用戶名:</label>
-            <input id="username" v-model="newMember.username" required>
-          </div>
-          <div>
-            <label for="password">密碼:</label>
-            <input id="password" v-model="newMember.password" type="password" required>
-          </div>
-          <div>
-            <label for="nickname">暱稱:</label>
-            <input id="nickname" v-model="newMember.nickname" required>
-          </div>
-          <div>
-            <label for="email">電子郵件:</label>
-            <input id="email" v-model="newMember.email" type="email" required>
-          </div>
-          <div>
-            <label for="phoneNumber">電話號碼:</label>
-            <input id="phoneNumber" v-model="newMember.phoneNumber" required>
-          </div>
-          <div>
-            <label for="address">地址:</label>
-            <input id="address" v-model="newMember.address" required>
+          <div v-for="field in memberFields" :key="field.key">
+            <label :for="field.key">{{ field.label }}:</label>
+            <input :id="field.key" v-model="(newMember as any)[field.key]" :type="field.type" required>
           </div>
           <button type="submit">提交</button>
         </form>
-      </div>
-    </div>
-  </div>
+      </template>
+    </modal>
 
-  <!-- 編輯會員模態框 -->
-  <div v-if="showUpdateMemberModal" class="modal">
-    <div class="modal-content">
-      <span class="close-button" @click="showUpdateMemberModal = false">&times;</span>
-      <h2>編輯會員</h2>
-      <form @submit.prevent="updateMember">
-        <div>
-          <label for="edit-username">用戶名:</label>
-          <input id="edit-username" v-model="editingMember.username" required>
-        </div>
-        <div>
-          <label for="edit-nickname">暱稱:</label>
-          <input id="edit-nickname" v-model="editingMember.nickname" required>
-        </div>
-        <div>
-          <label for="edit-email">電子郵件:</label>
-          <input id="edit-email" v-model="editingMember.email" type="email" required>
-        </div>
-        <div>
-          <label for="edit-phoneNumber">電話號碼:</label>
-          <input id="edit-phoneNumber" v-model="editingMember.phoneNumber" required>
-        </div>
-        <div>
-          <label for="edit-address">地址:</label>
-          <input id="edit-address" v-model="editingMember.address" required>
-        </div>
-        <button type="submit">更新</button>
-      </form>
-    </div>
+    <!-- Edit Member Modal -->
+    <modal v-if="showUpdateMemberModal" @close="showUpdateMemberModal = false">
+      <template #header>
+        <h3>編輯會員</h3>
+      </template>
+      <template #body>
+        <form @submit.prevent="updateMember">
+          <div v-for="field in memberFields" :key="field.key">
+            <label :for="'edit-' + field.key">{{ field.label }}:</label>
+            <input :id="'edit-' + field.key" v-model="(editingMember as any)[field.key]" :type="field.type" required>
+          </div>
+          <button type="submit">更新</button>
+        </form>
+      </template>
+    </modal>
   </div>
 </template>
 
 <script lang="ts">
-import { Member } from '@/interfaces/Member';
-import { addUser, deleteUser, getUsers, updateUser } from '@/services/api';
-import { AxiosResponse } from 'axios';
+import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
+import { User, UserReq } from '@/interfaces/user';
+import { userService } from '@/services/backend/userservice';
 import { debounce } from 'lodash';
-import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
+import Modal from './Modal.vue';
 
 export default defineComponent({
   name: 'MemberManagement',
+  components: { Modal },
   setup() {
-    const allMembers = ref<Member[]>([]);
-    const displayedMembers = ref<Member[]>([]);
+    const allMembers = ref<User[]>([]);
+    const displayedMembers = ref<User[]>([]);
     const currentPage = ref(1);
     const itemsPerPage = 10;
     const showAddMemberModal = ref(false);
+    const showUpdateMemberModal = ref(false);
     const searchInput = ref('');
 
-    const newMember = ref<Member>({
+    const newMember = reactive<UserReq>({
+      username: '',
+      password: '',
+      nickname: '',
+      email: '',
+      phoneNumber: '',
+      address: ''
+    });
+
+    const editingMember = reactive<User>({
       id: 0,
       username: '',
       password: '',
@@ -158,16 +132,25 @@ export default defineComponent({
       email: '',
       phoneNumber: '',
       address: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      roles: [{ id: 0, name: 'string' }],
+      createdAt: '',
+      updatedAt: '',
+      roleId: 0,
+      status: '',
       balance: 0,
-      bonusPoints: 0,
-      lastTopUpTime: new Date().toISOString(),
-      userType: 'REGULAR',
-      roleId: 2,
-      status: ''
+      bonus: 0,
+      sliverCoin: 0,
+      provider: '',
+      roles: []
     });
+
+    const memberFields = [
+      { key: 'username', label: '用戶名', type: 'text' },
+      { key: 'password', label: '密碼', type: 'password' },
+      { key: 'nickname', label: '暱稱', type: 'text' },
+      { key: 'email', label: '電子郵件', type: 'email' },
+      { key: 'phoneNumber', label: '電話號碼', type: 'tel' },
+      { key: 'address', label: '地址', type: 'text' }
+    ];
 
     const statItems = ref([
       { title: '會員總數', value: 0 },
@@ -178,11 +161,12 @@ export default defineComponent({
 
     const fetchMemberData = async () => {
       try {
-        const response: AxiosResponse<Member[]> = await getUsers();
-        allMembers.value = response.data;
-        displayedMembers.value = response.data;
-        console.log('獲取到的會員數量:', allMembers.value.length);
-        updateStats();
+        const response = await userService.getAllUsers();
+        if (response.code === 200 && response.data) {
+          allMembers.value = response.data;
+          displayedMembers.value = response.data;
+          updateStats();
+        }
       } catch (error) {
         console.error('獲取會員數據失敗:', error);
       }
@@ -192,8 +176,11 @@ export default defineComponent({
       const totalMembers = displayedMembers.value.length;
       const regularMembers = displayedMembers.value.filter(member => member.roleId === 2).length;
       const trialMembers = displayedMembers.value.filter(member => member.roleId === 3).length;
-      // 假設當月新增需要額外的邏輯來計算
-      const newMembersThisMonth = 0;
+      const newMembersThisMonth = displayedMembers.value.filter(member => {
+        const createdDate = new Date(member.createdAt);
+        const now = new Date();
+        return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear();
+      }).length;
 
       statItems.value = [
         { title: '會員總數', value: totalMembers },
@@ -205,38 +192,21 @@ export default defineComponent({
 
     const addMember = async () => {
       try {
-        await addUser(newMember.value);
-        await fetchMemberData();
-        showAddMemberModal.value = false;
-        // 重置新會員表單
-        newMember.value = {
-          id: 0,
-          username: '',
-          password: '',
-          nickname: '',
-          email: '',
-          phoneNumber: '',
-          address: '',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          roles: [{ id: 0, name: 'string' }],
-          balance: 0,
-          bonusPoints: 0,
-          lastTopUpTime: new Date().toISOString(),
-          userType: 'REGULAR',
-          roleId: 2,
-          status: ''
-        };
+        const response = await userService.createUser(newMember);
+        if (response.code === 201 && response.data) {
+          await fetchMemberData();
+          showAddMemberModal.value = false;
+          Object.keys(newMember).forEach(key => {
+            (newMember as any)[key] = '';
+          });
+        }
       } catch (error) {
         console.error('新增會員失敗:', error);
       }
     };
 
     const searchMembers = () => {
-      console.log('搜尋函數被觸發');
       const query = searchInput.value.trim().toLowerCase();
-      console.log('搜尋關鍵字:', query);
-      
       if (!query) {
         displayedMembers.value = allMembers.value;
       } else {
@@ -246,8 +216,6 @@ export default defineComponent({
           member.email.toLowerCase().includes(query)
         );
       }
-      
-      console.log('過濾後的會員數量:', displayedMembers.value.length);
       updateStats();
       currentPage.value = 1;
     };
@@ -256,46 +224,34 @@ export default defineComponent({
       searchMembers();
     }, 300);
 
-    const showUpdateMemberModal = ref(false);
-    const editingMember = reactive<Member>({
-      id: 0,
-      username: '',
-      password: '',
-      nickname: '',
-      email: '',
-      phoneNumber: '',
-      address: '',
-      createdAt: '',
-      updatedAt: '',
-      roles: [],
-      balance: 0,
-      bonusPoints: 0,
-      lastTopUpTime: '',
-      userType: '',
-      roleId: 0,
-      status: ''
-    });
-
-    const editMember = (member: Member) => {
-      Object.assign(editingMember, member);
+    const editMember = (member: User) => {
+      Object.keys(editingMember).forEach(key => {
+        if (key in member) {
+          (editingMember as any)[key] = (member as any)[key];
+        }
+      });
       showUpdateMemberModal.value = true;
     };
 
     const updateMember = async () => {
       try {
-        await updateUser(editingMember);
-        await fetchMemberData();
-        showUpdateMemberModal.value = false;
+        const response = await userService.updateUser(editingMember.id, editingMember as UserReq);
+        if (response.code === 200) {
+          await fetchMemberData();
+          showUpdateMemberModal.value = false;
+        }
       } catch (error) {
         console.error('更新會員失敗:', error);
       }
     };
 
-    const handleDeleteMember = async (member: Member) => {
+    const handleDeleteMember = async (member: User) => {
       if (confirm(`確定要刪除會員 ${member.nickname} 嗎？`)) {
         try {
-          await deleteUser(member.id);
-          await fetchMemberData();
+          const response = await userService.deleteUser(member.id);
+          if (response.code === 200) {
+            await fetchMemberData();
+          }
         } catch (error) {
           console.error('刪除會員失敗:', error);
         }
@@ -355,187 +311,13 @@ export default defineComponent({
       searchMembers,
       debounceSearch,
       handleDeleteMember,
-      formatDate
+      formatDate,
+      memberFields
     };
   }
 });
 </script>
 
 <style scoped>
-.member-management {
-  padding: 20px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.title {
-  font-size: 24px;
-  margin: 0;
-}
-
-.add-member-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.stats-container {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  gap: 20px;
-}
-
-.stat-item {
-  flex: 1;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.stat-content h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #666;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  margin: 10px 0 0;
-  color: #4CAF50;
-}
-
-.search-section {
-  margin-bottom: 20px;
-}
-
-.search-section input {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-th {
-  background-color: #f2f2f2;
-}
-
-.pagination {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.pagination button {
-  margin: 0 10px;
-  padding: 5px 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.pagination button:disabled {
-  background-color: #ddd;
-  cursor: not-allowed;
-}
-
-.modal {
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: #fefefe;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 500px;
-}
-
-.close-button {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-form div {
-  margin-bottom: 10px;
-}
-
-form label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-form input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-form button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+/* 您可以在這裡添加您的樣式 */
 </style>

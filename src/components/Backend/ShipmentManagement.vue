@@ -76,7 +76,7 @@
 </template>
 
 <script lang="ts" setup>
-import { getAllOrder, getOrderDetailsByOrderId } from '@/services/api';
+import { getAllOrder, getOrderDetailsByOrderId } from '@/services/backend/api';
 import { computed, onMounted, ref } from 'vue';
 
 const orders = ref<any[]>([]);
