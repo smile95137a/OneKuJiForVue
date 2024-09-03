@@ -1,31 +1,37 @@
 import axios from 'axios';
 import { ProductReq, ProductRes, ApiResponse } from '@/interfaces/product';
+const baseURL = import.meta.env.VITE_BASE_API_URL2;
 
-const API_URL = 'https://your-api-base-url.com/api'; // 請替換為實際的 API URL
+const apiClient = axios.create({
+  baseURL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 export const productService = {
   getAllProducts: () => 
-    axios.get<ApiResponse<ProductRes[]>>(`${API_URL}/product/query`),
+    apiClient.get<ApiResponse<ProductRes[]>>('/product/query'),
 
   getProductByType: (type: string) => 
-    axios.post<ApiResponse<ProductRes[]>>(`${API_URL}/product/type`, { type }),
+    apiClient.post<ApiResponse<ProductRes[]>>('/product/type', { type }),
 
   getProductByOneKuJiType: (type: string) => 
-    axios.post<ApiResponse<ProductRes[]>>(`${API_URL}/product/OneKuJi/type`, { type }),
+    apiClient.post<ApiResponse<ProductRes[]>>('/product/OneKuJi/type', { type }),
 
   getProductById: (id: number) => 
-    axios.get<ApiResponse<ProductRes>>(`${API_URL}/product/query/${id}`),
+    apiClient.get<ApiResponse<ProductRes>>(`/product/query/${id}`),
 
   createProduct: (formData: FormData) => 
-    axios.post<ApiResponse<ProductRes>>(`${API_URL}/product/add`, formData, {
+    apiClient.post<ApiResponse<ProductRes>>('/product/add', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
 
   updateProduct: (id: number, formData: FormData) => 
-    axios.put<ApiResponse<ProductRes>>(`${API_URL}/product/update/${id}`, formData, {
+    apiClient.put<ApiResponse<ProductRes>>(`/product/update/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     }),
 
   deleteProduct: (id: number) => 
-    axios.delete<ApiResponse<void>>(`${API_URL}/product/delete/${id}`),
+    apiClient.delete<ApiResponse<void>>(`/product/delete/${id}`),
 };
