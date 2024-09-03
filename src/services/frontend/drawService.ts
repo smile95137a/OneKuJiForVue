@@ -6,8 +6,6 @@ export interface DrawRequest {
   productId: number;
 }
 
-
-
 export interface PrizeNumber {
   prizeNumberId: number;
   productDetailId: number;
@@ -20,13 +18,13 @@ const basePath = '/draw';
 
 // 抽獎
 export const drawPrize = async (
-  userId: number,
-  drawRequests: any,
+  userUid: string,
+  count: number,
   productId: number
 ): Promise<ApiResponse<any[]>> => {
   try {
-    const response = await api.post(`${basePath}/oneprize`, drawRequests, {
-      params: { userId, productId },
+    const response = await api.post(`${basePath}/oneprize/${userUid}`, null, {
+      params: { count, productId },
     });
     return response.data;
   } catch (error) {

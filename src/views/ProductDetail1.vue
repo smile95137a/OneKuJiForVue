@@ -325,7 +325,6 @@ const handleExchange = async () => {
     try {
       loadingStore.startLoading();
       const responses = await Promise.all(ps);
-      console.log(responses);
 
       loadingStore.stopLoading();
       const allSuccessful = responses.every(

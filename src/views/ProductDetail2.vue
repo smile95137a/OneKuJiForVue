@@ -67,7 +67,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useDialogStore, useLoadingStore } from '@/stores';
+import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
 import {
@@ -81,6 +81,7 @@ import {
 } from '@/services/frontend/productService';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
+import { drawPrize } from '@/services/frontend/drawService';
 
 const route = useRoute();
 const productId = Number(route.params.id);
@@ -90,6 +91,7 @@ const productDetail = ref<IProductDetail[] | null>(null);
 const gachaList = ref<IProduct[] | null>(null);
 const dialogStore = useDialogStore();
 const loadingStore = useLoadingStore();
+const authStore = useAuthStore();
 
 onMounted(async () => {
   loadingStore.startLoading();
@@ -126,46 +128,32 @@ onMounted(async () => {
 });
 
 const handleDraw = async () => {
-  // try {
-  //   const {
-  //     productId,
-  //     productName,
-  //     productType,
-  //     prizeCategory,
-  //     price,
-  //     stockQuantity,
-  //     soldQuantity,
-  //   } = product.value!;
-  //   const { productDetailId } = productDetail.value!;
-  //   console.log(productDetail.value);
-  //   loadingStore.startLoading();
-  //   const { amount } = await drawPrize(
-  //     1,
-  //     {
-  //       productDetailId,
-  //       productName,
-  //       productType,
-  //       prizeCategory,
-  //       amount: price,
-  //       totalDrawCount: stockQuantity,
-  //       remainingDrawCount: soldQuantity,
-  //     },
-  //     productId
-  //   );
-  //   loadingStore.stopLoading();
-  //   await dialogStore.openOneKujiDialog({}, 'gacha');
-  //   await dialogStore.openConfirmDialog(
-  //     { customClass: '' },
-  //     {
-  //       remainingQuantity: 0,
-  //       count: 1,
-  //       total: amount,
-  //     }
-  //   );
-  // } catch (error) {
-  //   alert('error');
-  //   loadingStore.stopLoading();
-  // }
+  try {
+    const { productId } = product.value!;
+    console.log(productDetail.value);
+    loadingStore.startLoading();
+    const { productType } = product.value;
+
+    const { data } = await drawPrize(authStore.user.userUid, 1, productId);
+    const totalAmount = data.reduce(
+      (sum: number, item: any) => sum + item.amount,
+      0
+    );
+
+    loadingStore.stopLoading();
+    await dialogStore.openOneKujiDialog({}, 'gacha');
+    await dialogStore.openConfirmDialog(
+      { customClass: '' },
+      {
+        remainingQuantity: 0,
+        count: 1,
+        total: totalAmount,
+      }
+    );
+  } catch (error) {
+    alert('error');
+    loadingStore.stopLoading();
+  }
 };
 </script>
 
