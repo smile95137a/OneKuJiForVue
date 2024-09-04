@@ -45,69 +45,72 @@
     </table>
 
     <!-- 新增/編輯產品模態框 -->
-    <modal v-if="showAddProductModal || showEditProductModal" @close="closeProductModal">
-      <h3>{{ showAddProductModal ? '新增產品' : '編輯產品' }}</h3>
-      <form @submit.prevent="submitProduct">
-        <div>
-          <label for="productName">產品名稱:</label>
-          <input id="productName" v-model="currentProduct.productName" required>
-        </div>
-        <div>
-          <label for="description">描述:</label>
-          <textarea id="description" v-model="currentProduct.description"></textarea>
-        </div>
-        <div>
-          <label for="price">價格:</label>
-          <input id="price" type="number" v-model="currentProduct.price" required>
-        </div>
-        <div>
-          <label for="stockQuantity">庫存:</label>
-          <input id="stockQuantity" type="number" v-model="currentProduct.stockQuantity" required>
-        </div>
-        <div>
-          <label for="soldQuantity">銷售量:</label>
-          <input id="soldQuantity" type="number" v-model="currentProduct.soldQuantity" required>
-        </div>
-        <div>
-          <label for="startDate">開始日期:</label>
-          <input id="startDate" type="date" v-model="currentProduct.startDate" required>
-        </div>
-        <div>
-          <label for="endDate">結束日期:</label>
-          <input id="endDate" type="date" v-model="currentProduct.endDate" required>
-        </div>
-        <div>
-          <label for="productType">產品類型:</label>
-          <select id="productType" v-model="currentProduct.productType" required>
-            <option value="PRIZE">一番賞</option>
-            <option value="BLIND_BOX">盲盒</option>
-            <option value="GACHA">扭蛋</option>
-          </select>
-        </div>
-        <div v-if="currentProduct.productType === 'PRIZE'">
-          <label for="prizeCategory">獎品類別:</label>
-          <select id="prizeCategory" v-model="currentProduct.prizeCategory">
-            <option value="FIGURE">一番賞</option>
-            <option value="C3">3C家電賞</option>
-            <option value="BONUS">紅利賞</option>
-          </select>
-        </div>
-        <div>
-          <label for="status">狀態:</label>
-          <select id="status" v-model="currentProduct.status" required>
-            <option value="AVAILABLE">上架</option>
-            <option value="UNAVAILABLE">下架</option>
-            <option value="NOT_AVAILABLE_YET">尚未上架</option>
-            <option value="SOLD_OUT">已售完</option>
-          </select>
-        </div>
-        <div>
-          <label for="productImage">產品圖片:</label>
-          <input id="productImage" type="file" @change="handleImageUpload" multiple>
-        </div>
-        <button type="submit">{{ showAddProductModal ? '新增' : '更新' }}</button>
-      </form>
-    </modal>
+    <div v-if="showAddProductModal || showEditProductModal" class="modal">
+      <div class="modal-content">
+        <h3>{{ showAddProductModal ? '新增產品' : '編輯產品' }}</h3>
+        <form @submit.prevent="submitProduct">
+          <div>
+            <label for="productName">產品名稱:</label>
+            <input id="productName" v-model="currentProduct.productName" required>
+          </div>
+          <div>
+            <label for="description">描述:</label>
+            <textarea id="description" v-model="currentProduct.description"></textarea>
+          </div>
+          <div>
+            <label for="price">價格:</label>
+            <input id="price" type="number" v-model="currentProduct.price" required>
+          </div>
+          <div>
+            <label for="stockQuantity">庫存:</label>
+            <input id="stockQuantity" type="number" v-model="currentProduct.stockQuantity" required>
+          </div>
+          <div>
+            <label for="soldQuantity">銷售量:</label>
+            <input id="soldQuantity" type="number" v-model="currentProduct.soldQuantity" required>
+          </div>
+          <div>
+            <label for="startDate">開始日期:</label>
+            <input id="startDate" type="date" v-model="currentProduct.startDate" required>
+          </div>
+          <div>
+            <label for="endDate">結束日期:</label>
+            <input id="endDate" type="date" v-model="currentProduct.endDate" required>
+          </div>
+          <div>
+            <label for="productType">產品類型:</label>
+            <select id="productType" v-model="currentProduct.productType" required>
+              <option value="PRIZE">一番賞</option>
+              <option value="BLIND_BOX">盲盒</option>
+              <option value="GACHA">扭蛋</option>
+            </select>
+          </div>
+          <div v-if="currentProduct.productType === 'PRIZE'">
+            <label for="prizeCategory">獎品類別:</label>
+            <select id="prizeCategory" v-model="currentProduct.prizeCategory">
+              <option value="FIGURE">一番賞</option>
+              <option value="C3">3C家電賞</option>
+              <option value="BONUS">紅利賞</option>
+            </select>
+          </div>
+          <div>
+            <label for="status">狀態:</label>
+            <select id="status" v-model="currentProduct.status" required>
+              <option value="AVAILABLE">上架</option>
+              <option value="UNAVAILABLE">下架</option>
+              <option value="NOT_AVAILABLE_YET">尚未上架</option>
+              <option value="SOLD_OUT">已售完</option>
+            </select>
+          </div>
+          <div>
+            <label for="productImage">產品圖片:</label>
+            <input id="productImage" type="file" @change="handleImageUpload" multiple>
+          </div>
+          <button type="submit">{{ showAddProductModal ? '新增' : '更新' }}</button>
+          <button type="button" @click="closeProductModal">取消</button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -115,7 +118,6 @@
 import { ref, reactive, onMounted } from 'vue';
 import { productService } from '@/services/backend/productservice';
 import { ProductReq, ProductRes } from '@/interfaces/product';
-import Modal from './Modal.vue'; // 假設您有一個 Modal 組件
 
 const products = ref<ProductRes[]>([]);
 const selectedType = ref<string>('');
@@ -265,5 +267,22 @@ label {
 input, select, textarea {
   width: 100%;
   padding: 5px;
+}
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
 }
 </style>

@@ -63,36 +63,34 @@
     </div>
 
     <!-- Add Member Modal -->
-    <modal v-if="showAddMemberModal" @close="showAddMemberModal = false">
-      <template #header>
+    <div v-if="showAddMemberModal" class="modal">
+      <div class="modal-content">
         <h3>新增會員</h3>
-      </template>
-      <template #body>
         <form @submit.prevent="addMember">
           <div v-for="field in memberFields" :key="field.key">
             <label :for="field.key">{{ field.label }}:</label>
             <input :id="field.key" v-model="(newMember as any)[field.key]" :type="field.type" required>
           </div>
           <button type="submit">提交</button>
+          <button type="button" @click="showAddMemberModal = false">取消</button>
         </form>
-      </template>
-    </modal>
+      </div>
+    </div>
 
     <!-- Edit Member Modal -->
-    <modal v-if="showUpdateMemberModal" @close="showUpdateMemberModal = false">
-      <template #header>
+    <div v-if="showUpdateMemberModal" class="modal">
+      <div class="modal-content">
         <h3>編輯會員</h3>
-      </template>
-      <template #body>
         <form @submit.prevent="updateMember">
           <div v-for="field in memberFields" :key="field.key">
             <label :for="'edit-' + field.key">{{ field.label }}:</label>
             <input :id="'edit-' + field.key" v-model="(editingMember as any)[field.key]" :type="field.type" required>
           </div>
           <button type="submit">更新</button>
+          <button type="button" @click="showUpdateMemberModal = false">取消</button>
         </form>
-      </template>
-    </modal>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -101,11 +99,9 @@ import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
 import { User, UserReq } from '@/interfaces/user';
 import { userService } from '@/services/backend/userservice';
 import { debounce } from 'lodash';
-import Modal from './Modal.vue';
 
 export default defineComponent({
   name: 'MemberManagement',
-  components: { Modal },
   setup() {
     const allMembers = ref<User[]>([]);
     const displayedMembers = ref<User[]>([]);
@@ -319,5 +315,126 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* 您可以在這裡添加您的樣式 */
+.member-management {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.search-section {
+  margin-bottom: 20px;
+}
+
+.search-section input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  margin: 0 10px;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+input {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+button {
+  margin-right: 10px;
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.delete-button {
+  background-color: #f44336;
+}
+
+.delete-button:hover {
+  background-color: #da190b;
+}
 </style>
