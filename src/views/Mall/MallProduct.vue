@@ -3,27 +3,30 @@
   <div class="mall-product">
     <div class="mall-product__main">
       <div class="mall-product__img">
+        <!-- 主要顯示的圖片 -->
         <div class="mall-product__img-main">
-          <MImage :src="product?.imageUrls[0]" />
+          <MImage :src="selectedImage" />
         </div>
+
+        <!-- 縮略圖 -->
         <div class="mall-product__img-other">
           <div
-            class="mall-product__img-otherItem mall-product__img-otherItem--active"
+            v-for="(imageUrl, index) in product?.imageUrls"
+            :key="index"
+            :class="[
+              'mall-product__img-otherItem',
+              {
+                'mall-product__img-otherItem--active':
+                  selectedImageIndex === index,
+              },
+            ]"
+            @click="changeMainImage(index)"
           >
-            <img :src="pd1" />
+            <MImage :src="imageUrl" />
           </div>
-          <div class="mall-product__img-otherItem">
-            <img :src="pd1" />
-          </div>
-          <div class="mall-product__img-otherItem">
-            <img :src="pd1" />
-          </div>
-          <div class="mall-product__img-otherItem">
-            <img :src="pd1" />
-          </div>
-          <div class="mall-product__img-otherItem"><img :src="pd1" /></div>
         </div>
       </div>
+
       <!--  -->
       <div class="mall-product__detail">
         <div class="mall-product__detail-title">
@@ -217,6 +220,13 @@ let timeoutId: ReturnType<typeof setTimeout> | null = null;
 const favoriteCount = ref(0);
 const isFavorite = ref(false);
 
+const selectedImageIndex = ref(0);
+const selectedImage = ref('');
+const changeMainImage = (index: number) => {
+  selectedImageIndex.value = index;
+  selectedImage.value = product.value.imageUrls[index];
+};
+
 // 分享 URL
 const lineShareUrl =
   'https://line.me/R/msg/text/?' + encodeURIComponent(window.location.href);
@@ -366,6 +376,7 @@ onMounted(async () => {
     const { success, data, message } = await getStoreProductById(productCode);
     if (success) {
       product.value = data;
+      selectedImage.value = data.imageUrls[0];
       favoriteCount.value = data.favoritesCount;
       isFavorite.value = data.favorited;
       breadcrumbItems.value.push({ name: data.productName });
