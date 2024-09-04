@@ -47,3 +47,17 @@ export const updateProductPopularity = async (
     throw error;
   }
 };
+
+export const toggleFavorite = async (
+  productCode: string
+): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.post<ApiResponse<any>>(
+      `${basePath}/${productCode}/favorite`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('收藏狀態切換時發生錯誤:', error);
+    throw error;
+  }
+};

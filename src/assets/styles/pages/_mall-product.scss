@@ -275,7 +275,7 @@ $root-block-name: '.mall-product';
   &__link {
     max-width: 910px;
     &-item {
-      @include flex;
+      @include flex(center);
       gap: 48px;
       &-title {
         min-width: 60px;
@@ -288,13 +288,13 @@ $root-block-name: '.mall-product';
           @include flex;
           gap: 8px;
           img {
-            width: 50px;
-            height: 50px;
+            width: 28px;
+            height: 28px;
           }
         }
         &--like {
-          @include flex;
-          font-size: 30px;
+          @include flex(center);
+          font-size: 24px;
           gap: 8px;
           #{$p__text} {
             font-size: 20px;
@@ -307,6 +307,12 @@ $root-block-name: '.mall-product';
         }
         &--hashTag {
           color: #4285f4;
+        }
+
+        &-likeIcon {
+          &--active {
+            color: #eb4335;
+          }
         }
       }
     }
