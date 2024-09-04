@@ -3,12 +3,10 @@
   <div class="mall-product">
     <div class="mall-product__main">
       <div class="mall-product__img">
-        <!-- 主要顯示的圖片 -->
         <div class="mall-product__img-main">
           <MImage :src="selectedImage" />
         </div>
 
-        <!-- 縮略圖 -->
         <div class="mall-product__img-other">
           <div
             v-for="(imageUrl, index) in product?.imageUrls"
@@ -41,6 +39,17 @@
             </div>
             <div class="mall-product__detail-priceUnit">元</div>
           </div>
+          <div class="mall-product__detail-priceCoupon">
+            <div class="mall-product__detail-priceCouponBtns">
+              <div class="mall-product__detail-priceCouponBtn">滿額免運</div>
+              <div class="mall-product__detail-priceCouponBtn">滿額折300</div>
+            </div>
+            <div class="mall-product__detail-priceCouponTicket">
+              <p class="mall-product__detail-priceCouponTicket-text">
+                領取優惠券
+              </p>
+            </div>
+          </div>
         </div>
 
         <div class="mall-product__detail-other">
@@ -64,6 +73,36 @@
               >
                 <i class="fa-solid fa-plus"></i>
               </button>
+            </div>
+          </div>
+          <div class="mall-product__detail-otherPreOrder">
+            <div class="mall-product__detail-otherPreOrder-title">預購</div>
+            <div class="mall-product__detail-otherPreOrder-other">
+              <div class="mall-product__detail-otherPreOrder-other-text">
+                即日起 ~ 2024/11/30，商品預計將於 2024/11/30 陸續發貨
+              </div>
+            </div>
+          </div>
+          <div class="mall-product__detail-otherLogistics">
+            <div class="mall-product__detail-otherLogistics-title">物流</div>
+            <div class="mall-product__detail-otherLogistics-other">
+              <i class="fa-solid fa-truck"></i>
+              <div class="mall-product__detail-otherLogistics-other-text">
+                ${{ product?.shippingPrice }}
+              </div>
+              <div class="mall-product__detail-otherLogistics-other-icon">
+                <img :src="se" />
+                <img :src="familyMart" />
+                <img :src="hilife" />
+              </div>
+            </div>
+          </div>
+          <div class="mall-product__detail-otherPay">
+            <div class="mall-product__detail-otherPreOrder-title">付款</div>
+            <div class="mall-product__detail-otherPreOrder-other">
+              <div class="mall-product__detail-otherPreOrder-other-text">
+                信用卡、超商取貨付款
+              </div>
             </div>
           </div>
         </div>
@@ -186,7 +225,9 @@ import lineImg from '@/assets/image/line.png';
 import metaImg from '@/assets/image/meta.png';
 import linkImg from '@/assets/image/link.png';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
-import pd1 from '@/assets/image/pd1.png';
+import se from '@/assets/image/711.png';
+import familyMart from '@/assets/image/familyMart.png';
+import hilife from '@/assets/image/hilife.png';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
