@@ -1,4 +1,4 @@
-export { useAdminStore } from './adstore';
+export { useAdminStore } from '@/stores/adminStore';
 export { useDialogStore } from './dialogStore';
 export { useLoadingStore } from './loadingStore';
 export { useSlidebarStore } from './slidebarStore';

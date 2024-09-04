@@ -1,27 +1,34 @@
 <template>
   <div class="sidebar">
     <ul>
-      <li><a href="#" @click.prevent="navigate('member-management')"><i class="icon"></i>會員管理</a></li>
-      <li><a href="#" @click.prevent="navigate('permission-management')"><i class="icon"></i>權限管理</a></li>
-      <li><a href="#" @click.prevent="navigate('inventory-management')"><i class="icon"></i>進銷存管理</a></li>
-      <li><a href="#" @click.prevent="navigate('product-data-management')"><i class="icon"></i>商品資料管理</a></li>
-      <li><a href="#" @click.prevent="navigate('shipment-management')"><i class="icon"></i>出貨管理</a></li>
+      <li v-for="item in menuItems" :key="item.path">
+        <router-link :to="item.path" custom v-slot="{ navigate, isActive }">
+          <a @click="navigate" :class="{ active: isActive }">
+            <i :class="item.icon"></i>
+            {{ item.name }}
+          </a>
+        </router-link>
+      </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
   name: 'Sidebar',
-  setup(_, { emit }) {
-    const navigate = (view: string) => {
-      emit('navigate', view);
-    };
+  setup() {
+    const menuItems = ref([
+      { name: '會員管理', path: '/admin/member-management', icon: 'fas fa-users' },
+      { name: '庫存管理', path: '/admin/inventory-management', icon: 'fas fa-warehouse' },
+      { name: '商品資料管理', path: '/admin/product-data-management', icon: 'fas fa-box' },
+      { name: '出貨管理', path: '/admin/shipment-management', icon: 'fas fa-truck' },
+      { name: '商店控制', path: '/admin/store-control', icon: 'fas fa-store' },
+    ]);
 
     return {
-      navigate,
+      menuItems
     };
   }
 });
@@ -48,9 +55,10 @@ export default defineComponent({
   color: #ffffff;
   display: flex;
   align-items: center;
+  padding: 10px;
 }
 
-.sidebar a:hover {
+.sidebar a:hover, .sidebar a.active {
   background-color: #4b5563;
   border-radius: 5px;
 }

@@ -1,95 +1,117 @@
 <template>
   <div class="login-container">
-    <h1>後台登入界面</h1>
-    <form @submit.prevent="login">
+    <h2>Admin Login</h2>
+    <form @submit.prevent="handleLogin">
       <div class="form-group">
-        <label for="username">帳號</label>
-        <input type="text" id="username" v-model="username" required />
+        <label for="username">Username:</label>
+        <input type="text" id="username" v-model.trim="loginForm.username" required>
       </div>
       <div class="form-group">
-        <label for="password">密碼</label>
-        <input type="password" id="password" v-model="password" required />
+        <label for="password">Password:</label>
+        <input type="password" id="password" v-model.trim="loginForm.password" required>
       </div>
-      <button type="submit" class="login-btn">登入</button>
+      <button type="submit" :disabled="isLoading">{{ isLoading ? 'Logging in...' : 'Login' }}</button>
     </form>
+    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
   </div>
 </template>
 
 <script lang="ts">
-import { useAdminStore } from '@/stores/adstore';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { adminServices } from '@/services/backend/adminservices';
+import { useAdminStore } from '@/stores/adminStore';
+import { LoginDto } from '@/interfaces/admin';
 
 export default defineComponent({
   name: 'AdminLogin',
   setup() {
-    const username = ref('');
-    const password = ref('');
     const router = useRouter();
     const adminStore = useAdminStore();
 
-    const login = async () => {
-      const success = await adminStore.login(username.value, password.value);
-      if (success) {
-        router.push('/admin');
-      } else {
-        alert('登入失敗，請檢查帳號密碼');
+    const loginForm = reactive<LoginDto>({
+      username: '',
+      password: '',
+    });
+
+    const isLoading = ref(false);
+    const errorMessage = ref('');
+
+    const handleLogin = async () => {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      try {
+        const response = await adminServices.login(loginForm);
+        console.log('Login response:', response);
+
+        if (response.success && response.data) {
+          adminStore.setAuth(response.data);
+          console.log('Admin authenticated:', adminStore.isAuthenticated);
+          router.push('/admin');
+        } else {
+          errorMessage.value = response.message || 'Login failed. Please try again.';
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        errorMessage.value = 'An unexpected error occurred. Please try again.';
+      } finally {
+        isLoading.value = false;
       }
     };
 
     return {
-      username,
-      password,
-      login,
+      loginForm,
+      handleLogin,
+      isLoading,
+      errorMessage,
     };
   },
 });
 </script>
 
 <style scoped>
-@import "@/assets/styles/admin.scss";
-
 .login-container {
-  width: 300px;
-  margin: 100px auto;
+  max-width: 300px;
+  margin: 0 auto;
   padding: 20px;
   border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
+  border-radius: 5px;
 }
 
 .form-group {
   margin-bottom: 15px;
 }
 
-.form-group label {
+label {
   display: block;
   margin-bottom: 5px;
 }
 
-.form-group input {
+input {
   width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
 }
 
-.login-btn {
+button {
   width: 100%;
   padding: 10px;
   background-color: #007bff;
-  color: #fff;
+  color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 3px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.login-btn:hover {
-  background-color: #0056b3;
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
 }
 </style>

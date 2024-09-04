@@ -30,7 +30,7 @@ export default defineComponent({
   components: {
     Sidebar,
   },
-  setup() {
+  setup() { 
     const isSidebarOpen = ref(true);
     const router = useRouter();
 

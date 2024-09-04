@@ -1,28 +1,21 @@
-import { useUserStore } from '@/stores/userstore';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { useUserStore } from '@/stores/userstore';
+import { useAdminStore } from '@/stores/adminStore';
+import { useAuthStore } from '@/stores/authStore';
 
-// 導入組件
-import InventoryManagement from '@/components/Backend/InventoryManagement.vue';
-import MemberManagement from '@/components/Backend/MemberManagement.vue';
-import PermissionManagement from '@/components/Backend/PermissionsManagement.vue';
-import ProductDataManagement from '@/components/Backend/ShipmentManagement.vue';
-import ShipmentManagement from '@/components/Backend/ShipmentManagement.vue';
-import { useAdminStore } from '@/stores/adstore';
-import AdminDashboard from '@/views/Control/AdminDashboard.vue';
-import AdminLogin from '@/views/Control/AdminDashboard.vue';
+// 导入组件
 import Home from '@/views/Home/Home.vue';
 import Login from '@/views/Login/Login.vue';
 import Register from '@/views/Register/Register.vue';
 import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
-import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 import Rewards from '@/views/MemberCenter/Rewards.vue';
+import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 import NotFound from '@/views/NotFound/NotFound.vue';
 import Ichiban from '@/views/Ichiban/Ichiban.vue';
 import Blindox from '@/views/BlindBox/BlindBox.vue';
 import Gacha from '@/views/Gacha/Gacha.vue';
-import ProductDetail1 from '@/views/ProductDetail1.vue';
 import Mall from '@/views/Mall/Mall.vue';
 import MallProduct from '@/views/Mall/MallProduct.vue';
 import MallCheckout from '@/views/Mall/MallCheckout.vue';
@@ -30,7 +23,16 @@ import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
 import News from '@/views/News/News.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import OAuth2Redirect from '@/views/OAuth2Redirect/OAuth2Redirect.vue';
-import { useAuthStore } from '@/stores';
+
+// 后台组件
+import AdminLogin from '@/views/Control/AdminLogin.vue';
+import AdminDashboard from '@/views/Control/AdminDashboard.vue';
+import MemberManagement from '@/components/Backend/MemberManagement.vue';
+import InventoryManagement from '@/components/Backend/InventoryManagement.vue';
+import ShipmentManagement from '@/components/Backend/ShipmentManagement.vue';
+import PermissionManagement from '@/components/Backend/PermissionsManagement.vue';
+import ProductDataManagement from '@/components/Backend/ProductDataManagement.vue';
+import Storecontrol from '@/components/Backend/Storecontrol.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -47,7 +49,6 @@ const routes: Array<RouteRecordRaw> = [
     component: Register,
     meta: { layout: 'default' },
   },
-
   {
     path: '/mall',
     component: Mall,
@@ -62,13 +63,13 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/mall-checkout',
     component: MallCheckout,
-    meta: { layout: 'default' },
+    meta: { layout: 'default', requiresAuth: true },
   },
   {
     path: '/mall-order-success/:orderNumber',
     name: 'MallOrderSuccess',
     component: MallOrderSuccess,
-    meta: { layout: 'default' },
+    meta: { layout: 'default', requiresAuth: true },
   },
   {
     path: '/member-center',
@@ -143,10 +144,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/ProductDetail2.vue'),
     meta: { layout: 'default' },
   },
+  // 后台路由
+  {
+    path: '/admin-login',
+    component: AdminLogin,
+    meta: { layout: 'admin' },
+  },
   {
     path: '/admin',
     component: AdminDashboard,
-    meta: { requiresAuth: true, layout: 'admin' },
+    meta: { requiresAdminAuth: true, layout: 'admin' },
     children: [
       {
         path: 'member-management',
@@ -168,12 +175,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'product-data-management',
         component: ProductDataManagement,
       },
+      {
+        path: 'store-control',
+        component: Storecontrol,
+      },
     ],
-  },
-  {
-    path: '/admin-login',
-    component: AdminLogin,
-    meta: { layout: 'admin' },
   },
   {
     path: '/',
@@ -204,24 +210,29 @@ router.beforeEach(async (to, from, next) => {
   const adminStore = useAdminStore();
   const authStore = useAuthStore();
 
-  // 檢查路由是否需要認證
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    // 檢查是否為後台路由
-    if (to.path.startsWith('/admin')) {
-      if (adminStore.isLoggedIn) {
-        next();
-      } else {
+  // 检查路由是否需要认证
+  if (to.matched.some((record) => record.meta.requiresAuth || record.meta.requiresAdminAuth)) {
+    // 检查是否为后台路由
+    if (to.matched.some((record) => record.meta.requiresAdminAuth)) {
+      if (!adminStore.isAuthenticated) {
+        // 如果没有登录，重定向到管理员登录页面
         next('/admin-login');
+      } else {
+        // 已登录，允许访问
+        next();
       }
     } else {
-      if (authStore.isLogin) {
-        next();
-      } else {
+      // 前台需要认证的路由
+      if (!authStore.isLogin) {
+        // 如果没有登录，重定向到登录页面
         next('/login');
+      } else {
+        // 已登录，允许访问
+        next();
       }
     }
   } else {
-    // 公開路由，直接通過
+    // 公开路由，直接通过
     next();
   }
 });
