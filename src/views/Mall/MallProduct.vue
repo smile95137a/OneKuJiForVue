@@ -4,28 +4,27 @@
     <div class="mall-product__main">
       <div class="mall-product__img">
         <div class="mall-product__img-main">
-          <MImage :src="product?.imageUrls[0]" />
+          <MImage :src="selectedImage" />
         </div>
+
         <div class="mall-product__img-other">
           <div
-            class="mall-product__img-otherItem mall-product__img-otherItem--active"
+            v-for="(imageUrl, index) in product?.imageUrls"
+            :key="index"
+            :class="[
+              'mall-product__img-otherItem',
+              {
+                'mall-product__img-otherItem--active':
+                  selectedImageIndex === index,
+              },
+            ]"
+            @click="changeMainImage(index)"
           >
-            <img :src="pd1" />
-          </div>
-          <div class="mall-product__img-otherItem">
-            <img :src="pd1" />
-          </div>
-          <div class="mall-product__img-otherItem">
-            <img :src="pd1" />
-          </div>
-          <div class="mall-product__img-otherItem">
-            <img :src="pd1" />
-          </div>
-          <div class="mall-product__img-otherItem">
-            <img :src="pd1" />
+            <MImage :src="imageUrl" />
           </div>
         </div>
       </div>
+
       <!--  -->
       <div class="mall-product__detail">
         <div class="mall-product__detail-title">
@@ -39,6 +38,17 @@
               }}
             </div>
             <div class="mall-product__detail-priceUnit">元</div>
+          </div>
+          <div class="mall-product__detail-priceCoupon">
+            <div class="mall-product__detail-priceCouponBtns">
+              <div class="mall-product__detail-priceCouponBtn">滿額免運</div>
+              <div class="mall-product__detail-priceCouponBtn">滿額折300</div>
+            </div>
+            <div class="mall-product__detail-priceCouponTicket">
+              <p class="mall-product__detail-priceCouponTicket-text">
+                領取優惠券
+              </p>
+            </div>
           </div>
         </div>
 
@@ -65,6 +75,36 @@
               </button>
             </div>
           </div>
+          <div class="mall-product__detail-otherPreOrder">
+            <div class="mall-product__detail-otherPreOrder-title">預購</div>
+            <div class="mall-product__detail-otherPreOrder-other">
+              <div class="mall-product__detail-otherPreOrder-other-text">
+                即日起 ~ 2024/11/30，商品預計將於 2024/11/30 陸續發貨
+              </div>
+            </div>
+          </div>
+          <div class="mall-product__detail-otherLogistics">
+            <div class="mall-product__detail-otherLogistics-title">物流</div>
+            <div class="mall-product__detail-otherLogistics-other">
+              <i class="fa-solid fa-truck"></i>
+              <div class="mall-product__detail-otherLogistics-other-text">
+                ${{ product?.shippingPrice }}
+              </div>
+              <div class="mall-product__detail-otherLogistics-other-icon">
+                <img :src="se" />
+                <img :src="familyMart" />
+                <img :src="hilife" />
+              </div>
+            </div>
+          </div>
+          <div class="mall-product__detail-otherPay">
+            <div class="mall-product__detail-otherPreOrder-title">付款</div>
+            <div class="mall-product__detail-otherPreOrder-other">
+              <div class="mall-product__detail-otherPreOrder-other-text">
+                信用卡、超商取貨付款
+              </div>
+            </div>
+          </div>
         </div>
         <div class="mall-product__detail-action">
           <div
@@ -86,7 +126,62 @@
         </div>
       </div>
     </div>
+    <div class="mall-product__link grid m-t-24">
+      <div class="col-50 grid">
+        <div class="col-100 mall-product__link-item">
+          <div class="mall-product__link-item-title">分享</div>
+          <div
+            class="mall-product__link-item-main mall-product__link-item-main--share"
+          >
+            <img :src="lineImg" @click="copyToClipboard(lineShareUrl)" />
+            <img :src="metaImg" @click="copyToClipboard(metaShareUrl)" />
+            <img :src="linkImg" @click="copyToClipboard(currentUrl)" />
+          </div>
+        </div>
+        <div class="col-100 mall-product__link-item m-t-24">
+          <div class="mall-product__link-item-title">收藏</div>
+          <div
+            class="mall-product__link-item-main mall-product__link-item-main--like"
+          >
+            <span
+              @click="handleToggleFavorite"
+              class="mall-product__link-item-main-likeIcon"
+              :class="{
+                'mall-product__link-item-main-likeIcon--active': isFavorite,
+              }"
+            >
+              <i class="fa-regular fa-heart"></i>
+            </span>
+            <p class="mall-product__text">({{ favoriteCount }})</p>
+          </div>
+        </div>
+      </div>
 
+      <div class="col-50 grid">
+        <div class="col-100 mall-product__link-item">
+          <div class="mall-product__link-item-title">分類</div>
+          <div
+            class="mall-product__link-item-main mall-product__link-item-main--category"
+          >
+            主分類 > {{ product?.categoryName }}
+          </div>
+        </div>
+        <div class="col-100 mall-product__link-item m-t-24">
+          <div class="mall-product__link-item-title">關鍵字</div>
+          <div
+            class="mall-product__link-item-main mall-product__link-item-main--hashTag"
+          >
+            <span
+              v-for="(keywordObj, index) in product?.keywordList"
+              :key="index"
+            >
+              {{ keywordObj.keyword }}
+              <span v-if="index < product.keywordList.length - 1">、</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="mall-product__tabs">
       <div class="mall-product__tab-header">
         <div
@@ -108,7 +203,7 @@
           overflow: expanded ? 'visible' : 'hidden',
         }"
       >
-        <div v-if="activeTab === '詳情'" v-html="product?.description"></div>
+        <div v-if="activeTab === '詳情'" v-html="product?.details"></div>
         <div v-if="activeTab === '規格'" v-html="product?.specification"></div>
       </div>
       <div
@@ -126,12 +221,18 @@
 </template>
 
 <script lang="ts" setup>
+import lineImg from '@/assets/image/line.png';
+import metaImg from '@/assets/image/meta.png';
+import linkImg from '@/assets/image/link.png';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
-import pd1 from '@/assets/image/pd1.png';
+import se from '@/assets/image/711.png';
+import familyMart from '@/assets/image/familyMart.png';
+import hilife from '@/assets/image/hilife.png';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   getStoreProductById,
+  toggleFavorite,
   updateProductPopularity,
 } from '@/services/frontend/storeProductService';
 import MImage from '@/components/frontend/MImage.vue';
@@ -156,6 +257,81 @@ const contentDiv = ref<HTMLElement | null>(null);
 const maxHeight = 100;
 
 let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+const favoriteCount = ref(0);
+const isFavorite = ref(false);
+
+const selectedImageIndex = ref(0);
+const selectedImage = ref('');
+const changeMainImage = (index: number) => {
+  selectedImageIndex.value = index;
+  selectedImage.value = product.value.imageUrls[index];
+};
+
+// 分享 URL
+const lineShareUrl =
+  'https://line.me/R/msg/text/?' + encodeURIComponent(window.location.href);
+const metaShareUrl =
+  'https://www.facebook.com/sharer/sharer.php?u=' +
+  encodeURIComponent(window.location.href);
+const currentUrl = window.location.href;
+
+const copyToClipboard = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '已複製連結',
+    });
+  } catch (err) {
+    console.error('複製失敗:', err);
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '複製失敗，請稍後再試',
+    });
+  }
+};
+
+const handleToggleFavorite = async () => {
+  if (!authStore.isLogin) {
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '請先登入',
+    });
+    return;
+  }
+
+  try {
+    const response = await toggleFavorite(productCode);
+    if (response.success) {
+      isFavorite.value = !isFavorite.value;
+      if (isFavorite.value) {
+        favoriteCount.value += 1;
+        await dialogStore.openInfoDialog({
+          title: '系統消息',
+          message: '已收藏',
+        });
+      } else {
+        favoriteCount.value -= 1;
+        await dialogStore.openInfoDialog({
+          title: '系統消息',
+          message: '已取消收藏',
+        });
+      }
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '系統消息',
+        message: '收藏狀態更新失敗，請稍後再試',
+      });
+    }
+  } catch (error) {
+    console.error('收藏狀態更新失敗:', error);
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '收藏狀態更新失敗，請稍後再試',
+    });
+  }
+};
 
 const increaseQuantity = () => {
   quantity.value += 1;
@@ -241,6 +417,9 @@ onMounted(async () => {
     const { success, data, message } = await getStoreProductById(productCode);
     if (success) {
       product.value = data;
+      selectedImage.value = data.imageUrls[0];
+      favoriteCount.value = data.favoritesCount;
+      isFavorite.value = data.favorited;
       breadcrumbItems.value.push({ name: data.productName });
     } else {
       console.log(message);
