@@ -128,9 +128,12 @@
 <script lang="ts" setup>
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import pd1 from '@/assets/image/pd1.png';
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getStoreProductById } from '@/services/frontend/storeProductService';
+import {
+  getStoreProductById,
+  updateProductPopularity,
+} from '@/services/frontend/storeProductService';
 import MImage from '@/components/frontend/MImage.vue';
 import { addCartItem } from '@/services/frontend/cartItemService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
@@ -151,6 +154,8 @@ const expanded = ref(false);
 const showToggle = ref(false);
 const contentDiv = ref<HTMLElement | null>(null);
 const maxHeight = 100;
+
+let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
 const increaseQuantity = () => {
   quantity.value += 1;
@@ -218,6 +223,19 @@ const toggleExpand = () => {
   expanded.value = !expanded.value;
 };
 
+const updatePopularity = async () => {
+  try {
+    const response = await updateProductPopularity(productCode);
+    if (response.success) {
+      console.log('成功更新產品熱度');
+    } else {
+      console.error('更新產品熱度失敗', response.message);
+    }
+  } catch (error) {
+    console.error('更新產品熱度時發生錯誤:', error);
+  }
+};
+
 onMounted(async () => {
   try {
     const { success, data, message } = await getStoreProductById(productCode);
@@ -232,6 +250,17 @@ onMounted(async () => {
   }
   if (contentDiv.value) {
     showToggle.value = contentDiv.value.scrollHeight > maxHeight;
+  }
+
+  timeoutId = setTimeout(() => {
+    updatePopularity();
+  }, 30000);
+});
+
+onBeforeUnmount(() => {
+  // 清除計時器
+  if (timeoutId) {
+    clearTimeout(timeoutId);
   }
 });
 </script>
