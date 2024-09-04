@@ -203,7 +203,7 @@
           overflow: expanded ? 'visible' : 'hidden',
         }"
       >
-        <div v-if="activeTab === '詳情'" v-html="product?.description"></div>
+        <div v-if="activeTab === '詳情'" v-html="product?.details"></div>
         <div v-if="activeTab === '規格'" v-html="product?.specification"></div>
       </div>
       <div
