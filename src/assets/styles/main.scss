@@ -525,3 +525,101 @@ $letter-spacing-nums: 100;
     transform: scale(1);
   }
 }
+//
+.cartBtn {
+  background: #eb9838;
+  border: 2px solid #eb9838;
+  border-radius: 50%;
+  box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3);
+  @include w_h(68px, 68px);
+  cursor: pointer;
+  text-align: center;
+  position: fixed;
+  right: 3%;
+  bottom: 10%;
+  z-index: 999;
+  transition: 0.3s;
+  animation: pulseEffect linear 1s infinite;
+
+  &__main {
+    @include w_h(100%, 100%);
+    @include flex(center, center);
+    position: relative;
+    overflow: hidden;
+
+    &-icon {
+      color: #fff;
+      font-size: 30px;
+      transition: 0.3s;
+      animation: fadeInOut 3s infinite;
+    }
+  }
+}
+
+@-webkit-keyframes pulseEffect {
+  0% {
+    box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3),
+      0 0 0 0 rgba(254, 230, 204, 0.2), 0 0 0 0 rgba(254, 230, 204, 0.2);
+  }
+  40% {
+    box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3),
+      0 0 0 15px rgba(254, 230, 204, 0.2), 0 0 0 0 rgba(254, 230, 204, 0.2);
+  }
+  80% {
+    box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3),
+      0 0 0 30px rgba(254, 230, 204, 0), 0 0 0 26.7px rgba(254, 230, 204, 0.067);
+  }
+  100% {
+    box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3),
+      0 0 0 30px rgba(254, 230, 204, 0), 0 0 0 40px rgba(254, 230, 204, 0);
+  }
+}
+
+@keyframes pulseEffect {
+  0% {
+    box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3),
+      0 0 0 0 rgba(254, 230, 204, 0.2), 0 0 0 0 rgba(254, 230, 204, 0.2);
+  }
+  40% {
+    box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3),
+      0 0 0 15px rgba(254, 230, 204, 0.2), 0 0 0 0 rgba(254, 230, 204, 0.2);
+  }
+  80% {
+    box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3),
+      0 0 0 30px rgba(254, 230, 204, 0), 0 0 0 26.7px rgba(254, 230, 204, 0.067);
+  }
+  100% {
+    box-shadow: 0 8px 10px rgba(254, 230, 204, 0.3),
+      0 0 0 30px rgba(254, 230, 204, 0), 0 0 0 40px rgba(254, 230, 204, 0);
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

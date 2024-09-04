@@ -34,7 +34,9 @@
         <div class="mall-product__detail-prices">
           <div class="mall-product__detail-priceMain">
             <div class="mall-product__detail-priceMoney">
-              {{ product?.specialPrice }}
+              {{
+                product?.isSpecialPrice ? product?.specialPrice : product?.price
+              }}
             </div>
             <div class="mall-product__detail-priceUnit">元</div>
           </div>
@@ -128,10 +130,7 @@ import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import pd1 from '@/assets/image/pd1.png';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import {
-  getStoreProductById,
-  IStoreProduct,
-} from '@/services/frontend/storeProductService';
+import { getStoreProductById } from '@/services/frontend/storeProductService';
 import MImage from '@/components/frontend/MImage.vue';
 import { addCartItem } from '@/services/frontend/cartItemService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
@@ -141,10 +140,10 @@ const dialogStore = useDialogStore();
 const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
-const storeProductId = Number(route.params.id);
+const productCode = route.params.id;
 
 const breadcrumbItems = ref([{ name: '首頁' }, { name: '商城' }]);
-const product = ref<IStoreProduct | null>(null);
+const product = ref<any | null>(null);
 const quantity = ref(1);
 const tabs = ['詳情', '規格'];
 const activeTab = ref('詳情');
@@ -174,7 +173,7 @@ const handleAddToCart = async (redirectToCheckout = false) => {
 
   if (product.value) {
     const cartItem = {
-      storeProductId: product.value.storeProductId,
+      productCode: product.value.productCode,
       quantity: quantity.value,
     };
     try {
@@ -221,9 +220,7 @@ const toggleExpand = () => {
 
 onMounted(async () => {
   try {
-    const { success, data, message } = await getStoreProductById(
-      storeProductId
-    );
+    const { success, data, message } = await getStoreProductById(productCode);
     if (success) {
       product.value = data;
       breadcrumbItems.value.push({ name: data.productName });

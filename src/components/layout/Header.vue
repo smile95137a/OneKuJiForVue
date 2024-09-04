@@ -137,4 +137,14 @@ const handleDailySignIn = async () => {
       </p>
     </div>
   </div>
+
+  <div class="cartBtn" v-if="authStore.isLogin">
+    <router-link class="cartBtn__main" to="/mall-checkout">
+      <p class="cartBtn__main-icon">
+        <i class="fa-solid fa-cart-shopping"></i>
+      </p>
+    </router-link>
+  </div>
 </template>
+
+<style scoped></style>

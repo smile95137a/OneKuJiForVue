@@ -27,6 +27,17 @@ $root-block-name: '.mselect';
     }
   }
 
+  &--checkoutFormBill {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #d4d4d4;
+    height: 50px;
+    #{$p__select} {
+      font-size: 14px;
+      letter-spacing: 0.30000001192092896px;
+    }
+  }
+
   &--invoiceForm {
     max-width: none;
     background: #fff;

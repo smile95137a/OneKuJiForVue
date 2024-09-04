@@ -1,7 +1,7 @@
 import { api } from './FrontAPI';
 
 export interface CartItem {
-  storeProductId: number;
+  productCode: string;
   quantity: number;
 }
 

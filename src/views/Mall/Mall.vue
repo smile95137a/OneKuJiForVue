@@ -56,7 +56,7 @@
             :key="index"
             :product="product"
             :card-type="'mall'"
-            @click="goToProductDetail(product.storeProductId)"
+            @click="goToProductDetail(product.productCode)"
           />
         </div>
       </div>
@@ -68,7 +68,7 @@
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { useRouter } from 'vue-router';
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import {
   getPagedStoreProducts,
   IStoreProduct,
@@ -78,12 +78,12 @@ import {
   IStoreCategory,
 } from '@/services/frontend/storeCategoryService';
 
-const products = ref<IStoreProduct[]>([]);
-const showProducts = ref<IStoreProduct[]>([]);
+const products = ref<any[]>([]);
+const showProducts = ref<any[]>([]);
 const categories = ref<IStoreCategory[]>([]);
 const loading = ref(false);
 const page = ref(0);
-const size = ref(3);
+const size = ref(20);
 const allLoaded = ref(false);
 const sortOrder = ref('newest');
 const selectedTypes = ref<number[]>([0]);
@@ -162,13 +162,17 @@ const filterAndSortProducts = () => {
     //   (a: IStoreProduct, b: IStoreProduct) => b.sales - a.sales
     // );
   } else if (sortOrder.value === 'price-asc') {
-    filteredProducts.sort(
-      (a: IStoreProduct, b: IStoreProduct) => a.specialPrice - b.specialPrice
-    );
+    filteredProducts.sort((a: any, b: any) => {
+      const priceA = a.isSpecialPrice ? a.specialPrice : a.price;
+      const priceB = b.isSpecialPrice ? b.specialPrice : b.price;
+      return priceA - priceB;
+    });
   } else if (sortOrder.value === 'price-desc') {
-    filteredProducts.sort(
-      (a: IStoreProduct, b: IStoreProduct) => b.specialPrice - a.specialPrice
-    );
+    filteredProducts.sort((a: any, b: any) => {
+      const priceA = a.isSpecialPrice ? a.specialPrice : a.price;
+      const priceB = b.isSpecialPrice ? b.specialPrice : b.price;
+      return priceB - priceA;
+    });
   }
 
   showProducts.value = filteredProducts;
@@ -185,6 +189,23 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  unlockScroll();
   window.removeEventListener('scroll', handleScroll);
 });
+
+watch(loading, (newValue) => {
+  if (newValue) {
+    lockScroll();
+  } else {
+    unlockScroll();
+  }
+});
+
+const lockScroll = () => {
+  document.body.style.overflow = 'hidden';
+};
+
+const unlockScroll = () => {
+  document.body.style.overflow = '';
+};
 </script>

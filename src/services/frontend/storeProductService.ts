@@ -44,11 +44,11 @@ export const getPagedStoreProducts = async (
 };
 
 export const getStoreProductById = async (
-  id: number
-): Promise<ApiResponse<IStoreProduct>> => {
+  productCode: string
+): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.get<ApiResponse<IStoreProduct>>(
-      `${basePath}/query/${id}`
+    const response = await api.get<ApiResponse<any>>(
+      `${basePath}/query/${productCode}`
     );
     return response.data;
   } catch (error) {
