@@ -6,7 +6,7 @@ import axios, { AxiosResponse } from 'axios';
 const apiClient = axios.create({
 
   // baseURL: 'http://localhost:8080/api',
-  baseURL: 'http://46.51.232.156:8080/api',
+  baseURL: import.meta.env.VITE_BASE_API_URL2,
 
   headers: {
     'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export const getUsers = (): Promise<AxiosResponse<Member[]>> => {
 };
 
 export const loginJwt = axios.create({
-   baseURL: 'http://46.51.232.156:8080/api', // 确保与后端地址一致
+   baseURL: import.meta.env.VITE_BASE_API_URL2, // 确保与后端地址一致
   //baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 确保与后端地址一致
   headers: {
     'Content-Type': 'application/json', 'ngrok-skip-browser-warning':true

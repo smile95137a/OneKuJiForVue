@@ -120,7 +120,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 
 const apiClient = axios.create({
   // baseURL: 'http://localhost:8080/api', // 根据实际情况修改
-  baseURL: 'https://6ce2-2402-7500-4dc-948-7df7-96b-239b-ae80.ngrok-free.app/api', // 根据实际情况修改
+  baseURL: import.meta.env.VITE_BASE_API_URL2, // 根据实际情况修改
   headers: {
     'Content-Type': 'multipart/form-data',
   },

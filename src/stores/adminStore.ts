@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
 import { JWTAuthResponse, User } from '@/interfaces/admin';
+import { setAuthToken, getAuthToken, removeAuthToken } from '@/services/backend/adminservices';
 
 export const useAdminStore = defineStore('admin', {
   state: () => ({
-    token: localStorage.getItem('admin_token') || null as string | null,
+    token: getAuthToken(),
     user: null as User | null,
   }),
   getters: {
@@ -13,12 +14,12 @@ export const useAdminStore = defineStore('admin', {
     setAuth(authData: JWTAuthResponse) {
       this.token = authData.accessToken;
       this.user = authData.user;
-      localStorage.setItem('admin_token', authData.accessToken);
+      setAuthToken(authData.accessToken);
     },
     clearAuth() {
       this.token = null;
       this.user = null;
-      localStorage.removeItem('admin_token');
+      removeAuthToken();
     },
   },
 });
