@@ -8,13 +8,22 @@
     </div>
     <div class="footer__main">
       <div class="footer__nav">
-        <div class="footer__link">關於我們</div>
+        <div class="footer__link">
+          <router-link to="/about">關於我們</router-link>
+        </div>
+
         <div class="footer__link">常見問題</div>
         <div class="footer__link">優惠說明</div>
-        <div class="footer__link">交易說明</div>
+        <div class="footer__link">
+          <router-link to="/transaction">交易說明</router-link>
+        </div>
         <div class="footer__link">合作咨詢</div>
-        <div class="footer__link">服務條款</div>
-        <div class="footer__link">隱私權政策</div>
+        <div class="footer__link">
+          <router-link to="/policy">服務條款</router-link>
+        </div>
+        <div class="footer__link">
+          <router-link to="/privacy">隱私權政策</router-link>
+        </div>
       </div>
 
       <div class="footer__infos">

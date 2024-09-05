@@ -23,7 +23,10 @@ import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
 import News from '@/views/News/News.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import OAuth2Redirect from '@/views/OAuth2Redirect/OAuth2Redirect.vue';
-
+import About from '@/views/About/About.vue';
+import Transaction from '@/views/Transaction/Transaction.vue';
+import Privacy from '@/views/Privacy/Privacy.vue';
+import Policy from '@/views/Policy/Policy.vue';
 // 后台组件
 import AdminLogin from '@/views/Control/AdminLogin.vue';
 import AdminDashboard from '@/views/Control/AdminDashboard.vue';
@@ -47,6 +50,26 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/register',
     component: Register,
+    meta: { layout: 'default' },
+  },
+  {
+    path: '/about',
+    component: About,
+    meta: { layout: 'default' },
+  },
+  {
+    path: '/transaction',
+    component: Transaction,
+    meta: { layout: 'default' },
+  },
+  {
+    path: '/privacy',
+    component: Privacy,
+    meta: { layout: 'default' },
+  },
+  {
+    path: '/policy',
+    component: Policy,
     meta: { layout: 'default' },
   },
   {
@@ -211,7 +234,11 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
 
   // 检查路由是否需要认证
-  if (to.matched.some((record) => record.meta.requiresAuth || record.meta.requiresAdminAuth)) {
+  if (
+    to.matched.some(
+      (record) => record.meta.requiresAuth || record.meta.requiresAdminAuth
+    )
+  ) {
     // 检查是否为后台路由
     if (to.matched.some((record) => record.meta.requiresAdminAuth)) {
       if (!adminStore.isAuthenticated) {
