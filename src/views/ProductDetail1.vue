@@ -120,10 +120,22 @@
                 ? 'product-detail-one__boxs-img--active'
                 : '',
             ]"
-            @click="!ticket.isDrawn ? handleTicket(ticket) : null"
           >
-            <img :src="getTicketImg(ticket)" alt="" />
-            <p>{{ index }}</p>
+            <label>
+              <input
+                type="checkbox"
+                :checked="
+                  activeTickets
+                    ?.map((x) => x.prizeNumberId)
+                    .includes(ticket.prizeNumberId)
+                "
+                @change="handleCheckboxChange(ticket)"
+                :disabled="ticket.isDrawn"
+                hidden
+              />
+              <img :src="getTicketImg(ticket)" alt="" />
+              <p class="text-center">{{ index + 1 }}</p>
+            </label>
           </div>
         </div>
       </Card>
@@ -224,7 +236,7 @@ const breadcrumbItems = ref([{ name: '首頁' }]);
 const product = ref<IProduct | null>(null);
 const productDetail = ref<IProductDetail[] | null>(null);
 const ticketList = ref<any[]>([]);
-const activeTickets = ref<any[] | null>([]);
+const activeTickets = ref<any[]>([]);
 
 const introduceSection = ref<HTMLElement | null>(null);
 const showOption = ref(false);
@@ -296,8 +308,21 @@ const fetchDrawStatus = async () => {
 };
 
 const handleTicket = (ticket: any) => {
-  showOption.value = true;
   activeTickets.value = [ticket];
+};
+
+const handleCheckboxChange = (ticket: any) => {
+  showOption.value = true;
+  const isActive = activeTickets.value
+    ?.map((x) => x.prizeNumberId)
+    .includes(ticket.prizeNumberId);
+  if (isActive) {
+    activeTickets.value = activeTickets.value.filter(
+      (x) => x.prizeNumberId !== ticket.prizeNumberId
+    );
+  } else {
+    activeTickets.value.push(ticket);
+  }
 };
 
 const handleExchange = async () => {

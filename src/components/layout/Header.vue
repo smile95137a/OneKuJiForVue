@@ -120,6 +120,11 @@ const handleDailySignIn = async () => {
           <div class="header__btn header__btn--logout" @click="handleLogout">
             登出
           </div>
+          <div class="header__btn header__btn--cart">
+            <router-link class="cartBtn__main" to="/mall-checkout">
+              <i class="fa-solid fa-cart-shopping"></i>
+            </router-link>
+          </div>
         </template>
         <template v-else>
           <router-link class="header__btn header__btn--login" to="/login">
@@ -136,14 +141,6 @@ const handleDailySignIn = async () => {
         一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈...
       </p>
     </div>
-  </div>
-
-  <div class="cartBtn" v-if="authStore.isLogin">
-    <router-link class="cartBtn__main" to="/mall-checkout">
-      <p class="cartBtn__main-icon">
-        <i class="fa-solid fa-cart-shopping"></i>
-      </p>
-    </router-link>
   </div>
 </template>
 

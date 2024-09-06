@@ -88,12 +88,11 @@
             <div class="mall-product__detail-otherLogistics-other">
               <i class="fa-solid fa-truck"></i>
               <div class="mall-product__detail-otherLogistics-other-text">
-                ${{ product?.shippingPrice }}
+                $160 ~ {{ product?.shippingPrice }}
               </div>
               <div class="mall-product__detail-otherLogistics-other-icon">
                 <img :src="se" />
                 <img :src="familyMart" />
-                <img :src="hilife" />
               </div>
             </div>
           </div>
@@ -227,7 +226,6 @@ import linkImg from '@/assets/image/link.png';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import se from '@/assets/image/711.png';
 import familyMart from '@/assets/image/familyMart.png';
-import hilife from '@/assets/image/hilife.png';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
