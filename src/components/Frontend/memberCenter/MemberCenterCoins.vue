@@ -21,7 +21,7 @@
         </div>
         <div class="memberCenter__coins-num">
           <p class="memberCenter__text">
-            <NumberFormatter :number="userBonus" />
+            <NumberFormatter :number="userSliver" />
           </p>
         </div>
       </div>
@@ -34,7 +34,7 @@
         </div>
         <div class="memberCenter__coins-num">
           <p class="memberCenter__text">
-            <NumberFormatter :number="userSliver" />
+            <NumberFormatter :number="userBonus" />
           </p>
         </div>
       </div>
