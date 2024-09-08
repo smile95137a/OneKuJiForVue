@@ -67,7 +67,7 @@
       <tbody>
         <tr v-for="product in paginatedProducts" :key="product.id">
           <td>
-            <img v-if="product.imageUrls && product.imageUrls.length" :src="formatImageUrl(product.imageUrls[0])" alt="商品圖片" class="product-image">
+            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片" class="product-image">
             <span v-else>無圖片</span>
           </td>
           <td>{{ product.name }}</td>
@@ -258,7 +258,13 @@ export default defineComponent({
     };
 
     const formatImageUrl = (url: string) => {
+      console.log(url);
+      
       return `${API_URL}/uploads/${url}`;
+    };
+
+    const formatImage = (url: string) => {
+      return `${API_URL}/${url}`;
     };
 
     onMounted(async () => {
@@ -284,6 +290,7 @@ export default defineComponent({
       changePage,
       getCategoryName,
       formatImageUrl,
+      formatImage,
     };
   },
 });

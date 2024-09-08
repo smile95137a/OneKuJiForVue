@@ -16,7 +16,7 @@ export interface StoreProductRes {
   description: string;
   price: number;
   quantity: number;
-  imageUrls: string[];
+  imageUrl: string[];
   categoryId: number;
   createdAt: string;
   updatedAt: string;
