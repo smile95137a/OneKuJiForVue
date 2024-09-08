@@ -264,7 +264,7 @@ export default defineComponent({
     };
 
     const formatImage = (url: string) => {
-      return `${API_URL}/img/${url}`;
+      return `${API_URL}/img${url}`;
     };
 
     onMounted(async () => {
