@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { StoreProductReq, StoreProductApiResponse, StoreProductListApiResponse, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreCategory } from '@/interfaces/store';
+import { StoreCategory, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreProductApiResponse, StoreProductListApiResponse } from '@/interfaces/store';
 import { getAuthToken } from '@/services/backend/adminservices';
+import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
 

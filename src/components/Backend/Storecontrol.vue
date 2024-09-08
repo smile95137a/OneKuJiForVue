@@ -77,7 +77,7 @@
           <td>{{ getCategoryName(product.categoryId) }}</td>
           <td>
             <button @click="editProduct(product)" class="btn btn-small btn-edit">編輯</button>
-            <button @click="deleteProduct(product.categoryId)" class="btn btn-small btn-danger">刪除</button>
+            <button @click="deleteProduct(product.storeProductId)" class="btn btn-small btn-danger">刪除</button>
           </td>
         </tr>
       </tbody>
@@ -199,11 +199,10 @@ export default defineComponent({
     };
 
     const deleteProduct = async (id: number) => {
-      console.log(id);
       
       if (confirm('確定要刪除這個商品嗎？')) {
         try {
-          const response = await storeServices.deleteStoreProduct(id);
+          const response = await storeServices.deleteStoreProduct(id.toString());
           if (response.success) {
             alert('商品已成功刪除');
             await fetchProducts();

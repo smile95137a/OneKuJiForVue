@@ -11,7 +11,7 @@ export interface StoreProductReq {
 }
 
 export interface StoreProductRes {
-  id: number;
+  storeProductId: number;
   name: string;
   description: string;
   price: number;
