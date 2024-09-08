@@ -1,43 +1,113 @@
 import axios from 'axios';
-import { StoreProductReq, StoreProductRes, ApiResponse } from '@/interfaces/store';
+import { StoreProductReq, StoreProductApiResponse, StoreProductListApiResponse, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreCategory } from '@/interfaces/store';
+import { getAuthToken } from '@/services/backend/adminservices';
 
-const BASE_URL = import.meta.env.VITE_BASE_API_URL2 || 'http://46.51.232.156:8080';
-const API_URL = `${BASE_URL}/api/storeProduct`;
+const API_URL = import.meta.env.VITE_BASE_API_URL2;
 
-export const storeService = {
-  getAllStoreProducts: async (): Promise<ApiResponse<StoreProductRes[]>> => {
-    const response = await axios.get(`${API_URL}/all`);
-    return response.data;
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const storeServices = {
+  getAllStoreProduct: async (): Promise<StoreProductListApiResponse> => {
+    try {
+      const response = await axiosInstance.get<StoreProductListApiResponse>('/storeProduct/all');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching store products:', error);
+      throw error;
+    }
   },
 
-  addStoreProduct: async (productReq: StoreProductReq, images: File[]): Promise<ApiResponse<StoreProductRes>> => {
-    const formData = new FormData();
-    formData.append('productReq', JSON.stringify(productReq));
-    images.forEach((image) => {
-      formData.append('images', image);
-    });
-
-    const response = await axios.post(`${API_URL}/add`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    return response.data;
+  addStoreProduct: async (formData: FormData): Promise<StoreProductApiResponse> => {
+    try {
+      const response = await axiosInstance.post<StoreProductApiResponse>('/storeProduct/add', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding store product:', error);
+      throw error;
+    }
   },
 
-  updateStoreProduct: async (id: number, productReq: StoreProductReq, images: File[]): Promise<ApiResponse<StoreProductRes>> => {
-    const formData = new FormData();
-    formData.append('storeProductReq', JSON.stringify(productReq));
-    images.forEach((image) => {
-      formData.append('images', image);
-    });
-
-    const response = await axios.put(`${API_URL}/update/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    return response.data;
+  updateStoreProduct: async (id: number, formData: FormData): Promise<StoreProductApiResponse> => {
+    try {
+      const response = await axiosInstance.put<StoreProductApiResponse>(`/storeProduct/update/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating store product:', error);
+      throw error;
+    }
   },
 
   deleteStoreProduct: async (id: number): Promise<ApiResponse<void>> => {
-    const response = await axios.delete(`${API_URL}/delete/${id}`);
-    return response.data;
-  }
+    try {
+      const response = await axiosInstance.delete<ApiResponse<void>>(`/storeProduct/delete/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting store product:', error);
+      throw error;
+    }
+  },
+
+  getAllCategories: async (): Promise<StoreCategoryListApiResponse> => {
+    try {
+      const response = await axiosInstance.get<StoreCategoryListApiResponse>('/category/all');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error;
+    }
+  },
+
+  getCategoryById: async (id: number): Promise<StoreCategoryApiResponse> => {
+    try {
+      const response = await axiosInstance.get<StoreCategoryApiResponse>(`/category/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      throw error;
+    }
+  },
+
+  createCategory: async (category: StoreCategory): Promise<StoreCategoryApiResponse> => {
+    try {
+      const response = await axiosInstance.post<StoreCategoryApiResponse>('/category', category);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating category:', error);
+      throw error;
+    }
+  },
+
+  updateCategory: async (id: number, category: StoreCategory): Promise<StoreCategoryApiResponse> => {
+    try {
+      const response = await axiosInstance.put<StoreCategoryApiResponse>(`/category/${id}`, category);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating category:', error);
+      throw error;
+    }
+  },
+
+  deleteCategory: async (id: number): Promise<ApiResponse<void>> => {
+    try {
+      const response = await axiosInstance.delete<ApiResponse<void>>(`/category/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
+  },
 };
