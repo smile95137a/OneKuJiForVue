@@ -77,7 +77,7 @@
           <td>{{ getCategoryName(product.categoryId) }}</td>
           <td>
             <button @click="editProduct(product)" class="btn btn-small btn-edit">編輯</button>
-            <button @click="deleteProduct(product.id)" class="btn btn-small btn-danger">刪除</button>
+            <button @click="deleteProduct(product.categoryId)" class="btn btn-small btn-danger">刪除</button>
           </td>
         </tr>
       </tbody>
@@ -93,9 +93,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, reactive, computed } from 'vue';
+import { StoreCategory, StoreProductReq, StoreProductRes } from '@/interfaces/store';
 import { storeServices } from '@/services/backend/storeservice';
-import { StoreProductReq, StoreProductRes, StoreCategory } from '@/interfaces/store';
+import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
 
@@ -199,6 +199,8 @@ export default defineComponent({
     };
 
     const deleteProduct = async (id: number) => {
+      console.log(id);
+      
       if (confirm('確定要刪除這個商品嗎？')) {
         try {
           const response = await storeServices.deleteStoreProduct(id);
@@ -250,7 +252,9 @@ export default defineComponent({
     };
 
     const getCategoryName = (categoryId: number) => {
-      const category = categories.value.find(c => c.categoryId === categoryId);
+      
+      const category = categories.value.find(c => c.categoryId.toString() === categoryId.toString());
+      
       return category ? category.categoryName : 'Unknown';
     };
 
