@@ -98,6 +98,7 @@ import { storeServices } from '@/services/backend/storeservice';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
+const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 
 export default defineComponent({
   name: 'StoreManagement',
@@ -264,6 +265,8 @@ export default defineComponent({
     };
 
     const formatImage = (url: string) => {
+      console.log(`${API_URL}/img${url}`);
+      
       return `${API_URL}/img${url}`;
     };
 
