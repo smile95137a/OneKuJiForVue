@@ -1,8 +1,10 @@
-import { StoreCategory, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreProductApiResponse, StoreProductListApiResponse } from '@/interfaces/store';
+import { StoreCategory, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreProductApiResponse, StoreProductListApiResponse, StoreProductReq } from '@/interfaces/store';
 import { getAuthToken } from '@/services/backend/adminservices';
 import axios from 'axios';
+import { ApiResponse } from '@/interfaces/admin';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
+const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -109,5 +111,10 @@ export const storeServices = {
       console.error('Error deleting category:', error);
       throw error;
     }
+  },
+
+  getImageUrl: (imagePath: string): string => {
+    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+    return `${API_IMAGE_URL}/${cleanPath}`;
   },
 };

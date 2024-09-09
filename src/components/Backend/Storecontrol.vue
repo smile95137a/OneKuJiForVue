@@ -9,8 +9,8 @@
         <h3>{{ editingProduct ? '編輯商品' : '新增商品' }}</h3>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label for="name">商品名稱</label>
-            <input id="name" v-model="productForm.name" required>
+            <label for="productName">商品名稱</label>
+            <input id="productName" v-model="productForm.productName" required>
           </div>
           <div class="form-group">
             <label for="description">商品描述</label>
@@ -21,8 +21,44 @@
             <input id="price" type="number" v-model.number="productForm.price" min="0" step="0.01" required>
           </div>
           <div class="form-group">
-            <label for="quantity">數量</label>
-            <input id="quantity" type="number" v-model.number="productForm.quantity" min="0" step="1" required>
+            <label for="stockQuantity">數量</label>
+            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1" required>
+          </div>
+          <div class="form-group">
+            <label for="width">寬度</label>
+            <input id="width" type="number" v-model.number="productForm.width" min="0" step="0.1">
+          </div>
+          <div class="form-group">
+            <label for="height">高度</label>
+            <input id="height" type="number" v-model.number="productForm.height" min="0" step="0.1">
+          </div>
+          <div class="form-group">
+            <label for="depth">深度</label>
+            <input id="depth" type="number" v-model.number="productForm.depth" min="0" step="0.1">
+          </div>
+          <div class="form-group">
+            <label for="specification">規格</label>
+            <input id="specification" v-model="productForm.specification">
+          </div>
+          <div class="form-group">
+            <label for="shippingMethod">配送方式</label>
+            <input id="shippingMethod" v-model="productForm.shippingMethod">
+          </div>
+          <div class="form-group">
+            <label for="specialPrice">特價</label>
+            <input id="specialPrice" type="number" v-model.number="productForm.specialPrice" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label for="status">狀態</label>
+            <input id="status" v-model="productForm.status">
+          </div>
+          <div class="form-group">
+            <label for="shippingPrice">運費</label>
+            <input id="shippingPrice" type="number" v-model.number="productForm.shippingPrice" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label for="size">尺寸</label>
+            <input id="size" type="number" v-model.number="productForm.size" min="0" step="0.1">
           </div>
           <div class="form-group">
             <label for="category">類別</label>
@@ -37,8 +73,8 @@
             <label for="images">商品圖片</label>
             <input id="images" type="file" @change="handleFileUpload" multiple accept="image/*">
           </div>
-          <div v-if="productForm.imageUrls.length > 0" class="image-preview">
-            <div v-for="(image, index) in productForm.imageUrls" :key="index" class="image-item">
+          <div v-if="productForm.imageUrl.length > 0" class="image-preview">
+            <div v-for="(image, index) in productForm.imageUrl" :key="index" class="image-item">
               <img v-if="typeof image === 'string'" :src="formatImageUrl(image)" alt="商品圖片" class="preview-image">
               <span v-else>{{ (image as File).name }}</span>
               <button type="button" @click="removeImage(index)" class="remove-image">移除</button>
@@ -60,20 +96,22 @@
           <th>描述</th>
           <th>價格</th>
           <th>數量</th>
+          <th>尺寸 (寬x高x深)</th>
           <th>類別</th>
           <th>操作</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="product in paginatedProducts" :key="product.id">
+        <tr v-for="product in paginatedProducts" :key="product.storeProductId">
           <td>
             <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片" class="product-image">
             <span v-else>無圖片</span>
           </td>
-          <td>{{ product.name }}</td>
+          <td>{{ product.productName }}</td>
           <td>{{ product.description }}</td>
           <td>{{ product.price }}</td>
-          <td>{{ product.quantity }}</td>
+          <td>{{ product.stockQuantity }}</td>
+          <td>{{ formatDimensions(product) }}</td>
           <td>{{ getCategoryName(product.categoryId) }}</td>
           <td>
             <button @click="editProduct(product)" class="btn btn-small btn-edit">編輯</button>
@@ -97,7 +135,6 @@ import { StoreCategory, StoreProductReq, StoreProductRes } from '@/interfaces/st
 import { storeServices } from '@/services/backend/storeservice';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 
-const API_URL = import.meta.env.VITE_BASE_API_URL2;
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 
 export default defineComponent({
@@ -108,12 +145,21 @@ export default defineComponent({
     const showAddForm = ref(false);
     const editingProduct = ref<StoreProductRes | null>(null);
     const productForm = reactive<StoreProductReq>({
-      name: '',
+      productName: '',
       description: '',
       price: 0,
-      quantity: 0,
-      imageUrls: [],
+      stockQuantity: 0,
+      imageUrl: [],
       categoryId: 0,
+      width: 0,
+      height: 0,
+      depth: 0,
+      specification: '',
+      shippingMethod: '',
+      specialPrice: 0,
+      status: '',
+      shippingPrice: 0,
+      size: 0,
     });
 
     const currentPage = ref(1);
@@ -157,22 +203,18 @@ export default defineComponent({
 
     const handleSubmit = async () => {
       try {
+        let response;
         const formData = new FormData();
-        Object.keys(productForm).forEach(key => {
-          if (key !== 'imageUrls') {
-            formData.append(key, productForm[key as keyof StoreProductReq].toString());
-          }
-        });
         
-        productForm.imageUrls.forEach((file, index) => {
-          if (file instanceof File) {
-            formData.append(`images`, file);
-          }
+        formData.append('productReq', JSON.stringify(productForm));
+        
+        const files = productForm.imageUrl.filter(item => item instanceof File);
+        files.forEach(file => {
+          formData.append('images', file);
         });
 
-        let response;
         if (editingProduct.value) {
-          response = await storeServices.updateStoreProduct(editingProduct.value.id, formData);
+          response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
         } else {
           response = await storeServices.addStoreProduct(formData);
         }
@@ -194,16 +236,15 @@ export default defineComponent({
       editingProduct.value = product;
       Object.assign(productForm, {
         ...product,
-        imageUrls: [...product.imageUrls]
+        imageUrls: [...(product.imageUrl || [])],
       });
       showAddForm.value = true;
     };
 
     const deleteProduct = async (id: number) => {
-      
       if (confirm('確定要刪除這個商品嗎？')) {
         try {
-          const response = await storeServices.deleteStoreProduct(id.toString());
+          const response = await storeServices.deleteStoreProduct(id);
           if (response.success) {
             alert('商品已成功刪除');
             await fetchProducts();
@@ -219,12 +260,21 @@ export default defineComponent({
 
     const resetForm = () => {
       Object.assign(productForm, {
-        name: '',
+        productName: '',
         description: '',
         price: 0,
-        quantity: 0,
+        stockQuantity: 0,
         imageUrls: [],
         categoryId: 0,
+        width: 0,
+        height: 0,
+        depth: 0,
+        specification: '',
+        shippingMethod: '',
+        specialPrice: 0,
+        status: '',
+        shippingPrice: 0,
+        size: 0,
       });
       editingProduct.value = null;
       showAddForm.value = false;
@@ -237,12 +287,12 @@ export default defineComponent({
     const handleFileUpload = (event: Event) => {
       const files = (event.target as HTMLInputElement).files;
       if (files) {
-        productForm.imageUrls = [...productForm.imageUrls, ...Array.from(files)];
+        productForm.imageUrl = [...productForm.imageUrl, ...Array.from(files)];
       }
     };
 
     const removeImage = (index: number) => {
-      productForm.imageUrls.splice(index, 1);
+      productForm.imageUrl.splice(index, 1);
     };
 
     const changePage = (page: number) => {
@@ -252,21 +302,32 @@ export default defineComponent({
     };
 
     const getCategoryName = (categoryId: number) => {
-      
-      const category = categories.value.find(c => c.categoryId.toString() === categoryId.toString());
-      
-      return category ? category.categoryName : 'Unknown';
-    };
-
+  console.log('Category ID:', categoryId);
+  console.log('Categories:', categories.value);
+  
+  // 确保 categoryId 是数字类型
+  const numericCategoryId = Number(categoryId);
+  
+  const category = categories.value.find(c => Number(c.categoryId) === numericCategoryId);
+  console.log('Found category:', category);
+  
+  if (category) {
+    return category.categoryName;
+  } else {
+    // 如果没有找到匹配的类别，直接返回 categoryId
+    return `Category ${categoryId}`;
+  }
+};
     const formatImageUrl = (url: string) => {
-      console.log(url);
-      
-      return `${API_URL}/uploads/${url}`;
+      return `${API_IMAGE_URL}/img${url}`;
     };
 
     const formatImage = (url: string) => {
-      
       return `${API_IMAGE_URL}/img${url}`;
+    };
+
+    const formatDimensions = (product: StoreProductRes) => {
+      return `${product.width || 0} x ${product.height || 0} x ${product.depth || 0}`;
     };
 
     onMounted(async () => {
@@ -293,11 +354,11 @@ export default defineComponent({
       getCategoryName,
       formatImageUrl,
       formatImage,
+      formatDimensions,
     };
   },
 });
 </script>
-
 <style scoped>
 .store-management {
   max-width: 1200px;
