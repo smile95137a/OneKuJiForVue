@@ -33,8 +33,8 @@
             <input id="height" type="number" v-model.number="productForm.height" min="0" step="0.1">
           </div>
           <div class="form-group">
-            <label for="depth">深度</label>
-            <input id="depth" type="number" v-model.number="productForm.depth" min="0" step="0.1">
+            <label for="lenght">深度</label>
+            <input id="lenght" type="number" v-model.number="productForm.length" min="0" step="0.1">
           </div>
           <div class="form-group">
             <label for="specification">規格</label>
@@ -144,23 +144,23 @@ export default defineComponent({
     const categories = ref<StoreCategory[]>([]);
     const showAddForm = ref(false);
     const editingProduct = ref<StoreProductRes | null>(null);
-    const productForm = reactive<StoreProductReq>({
-      productName: '',
-      description: '',
-      price: 0,
-      stockQuantity: 0,
-      imageUrl: [],
-      categoryId: 0,
-      width: 0,
-      height: 0,
-      depth: 0,
-      specification: '',
-      shippingMethod: '',
-      specialPrice: 0,
-      status: '',
-      shippingPrice: 0,
-      size: 0,
-    });
+      const productForm = reactive<StoreProductReq>({
+  productName: '',
+  description: '',
+  price: 0,
+  stockQuantity: 0,
+  imageUrl: [],
+  categoryId: 0,
+  width: 0,
+  height: 0,
+  length: 0, // 使用 length 替代 depth
+  specification: '',
+  shippingMethod: '',
+  specialPrice: 0,
+  status: '',
+  shippingPrice: 0,
+  size: 0,
+});
 
     const currentPage = ref(1);
     const itemsPerPage = 15;
@@ -203,16 +203,19 @@ export default defineComponent({
 
     const handleSubmit = async () => {
       try {
-        let response;
         const formData = new FormData();
         
-        formData.append('productReq', JSON.stringify(productForm));
+        // 將 productForm 轉換為 JSON 字符串並添加到 FormData
+        formData.append('storeProductReq', JSON.stringify(productForm));
         
-        const files = productForm.imageUrl.filter(item => item instanceof File);
-        files.forEach(file => {
-          formData.append('images', file);
+        // 添加圖片文件
+        productForm.imageUrl.forEach((file, index) => {
+          if (file instanceof File) {
+            formData.append(`images`, file);
+          }
         });
 
+        let response;
         if (editingProduct.value) {
           response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
         } else {
@@ -223,7 +226,7 @@ export default defineComponent({
           alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
           await fetchProducts();
           resetForm();
-        } else {
+        } else {  
           throw new Error(response.message || '操作失敗');
         }
       } catch (error) {
@@ -236,7 +239,7 @@ export default defineComponent({
       editingProduct.value = product;
       Object.assign(productForm, {
         ...product,
-        imageUrls: [...(product.imageUrl || [])],
+        imageUrl: [...(product.imageUrl || [])],
       });
       showAddForm.value = true;
     };
@@ -264,11 +267,11 @@ export default defineComponent({
         description: '',
         price: 0,
         stockQuantity: 0,
-        imageUrls: [],
+        imageUrl: [],
         categoryId: 0,
         width: 0,
         height: 0,
-        depth: 0,
+        length: 0,
         specification: '',
         shippingMethod: '',
         specialPrice: 0,
@@ -302,22 +305,11 @@ export default defineComponent({
     };
 
     const getCategoryName = (categoryId: number) => {
-  console.log('Category ID:', categoryId);
-  console.log('Categories:', categories.value);
-  
-  // 确保 categoryId 是数字类型
-  const numericCategoryId = Number(categoryId);
-  
-  const category = categories.value.find(c => Number(c.categoryId) === numericCategoryId);
-  console.log('Found category:', category);
-  
-  if (category) {
-    return category.categoryName;
-  } else {
-    // 如果没有找到匹配的类别，直接返回 categoryId
-    return `Category ${categoryId}`;
-  }
-};
+      const numericCategoryId = Number(categoryId);
+      const category = categories.value.find(c => Number(c.categoryId) === numericCategoryId);
+      return category ? category.categoryName : `Category ${categoryId}`;
+    };
+
     const formatImageUrl = (url: string) => {
       return `${API_IMAGE_URL}/img${url}`;
     };
@@ -327,7 +319,7 @@ export default defineComponent({
     };
 
     const formatDimensions = (product: StoreProductRes) => {
-      return `${product.width || 0} x ${product.height || 0} x ${product.depth || 0}`;
+      return `${product.width || 0} x ${product.height || 0} x ${product.length || 0}`;
     };
 
     onMounted(async () => {
@@ -359,6 +351,7 @@ export default defineComponent({
   },
 });
 </script>
+
 <style scoped>
 .store-management {
   max-width: 1200px;
@@ -385,7 +378,6 @@ export default defineComponent({
   background-color: #007bff;
   color: white;
 }
-
 .btn-primary:hover {
   background-color: #0056b3;
 }

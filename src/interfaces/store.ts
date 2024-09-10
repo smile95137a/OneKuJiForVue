@@ -2,28 +2,40 @@
 import { ApiResponse } from '@/interfaces/admin';
 
 export interface StoreProductReq {
-  name: string;
+  productName: string;
   description: string;
   price: number;
-  quantity: number;
-  imageUrl: (string | File)[];  // 允許字符串和 File 類型
+  stockQuantity: number;
+  imageUrl: (string | File)[];
   categoryId: number;
   width: number;
   height: number;
-  depth: number;
+  length: number;
+  specification: string;
+  shippingMethod: string;
+  specialPrice: number;
+  status: string;
+  shippingPrice: number;
+  size: number;
 }
 
 export interface StoreProductRes {
   storeProductId: number;
-  name: string;
+  productName: string;
   description: string;
   price: number;
-  quantity: number;
-  imageUrl: string[]; // 後端返回的應該只有字符串類型的 URL
+  stockQuantity: number;
+  imageUrl: string[];
   categoryId: number;
   width: number;
   height: number;
-  depth: number;
+  length: number
+  specification: string;
+  shippingMethod: string;
+  specialPrice: number;
+  status: string;
+  shippingPrice: number;
+  size: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,8 +50,8 @@ export type StoreProductListApiResponse = ApiResponse<StoreProductRes[]>;
 export type StoreCategoryApiResponse = ApiResponse<StoreCategory>;
 export type StoreCategoryListApiResponse = ApiResponse<StoreCategory[]>;
 
-// 新增用於文件上傳的接口
+// Interface for file upload
 export interface StoreProductFormData {
-  productReq: string; // JSON 字符串
-  images?: File[];
+  productReq: string; // JSON string
+  images: File[];
 }
