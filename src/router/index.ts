@@ -30,12 +30,12 @@ import Policy from '@/views/Policy/Policy.vue';
 // 后台组件
 import AdminLogin from '@/views/Control/AdminLogin.vue';
 import AdminDashboard from '@/views/Control/AdminDashboard.vue';
-import MemberManagement from '@/components/Backend/MemberManagement.vue';
-import InventoryManagement from '@/components/Backend/InventoryManagement.vue';
-import ShipmentManagement from '@/components/Backend/ShipmentManagement.vue';
-import PermissionManagement from '@/components/Backend/PermissionsManagement.vue';
-import ProductDataManagement from '@/components/Backend/ProductDataManagement.vue';
-import Storecontrol from '@/components/Backend/Storecontrol.vue';
+import MemberManagement from '@/components/backend/MemberManagement.vue';
+import InventoryManagement from '@/components/backend/InventoryManagement.vue';
+import ShipmentManagement from '@/components/backend/ShipmentManagement.vue';
+import PermissionManagement from '@/components/backend/PermissionsManagement.vue';
+import ProductDataManagement from '@/components/backend/ProductDataManagement.vue';
+import Storecontrol from '@/components/backend/Storecontrol.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
