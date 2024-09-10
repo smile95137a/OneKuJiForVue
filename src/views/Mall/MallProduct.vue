@@ -4,7 +4,7 @@
     <div class="mall-product__main">
       <div class="mall-product__img">
         <div class="mall-product__img-main">
-          <MImage :src="selectedImage" />
+          <MImage v-if="selectedImage" :src="selectedImage" />
         </div>
 
         <div class="mall-product__img-other">

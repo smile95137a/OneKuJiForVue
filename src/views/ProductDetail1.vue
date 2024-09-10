@@ -4,7 +4,7 @@
     <div class="product-detail-one">
       <div class="product-detail-one__main">
         <div class="product-detail-one__img">
-          <MImage :src="product?.imageUrls[0]" />
+          <MImage v-if="product" :src="product?.imageUrls[0]" />
         </div>
         <div class="product-detail-one__title">
           <p class="product-detail-one__text">
