@@ -18,13 +18,13 @@ const basePath = '/draw';
 
 // 抽獎
 export const drawPrize = async (
-  userUid: string,
   count: number,
   productId: number
 ): Promise<ApiResponse<any[]>> => {
   try {
-    const response = await api.post(`${basePath}/oneprize/${userUid}`, null, {
-      params: { count, productId },
+    const response = await api.post(`${basePath}/oneprize`, {
+      count,
+      productId,
     });
     return response.data;
   } catch (error) {
@@ -49,12 +49,12 @@ export const getDrawStatus = async (
 // 執行抽獎
 export const executeDraw = async (
   productId: number,
-  userUid: string,
-  prizeNumber: number
-): Promise<ApiResponse<DrawResult>> => {
+  prizeNumbers: any[]
+): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.post(`${basePath}/execute/${productId}`, null, {
-      params: { userUid, prizeNumber },
+    const response = await api.post(`${basePath}/execute`, {
+      productId,
+      prizeNumbers: prizeNumbers,
     });
     return response.data;
   } catch (error) {

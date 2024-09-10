@@ -344,24 +344,22 @@ const handleExchange = async () => {
 
   if (product.value) {
     const { productType } = product.value;
-    const ps = activeTickets.value?.map((x) =>
-      executeDraw(x.productId, authStore.user.userUid, x.number)
-    );
+
     try {
       loadingStore.startLoading();
-      const responses = await Promise.all(ps);
+      const { success, data } = await executeDraw(
+        productId,
+        activeTickets.value?.map((x) => x.number)
+      );
 
       loadingStore.stopLoading();
-      const allSuccessful = responses.every(
-        (response) => response && response.success
-      );
-      if (allSuccessful) {
+
+      if (success) {
         await dialogStore.openOneKujiDialog(
           {},
           productType === 'PRIZE' ? 'ticket' : 'box'
         );
 
-        const data = responses.map((x) => x.data).flat(1);
         activeTickets.value = [];
 
         const totalAmount = data.reduce(

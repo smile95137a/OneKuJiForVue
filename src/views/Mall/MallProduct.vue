@@ -39,17 +39,6 @@
             </div>
             <div class="mall-product__detail-priceUnit">元</div>
           </div>
-          <div class="mall-product__detail-priceCoupon">
-            <div class="mall-product__detail-priceCouponBtns">
-              <div class="mall-product__detail-priceCouponBtn">滿額免運</div>
-              <div class="mall-product__detail-priceCouponBtn">滿額折300</div>
-            </div>
-            <div class="mall-product__detail-priceCouponTicket">
-              <p class="mall-product__detail-priceCouponTicket-text">
-                領取優惠券
-              </p>
-            </div>
-          </div>
         </div>
 
         <div class="mall-product__detail-other">

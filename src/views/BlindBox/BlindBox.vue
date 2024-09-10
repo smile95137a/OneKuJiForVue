@@ -4,10 +4,6 @@
       <div class="product2__text" data-text="盲盒">盲盒</div>
     </div>
     <div class="product2__btns">
-      <div class="product2__btns-selects">
-        <MSelect :options="options1" v-model="selectedValue1" />
-        <MSelect :options="options2" v-model="selectedValue2" />
-      </div>
       <div class="product2__btns-search">
         <div class="product2__input">
           <div class="product2__input-main">

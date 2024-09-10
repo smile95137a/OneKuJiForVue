@@ -45,11 +45,12 @@
     <NoData v-if="orders.length === 0" />
 
     <div v-else class="memberCenter__table">
-      <CTable :headers="headers">
-        <template v-for="(order, index) in orders" :key="index">
-          <CTableRow :data="createRowData(order)" />
-        </template>
-      </CTable>
+      <CFlip
+        v-for="(order, index) in orders"
+        :key="index"
+        :orderData="order"
+        :index="index"
+      />
     </div>
   </div>
 </template>
@@ -57,6 +58,7 @@
 <script lang="ts" setup>
 import NoData from '@/components/common/NoData.vue';
 import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
+import CFlip from '@/components/common/CFlip.vue';
 import { queryOrder } from '@/services/frontend/orderService';
 import { useForm } from 'vee-validate';
 import { ref } from 'vue';
@@ -77,14 +79,6 @@ const { defineField, handleSubmit } = useForm({
 const [startDate] = defineField('startDate');
 const [endDate] = defineField('endDate');
 
-const headers = [
-  { text: '日期', className: 'w-20' },
-  { text: '訂單編號', className: 'w-20' },
-  { text: '內容', className: 'w-20' },
-  { text: '狀態', className: 'w-20' },
-  { text: '明細', className: 'w-20' },
-];
-
 const submitForm = handleSubmit(async (values) => {
   try {
     const response = await queryOrder(values);
@@ -93,42 +87,6 @@ const submitForm = handleSubmit(async (values) => {
     console.error('Error fetching order data:', error);
   }
 });
-
-const createRowData = (order) => [
-  {
-    content: formatDate(order.createdAt),
-    className: '',
-    dataTitle: '日期',
-  },
-  {
-    content: order.orderNumber,
-    className: '',
-    dataTitle: '訂單編號',
-  },
-  {
-    content: order.content,
-    className: '',
-    dataTitle: '內容',
-  },
-  {
-    content: order.resultStatus,
-    className: '',
-    dataTitle: '狀態',
-  },
-  {
-    content: '明細',
-    className: '',
-    dataTitle: '明細',
-  },
-];
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString();
-};
-
-const viewOrderDetail = (orderNumber: string) => {
-  router.push({ name: 'OrderDetail', params: { orderNumber } });
-};
 </script>
 
 <style lang="scss" scoped></style>

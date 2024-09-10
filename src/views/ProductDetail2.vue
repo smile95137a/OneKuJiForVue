@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import ProductCard from '@/components/frontend/ProductCard.vue';
@@ -81,7 +81,7 @@ import {
 } from '@/services/frontend/productService';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
-import { drawPrize } from '@/services/frontend/drawService';
+import { drawPrize, getDrawStatus } from '@/services/frontend/drawService';
 
 const route = useRoute();
 const productId = Number(route.params.id);
@@ -92,15 +92,23 @@ const gachaList = ref<IProduct[] | null>(null);
 const dialogStore = useDialogStore();
 const loadingStore = useLoadingStore();
 const authStore = useAuthStore();
-
+const ticketList = ref<any[]>([]);
+const remainingQuantity = computed(() => {
+  if (!ticketList.value) {
+    return 0;
+  }
+  return ticketList.value.filter((x) => !x.isDrawn).length;
+});
 onMounted(async () => {
   loadingStore.startLoading();
   try {
-    const [productRes, productDetailRes, allProductRes] = await Promise.all([
-      getProductById(productId),
-      getProductDetailById(productId),
-      getAllProduct(),
-    ]);
+    const [productRes, productDetailRes, drawStatusResponse, allProductRes] =
+      await Promise.all([
+        getProductById(productId),
+        getProductDetailById(productId),
+        getDrawStatus(productId),
+        getAllProduct(),
+      ]);
 
     if (productRes.data) {
       product.value = productRes.data;
@@ -115,6 +123,11 @@ onMounted(async () => {
     if (productDetailRes.data) {
       productDetail.value = productDetailRes.data;
     }
+
+    if (drawStatusResponse.data) {
+      ticketList.value = drawStatusResponse.data;
+    }
+
     if (allProductRes.data) {
       gachaList.value = allProductRes.data.filter(
         (x) =>
@@ -130,29 +143,57 @@ onMounted(async () => {
 const handleDraw = async () => {
   try {
     const { productId } = product.value!;
-    console.log(productDetail.value);
     loadingStore.startLoading();
-    const { productType } = product.value;
-
-    const { data } = await drawPrize(authStore.user.userUid, 1, productId);
+    const { success, data } = await drawPrize(1, productId);
     const totalAmount = data.reduce(
       (sum: number, item: any) => sum + item.amount,
       0
     );
 
     loadingStore.stopLoading();
-    await dialogStore.openOneKujiDialog({}, 'gacha');
-    await dialogStore.openConfirmDialog(
-      { customClass: '' },
-      {
-        remainingQuantity: 0,
-        count: 1,
-        total: totalAmount,
-      }
-    );
-  } catch (error) {
-    alert('error');
+    if (success) {
+      await dialogStore.openOneKujiDialog({}, 'gacha');
+      await fetchDrawStatus();
+      await dialogStore.openConfirmDialog(
+        { customClass: '' },
+        {
+          remainingQuantity: remainingQuantity.value,
+          count: 1,
+          total: totalAmount,
+        }
+      );
+    }
+  } catch (error: any) {
     loadingStore.stopLoading();
+    console.log(error);
+
+    const errorMessage = error.response?.data?.message || '未知錯誤';
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message: errorMessage,
+    });
+  }
+};
+
+const fetchDrawStatus = async () => {
+  try {
+    const { data } = await getDrawStatus(productId);
+    console.log(data);
+
+    if (data) {
+      ticketList.value = data;
+    } else {
+      dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '系統錯誤',
+      });
+    }
+  } catch (error: any) {
+    const { message } = error.response.data;
+    dialogStore.openInfoDialog({
+      title: '系統通知',
+      message,
+    });
   }
 };
 </script>
