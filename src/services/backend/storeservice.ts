@@ -83,7 +83,7 @@ export const storeServices = {
     }
   },
 
-  createCategory: async (category: StoreCategory): Promise<StoreCategoryApiResponse> => {
+  createCategory: async (category: { categoryName: string }): Promise<StoreCategoryApiResponse> => {
     try {
       const response = await axiosInstance.post<StoreCategoryApiResponse>('/category', category);
       return response.data;

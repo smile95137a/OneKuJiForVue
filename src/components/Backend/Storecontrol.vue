@@ -1,7 +1,7 @@
 <template>
   <div class="store-management">
     <h2 class="title">商店管理</h2>
-    
+
     <button @click="showAddForm = true" class="btn btn-primary">新增商品</button>
 
     <div v-if="showAddForm" class="modal">
@@ -33,8 +33,8 @@
             <input id="height" type="number" v-model.number="productForm.height" min="0" step="0.1">
           </div>
           <div class="form-group">
-            <label for="lenght">深度</label>
-            <input id="lenght" type="number" v-model.number="productForm.length" min="0" step="0.1">
+            <label for="length">深度</label>
+            <input id="length" type="number" v-model.number="productForm.length" min="0" step="0.1">
           </div>
           <div class="form-group">
             <label for="specification">規格</label>
@@ -48,10 +48,16 @@
             <label for="specialPrice">特價</label>
             <input id="specialPrice" type="number" v-model.number="productForm.specialPrice" min="0" step="0.01">
           </div>
+          
+          <!-- 新的狀態切換 -->
           <div class="form-group">
             <label for="status">狀態</label>
-            <input id="status" v-model="productForm.status">
+            <div class="toggle-switch">
+              <input type="checkbox" id="status" v-model="productForm.status">
+              <label for="status">{{ productForm.status ? '上架' : '未上架' }}</label>
+            </div>
           </div>
+
           <div class="form-group">
             <label for="shippingPrice">運費</label>
             <input id="shippingPrice" type="number" v-model.number="productForm.shippingPrice" min="0" step="0.01">
@@ -68,7 +74,16 @@
                 {{ category.categoryName }}
               </option>
             </select>
+            <button type="button" @click="showAddCategoryForm = true" class="btn btn-small">新增類別</button>
           </div>
+
+          <!-- 新增類別的表單 -->
+          <div v-if="showAddCategoryForm" class="add-category-form">
+            <input v-model="newCategoryName" placeholder="輸入新類別名稱" />
+            <button type="button" @click="addNewCategory" class="btn btn-small">確認新增</button>
+            <button type="button" @click="showAddCategoryForm = false" class="btn btn-small">取消</button>
+          </div>
+
           <div class="form-group">
             <label for="images">商品圖片</label>
             <input id="images" type="file" @change="handleFileUpload" multiple accept="image/*">
@@ -143,24 +158,29 @@ export default defineComponent({
     const products = ref<StoreProductRes[]>([]);
     const categories = ref<StoreCategory[]>([]);
     const showAddForm = ref(false);
+    const showAddCategoryForm = ref(false);
+    const newCategoryName = ref('');
     const editingProduct = ref<StoreProductRes | null>(null);
-      const productForm = reactive<StoreProductReq>({
-  productName: '',
-  description: '',
-  price: 0,
-  stockQuantity: 0,
-  imageUrl: [],
-  categoryId: 0,
-  width: 0,
-  height: 0,
-  length: 0, // 使用 length 替代 depth
-  specification: '',
-  shippingMethod: '',
-  specialPrice: 0,
-  status: '',
-  shippingPrice: 0,
-  size: 0,
-});
+      const cancelEdit = () => {resetForm();
+  };
+
+    const productForm = reactive<StoreProductReq>({
+      productName: '',
+      description: '',
+      price: 0,
+      stockQuantity: 0,
+      imageUrl: [],
+      categoryId: 0,
+      width: 0,
+      height: 0,
+      length: 0,
+      specification: '',
+      shippingMethod: '',
+      specialPrice: 0,
+      status: 'UNAVAILABLE',
+      shippingPrice: 0,
+      size: 0,
+    });
 
     const currentPage = ref(1);
     const itemsPerPage = 15;
@@ -202,37 +222,94 @@ export default defineComponent({
     };
 
     const handleSubmit = async () => {
+  try {
+    const formData = new FormData();
+
+    // 複製 productForm 並處理圖片 URL
+    const productData = { ...productForm };
+    productData.imageUrl = productForm.imageUrl.filter(item => typeof item === 'string');
+
+    // 將 boolean 的 status 轉換為相應的字串
+    if (typeof productForm.status === 'boolean') {
+      productData.status = productForm.status ? 'AVAILABLE' : 'UNAVAILABLE';
+    } else {
+      productData.status = productForm.status;  // 確保 status 是字串
+    }
+
+    // 將 productData 轉換為 JSON 並加入 FormData
+    formData.append('storeProductReq', JSON.stringify(productData));
+
+    // 處理圖片文件並加入 FormData
+    productForm.imageUrl.forEach((item) => {
+      if (item instanceof File) {
+        formData.append('images', item);
+      }
+    });
+
+    // 根據是否是編輯模式選擇 API 方法
+    let response;
+    if (editingProduct.value) {
+      response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
+    } else {
+      response = await storeServices.addStoreProduct(formData);
+    }
+
+    // 檢查 API 回應並作出相應提示
+    if (response.success) {
+      alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
+      await fetchProducts();
+      resetForm();
+    } else {
+      throw new Error(response.message || '操作失敗');
+    }
+  } catch (error) {
+    console.error('Error submitting product:', error);
+    alert(`提交商品時發生錯誤: ${(error as Error).message}`);
+  }
+};
+
+    const addNewCategory = async () => {
+      if (newCategoryName.value.trim() === '') {
+        alert('類別名稱不能為空');
+        return;
+      }
+
       try {
-        const formData = new FormData();
-        
-        // 將 productForm 轉換為 JSON 字符串並添加到 FormData
-        formData.append('storeProductReq', JSON.stringify(productForm));
-        
-        // 添加圖片文件
-        productForm.imageUrl.forEach((file, index) => {
-          if (file instanceof File) {
-            formData.append(`images`, file);
-          }
-        });
-
-        let response;
-        if (editingProduct.value) {
-          response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
-        } else {
-          response = await storeServices.addStoreProduct(formData);
-        }
-
+        const response = await storeServices.createCategory({ categoryName: newCategoryName.value });
         if (response.success) {
-          alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
-          await fetchProducts();
-          resetForm();
-        } else {  
-          throw new Error(response.message || '操作失敗');
+          alert('新類別添加成功');
+          await fetchCategories();
+          showAddCategoryForm.value = false;
+          newCategoryName.value = '';
+        } else {
+          throw new Error(response.message || '添加類別失敗');
         }
       } catch (error) {
-        console.error('Error submitting product:', error);
-        alert(`提交商品時發生錯誤: ${(error as Error).message}`);
+        console.error('Error adding new category:', error);
+        alert(`添加新類別時發生錯誤: ${(error as Error).message}`);
       }
+    };
+
+    const resetForm = () => {
+      Object.assign(productForm, {
+        productName: '',
+        description: '',
+        price: 0,
+        stockQuantity: 0,
+        imageUrl: [],
+        categoryId: 0,
+        width: 0,
+        height: 0,
+        length: 0,
+        specification: '',
+        shippingMethod: '',
+        specialPrice: 0,
+        status: false,
+        shippingPrice: 0,
+        size: 0,
+      });
+      editingProduct.value = null;
+      showAddForm.value = false;
     };
 
     const editProduct = (product: StoreProductRes) => {
@@ -261,36 +338,14 @@ export default defineComponent({
       }
     };
 
-    const resetForm = () => {
-      Object.assign(productForm, {
-        productName: '',
-        description: '',
-        price: 0,
-        stockQuantity: 0,
-        imageUrl: [],
-        categoryId: 0,
-        width: 0,
-        height: 0,
-        length: 0,
-        specification: '',
-        shippingMethod: '',
-        specialPrice: 0,
-        status: '',
-        shippingPrice: 0,
-        size: 0,
-      });
-      editingProduct.value = null;
-      showAddForm.value = false;
-    };
-
-    const cancelEdit = () => {
-      resetForm();
-    };
-
     const handleFileUpload = (event: Event) => {
       const files = (event.target as HTMLInputElement).files;
       if (files) {
-        productForm.imageUrl = [...productForm.imageUrl, ...Array.from(files)];
+        const newImages = Array.from(files);
+        productForm.imageUrl = [
+          ...productForm.imageUrl.filter(item => typeof item === 'string'),
+          ...newImages
+        ];
       }
     };
 
@@ -336,7 +391,7 @@ export default defineComponent({
       handleSubmit,
       editProduct,
       deleteProduct,
-      cancelEdit,
+      resetForm,
       handleFileUpload,
       removeImage,
       paginatedProducts,
@@ -347,6 +402,10 @@ export default defineComponent({
       formatImageUrl,
       formatImage,
       formatDimensions,
+      showAddCategoryForm,
+      newCategoryName,
+      addNewCategory,
+      cancelEdit
     };
   },
 });
@@ -378,6 +437,7 @@ export default defineComponent({
   background-color: #007bff;
   color: white;
 }
+
 .btn-primary:hover {
   background-color: #0056b3;
 }
@@ -537,5 +597,50 @@ export default defineComponent({
   cursor: pointer;
   font-size: 12px;
   border-radius: 0 4px 0 4px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch label {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-switch label:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + label {
+  background-color: #2196F3;
+}
+
+.toggle-switch input:checked + label:before {
+  transform: translateX(26px);
 }
 </style>
