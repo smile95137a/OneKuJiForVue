@@ -16,6 +16,10 @@ $root-block-name: '.mallCheckout';
   &__product {
     @include flex(center);
     padding: 24px 48px;
+    @include screen(md) {
+      padding: 12px;
+      @include flex(center, null, column);
+    }
 
     gap: 24px;
     &-item {
@@ -70,10 +74,21 @@ $root-block-name: '.mallCheckout';
       }
     }
   }
-
+  &__shippings {
+    padding-bottom: 100px;
+    padding-top: 48px;
+    padding-left: 48px;
+    padding-right: 48px;
+    @include screen(md) {
+      padding: 12px;
+    }
+  }
   &__shipping {
     @include flex(center);
     gap: 24px;
+    @include screen(md) {
+      flex-direction: column;
+    }
     &-item {
       @include flex(center);
       &--title {
@@ -107,9 +122,20 @@ $root-block-name: '.mallCheckout';
     width: 100%;
     @include flex(null, null, column);
     &-inputs {
+      @include flex(nul, null, column);
+      &--names {
+        @include flex(nul, null, row);
+        @include screen(md) {
+          @include flex(nul, null, column);
+        }
+      }
       &--addr {
         @include flex(end);
         gap: 24px;
+        @include screen(xs) {
+          gap: 6px;
+          @include flex(start, null, column);
+        }
       }
     }
     #{$p__text} {
@@ -197,8 +223,11 @@ $root-block-name: '.mallCheckout';
   &__total {
     margin-top: 24px;
     padding: 0 64px;
-
     @include flex(end, null, column);
+
+    @include screen(md) {
+      padding: 0 12px;
+    }
 
     &-item {
       @include flex(center);
@@ -223,6 +252,9 @@ $root-block-name: '.mallCheckout';
     @include flex(null, end);
     margin: 48px 0;
     gap: 24px;
+    @include screen(xs) {
+      @include flex(center, center, column);
+    }
   }
 
   &__btn {

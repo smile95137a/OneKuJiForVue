@@ -36,6 +36,10 @@ $root-block-name: '.mallOrderSuccess';
   &__main {
     padding: 32px;
 
+    @include screen(md) {
+      padding: 12px;
+    }
+
     #{$p__text} {
       font-size: 20px;
       font-weight: 400;
@@ -49,6 +53,9 @@ $root-block-name: '.mallOrderSuccess';
       &--product {
         @include flex;
         gap: 24px;
+        @include screen(sm) {
+          @include flex(center, center, column);
+        }
       }
       &--delivery {
         @include flex(null, null, column);
@@ -68,6 +75,9 @@ $root-block-name: '.mallOrderSuccess';
     &-list {
       border-bottom: 1px solid #cf8046;
       padding: 24px;
+      @include screen(md) {
+        padding: 12px;
+      }
     }
     &-total {
       @include flex(center, end);
@@ -88,6 +98,9 @@ $root-block-name: '.mallOrderSuccess';
     @include flex(null, center);
     margin: 48px 0;
     gap: 24px;
+    @include screen(md) {
+      @include flex(center, center, column);
+    }
   }
 
   &__btn {

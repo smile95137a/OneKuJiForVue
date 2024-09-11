@@ -59,7 +59,7 @@
         寄送資訊
       </div>
       <Card>
-        <div class="p-t-48 p-b-100 p-x-48">
+        <div class="mallCheckout__shippings">
           <div class="mallCheckout__shipping">
             <div
               class="mallCheckout__shipping-item mallCheckout__shipping-item--title"
@@ -91,8 +91,10 @@
           <div class="mallCheckout__divider"></div>
           <div class="mallCheckout__billInfo">
             <div class="mallCheckout__form">
-              <div class="mallCheckout__form-inputs flex gap-x-24">
-                <div class="w-50">
+              <div
+                class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--names"
+              >
+                <div class="w-50 w-md-100">
                   <p class="mallCheckout__text mallCheckout__text--required">
                     購買人姓名
                   </p>
@@ -108,7 +110,7 @@
                     {{ errors.billingName }}
                   </p>
                 </div>
-                <div class="w-50">
+                <div class="w-50 w-md-100">
                   <p class="mallCheckout__text mallCheckout__text--required">
                     購買人Email
                   </p>
@@ -142,7 +144,7 @@
                 </p>
               </div>
               <div class="mallCheckout__form-inputs--addr">
-                <div class="mallCheckout__form-inputs w-25">
+                <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
@@ -162,7 +164,7 @@
                     {{ errors.billingCity }}
                   </p>
                 </div>
-                <div class="mallCheckout__form-inputs w-25">
+                <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <MSelect
                     :options="billAreaOptions"
                     v-model="billingArea"
@@ -173,7 +175,7 @@
                     {{ errors.billingArea }}
                   </p>
                 </div>
-                <div class="mallCheckout__form-inputs w-50">
+                <div class="mallCheckout__form-inputs w-50 w-md-100">
                   <input
                     class="mallCheckout__form-input"
                     v-model="billingAddress"
@@ -192,8 +194,10 @@
           <div class="mallCheckout__divider"></div>
           <div class="mallCheckout__shippingInfo">
             <div class="mallCheckout__form">
-              <div class="mallCheckout__form-inputs flex gap-x-24">
-                <div class="w-50">
+              <div
+                class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--names"
+              >
+                <div class="w-50 w-md-100">
                   <p class="mallCheckout__text mallCheckout__text--required">
                     收貨人姓名
                   </p>
@@ -209,7 +213,7 @@
                     {{ errors.shippingName }}
                   </p>
                 </div>
-                <div class="w-50">
+                <div class="w-50 w-md-100">
                   <p class="mallCheckout__text mallCheckout__text--required">
                     收貨人Email
                   </p>
@@ -243,7 +247,7 @@
                 </p>
               </div>
               <div class="mallCheckout__form-inputs--addr">
-                <div class="mallCheckout__form-inputs w-25">
+                <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
@@ -263,7 +267,7 @@
                     {{ errors.shippingCity }}
                   </p>
                 </div>
-                <div class="mallCheckout__form-inputs w-25">
+                <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
@@ -283,7 +287,7 @@
                     {{ errors.shippingArea }}
                   </p>
                 </div>
-                <div class="mallCheckout__form-inputs w-50">
+                <div class="mallCheckout__form-inputs w-50 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{

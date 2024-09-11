@@ -57,7 +57,10 @@ $root-block-name: '.mall-product';
 
   &__main {
     display: grid;
-    grid-template-columns: 400px 1fr;
+    grid-template-columns: 480px 1fr;
+    @include screen(md) {
+      grid-template-columns: 1fr;
+    }
   }
 
   &__img {
@@ -73,12 +76,13 @@ $root-block-name: '.mall-product';
       }
     }
     &-other {
-      @include flex;
+      @include flex(null, space-between);
       gap: 16px;
       margin: 16px 0;
     }
     &-otherItem {
-      width: 70px;
+      width: 100%;
+      max-width: 70px;
       height: 93px;
       img {
         width: 100%;
@@ -94,6 +98,9 @@ $root-block-name: '.mall-product';
 
   &__detail {
     margin-left: 48px;
+    @include screen(md) {
+      margin-left: 0;
+    }
     &-title {
       font-size: 35px;
       font-weight: 800;
@@ -249,8 +256,12 @@ $root-block-name: '.mall-product';
       @include flex;
       gap: 8px;
       margin-top: 48px;
+      @include screen(xs) {
+        @include flex(center, center, column);
+      }
       &-btn {
-        width: 362px;
+        width: 100%;
+        max-width: 362px;
         height: 72px;
 
         border-radius: 90px;

@@ -114,8 +114,8 @@
         </div>
       </div>
     </div>
-    <div class="mall-product__link grid m-t-24">
-      <div class="col-50 grid">
+    <div class="mall-product__link grid m-t-24 gap-y-24">
+      <div class="col-50 col-sm-100 grid gap-y-24">
         <div class="col-100 mall-product__link-item">
           <div class="mall-product__link-item-title">分享</div>
           <div
@@ -126,7 +126,7 @@
             <img :src="linkImg" @click="copyToClipboard(currentUrl)" />
           </div>
         </div>
-        <div class="col-100 mall-product__link-item m-t-24">
+        <div class="col-100 mall-product__link-item">
           <div class="mall-product__link-item-title">收藏</div>
           <div
             class="mall-product__link-item-main mall-product__link-item-main--like"
@@ -145,7 +145,7 @@
         </div>
       </div>
 
-      <div class="col-50 grid">
+      <div class="col-50 col-sm-100 grid gap-y-24">
         <div class="col-100 mall-product__link-item">
           <div class="mall-product__link-item-title">分類</div>
           <div
@@ -154,7 +154,7 @@
             主分類 > {{ product?.categoryName }}
           </div>
         </div>
-        <div class="col-100 mall-product__link-item m-t-24">
+        <div class="col-100 mall-product__link-item">
           <div class="mall-product__link-item-title">關鍵字</div>
           <div
             class="mall-product__link-item-main mall-product__link-item-main--hashTag"

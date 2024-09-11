@@ -66,7 +66,7 @@ const continueShopping = () => {
             :key="item.orderDetailId"
           >
             <div class="col-100 grid">
-              <div class="col-10">
+              <div class="col-10 col-md-100">
                 <p
                   class="mallOrderSuccess__text mallOrderSuccess__text--title"
                   v-if="index === 0"
@@ -74,7 +74,9 @@ const continueShopping = () => {
                   商品資訊
                 </p>
               </div>
-              <div class="col-65 mallOrderSuccess__main-cell--product">
+              <div
+                class="col-65 col-md-100 mallOrderSuccess__main-cell--product"
+              >
                 <div class="mallOrderSuccess__main-img">
                   <MImage :src="item.storeProduct.imageUrls[0]" />
                 </div>
@@ -82,7 +84,7 @@ const continueShopping = () => {
                   {{ item.storeProduct.productName }}
                 </p>
               </div>
-              <div class="col-25">
+              <div class="col-25 col-md-100">
                 <p class="mallOrderSuccess__text text-align-end">
                   $
                   <NumberFormatter
@@ -94,7 +96,7 @@ const continueShopping = () => {
           </div>
 
           <div class="grid m-t-72">
-            <div class="col-10">
+            <div class="col-10 col-sm-100">
               <p class="mallOrderSuccess__text mallOrderSuccess__text--title">
                 寄送資訊
               </p>
@@ -135,7 +137,7 @@ const continueShopping = () => {
           </div> -->
 
           <div class="grid m-t-48">
-            <div class="col-10">
+            <div class="col-10 col-sm-100">
               <p class="mallOrderSuccess__text mallOrderSuccess__text--title">
                 付款
               </p>
