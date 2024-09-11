@@ -130,11 +130,11 @@ onMounted(() => {
       <div v-if="gachaProducts.length === 0">
         <NoData />
       </div>
-      <div v-else class="home__products p-y-64">
+      <div v-else class="home__products">
         <ProductCard
           v-for="product in gachaProducts"
           :key="product.productId"
-          :customClass="'productCard--style2 m-y-36'"
+          :customClass="'productCard--style2'"
           :product="product"
           @click="navigateToDetail(product)"
         />

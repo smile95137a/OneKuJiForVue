@@ -65,7 +65,9 @@ $root-block-name: '.product';
   &__list {
     &-title {
       position: relative;
-      margin: 48px 0 48px 0;
+      padding: 24px;
+      padding-bottom: 0;
+      @include flex(center, end);
       #{$p__text} {
         font-size: 35px;
         font-weight: 400;
@@ -79,10 +81,6 @@ $root-block-name: '.product';
     }
 
     &-filter {
-      position: absolute;
-      top: 50%;
-      right: 24px;
-      transform: translateY(-50%);
       width: 65px;
       height: 59px;
       border-radius: 15px;

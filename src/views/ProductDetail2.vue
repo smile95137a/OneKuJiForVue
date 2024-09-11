@@ -178,7 +178,6 @@ const handleDraw = async () => {
 const fetchDrawStatus = async () => {
   try {
     const { data } = await getDrawStatus(productId);
-    console.log(data);
 
     if (data) {
       ticketList.value = data;

@@ -307,10 +307,6 @@ const fetchDrawStatus = async () => {
   }
 };
 
-const handleTicket = (ticket: any) => {
-  activeTickets.value = [ticket];
-};
-
 const handleCheckboxChange = (ticket: any) => {
   showOption.value = true;
   const isActive = activeTickets.value
