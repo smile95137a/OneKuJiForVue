@@ -4,31 +4,26 @@ $root-block-name: '.menu-flip';
   $p: &;
   $p__label: #{$p}__label;
   $p__text: #{$p}__text;
-  background: #fff;
   border-radius: 0.4rem;
   cursor: pointer;
+  min-width: 500px;
   &--active {
-    border: 2px solid #eb6ab2;
+    border: 2px solid #eb9838;
   }
 
   &__text {
     letter-spacing: 0.5px;
-    color: #f079b5;
     font-size: 14px;
     &--shutdown {
       color: #3e423a;
     }
-
-    &--start {
-      color: #90c060;
-    }
   }
   &__header {
     &-title {
-      background: #ffd1e9;
       color: #000;
       letter-spacing: 1px;
       font-weight: 900;
+      border-bottom: 1px solid #3e423a;
     }
 
     &-info {
@@ -46,7 +41,7 @@ $root-block-name: '.menu-flip';
     width: 100%;
     min-height: 80px;
     padding: 6px;
-    border-top: 1px solid #d1d1d1;
+    border-top: 1px solid #eb9838;
 
     &--active {
       display: block;

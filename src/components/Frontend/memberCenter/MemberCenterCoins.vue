@@ -27,7 +27,9 @@
       </div>
     </div>
     <div class="memberCenter__coins-item">
-      <div class="memberCenter__coins-icon"><img :src="c2" alt="紅利點數" /></div>
+      <div class="memberCenter__coins-icon">
+        <img :src="c2" alt="紅利點數" />
+      </div>
       <div class="memberCenter__coins-info">
         <div class="memberCenter__coins-title">
           <p class="memberCenter__text">紅利點數</p>
@@ -70,36 +72,4 @@ onMounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-.memberCenter__coins {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.memberCenter__coins-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.memberCenter__coins-icon {
-  margin-bottom: 10px;
-}
-
-.memberCenter__coins-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.memberCenter__coins-title {
-  margin-bottom: 5px;
-}
-
-.memberCenter__text {
-  margin: 0;
-}
-</style>
+<style lang="scss" scoped></style>

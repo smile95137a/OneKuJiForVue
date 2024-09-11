@@ -79,8 +79,8 @@ $root-block-name: '.memberCenter';
     gap: 48px;
     position: relative;
     padding-bottom: 64px;
-    @include screen(md) {
-      @include flex(center, null, column);
+    @include screen(sm) {
+      @include flex(center, center, column);
       gap: 24px;
       padding-bottom: 32px;
     }
@@ -653,6 +653,9 @@ $root-block-name: '.memberCenter';
 
   &__table {
     overflow: auto;
+    @include flex(null, null, column);
+    gap: 12px;
+    overflow-x: auto;
     table {
       width: 100%;
       border-collapse: collapse;

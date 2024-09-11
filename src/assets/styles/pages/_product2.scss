@@ -30,7 +30,7 @@ $root-block-name: '.product2';
     }
   }
   &__btns {
-    @include flex(center, space-between);
+    @include flex(center, end);
     gap: 16px;
     margin: 24px 0;
 

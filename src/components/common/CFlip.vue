@@ -1,13 +1,15 @@
 <template>
+  <div :class="['menu-flip']">
+    <div v-if="index === 0" class="menu-flip__header-title grid text-center">
+      <div class="col-20 p-12">日期</div>
+      <div class="col-20 p-12">訂單編號</div>
+      <div class="col-20 p-12">內容</div>
+      <div class="col-20 p-12">狀態</div>
+      <div class="col-20 p-12">明細</div>
+    </div>
+  </div>
   <div :class="['menu-flip', isActive ? 'menu-flip--active' : '']">
     <div class="menu-flip__header">
-      <div v-if="index === 0" class="menu-flip__header-title grid text-center">
-        <div class="col-20 p-12">日期</div>
-        <div class="col-20 p-12">訂單編號</div>
-        <div class="col-20 p-12">內容</div>
-        <div class="col-20 p-12">狀態</div>
-        <div class="col-20 p-12">明細</div>
-      </div>
       <div class="menu-flip__header-info grid text-center">
         <div class="col-20 p-12" @click="togglePanel">
           {{ formatDate(orderData.createdAt) }}
@@ -48,16 +50,16 @@
         <div class="col-25">總金額</div>
       </div>
       <div class="grid" v-for="item in orderData.orderDetails" :key="item.id">
-        <div class="col-25">
-          {{ item.productName }}
+        <div class="col-25 p-x-12">
+          {{ item.productDetailName }}
         </div>
-        <div class="col-25">
+        <div class="col-25 p-x-12">
           {{ item.quantity }}
         </div>
-        <div class="col-25">
+        <div class="col-25 p-x-12">
           {{ item.unitPrice }}
         </div>
-        <div class="col-25">
+        <div class="col-25 p-x-12">
           {{ item.totalPrice }}
         </div>
       </div>

@@ -99,7 +99,7 @@ $root-block-name: '.login';
     }
 
     &-btn {
-      @include flex(null, end);
+      @include flex(null, center);
       #{$p__btn} {
         width: 100%;
         max-width: 338px;
