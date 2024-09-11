@@ -21,6 +21,7 @@ import MallProduct from '@/views/Mall/MallProduct.vue';
 import MallCheckout from '@/views/Mall/MallCheckout.vue';
 import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
 import News from '@/views/News/News.vue';
+import NewsDetail from '@/views/NewsDetail/NewsDetail.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import OAuth2Redirect from '@/views/OAuth2Redirect/OAuth2Redirect.vue';
 import About from '@/views/About/About.vue';
@@ -150,6 +151,13 @@ const routes: Array<RouteRecordRaw> = [
     component: News,
     meta: { layout: 'default' },
   },
+
+  {
+    path: '/news/:id',
+    name: 'NewsDetail',
+    component: NewsDetail,
+  },
+
   {
     path: '/customized-draw',
     component: CustomizedDraw,

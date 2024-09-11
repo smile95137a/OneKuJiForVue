@@ -1,0 +1,14 @@
+$root-block-name: '.newsDetail';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+
+  &__title {
+    @include flex(center, space-between);
+  }
+
+  &__content {
+    margin-top: 24px;
+  }
+}
