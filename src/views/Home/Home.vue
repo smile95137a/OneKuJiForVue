@@ -15,11 +15,23 @@ import { useRouter } from 'vue-router';
 import MImage from '@/components/frontend/MImage.vue';
 
 const router = useRouter();
+
 const prizeProducts = ref<IProduct[]>([]);
 const blindBoxProducts = ref<IProduct[]>([]);
 const gachaProducts = ref<IProduct[]>([]);
 const bannerList = ref<Banner[]>([]); // 保存 Banner 数据
 const loadingStore = useLoadingStore();
+
+const goToProductDetail = (banner: Banner) => {
+  router.push({
+    name: `ProductDetail${
+      ['PRIZE', 'BLIND_BOX', 'CUSTOMER_PRIZE'].includes(banner.productType)
+        ? '1'
+        : '2'
+    }`,
+    params: { id: banner.productId },
+  });
+};
 
 const fetchProducts = async () => {
   try {
@@ -92,7 +104,11 @@ onMounted(() => {
         :modules="[Navigation]"
         class="mySwiper"
       >
-        <SwiperSlide v-for="banner in bannerList" :key="banner.bannerUid">
+        <SwiperSlide
+          v-for="banner in bannerList"
+          :key="banner.bannerUid"
+          @click="goToProductDetail(banner)"
+        >
           <div class="slider__item">
             <MImage
               :src="banner.imageUrls[0]"

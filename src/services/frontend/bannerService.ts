@@ -8,6 +8,7 @@ export interface Banner {
   status: BannerStatus; // 横幅状态
   createdAt: string; // 创建时间
   updatedAt?: string; // 更新时间（可选）
+  productType: string;
 }
 
 // 枚举定义
