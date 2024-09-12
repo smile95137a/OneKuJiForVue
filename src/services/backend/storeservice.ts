@@ -1,4 +1,4 @@
-import { StoreCategory, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreProductApiResponse, StoreProductListApiResponse, StoreProductReq } from '@/interfaces/store';
+import { StoreCategory, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreProductApiResponse, StoreProductListApiResponse, StoreProductReq, StoreProductStatus } from '@/interfaces/store';
 import { getAuthToken } from '@/services/backend/adminservices';
 import axios from 'axios';
 import { ApiResponse } from '@/interfaces/admin';

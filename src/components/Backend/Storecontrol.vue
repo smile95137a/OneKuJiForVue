@@ -7,7 +7,7 @@
     <div v-if="showAddForm" class="modal">
       <div class="modal-content">
         <h3>{{ editingProduct ? '編輯商品' : '新增商品' }}</h3>
-        <form @submit.prevent="handleSubmit">
+        <form @submit.prevent="handleSubmit" class="product-form">
           <div class="form-group">
             <label for="productName">商品名稱</label>
             <input id="productName" v-model="productForm.productName" required>
@@ -41,43 +41,29 @@
             <input id="specification" v-model="productForm.specification">
           </div>
           <div class="form-group">
-            <label for="shippingMethod">配送方式</label>
-            <input id="shippingMethod" v-model="productForm.shippingMethod">
-          </div>
-          <div class="form-group">
             <label for="specialPrice">特價</label>
             <input id="specialPrice" type="number" v-model.number="productForm.specialPrice" min="0" step="0.01">
           </div>
           
-          <!-- 新的狀態切換 -->
           <div class="form-group">
-            <label for="status">狀態</label>
-            <div class="toggle-switch">
-              <input type="checkbox" id="status" v-model="productForm.status">
-              <label for="status">{{ productForm.status ? '上架' : '未上架' }}</label>
-            </div>
-          </div>
+  <label for="status">狀態</label>
+  <select v-model="productForm.status">
+    <option :value="StoreProductStatus.AVAILABLE">上架</option>
+    <option :value="StoreProductStatus.UNAVAILABLE">未上架</option>
+  </select>
+</div>
 
-          <div class="form-group">
-            <label for="shippingPrice">運費</label>
-            <input id="shippingPrice" type="number" v-model.number="productForm.shippingPrice" min="0" step="0.01">
-          </div>
-          <div class="form-group">
-            <label for="size">尺寸</label>
-            <input id="size" type="number" v-model.number="productForm.size" min="0" step="0.1">
-          </div>
           <div class="form-group">
             <label for="category">類別</label>
             <select id="category" v-model="productForm.categoryId" required>
               <option value="">請選擇類別</option>
-              <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId">
+              <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId.toString()">
                 {{ category.categoryName }}
               </option>
             </select>
             <button type="button" @click="showAddCategoryForm = true" class="btn btn-small">新增類別</button>
           </div>
 
-          <!-- 新增類別的表單 -->
           <div v-if="showAddCategoryForm" class="add-category-form">
             <input v-model="newCategoryName" placeholder="輸入新類別名稱" />
             <button type="button" @click="addNewCategory" class="btn btn-small">確認新增</button>
@@ -147,6 +133,7 @@
 
 <script lang="ts">
 import { StoreCategory, StoreProductReq, StoreProductRes } from '@/interfaces/store';
+import { StoreProductStatus } from '@/interfaces/store';
 import { storeServices } from '@/services/backend/storeservice';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 
@@ -161,8 +148,7 @@ export default defineComponent({
     const showAddCategoryForm = ref(false);
     const newCategoryName = ref('');
     const editingProduct = ref<StoreProductRes | null>(null);
-      const cancelEdit = () => {resetForm();
-  };
+    const cancelEdit = () => { resetForm(); };
 
     const productForm = reactive<StoreProductReq>({
       productName: '',
@@ -170,16 +156,16 @@ export default defineComponent({
       price: 0,
       stockQuantity: 0,
       imageUrl: [],
-      categoryId: 0,
+      categoryId: '',
       width: 0,
       height: 0,
       length: 0,
       specification: '',
-      shippingMethod: '',
+      shippingMethod: 'Express',
       specialPrice: 0,
-      status: 'UNAVAILABLE',
+      status: StoreProductStatus.UNAVAILABLE,
       shippingPrice: 0,
-      size: 0,
+      size: 0
     });
 
     const currentPage = ref(1);
@@ -221,52 +207,73 @@ export default defineComponent({
       }
     };
 
-    const handleSubmit = async () => {
-  try {
-    const formData = new FormData();
-
-    // 複製 productForm 並處理圖片 URL
-    const productData = { ...productForm };
-    productData.imageUrl = productForm.imageUrl.filter(item => typeof item === 'string');
-
-    // 將 boolean 的 status 轉換為相應的字串
-    if (typeof productForm.status === 'boolean') {
-      productData.status = productForm.status ? 'AVAILABLE' : 'UNAVAILABLE';
-    } else {
-      productData.status = productForm.status;  // 確保 status 是字串
-    }
-
-    // 將 productData 轉換為 JSON 並加入 FormData
-    formData.append('storeProductReq', JSON.stringify(productData));
-
-    // 處理圖片文件並加入 FormData
-    productForm.imageUrl.forEach((item) => {
-      if (item instanceof File) {
-        formData.append('images', item);
+    const validateForm = (): boolean => {
+      if (!productForm.productName || !productForm.description || !productForm.price || !productForm.stockQuantity || !productForm.categoryId) {
+        alert('請填寫所有必要的字段');
+        return false;
       }
-    });
+      return true;
+    };
 
-    // 根據是否是編輯模式選擇 API 方法
-    let response;
-    if (editingProduct.value) {
-      response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
-    } else {
-      response = await storeServices.addStoreProduct(formData);
-    }
+    const handleSubmit = async () => {
+      if (!validateForm()) {
+        return;
+      }
 
-    // 檢查 API 回應並作出相應提示
-    if (response.success) {
-      alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
-      await fetchProducts();
-      resetForm();
-    } else {
-      throw new Error(response.message || '操作失敗');
-    }
-  } catch (error) {
-    console.error('Error submitting product:', error);
-    alert(`提交商品時發生錯誤: ${(error as Error).message}`);
-  }
-};
+      try {
+        const formData = new FormData();
+
+        const productData = {
+          productName: productForm.productName,
+          description: productForm.description,
+          price: Number(productForm.price),
+          stockQuantity: Number(productForm.stockQuantity),
+          categoryId: productForm.categoryId,
+          width: Number(productForm.width),
+          height: Number(productForm.height),
+          length: Number(productForm.length),
+          specification: productForm.specification,
+          shippingMethod: 'Express',
+          specialPrice: Number(productForm.specialPrice),
+          status: productForm.status ? StoreProductStatus.AVAILABLE : StoreProductStatus.UNAVAILABLE,
+    };
+
+        if (editingProduct.value) {
+          formData.append('storeProductReq', JSON.stringify(productData));
+        } else {
+          formData.append('productReq', JSON.stringify(productData));
+        }
+
+        productForm.imageUrl.forEach((item, index) => {
+          if (item instanceof File) {
+            formData.append(`images`, item, item.name);
+          }
+        });
+
+        // 開發調試用：打印 formData 內容
+        formData.forEach((value, key) => {
+          console.log(key, value);
+        });
+
+        let response;
+        if (editingProduct.value) {
+          response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
+        } else {
+          response = await storeServices.addStoreProduct(formData);
+        }
+
+        if (response.success) {
+          alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
+          await fetchProducts();
+          resetForm();
+        } else {
+          throw new Error(response.message || '操作失敗');
+        }
+      } catch (error) {
+        console.error('Error submitting product:', error);
+        alert(`提交商品時發生錯誤: ${(error as Error).message}`);
+      }
+    };
 
     const addNewCategory = async () => {
       if (newCategoryName.value.trim() === '') {
@@ -297,16 +304,16 @@ export default defineComponent({
         price: 0,
         stockQuantity: 0,
         imageUrl: [],
-        categoryId: 0,
+        categoryId: '',
         width: 0,
         height: 0,
         length: 0,
         specification: '',
-        shippingMethod: '',
+        shippingMethod: 'Express',
         specialPrice: 0,
-        status: false,
+        status: StoreProductStatus.UNAVAILABLE,
         shippingPrice: 0,
-        size: 0,
+        size: 0
       });
       editingProduct.value = null;
       showAddForm.value = false;
@@ -317,6 +324,7 @@ export default defineComponent({
       Object.assign(productForm, {
         ...product,
         imageUrl: [...(product.imageUrl || [])],
+        categoryId: product.categoryId.toString(),
       });
       showAddForm.value = true;
     };
@@ -359,9 +367,8 @@ export default defineComponent({
       }
     };
 
-    const getCategoryName = (categoryId: number) => {
-      const numericCategoryId = Number(categoryId);
-      const category = categories.value.find(c => Number(c.categoryId) === numericCategoryId);
+    const getCategoryName = (categoryId: string) => {
+      const category = categories.value.find(c => c.categoryId.toString() === categoryId);
       return category ? category.categoryName : `Category ${categoryId}`;
     };
 
@@ -405,12 +412,12 @@ export default defineComponent({
       showAddCategoryForm,
       newCategoryName,
       addNewCategory,
-      cancelEdit
+      cancelEdit,
+      StoreProductStatus
     };
   },
 });
 </script>
-
 <style scoped>
 .store-management {
   max-width: 1200px;
@@ -422,6 +429,7 @@ export default defineComponent({
 .title {
   color: #333;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .btn {
@@ -430,34 +438,38 @@ export default defineComponent({
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.98);
 }
 
 .btn-primary {
-  background-color: #007bff;
+  background-color: #4CAF50;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: #45a049;
 }
 
 .btn-secondary {
-  background-color: #6c757d;
+  background-color: #f44336;
   color: white;
 }
 
 .btn-secondary:hover {
-  background-color: #545b62;
+  background-color: #da190b;
 }
 
 .btn-danger {
-  background-color: #dc3545;
+  background-color: #f44336;
   color: white;
 }
 
 .btn-danger:hover {
-  background-color: #c82333;
+  background-color: #da190b;
 }
 
 .btn-small {
@@ -466,12 +478,12 @@ export default defineComponent({
 }
 
 .btn-edit {
-  background-color: #ffc107;
-  color: #212529;
+  background-color: #2196F3;
+  color: white;
 }
 
 .btn-edit:hover {
-  background-color: #e0a800;
+  background-color: #0b7dda;
 }
 
 .modal {
@@ -489,12 +501,19 @@ export default defineComponent({
 
 .modal-content {
   background-color: white;
-  padding: 20px;
+  padding: 30px;
   border-radius: 8px;
-  width: 80%;
-  max-width: 500px;
-  max-height: 80vh;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.product-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
 .form-group {
@@ -505,19 +524,29 @@ export default defineComponent({
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
+  color: #333;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #4CAF50;
+  outline: none;
 }
 
 .form-actions {
+  grid-column: 1 / -1;
   text-align: right;
   margin-top: 20px;
 }
@@ -526,24 +555,35 @@ export default defineComponent({
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .product-table th,
 .product-table td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 12px;
   text-align: left;
 }
 
 .product-table th {
-  background-color: #f8f9fa;
+  background-color: #f2f2f2;
   font-weight: bold;
+  color: #333;
+}
+
+.product-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.product-table tr:hover {
+  background-color: #f5f5f5;
 }
 
 .no-data {
   text-align: center;
-  color: #6c757d;
+  color: #666;
   margin-top: 20px;
+  font-style: italic;
 }
 
 .product-image {
@@ -566,6 +606,7 @@ export default defineComponent({
 
 .pagination span {
   margin: 0 10px;
+  font-weight: bold;
 }
 
 .image-preview {
@@ -590,7 +631,7 @@ export default defineComponent({
   position: absolute;
   top: 0;
   right: 0;
-  background: rgba(255, 0, 0, 0.7);
+  background: rgba(244, 67, 54, 0.8);
   color: white;
   border: none;
   padding: 2px 5px;
@@ -637,10 +678,23 @@ export default defineComponent({
 }
 
 .toggle-switch input:checked + label {
-  background-color: #2196F3;
+  background-color: #4CAF50;
 }
 
 .toggle-switch input:checked + label:before {
   transform: translateX(26px);
+}
+
+.add-category-form {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.add-category-form input {
+  flex-grow: 1;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 </style>

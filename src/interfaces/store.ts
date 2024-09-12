@@ -1,20 +1,25 @@
-// store.ts
 import { ApiResponse } from '@/interfaces/admin';
 
+export enum StoreProductStatus {
+  AVAILABLE = 'AVAILABLE',
+  UNAVAILABLE = 'UNAVAILABLE'
+}
+
 export interface StoreProductReq {
+  storeProductId?: number;
   productName: string;
   description: string;
   price: number;
   stockQuantity: number;
   imageUrl: (string | File)[];
-  categoryId: number;
+  categoryId: string;
   width: number;
   height: number;
   length: number;
   specification: string;
   shippingMethod: string;
   specialPrice: number;
-  status: string;
+  status: StoreProductStatus;
   shippingPrice: number;
   size: number;
 }
@@ -26,20 +31,19 @@ export interface StoreProductRes {
   price: number;
   stockQuantity: number;
   imageUrl: string[];
-  categoryId: number;
+  categoryId: string;
   width: number;
   height: number;
-  length: number
+  length: number;
   specification: string;
   shippingMethod: string;
   specialPrice: number;
-  status: string;
+  status: StoreProductStatus;
   shippingPrice: number;
   size: number;
   createdAt: string;
   updatedAt: string;
 }
-
 export interface StoreCategory {
   categoryId: number;
   categoryName: string;
