@@ -153,7 +153,7 @@ const routes: Array<RouteRecordRaw> = [
   },
 
   {
-    path: '/news/:id',
+    path: '/news/:newsUid',
     name: 'NewsDetail',
     component: NewsDetail,
   },

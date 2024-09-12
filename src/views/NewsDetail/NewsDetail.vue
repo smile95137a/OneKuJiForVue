@@ -9,7 +9,10 @@
       </div>
     </div>
     <div class="newsDetail__content">
-      <MImage :src="newsItem.imageUrl" />
+      <MImage
+        v-if="newsItem.imageUrls && newsItem.imageUrls.length > 0"
+        :src="newsItem.imageUrls[0]"
+      />
       <div v-html="newsItem.preview"></div>
     </div>
   </div>
@@ -19,42 +22,30 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import MImage from '@/components/frontend/MImage.vue';
+import { getNewsById, News } from '@/services/frontend/newsService';
 
+// 获取当前路由
 const route = useRoute();
-const newsItem = ref<null | {
-  id: number;
-  title: string;
-  preview: string;
-  createdDate: string;
-  imageUrl: string;
-}>(null);
+// 定义新闻项
+const newsItem = ref<News | null>(null);
 
-const newsList = [
-  {
-    id: 117,
-    title: '廠商【玩具果實】公告:於9/30結束營業',
-    preview: '',
-    createdDate: '2024-09-10 17:11:08',
-    imageUrl: 'https://kujiflip.tw/uploads/1725959462644.jpg',
-    status: 1,
-  },
-  {
-    id: 116,
-    title: '【賞翻天官方公告】關於VIP介紹',
-    preview: '以下是詳細內容，歡迎詳閱😊',
-    createdDate: '2024-09-07 16:33:30',
-    imageUrl: 'https://kujiflip.tw/uploads/1725698222105.jpg',
-    status: 1,
-  },
-];
-
-const fetchNewsDetail = (id: number) => {
-  return newsList.find((news) => news.id === id) || null;
+// 获取新闻详情
+const fetchNewsDetail = async (newsUid: string) => {
+  try {
+    const { success, data, message } = await getNewsById(newsUid);
+    if (success) {
+      newsItem.value = data;
+    } else {
+      console.error('Error fetching news:', message);
+    }
+  } catch (error) {
+    console.error('Error fetching news detail:', error);
+  }
 };
 
 onMounted(() => {
-  const newsId = Number(route.params.id);
-  newsItem.value = fetchNewsDetail(newsId);
+  const newsUid = String(route.params.newsUid);
+  fetchNewsDetail(newsUid); // 调用 API 获取新闻详情
 });
 </script>
 
