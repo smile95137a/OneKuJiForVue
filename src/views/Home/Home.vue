@@ -12,6 +12,7 @@ import 'swiper/scss/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import MImage from '@/components/frontend/MImage.vue';
 
 const router = useRouter();
 const prizeProducts = ref<IProduct[]>([]);
@@ -19,7 +20,6 @@ const blindBoxProducts = ref<IProduct[]>([]);
 const gachaProducts = ref<IProduct[]>([]);
 const bannerList = ref<Banner[]>([]); // 保存 Banner 数据
 const loadingStore = useLoadingStore();
-const apiURL = import.meta.env.VITE_BASE_API_URL as string;
 
 const fetchProducts = async () => {
   try {
@@ -49,11 +49,7 @@ const fetchBanners = async () => {
   try {
     const { success, message, data } = await getAllBanners();
     if (success) {
-      bannerList.value = data.map((x) => {
-        const _x = { ...x, imageUrls: x.imageUrls.map((y) => `${apiURL}${y}`) };
-
-        return _x;
-      });
+      bannerList.value = data;
     } else {
       console.log(message);
     }
@@ -98,10 +94,9 @@ onMounted(() => {
       >
         <SwiperSlide v-for="banner in bannerList" :key="banner.bannerUid">
           <div class="slider__item">
-            <img
+            <MImage
               :src="banner.imageUrls[0]"
-              class="slider__item-img"
-              :alt="banner.bannerUid"
+              custom-class="slider__item-img"
             />
           </div>
         </SwiperSlide>

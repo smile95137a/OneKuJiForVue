@@ -1,5 +1,6 @@
 <template>
   <img
+    :class="customClass"
     v-show="!isLoading"
     :src="srcURL"
     @error="handleImageError"
@@ -9,16 +10,17 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, ref, onMounted } from 'vue';
+import { defineProps, ref, onMounted, watch } from 'vue';
 import img from '@/assets/image/login.png';
 
 interface IImageLoaderProps {
   src: any;
+  customClass?: string;
 }
+
 const props = defineProps<IImageLoaderProps>();
 const apiURL = import.meta.env.VITE_BASE_API_URL as string;
-const srcURL = `${apiURL}${props.src}`;
-
+const srcURL = ref(`${apiURL}${props.src}`);
 const isLoading = ref(true);
 
 const handleImageLoad = () => {
@@ -34,10 +36,23 @@ const handleImageError = (event: Event | string | number | object) => {
   isLoading.value = false;
 };
 
+const loadImage = () => {
+  isLoading.value = true;
+  const image = new Image();
+  image.src = srcURL.value;
+  image.onload = handleImageLoad;
+  image.onerror = handleImageError;
+};
+
 onMounted(() => {
-  const img = new Image();
-  img.src = srcURL;
-  img.onload = handleImageLoad;
-  img.onerror = handleImageError;
+  loadImage();
 });
+
+watch(
+  () => props.src,
+  (newSrc) => {
+    srcURL.value = `${apiURL}${newSrc}`;
+    loadImage();
+  }
+);
 </script>
