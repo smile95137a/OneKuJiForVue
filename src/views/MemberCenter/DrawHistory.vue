@@ -45,7 +45,7 @@
     <NoData v-if="orders.length === 0" />
 
     <div v-else class="memberCenter__table">
-      <CFlip
+      <DrawFlip
         v-for="(order, index) in orders"
         :key="index"
         :orderData="order"
@@ -58,7 +58,7 @@
 <script lang="ts" setup>
 import NoData from '@/components/common/NoData.vue';
 import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
-import CFlip from '@/components/common/CFlip.vue';
+import DrawFlip from '@/components/common/DrawFlip.vue';
 import { queryDrawOrder, queryOrder } from '@/services/frontend/orderService';
 import { useForm } from 'vee-validate';
 import { ref } from 'vue';
