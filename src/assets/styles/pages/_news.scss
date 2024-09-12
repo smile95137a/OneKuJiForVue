@@ -35,7 +35,22 @@ $root-block-name: '.news';
     gap: 24px;
 
     &-item {
-      border: 1px solid #000;
+      padding: 24px 0;
+      border-bottom: 1px solid #aeaeb2;
+
+      #{$p__text} {
+        &--title {
+          font-size: 35px;
+          font-weight: 800;
+          min-height: 99px;
+        }
+
+        &--preview {
+          font-size: 24px;
+          font-weight: 400;
+          color: #515151;
+        }
+      }
     }
   }
 }
