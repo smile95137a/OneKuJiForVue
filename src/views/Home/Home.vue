@@ -19,6 +19,7 @@ const blindBoxProducts = ref<IProduct[]>([]);
 const gachaProducts = ref<IProduct[]>([]);
 const bannerList = ref<Banner[]>([]); // 保存 Banner 数据
 const loadingStore = useLoadingStore();
+const apiURL = import.meta.env.VITE_BASE_API_URL as string;
 
 const fetchProducts = async () => {
   try {
@@ -48,7 +49,11 @@ const fetchBanners = async () => {
   try {
     const { success, message, data } = await getAllBanners();
     if (success) {
-      bannerList.value = data;
+      bannerList.value = data.map((x) => {
+        const _x = { ...x, imageUrls: x.imageUrls.map((y) => `${apiURL}${y}`) };
+
+        return _x;
+      });
     } else {
       console.log(message);
     }

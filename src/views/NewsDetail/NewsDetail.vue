@@ -1,11 +1,9 @@
 <template>
+  <Breadcrumbs :items="breadcrumbItems" />
   <div class="newsDetail" v-if="newsItem">
     <div class="newsDetail__title">
       <div class="newsDetail__title-title">
         <p class="newsDetail__text">{{ newsItem.title }}</p>
-      </div>
-      <div class="newsDetail__title-date">
-        <p class="newsDetail__text">{{ newsItem.createdDate }}</p>
       </div>
     </div>
     <div class="newsDetail__content">
@@ -13,8 +11,8 @@
         v-if="newsItem.imageUrls && newsItem.imageUrls.length > 0"
         :src="newsItem.imageUrls[0]"
       />
-      <div v-html="newsItem.preview"></div>
     </div>
+    <div v-html="newsItem.preview"></div>
   </div>
 </template>
 
@@ -23,7 +21,9 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import MImage from '@/components/frontend/MImage.vue';
 import { getNewsById, News } from '@/services/frontend/newsService';
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 
+const breadcrumbItems = ref([{ name: '首頁' }, { name: '最新消息' }]);
 // 获取当前路由
 const route = useRoute();
 // 定义新闻项
@@ -35,6 +35,7 @@ const fetchNewsDetail = async (newsUid: string) => {
     const { success, data, message } = await getNewsById(newsUid);
     if (success) {
       newsItem.value = data;
+      breadcrumbItems.value.push({ name: data.title });
     } else {
       console.error('Error fetching news:', message);
     }

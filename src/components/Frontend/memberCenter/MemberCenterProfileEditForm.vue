@@ -153,8 +153,8 @@ const dialogStore = useDialogStore();
 const schema = yup.object({
   nickname: yup.string().required('暱稱為必填項'),
   addressName: yup.string().required('收貨姓名為必填項'),
-  city: yup.string(),
-  area: yup.string(),
+  city: yup.string().nullable(),
+  area: yup.string().nullable(),
   address: yup.string(),
   lineId: yup.string().nullable(),
   phoneNumber: yup.string().required('收貨手機為必填項'),

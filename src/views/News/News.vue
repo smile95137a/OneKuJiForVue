@@ -1,4 +1,5 @@
 <template>
+  <Breadcrumbs :items="breadcrumbItems" />
   <div class="news">
     <div class="news__title">
       <div class="news__text" data-text="最新消息">最新消息</div>
@@ -33,19 +34,11 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import NoData from '@/components/common/NoData.vue';
 import MImage from '@/components/frontend/MImage.vue';
-import { getAllNews } from '@/services/frontend/newsService';
+import { getAllNews, News } from '@/services/frontend/newsService';
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 
-interface News {
-  newsUid: string;
-  title: string;
-  preview?: string;
-  createdDate: string;
-  imageUrls: string[];
-  status: number;
-}
-
+const breadcrumbItems = [{ name: '首頁' }, { name: '最新消息' }];
 const newsList = ref<News[]>([]); // 定义为News类型数组
-
 const router = useRouter();
 
 const goToDetail = (newsUid: string) => {
