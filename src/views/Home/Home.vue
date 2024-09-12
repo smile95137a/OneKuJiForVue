@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import bg from '@/assets/image/bg1.jpeg';
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import NoData from '@/components/common/NoData.vue';
 import { getAllProduct, IProduct } from '@/services/frontend/productService';
+import { getAllBanners, Banner } from '@/services/frontend/bannerService'; // 引入 getAllBanners
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { Navigation } from 'swiper/modules';
 import 'swiper/scss';
@@ -17,7 +17,9 @@ const router = useRouter();
 const prizeProducts = ref<IProduct[]>([]);
 const blindBoxProducts = ref<IProduct[]>([]);
 const gachaProducts = ref<IProduct[]>([]);
+const bannerList = ref<Banner[]>([]); // 保存 Banner 数据
 const loadingStore = useLoadingStore();
+
 const fetchProducts = async () => {
   try {
     loadingStore.startLoading();
@@ -41,6 +43,20 @@ const fetchProducts = async () => {
     console.log(error);
   }
 };
+
+const fetchBanners = async () => {
+  try {
+    const { success, message, data } = await getAllBanners();
+    if (success) {
+      bannerList.value = data;
+    } else {
+      console.log(message);
+    }
+  } catch (error) {
+    console.log('Error fetching banners:', error);
+  }
+};
+
 const navigateToDetail = (product: IProduct) => {
   const { productType, productId } = product;
 
@@ -59,15 +75,9 @@ const navigateToDetail = (product: IProduct) => {
 
 onMounted(() => {
   fetchProducts();
+  fetchBanners(); // 在组件挂载时获取 Banner 数据
 });
 </script>
-
-<style scoped>
-.slider {
-  width: 100%;
-  overflow: hidden;
-}
-</style>
 
 <template>
   <div class="home">
@@ -81,9 +91,13 @@ onMounted(() => {
         :modules="[Navigation]"
         class="mySwiper"
       >
-        <SwiperSlide v-for="index in 7" :key="index">
+        <SwiperSlide v-for="banner in bannerList" :key="banner.bannerUid">
           <div class="slider__item">
-            <img :src="bg" class="slider__item-img" :alt="'Slide ' + index" />
+            <img
+              :src="banner.imageUrls[0]"
+              class="slider__item-img"
+              :alt="banner.bannerUid"
+            />
           </div>
         </SwiperSlide>
       </Swiper>
@@ -142,3 +156,10 @@ onMounted(() => {
     </Card>
   </div>
 </template>
+
+<style scoped>
+.slider {
+  width: 100%;
+  overflow: hidden;
+}
+</style>
