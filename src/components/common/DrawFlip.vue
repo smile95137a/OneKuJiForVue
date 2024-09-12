@@ -21,7 +21,7 @@
           <p class="menu-flip__text">{{ orderData.drawCount }}</p>
         </div>
         <div class="col-20 flex items-center justify-center">
-          <p class="menu-flip__text">{{ formatDate(orderData.createdDate) }}</p>
+          <p class="menu-flip__text">{{ formatDate(orderData.createDate) }}</p>
         </div>
         <div class="col-20 flex items-center justify-center">
           <p class="menu-flip__text">{{ orderData.amount }}</p>
