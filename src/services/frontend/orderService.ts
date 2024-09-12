@@ -27,6 +27,19 @@ export const queryOrder = async (req: any): Promise<ApiResponse<any>> => {
   }
 };
 
+export const queryDrawOrder = async (req: any): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.post<ApiResponse<any>>(
+      `${basePath}/queryDrawOrder`,
+      req
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error querying orders:', error);
+    throw error;
+  }
+};
+
 export const getStoreProductOrderByOrderNumber = async (
   orderNumber: string
 ): Promise<ApiResponse<any>> => {

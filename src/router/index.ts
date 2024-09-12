@@ -12,6 +12,7 @@ import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 import Rewards from '@/views/MemberCenter/Rewards.vue';
 import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
+import DrawHistory from '@/views/MemberCenter/DrawHistory.vue';
 import NotFound from '@/views/NotFound/NotFound.vue';
 import Ichiban from '@/views/Ichiban/Ichiban.vue';
 import Blindox from '@/views/BlindBox/BlindBox.vue';
@@ -123,6 +124,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'order-history',
         name: 'OrderHistory',
         component: OrderHistory,
+      },
+      {
+        path: 'draw-history',
+        name: 'DrawHistory',
+        component: DrawHistory,
       },
     ],
   },
