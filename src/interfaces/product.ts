@@ -21,42 +21,60 @@ export enum PrizeCategory {
 }
 
 export interface ProductReq {
+  productId?: number;
+  productName: string;
+  description: string;
+  price: number;
+  sliverPrice: number;
+  stockQuantity: number;
+  imageUrls: (string | File)[];
+  productType: ProductType;
+  prizeCategory: PrizeCategory;
+  status: ProductStatus;
+  bonusPrice: number;
+  specification: string;
+}
+
+export interface ProductRes {
+  productId: number;
   productName: string;
   description: string;
   price: number;
   sliverPrice: number;
   stockQuantity: number;
   imageUrls: string[];
-  rarity?: string;
-  startDate?: string;
-  endDate?: string;
   productType: ProductType;
   prizeCategory: PrizeCategory;
   status: ProductStatus;
   bonusPrice: number;
   specification: string;
-  length: number;
-  width: number;
-  height: number;
 }
 
-export interface ProductRes extends ProductReq {
-  productId: number;
-  createdAt: string;
-  updatedAt: string;
-  createdUser?: number;
-  updateUser?: number;
-  size: number;
-  productDetails?: ProductDetailRes[];
-}
-
-export interface ProductDetailReq {
+export interface DetailReq {
+  productDetailId?: number;
   productId: number;
   description: string;
   note: string;
-  rarity: string;
   size: string;
-  material: string;
+  quantity: number;
+  stockQuantity: number;
+  productName: string;
+  grade: string;
+  price: number;
+  sliverPrice: number;
+  imageUrls: (string | File)[];
+  length: number;
+  width: number;
+  height: number;
+  specification: string;
+}
+
+export interface DetailRes {
+  productDetailId: number;
+  productId: number;
+  description: string;
+  note: string;
+  size: string;
   quantity: number;
   stockQuantity: number;
   productName: string;
@@ -64,18 +82,10 @@ export interface ProductDetailReq {
   price: number;
   sliverPrice: number;
   imageUrls: string[];
-  prizeNumber?: string;
-  drawnNumbers?: string;
-  specification: string;
   length: number;
   width: number;
   height: number;
-}
-
-export interface ProductDetailRes extends ProductDetailReq {
-  productDetailId: number;
-  createDate: string;
-  updateDate: string;
+  specification: string;
 }
 
 export interface ApiResponse<T> {
@@ -87,5 +97,5 @@ export interface ApiResponse<T> {
 
 export type ProductApiResponse = ApiResponse<ProductRes>;
 export type ProductListApiResponse = ApiResponse<ProductRes[]>;
-export type ProductDetailApiResponse = ApiResponse<ProductDetailRes>;
-export type ProductDetailListApiResponse = ApiResponse<ProductDetailRes[]>;
+export type DetailApiResponse = ApiResponse<DetailRes>;
+export type DetailListApiResponse = ApiResponse<DetailRes[]>;

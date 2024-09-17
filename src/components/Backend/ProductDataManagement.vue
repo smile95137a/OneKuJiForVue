@@ -1,9 +1,9 @@
 <template>
-  <div class="product-control">
-    <h1>抽獎系統管理</h1>
+  <div class="product-management">
+    <h1>產品系列管理</h1>
     <button @click="openAddProductModal">新增產品系列</button>
 
-    <table>
+    <table v-if="products.length">
       <thead>
         <tr>
           <th>圖片</th>
@@ -27,24 +27,25 @@
           <td>{{ product.productName }}</td>
           <td>{{ product.productType }}</td>
           <td>{{ getPrizeCategoryDescription(product.prizeCategory) }}</td>
-          <td>{{ product.goldPrice }}</td>
-          <td>{{ product.silverPrice }}</td>
+          <td>{{ product.price }}</td>
+          <td>{{ product.sliverPrice }}</td>
           <td>{{ product.bonusPrice }}</td>
           <td>{{ product.stockQuantity }}</td>
           <td>{{ product.status }}</td>
           <td>
             <button @click="openEditProductModal(product)">編輯</button>
-            <button @click="openProductDetailsModal(product)">詳情</button>
             <button @click="deleteProduct(product.productId)">刪除</button>
+            <button @click="openProductDetailsModal(product.productId)">查看商品</button>
           </td>
         </tr>
       </tbody>
     </table>
+    <p v-else>暫無產品系列</p>
 
-    <!-- 產品系列模態窗 -->
+    <!-- 新增/編輯產品系列模態窗 -->
     <div v-if="showProductModal" class="modal">
       <div class="modal-content">
-        <h3>{{ editingProduct ? '編輯產品系列' : '新增產品系列' }}</h3>
+        <h2>{{ editingProduct ? '編輯產品系列' : '新增產品系列' }}</h2>
         <form @submit.prevent="handleProductSubmit">
           <div>
             <label for="productName">產品名稱</label>
@@ -57,28 +58,28 @@
           <div>
             <label for="productType">產品類型</label>
             <select id="productType" v-model="productForm.productType" required>
-              <option v-for="type in Object.values(ProductType)" :key="type" :value="type">{{ type }}</option>
+              <option v-for="type in ProductType" :key="type" :value="type">{{ type }}</option>
             </select>
           </div>
           <div>
             <label for="prizeCategory">一番賞類別</label>
             <select id="prizeCategory" v-model="productForm.prizeCategory" required>
-              <option v-for="category in Object.values(PrizeCategory)" :key="category" :value="category">
+              <option v-for="category in PrizeCategory" :key="category" :value="category">
                 {{ getPrizeCategoryDescription(category) }}
               </option>
             </select>
           </div>
           <div>
-            <label for="goldPrice">金幣價格</label>
-            <input id="goldPrice" type="number" v-model.number="productForm.goldPrice" required>
+            <label for="price">金幣價格</label>
+            <input id="price" type="number" v-model.number="productForm.price" required>
           </div>
           <div>
-            <label for="silverPrice">銀幣價格</label>
-            <input id="silverPrice" type="number" v-model.number="productForm.silverPrice" required>
+            <label for="sliverPrice">銀幣價格</label>
+            <input id="sliverPrice" type="number" v-model.number="productForm.sliverPrice" step="0.01" required>
           </div>
           <div>
             <label for="bonusPrice">紅利價格</label>
-            <input id="bonusPrice" type="number" v-model.number="productForm.bonusPrice" required>
+            <input id="bonusPrice" type="number" v-model.number="productForm.bonusPrice" step="0.01" required>
           </div>
           <div>
             <label for="stockQuantity">庫存數量</label>
@@ -87,25 +88,21 @@
           <div>
             <label for="status">狀態</label>
             <select id="status" v-model="productForm.status" required>
-              <option v-for="status in Object.values(ProductStatus)" :key="status" :value="status">{{ status }}</option>
+              <option v-for="status in ProductStatus" :key="status" :value="status">{{ status }}</option>
             </select>
           </div>
           <div>
-            <label for="startDate">開始日期</label>
-            <input id="startDate" type="date" v-model="productForm.startDate">
-          </div>
-          <div>
-            <label for="endDate">結束日期</label>
-            <input id="endDate" type="date" v-model="productForm.endDate">
+            <label for="specification">規格</label>
+            <input id="specification" v-model="productForm.specification">
           </div>
           <div>
             <label for="productImage">產品圖片</label>
-            <input id="productImage" type="file" @change="handleProductImageUpload" multiple accept="image/*">
+            <input id="productImage" type="file" @change="handleImageUpload" multiple accept="image/*">
           </div>
-          <div v-if="productForm.imageUrls.length > 0" class="image-preview">
+          <div v-if="productForm.imageUrls.length > 0">
             <div v-for="(image, index) in productForm.imageUrls" :key="index">
-              <img :src="formatImageUrl(image)" alt="產品圖片">
-              <button type="button" @click="removeProductImage(index)" class="remove-image">移除</button>
+              <img :src="formatImageUrl(image)" alt="產品圖片" style="width: 100px; height: 100px;">
+              <button type="button" @click="removeImage(index)">移除</button>
             </div>
           </div>
           <button type="submit">{{ editingProduct ? '更新' : '新增' }}</button>
@@ -117,26 +114,32 @@
     <!-- 產品詳情模態窗 -->
     <div v-if="showProductDetailsModal" class="modal">
       <div class="modal-content">
-        <h3>產品詳情: {{ currentProduct?.productName }}</h3>
-        <button @click="openAddProductDetailModal">新增商品</button>
-        <table v-if="currentProduct?.productDetails?.length">
+        <h2>產品詳情</h2>
+        <button @click="openAddDetailModal">新增商品</button>
+        <table v-if="productDetails.length">
           <thead>
             <tr>
               <th>商品名稱</th>
-              <th>等級</th>
+              <th>描述</th>
+              <th>規格</th>
               <th>數量</th>
-              <th>銀幣回收價格</th>
+              <th>庫存</th>
+              <th>金幣價格</th>
+              <th>銀幣價格</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="detail in currentProduct.productDetails" :key="detail.productDetailId">
+            <tr v-for="detail in productDetails" :key="detail.productDetailId">
               <td>{{ detail.productName }}</td>
-              <td>{{ detail.grade }}</td>
+              <td>{{ detail.description }}</td>
+              <td>{{ detail.specification }}</td>
               <td>{{ detail.quantity }}</td>
-              <td>{{ detail.silverRecyclePrice }}</td>
+              <td>{{ detail.stockQuantity }}</td>
+              <td>{{ detail.price }}</td>
+              <td>{{ detail.sliverPrice }}</td>
               <td>
-                <button @click="openEditProductDetailModal(detail)">編輯</button>
+                <button @click="openEditDetailModal(detail)">編輯</button>
                 <button @click="deleteProductDetail(detail.productDetailId)">刪除</button>
               </td>
             </tr>
@@ -147,43 +150,75 @@
       </div>
     </div>
 
-    <!-- 商品詳情模態窗 -->
-    <div v-if="showProductDetailModal" class="modal">
+    <!-- 新增/編輯商品模態窗 -->
+    <div v-if="showDetailModal" class="modal">
       <div class="modal-content">
-        <h3>{{ editingProductDetail ? '編輯商品' : '新增商品' }}</h3>
-        <form @submit.prevent="handleProductDetailSubmit">
+        <h2>{{ editingDetail ? '編輯商品' : '新增商品' }}</h2>
+        <form @submit.prevent="handleDetailSubmit">
           <div>
             <label for="detailProductName">商品名稱</label>
-            <input id="detailProductName" v-model="productDetailForm.productName" required>
+            <input id="detailProductName" v-model="detailForm.productName" required>
           </div>
           <div>
             <label for="detailDescription">描述</label>
-            <textarea id="detailDescription" v-model="productDetailForm.description" required></textarea>
+            <textarea id="detailDescription" v-model="detailForm.description" required></textarea>
           </div>
           <div>
-            <label for="detailGrade">等級</label>
-            <input id="detailGrade" v-model="productDetailForm.grade" required>
+            <label for="detailNote">備註</label>
+            <textarea id="detailNote" v-model="detailForm.note"></textarea>
+          </div>
+          <div>
+            <label for="detailSize">尺寸</label>
+            <input id="detailSize" v-model="detailForm.size">
           </div>
           <div>
             <label for="detailQuantity">數量</label>
-            <input id="detailQuantity" type="number" v-model.number="productDetailForm.quantity" required>
+            <input id="detailQuantity" type="number" v-model.number="detailForm.quantity" required>
           </div>
           <div>
-            <label for="detailSilverRecyclePrice">銀幣回收價格</label>
-            <input id="detailSilverRecyclePrice" type="number" v-model.number="productDetailForm.silverRecyclePrice" required>
+            <label for="detailStockQuantity">庫存數量</label>
+            <input id="detailStockQuantity" type="number" v-model.number="detailForm.stockQuantity" required>
+          </div>
+          <div>
+            <label for="detailGrade">等級</label>
+            <input id="detailGrade" v-model="detailForm.grade">
+          </div>
+          <div>
+            <label for="detailPrice">金幣價格</label>
+            <input id="detailPrice" type="number" v-model.number="detailForm.price" step="0.01" required>
+          </div>
+          <div>
+            <label for="detailSliverPrice">銀幣價格</label>
+            <input id="detailSliverPrice" type="number" v-model.number="detailForm.sliverPrice" step="0.01" required>
+          </div>
+          <div>
+            <label for="detailLength">長度</label>
+            <input id="detailLength" type="number" v-model.number="detailForm.length" step="0.01">
+          </div>
+          <div>
+            <label for="detailWidth">寬度</label>
+            <input id="detailWidth" type="number" v-model.number="detailForm.width" step="0.01">
+          </div>
+          <div>
+            <label for="detailHeight">高度</label>
+            <input id="detailHeight" type="number" v-model.number="detailForm.height" step="0.01">
+          </div>
+          <div>
+            <label for="detailSpecification">規格</label>
+            <input id="detailSpecification" v-model="detailForm.specification">
           </div>
           <div>
             <label for="detailImage">商品圖片</label>
-            <input id="detailImage" type="file" @change="handleProductDetailImageUpload" multiple accept="image/*">
+            <input id="detailImage" type="file" @change="handleDetailImageUpload" multiple accept="image/*">
           </div>
-          <div v-if="productDetailForm.imageUrls.length > 0" class="image-preview">
-            <div v-for="(image, index) in productDetailForm.imageUrls" :key="index">
-              <img :src="formatImageUrl(image)" alt="商品圖片">
-              <button type="button" @click="removeProductDetailImage(index)" class="remove-image">移除</button>
+          <div v-if="detailForm.imageUrls.length > 0">
+            <div v-for="(image, index) in detailForm.imageUrls" :key="index">
+              <img :src="formatImageUrl(image)" alt="商品圖片" style="width: 100px; height: 100px;">
+              <button type="button" @click="removeDetailImage(index)">移除</button>
             </div>
           </div>
-          <button type="submit">{{ editingProductDetail ? '更新' : '新增' }}</button>
-          <button type="button" @click="closeProductDetailModal">取消</button>
+          <button type="submit">{{ editingDetail ? '更新' : '新增' }}</button>
+          <button type="button" @click="closeDetailModal">取消</button>
         </form>
       </div>
     </div>
@@ -192,26 +227,25 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted } from 'vue';
-import { productService } from '@/services/backend/productservice';
-import { ProductReq, ProductRes, ProductDetailReq, ProductDetailRes, ProductStatus, ProductType, PrizeCategory } from '@/interfaces/product';
+import { productservice } from '@/services/backend/productservice';
+import { ProductReq, ProductRes, ProductStatus, ProductType, PrizeCategory, DetailReq, DetailRes } from '@/interfaces/product';
 
 // 數據
 const products = ref<ProductRes[]>([]);
-const currentProduct = ref<ProductRes | null>(null);
-const editingProduct = ref<ProductRes | null>(null);
-const editingProductDetail = ref<ProductDetailRes | null>(null);
-
-// 模態窗控制
+const productDetails = ref<DetailRes[]>([]);
 const showProductModal = ref(false);
 const showProductDetailsModal = ref(false);
-const showProductDetailModal = ref(false);
+const showDetailModal = ref(false);
+const editingProduct = ref<ProductRes | null>(null);
+const editingDetail = ref<DetailRes | null>(null);
+const currentProductId = ref<number | null>(null);
 
 // 表單數據
 const productForm = reactive<ProductReq>({
   productName: '',
   description: '',
-  goldPrice: 0,
-  silverPrice: 0,
+  price: 0,
+  sliverPrice: 0,
   bonusPrice: 0,
   stockQuantity: 0,
   imageUrls: [],
@@ -219,18 +253,23 @@ const productForm = reactive<ProductReq>({
   prizeCategory: PrizeCategory.NONE,
   status: ProductStatus.AVAILABLE,
   specification: '',
-  startDate: '',
-  endDate: '',
 });
 
-const productDetailForm = reactive<ProductDetailReq>({
+const detailForm = reactive<DetailReq>({
   productId: 0,
-  productName: '',
   description: '',
-  grade: '',
+  note: '',
+  size: '',
   quantity: 0,
-  silverRecyclePrice: 0,
+  stockQuantity: 0,
+  productName: '',
+  grade: '',
+  price: 0,
+  sliverPrice: 0,
   imageUrls: [],
+  length: 0,
+  width: 0,
+  height: 0,
   specification: '',
 });
 
@@ -242,7 +281,7 @@ onMounted(async () => {
 // 方法
 const fetchProducts = async () => {
   try {
-    const response = await productService.getAllProducts();
+    const response = await productservice.getAllProducts();
     if (response.success) {
       products.value = response.data;
     } else {
@@ -250,6 +289,19 @@ const fetchProducts = async () => {
     }
   } catch (error) {
     console.error('Error fetching products:', error);
+  }
+};
+
+const fetchProductDetails = async (productId: number) => {
+  try {
+    const response = await productservice.getAllProductDetails();
+    if (response.success) {
+      productDetails.value = response.data.filter(detail => detail.productId === productId);
+    } else {
+      console.error('Failed to fetch product details:', response.message);
+    }
+  } catch (error) {
+    console.error('Error fetching product details:', error);
   }
 };
 
@@ -270,56 +322,43 @@ const closeProductModal = () => {
   resetProductForm();
 };
 
-const openProductDetailsModal = async (product: ProductRes) => {
-  try {
-    const response = await productService.getProductById(product.productId);
-    if (response.success) {
-      currentProduct.value = response.data;
-      showProductDetailsModal.value = true;
-    } else {
-      console.error('Failed to fetch product details:', response.message);
-    }
-  } catch (error) {
-    console.error('Error fetching product details:', error);
-  }
+const openProductDetailsModal = async (productId: number) => {
+  currentProductId.value = productId;
+  await fetchProductDetails(productId);
+  showProductDetailsModal.value = true;
 };
 
 const closeProductDetailsModal = () => {
   showProductDetailsModal.value = false;
-  currentProduct.value = null;
+  currentProductId.value = null;
 };
 
-const openAddProductDetailModal = () => {
-  editingProductDetail.value = null;
-  resetProductDetailForm();
-  showProductDetailModal.value = true;
+const openAddDetailModal = () => {
+  editingDetail.value = null;
+  resetDetailForm();
+  showDetailModal.value = true;
 };
 
-const openEditProductDetailModal = (detail: ProductDetailRes) => {
-  editingProductDetail.value = detail;
-  Object.assign(productDetailForm, detail);
-  showProductDetailModal.value = true;
+const openEditDetailModal = (detail: DetailRes) => {
+  editingDetail.value = detail;
+  Object.assign(detailForm, detail);
+  showDetailModal.value = true;
 };
 
-const closeProductDetailModal = () => {
-  showProductDetailModal.value = false;
-  resetProductDetailForm();
+const closeDetailModal = () => {
+  showDetailModal.value = false;
+  resetDetailForm();
 };
 
 const handleProductSubmit = async () => {
-  const formData = new FormData();
-  formData.append('productReq', JSON.stringify(productForm));
-  productForm.imageUrls.forEach((url, index) => {
-    formData.append(`images[${index}]`, url);
-  });
-
   try {
     let response;
     if (editingProduct.value) {
-      response = await productService.updateProduct(editingProduct.value.productId, formData);
+      response = await productservice.updateProduct(editingProduct.value.productId, productForm);
     } else {
-      response = await productService.createProduct(formData);
+      response = await productservice.createProduct(productForm);
     }
+    
     if (response.success) {
       await fetchProducts();
       closeProductModal();
@@ -331,25 +370,19 @@ const handleProductSubmit = async () => {
   }
 };
 
-const handleProductDetailSubmit = async () => {
-  const formData = new FormData();
-  formData.append('productDetailReq', JSON.stringify(productDetailForm));
-  productDetailForm.imageUrls.forEach((url, index) => {
-    formData.append(`images[${index}]`, url);
-  });
-
+const handleDetailSubmit = async () => {
   try {
     let response;
-    if (editingProductDetail.value) {
-      response = await productService.updateProductDetail(editingProductDetail.value.productDetailId, formData);
+    if (editingDetail.value) {
+      response = await productservice.updateProductDetail(editingDetail.value.productDetailId, detailForm);
     } else {
-      response = await productService.createProductDetail(formData);
+      detailForm.productId = currentProductId.value!;
+      response = await productservice.createProductDetails([detailForm]);
     }
+    
     if (response.success) {
-      if (currentProduct.value) {
-        await openProductDetailsModal(currentProduct.value);
-      }
-      closeProductDetailModal();
+      await fetchProductDetails(currentProductId.value!);
+      closeDetailModal();
     } else {
       console.error('Failed to submit product detail:', response.message);
     }
@@ -361,7 +394,7 @@ const handleProductDetailSubmit = async () => {
 const deleteProduct = async (productId: number) => {
   if (confirm('確定要刪除這個產品系列嗎？')) {
     try {
-      const response = await productService.deleteProduct(productId);
+      const response = await productservice.deleteProduct(productId);
       if (response.success) {
         await fetchProducts();
       } else {
@@ -376,11 +409,9 @@ const deleteProduct = async (productId: number) => {
 const deleteProductDetail = async (productDetailId: number) => {
   if (confirm('確定要刪除這個商品嗎？')) {
     try {
-      const response = await productService.deleteProductDetail(productDetailId);
+      const response = await productservice.deleteProductDetail(productDetailId);
       if (response.success) {
-        if (currentProduct.value) {
-          await openProductDetailsModal(currentProduct.value);
-        }
+        await fetchProductDetails(currentProductId.value!);
       } else {
         console.error('Failed to delete product detail:', response.message);
       }
@@ -390,36 +421,36 @@ const deleteProductDetail = async (productDetailId: number) => {
   }
 };
 
-const handleProductImageUpload = (event: Event) => {
+const handleImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files) {
     const files = Array.from(target.files);
-    productForm.imageUrls = files.map(file => URL.createObjectURL(file));
+    productForm.imageUrls = [...productForm.imageUrls, ...files];
   }
 };
 
-const handleProductDetailImageUpload = (event: Event) => {
+const handleDetailImageUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files) {
     const files = Array.from(target.files);
-    productDetailForm.imageUrls = files.map(file => URL.createObjectURL(file));
+    detailForm.imageUrls = [...detailForm.imageUrls, ...files];
   }
 };
 
-const removeProductImage = (index: number) => {
+const removeImage = (index: number) => {
   productForm.imageUrls.splice(index, 1);
 };
 
-const removeProductDetailImage = (index: number) => {
-  productDetailForm.imageUrls.splice(index, 1);
+const removeDetailImage = (index: number) => {
+  detailForm.imageUrls.splice(index, 1);
 };
 
 const resetProductForm = () => {
   Object.assign(productForm, {
     productName: '',
     description: '',
-    goldPrice: 0,
-    silverPrice: 0,
+    price: 0,
+    sliverPrice: 0,
     bonusPrice: 0,
     stockQuantity: 0,
     imageUrls: [],
@@ -427,26 +458,34 @@ const resetProductForm = () => {
     prizeCategory: PrizeCategory.NONE,
     status: ProductStatus.AVAILABLE,
     specification: '',
-    startDate: '',
-    endDate: '',
   });
 };
 
-const resetProductDetailForm = () => {
-  Object.assign(productDetailForm, {
-    productId: currentProduct.value?.productId || 0,
-    productName: '',
+const resetDetailForm = () => {
+  Object.assign(detailForm, {
+    productId: currentProductId.value,
     description: '',
-    grade: '',
+    note: '',
+    size: '',
     quantity: 0,
-    silverRecyclePrice: 0,
+    stockQuantity: 0,
+    productName: '',
+    grade: '',
+    price: 0,
+    sliverPrice: 0,
     imageUrls: [],
+    length: 0,
+    width: 0,
+    height: 0,
     specification: '',
   });
 };
 
-const formatImageUrl = (url: string) => {
-  return productService.getImageUrl(url);
+const formatImageUrl = (url: string | File): string => {
+  if (typeof url === 'string') {
+    return productservice.getImageUrl(url);
+  }
+  return URL.createObjectURL(url);
 };
 
 const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
@@ -463,9 +502,8 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
   }
 };
 </script>
-
 <style scoped>
-.product-control {
+.product-management {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -473,7 +511,7 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
   color: #333;
 }
 
-h1, h3 {
+h1, h2 {
   color: #2c3e50;
   margin-bottom: 20px;
 }
@@ -546,6 +584,8 @@ tr:nth-child(even) {
   max-width: 600px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 form div {
@@ -573,30 +613,6 @@ textarea {
 input[type="file"] {
   border: none;
   padding: 10px 0;
-}
-
-.image-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.image-preview img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.remove-image {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
 }
 
 @media (max-width: 768px) {
