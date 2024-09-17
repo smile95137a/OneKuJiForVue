@@ -55,7 +55,7 @@ export interface DetailReq {
   productId: number;
   description: string;
   note: string;
-  size: string;
+  //size: string;
   quantity: number;
   stockQuantity: number;
   productName: string;
