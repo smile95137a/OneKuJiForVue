@@ -22,7 +22,8 @@
           </div>
           <div class="form-group">
             <label for="stockQuantity">數量</label>
-            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1" required>
+            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1"
+              required>
           </div>
           <div class="form-group">
             <label for="width">寬度</label>
@@ -44,7 +45,7 @@
             <label for="specialPrice">特價</label>
             <input id="specialPrice" type="number" v-model.number="productForm.specialPrice" min="0" step="0.01">
           </div>
-          
+
           <div class="form-group">
             <label for="status">狀態</label>
             <select v-model="productForm.status">
@@ -105,7 +106,8 @@
       <tbody>
         <tr v-for="product in paginatedProducts" :key="product.storeProductId">
           <td>
-            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片" class="product-image">
+            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片"
+              class="product-image">
             <span v-else>無圖片</span>
           </td>
           <td>{{ product.productName }}</td>
@@ -126,7 +128,8 @@
     <div v-if="totalPages > 1" class="pagination">
       <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="btn btn-small">上一頁</button>
       <span>{{ currentPage }} / {{ totalPages }}</span>
-      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn btn-small">下一頁</button>
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
+        class="btn btn-small">下一頁</button>
     </div>
   </div>
 </template>
@@ -246,9 +249,24 @@ export default defineComponent({
           formData.append('productReq', JSON.stringify(productData));
         }
 
-        productForm.newImages.forEach((file, index) => {
-          formData.append(`images`, file, file.name);
-        });
+        // 检查 newImages 是否存在且不为空
+        if (productForm.newImages && productForm.newImages.length > 0) {
+          // 过滤掉空文件
+          const validFiles = productForm.newImages.filter(file => file && file.size > 0);
+
+          if (validFiles.length > 0) {
+            // 如果有有效文件，将它们添加到 formData
+            validFiles.forEach((file, index) => {
+              formData.append('images', file, file.name);
+            });
+          } else {
+            // 如果没有有效文件，添加一个空数组标记
+            formData.append('images', JSON.stringify([]));
+          }
+        } else {
+          // 如果 newImages 不存在或为空，添加一个空数组标记
+          formData.append('images', JSON.stringify([]));
+        }
 
         let response;
         if (editingProduct.value) {
@@ -426,281 +444,281 @@ export default defineComponent({
 </script>
 <style scoped>
 .store-management {
-max-width: 1200px;
-margin: 0 auto;
-padding: 20px;
-font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
 .title {
-color: #333;
-margin-bottom: 20px;
-text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .btn {
-padding: 10px 15px;
-border: none;
-border-radius: 4px;
-cursor: pointer;
-font-size: 14px;
-transition: background-color 0.3s, transform 0.1s;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.1s;
 }
 
 .btn:active {
-transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .btn-primary {
-background-color: #4CAF50;
-color: white;
+  background-color: #4CAF50;
+  color: white;
 }
 
 .btn-primary:hover {
-background-color: #45a049;
+  background-color: #45a049;
 }
 
 .btn-secondary {
-background-color: #f44336;
-color: white;
+  background-color: #f44336;
+  color: white;
 }
 
 .btn-secondary:hover {
-background-color: #da190b;
+  background-color: #da190b;
 }
 
 .btn-danger {
-background-color: #f44336;
-color: white;
+  background-color: #f44336;
+  color: white;
 }
 
 .btn-danger:hover {
-background-color: #da190b;
+  background-color: #da190b;
 }
 
 .btn-small {
-padding: 5px 10px;
-font-size: 12px;
+  padding: 5px 10px;
+  font-size: 12px;
 }
 
 .btn-edit {
-background-color: #2196F3;
-color: white;
+  background-color: #2196F3;
+  color: white;
 }
 
 .btn-edit:hover {
-background-color: #0b7dda;
+  background-color: #0b7dda;
 }
 
 .modal {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background-color: rgba(0, 0, 0, 0.5);
-display: flex;
-justify-content: center;
-align-items: center;
-z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-background-color: white;
-padding: 30px;
-border-radius: 8px;
-width: 90%;
-max-width: 600px;
-max-height: 90vh;
-overflow-y: auto;
-box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .product-form {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
 .form-group {
-margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .form-group label {
-display: block;
-margin-bottom: 5px;
-font-weight: bold;
-color: #333;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
-width: 100%;
-padding: 10px;
-border: 1px solid #ddd;
-border-radius: 4px;
-font-size: 14px;
-transition: border-color 0.3s;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-border-color: #4CAF50;
-outline: none;
+  border-color: #4CAF50;
+  outline: none;
 }
 
 .form-actions {
-grid-column: 1 / -1;
-text-align: right;
-margin-top: 20px;
+  grid-column: 1 / -1;
+  text-align: right;
+  margin-top: 20px;
 }
 
 .product-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 20px;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .product-table th,
 .product-table td {
-border: 1px solid #ddd;
-padding: 12px;
-text-align: left;
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
 }
 
 .product-table th {
-background-color: #f2f2f2;
-font-weight: bold;
-color: #333;
+  background-color: #f2f2f2;
+  font-weight: bold;
+  color: #333;
 }
 
 .product-table tr:nth-child(even) {
-background-color: #f9f9f9;
+  background-color: #f9f9f9;
 }
 
 .product-table tr:hover {
-background-color: #f5f5f5;
+  background-color: #f5f5f5;
 }
 
 .no-data {
-text-align: center;
-color: #666;
-margin-top: 20px;
-font-style: italic;
+  text-align: center;
+  color: #666;
+  margin-top: 20px;
+  font-style: italic;
 }
 
 .product-image {
-width: 50px;
-height: 50px;
-object-fit: cover;
-border-radius: 4px;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 
 .pagination {
-display: flex;
-justify-content: center;
-align-items: center;
-margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 }
 
 .pagination button {
-margin: 0 10px;
+  margin: 0 10px;
 }
 
 .pagination span {
-margin: 0 10px;
-font-weight: bold;
+  margin: 0 10px;
+  font-weight: bold;
 }
 
 .image-preview {
-display: flex;
-flex-wrap: wrap;
-gap: 10px;
-margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .image-item {
-position: relative;
-width: 100px;
+  position: relative;
+  width: 100px;
 }
 
 .preview-image {
-width: 100%;
-height: auto;
-border-radius: 4px;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
 }
 
 .remove-image {
-position: absolute;
-top: 0;
-right: 0;
-background: rgba(244, 67, 54, 0.8);
-color: white;
-border: none;
-padding: 2px 5px;
-cursor: pointer;
-font-size: 12px;
-border-radius: 0 4px 0 4px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(244, 67, 54, 0.8);
+  color: white;
+  border: none;
+  padding: 2px 5px;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 0 4px 0 4px;
 }
 
 .toggle-switch {
-position: relative;
-display: inline-block;
-width: 60px;
-height: 34px;
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
 }
 
 .toggle-switch input {
-opacity: 0;
-width: 0;
-height: 0;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
 
 .toggle-switch label {
-position: absolute;
-cursor: pointer;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background-color: #ccc;
-transition: .4s;
-border-radius: 34px;
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
 }
 
 .toggle-switch label:before {
-position: absolute;
-content: "";
-height: 26px;
-width: 26px;
-left: 4px;
-bottom: 4px;
-background-color: white;
-transition: .4s;
-border-radius: 50%;
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
 }
 
-.toggle-switch input:checked + label {
-background-color: #4CAF50;
+.toggle-switch input:checked+label {
+  background-color: #4CAF50;
 }
 
-.toggle-switch input:checked + label:before {
-transform: translateX(26px);
+.toggle-switch input:checked+label:before {
+  transform: translateX(26px);
 }
 
 .add-category-form {
-margin-top: 10px;
-display: flex;
-gap: 10px;
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
 }
 
 .add-category-form input {
-flex-grow: 1;
-padding: 5px 10px;
-border: 1px solid #ddd;
-border-radius: 4px;
+  flex-grow: 1;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 </style>
