@@ -26,7 +26,7 @@
             <div class="login__divider-text">或</div>
           </div>
           <div class="login__form-inputs">
-            <p class="login__text">帳號</p>
+            <p class="login__text">電子信箱</p>
             <input
               class="login__form-input"
               v-model="username"
@@ -79,18 +79,18 @@
 </template>
 
 <script setup lang="ts">
-import p1 from '@/assets/image/login.png';
-import googleLogo from '@/assets/image/google.svg';
 import fbLogo from '@/assets/image/fb.svg';
+import googleLogo from '@/assets/image/google.svg';
+import p1 from '@/assets/image/login.png';
 import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import { login } from '@/services/frontend/AuthService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import { getLoginUrl } from '@/utils/AuthUtils';
 import { useForm } from 'vee-validate';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import * as yup from 'yup';
-import { onMounted } from 'vue';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -104,7 +104,7 @@ onMounted(() => {
 });
 
 const schema = yup.object({
-  username: yup.string().required('帳號為必填'),
+  username: yup.string().required('電子信箱為必填'),
   password: yup.string().required('密碼為必填'),
 });
 

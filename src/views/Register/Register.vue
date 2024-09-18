@@ -2,16 +2,16 @@
 import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import MSelect from '@/components/common/MSelect.vue';
-import { registerUser } from '@/services/frontend/userService';
-import { useDialogStore, useLoadingStore } from '@/stores';
-import { useForm } from 'vee-validate';
-import * as yup from 'yup';
-import { useRouter } from 'vue-router';
-import { onMounted, ref, watch } from 'vue';
 import {
   getAllCityNames,
   getAreaListByCityName,
 } from '@/services/frontend/taiwanCitiesService';
+import { registerUser } from '@/services/frontend/userService';
+import { useDialogStore, useLoadingStore } from '@/stores';
+import { useForm } from 'vee-validate';
+import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import * as yup from 'yup';
 
 const cityOptions = ref<{ value: string; label: string }[]>([]);
 const areaOptions = ref<{ value: string; label: string }[]>([]);

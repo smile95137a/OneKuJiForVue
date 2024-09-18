@@ -1,5 +1,5 @@
+import { ApiResponse, DetailApiResponse, DetailListApiResponse, DetailReq, PrizeCategory, ProductApiResponse, ProductListApiResponse, ProductReq, ProductType } from '@/interfaces/product';
 import axios from 'axios';
-import { ProductReq, ProductRes, ProductApiResponse, ProductListApiResponse, DetailReq, DetailRes, DetailApiResponse, DetailListApiResponse, ProductType, PrizeCategory, ApiResponse } from '@/interfaces/product';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
@@ -156,7 +156,7 @@ export const productservice = {
       });
     });
 
-    formData.append('detailReqs', JSON.stringify(detailReqsCopy));
+    formData.append('productDetailReq', JSON.stringify(detailReqsCopy));
     imageFiles.forEach((file) => {
       formData.append('images', file);
     });
@@ -186,7 +186,7 @@ export const productservice = {
       }
     });
 
-    formData.append('detailReq', JSON.stringify(detailReqCopy));
+    formData.append('productDetailReq', JSON.stringify(detailReqCopy));
     imageFiles.forEach((file) => {
       formData.append('images', file);
     });
