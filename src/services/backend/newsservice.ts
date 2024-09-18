@@ -9,47 +9,71 @@ const axiosInstance = axios.create({
 });
 
 export const NewsService = {
+  // 創建新聞，接收 FormData
+  createNews: async (formData: FormData): Promise<News> => {
+    try {
+      const response = await axiosInstance.post<{ data: News }>('/news', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      console.log('createNews response:', response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error in createNews:', error);
+      throw error;
+    }
+  },
+
+  // 更新新聞，接收 FormData
+  updateNews: async (newsUid: string, formData: FormData): Promise<News> => {
+    try {
+      const response = await axiosInstance.put<{ data: News }>(`/news/${newsUid}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      console.log('updateNews response:', response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error in updateNews:', error);
+      throw error;
+    }
+  },
+
+  // 獲取所有新聞
   getAllNews: async (): Promise<News[]> => {
-    const response = await axiosInstance.get('/news');
-    return response.data.data;
+    try {
+      const response = await axiosInstance.get<{ data: News[] }>('/news');
+      console.log('getAllNews response:', response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error in getAllNews:', error);
+      throw error;
+    }
   },
 
+  // 根據 ID 獲取單條新聞
   getNewsById: async (newsUid: string): Promise<News> => {
-    const response = await axiosInstance.get(`/news/${newsUid}`);
-    return response.data.data;
-    /**
-     * {
-     *    status: number,
-     *    message: string,
-     *    data: News
-     * }
-     */
+    try {
+      const response = await axiosInstance.get<{ data: News }>(`/news/${newsUid}`);
+      console.log('getNewsById response:', response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error in getNewsById:', error);
+      throw error;
+    }
   },
 
-  createNews: async (news: News, images: File[]): Promise<void> => {
-    const formData = new FormData();
-    formData.append('newsReq', JSON.stringify(news));
-    images.forEach(image => formData.append('images', image));
-    await axiosInstance.post('/news', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-  },
-
-  updateNews: async (newsUid: string, news: News, images: File[]): Promise<void> => {
-    const formData = new FormData();
-    formData.append('newsReq', JSON.stringify(news));
-    images.forEach(image => formData.append('images', image));
-    await axiosInstance.put(`/news/${newsUid}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-  },
-
+  // 刪除新聞
   deleteNews: async (newsUid: string): Promise<void> => {
-    await axiosInstance.delete(`/news/${newsUid}`);
+    try {
+      await axiosInstance.delete(`/news/${newsUid}`);
+      console.log('News deleted successfully');
+    } catch (error) {
+      console.error('Error in deleteNews:', error);
+      throw error;
+    }
   },
 
-  // 新增一个用于获取完整图片URL的方法
-  getFullImageUrl: (imageUrl: string): string => {
-    return `${API_IMAGE_URL}${imageUrl}`;
-  }
+  // 獲取圖片 URL
+  getImageUrl: (imagePath: string): string => {
+    return `${API_IMAGE_URL}/img${imagePath}`;
+  },
 };

@@ -25,7 +25,7 @@ export default defineComponent({
       { name: '抽獎資料管理', path: '/admin/product-data-management', icon: 'fas fa-box' },
       { name: '出貨管理', path: '/admin/shipment-management', icon: 'fas fa-truck' },
       { name: '商城資料管理', path: '/admin/store-control', icon: 'fas fa-store' },
-      { name: '最新消息管理', path: '/admin/news-managent', icon: 'fas fa-store' },
+      { name: '最新消息管理', path: '/admin/news-management', icon: 'fas fa-newspaper' },
     ]);
 
     return {
