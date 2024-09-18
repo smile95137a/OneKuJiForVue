@@ -22,9 +22,10 @@ export default defineComponent({
     const menuItems = ref([
       { name: '會員管理', path: '/admin/member-management', icon: 'fas fa-users' },
       { name: '庫存管理', path: '/admin/inventory-management', icon: 'fas fa-warehouse' },
-      { name: '商品資料管理', path: '/admin/product-data-management', icon: 'fas fa-box' },
+      { name: '抽獎資料管理', path: '/admin/product-data-management', icon: 'fas fa-box' },
       { name: '出貨管理', path: '/admin/shipment-management', icon: 'fas fa-truck' },
-      { name: '商店控制', path: '/admin/store-control', icon: 'fas fa-store' },
+      { name: '商城資料管理', path: '/admin/store-control', icon: 'fas fa-store' },
+      { name: '最新消息管理', path: '/admin/news-managent', icon: 'fas fa-store' },
     ]);
 
     return {

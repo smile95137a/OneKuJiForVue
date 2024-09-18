@@ -46,12 +46,12 @@
           </div>
           
           <div class="form-group">
-  <label for="status">狀態</label>
-  <select v-model="productForm.status">
-    <option :value="StoreProductStatus.AVAILABLE">上架</option>
-    <option :value="StoreProductStatus.UNAVAILABLE">未上架</option>
-  </select>
-</div>
+            <label for="status">狀態</label>
+            <select v-model="productForm.status">
+              <option :value="StoreProductStatus.AVAILABLE">上架</option>
+              <option :value="StoreProductStatus.UNAVAILABLE">未上架</option>
+            </select>
+          </div>
 
           <div class="form-group">
             <label for="category">類別</label>
@@ -130,7 +130,6 @@
     </div>
   </div>
 </template>
-
 <script lang="ts">
 import { StoreCategory, StoreProductReq, StoreProductRes } from '@/interfaces/store';
 import { StoreProductStatus } from '@/interfaces/store';
@@ -150,12 +149,14 @@ export default defineComponent({
     const editingProduct = ref<StoreProductRes | null>(null);
     const cancelEdit = () => { resetForm(); };
 
-    const productForm = reactive<StoreProductReq>({
+    const productForm = reactive<StoreProductReq & { newImages: File[], originalImages: string[] }>({
       productName: '',
       description: '',
       price: 0,
       stockQuantity: 0,
       imageUrl: [],
+      newImages: [],
+      originalImages: [],
       categoryId: '',
       width: 0,
       height: 0,
@@ -235,8 +236,9 @@ export default defineComponent({
           specification: productForm.specification,
           shippingMethod: 'Express',
           specialPrice: Number(productForm.specialPrice),
-          status: productForm.status ? StoreProductStatus.AVAILABLE : StoreProductStatus.UNAVAILABLE,
-    };
+          status: productForm.status,
+          imageUrl: productForm.originalImages,
+        };
 
         if (editingProduct.value) {
           formData.append('storeProductReq', JSON.stringify(productData));
@@ -244,15 +246,8 @@ export default defineComponent({
           formData.append('productReq', JSON.stringify(productData));
         }
 
-        productForm.imageUrl.forEach((item, index) => {
-          if (item instanceof File) {
-            formData.append(`images`, item, item.name);
-          }
-        });
-
-        // 開發調試用：打印 formData 內容
-        formData.forEach((value, key) => {
-          console.log(key, value);
+        productForm.newImages.forEach((file, index) => {
+          formData.append(`images`, file, file.name);
         });
 
         let response;
@@ -304,6 +299,8 @@ export default defineComponent({
         price: 0,
         stockQuantity: 0,
         imageUrl: [],
+        newImages: [],
+        originalImages: [],
         categoryId: '',
         width: 0,
         height: 0,
@@ -324,6 +321,8 @@ export default defineComponent({
       Object.assign(productForm, {
         ...product,
         imageUrl: [...(product.imageUrl || [])],
+        newImages: [],
+        originalImages: [...(product.imageUrl || [])],
         categoryId: product.categoryId.toString(),
       });
       showAddForm.value = true;
@@ -350,15 +349,22 @@ export default defineComponent({
       const files = (event.target as HTMLInputElement).files;
       if (files) {
         const newImages = Array.from(files);
+        productForm.newImages = newImages;
         productForm.imageUrl = [
-          ...productForm.imageUrl.filter(item => typeof item === 'string'),
+          ...productForm.originalImages,
           ...newImages
         ];
       }
     };
 
     const removeImage = (index: number) => {
+      const removedItem = productForm.imageUrl[index];
       productForm.imageUrl.splice(index, 1);
+      if (removedItem instanceof File) {
+        productForm.newImages = productForm.newImages.filter(file => file !== removedItem);
+      } else {
+        productForm.originalImages = productForm.originalImages.filter(url => url !== removedItem);
+      }
     };
 
     const changePage = (page: number) => {
@@ -420,281 +426,281 @@ export default defineComponent({
 </script>
 <style scoped>
 .store-management {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+font-family: Arial, sans-serif;
 }
 
 .title {
-  color: #333;
-  margin-bottom: 20px;
-  text-align: center;
+color: #333;
+margin-bottom: 20px;
+text-align: center;
 }
 
 .btn {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s, transform 0.1s;
+padding: 10px 15px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 14px;
+transition: background-color 0.3s, transform 0.1s;
 }
 
 .btn:active {
-  transform: scale(0.98);
+transform: scale(0.98);
 }
 
 .btn-primary {
-  background-color: #4CAF50;
-  color: white;
+background-color: #4CAF50;
+color: white;
 }
 
 .btn-primary:hover {
-  background-color: #45a049;
+background-color: #45a049;
 }
 
 .btn-secondary {
-  background-color: #f44336;
-  color: white;
+background-color: #f44336;
+color: white;
 }
 
 .btn-secondary:hover {
-  background-color: #da190b;
+background-color: #da190b;
 }
 
 .btn-danger {
-  background-color: #f44336;
-  color: white;
+background-color: #f44336;
+color: white;
 }
 
 .btn-danger:hover {
-  background-color: #da190b;
+background-color: #da190b;
 }
 
 .btn-small {
-  padding: 5px 10px;
-  font-size: 12px;
+padding: 5px 10px;
+font-size: 12px;
 }
 
 .btn-edit {
-  background-color: #2196F3;
-  color: white;
+background-color: #2196F3;
+color: white;
 }
 
 .btn-edit:hover {
-  background-color: #0b7dda;
+background-color: #0b7dda;
 }
 
 .modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.5);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
 }
 
 .modal-content {
-  background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+background-color: white;
+padding: 30px;
+border-radius: 8px;
+width: 90%;
+max-width: 600px;
+max-height: 90vh;
+overflow-y: auto;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .product-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 20px;
 }
 
 .form-group {
-  margin-bottom: 15px;
+margin-bottom: 15px;
 }
 
 .form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #333;
+display: block;
+margin-bottom: 5px;
+font-weight: bold;
+color: #333;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.3s;
+width: 100%;
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 4px;
+font-size: 14px;
+transition: border-color 0.3s;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
-  border-color: #4CAF50;
-  outline: none;
+border-color: #4CAF50;
+outline: none;
 }
 
 .form-actions {
-  grid-column: 1 / -1;
-  text-align: right;
-  margin-top: 20px;
+grid-column: 1 / -1;
+text-align: right;
+margin-top: 20px;
 }
 
 .product-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+width: 100%;
+border-collapse: collapse;
+margin-top: 20px;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .product-table th,
 .product-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
+border: 1px solid #ddd;
+padding: 12px;
+text-align: left;
 }
 
 .product-table th {
-  background-color: #f2f2f2;
-  font-weight: bold;
-  color: #333;
+background-color: #f2f2f2;
+font-weight: bold;
+color: #333;
 }
 
 .product-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+background-color: #f9f9f9;
 }
 
 .product-table tr:hover {
-  background-color: #f5f5f5;
+background-color: #f5f5f5;
 }
 
 .no-data {
-  text-align: center;
-  color: #666;
-  margin-top: 20px;
-  font-style: italic;
+text-align: center;
+color: #666;
+margin-top: 20px;
+font-style: italic;
 }
 
 .product-image {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 4px;
+width: 50px;
+height: 50px;
+object-fit: cover;
+border-radius: 4px;
 }
 
 .pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
+display: flex;
+justify-content: center;
+align-items: center;
+margin-top: 20px;
 }
 
 .pagination button {
-  margin: 0 10px;
+margin: 0 10px;
 }
 
 .pagination span {
-  margin: 0 10px;
-  font-weight: bold;
+margin: 0 10px;
+font-weight: bold;
 }
 
 .image-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+margin-top: 10px;
 }
 
 .image-item {
-  position: relative;
-  width: 100px;
+position: relative;
+width: 100px;
 }
 
 .preview-image {
-  width: 100%;
-  height: auto;
-  border-radius: 4px;
+width: 100%;
+height: auto;
+border-radius: 4px;
 }
 
 .remove-image {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: rgba(244, 67, 54, 0.8);
-  color: white;
-  border: none;
-  padding: 2px 5px;
-  cursor: pointer;
-  font-size: 12px;
-  border-radius: 0 4px 0 4px;
+position: absolute;
+top: 0;
+right: 0;
+background: rgba(244, 67, 54, 0.8);
+color: white;
+border: none;
+padding: 2px 5px;
+cursor: pointer;
+font-size: 12px;
+border-radius: 0 4px 0 4px;
 }
 
 .toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
+position: relative;
+display: inline-block;
+width: 60px;
+height: 34px;
 }
 
 .toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+opacity: 0;
+width: 0;
+height: 0;
 }
 
 .toggle-switch label {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 34px;
+position: absolute;
+cursor: pointer;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: #ccc;
+transition: .4s;
+border-radius: 34px;
 }
 
 .toggle-switch label:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
+position: absolute;
+content: "";
+height: 26px;
+width: 26px;
+left: 4px;
+bottom: 4px;
+background-color: white;
+transition: .4s;
+border-radius: 50%;
 }
 
 .toggle-switch input:checked + label {
-  background-color: #4CAF50;
+background-color: #4CAF50;
 }
 
 .toggle-switch input:checked + label:before {
-  transform: translateX(26px);
+transform: translateX(26px);
 }
 
 .add-category-form {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
+margin-top: 10px;
+display: flex;
+gap: 10px;
 }
 
 .add-category-form input {
-  flex-grow: 1;
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+flex-grow: 1;
+padding: 5px 10px;
+border: 1px solid #ddd;
+border-radius: 4px;
 }
 </style>

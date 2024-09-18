@@ -38,6 +38,7 @@ import ShipmentManagement from '@/components/backend/ShipmentManagement.vue';
 import PermissionManagement from '@/components/backend/PermissionsManagement.vue';
 import ProductDataManagement from '@/components/backend/ProductDataManagement.vue';
 import Storecontrol from '@/components/backend/Storecontrol.vue';
+import Newscontrol from '@/components/Backend/Newscontrol.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -199,6 +200,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'inventory-management',
         component: InventoryManagement,
+      },
+      {
+        path: 'news-management',
+        component: Newscontrol,
       },
       {
         path: 'shipment-management',
