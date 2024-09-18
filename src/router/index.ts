@@ -34,12 +34,12 @@ import AdminLogin from '@/views/Control/AdminLogin.vue';
 import AdminDashboard from '@/views/Control/AdminDashboard.vue';
 import MemberManagement from '@/components/backend/MemberManagement.vue';
 import InventoryManagement from '@/components/backend/InventoryManagement.vue';
-import ShipmentManagement from '@/components/backend/ShipmentManagement.vue';
 import PermissionManagement from '@/components/backend/PermissionsManagement.vue';
 import ProductDataManagement from '@/components/backend/ProductDataManagement.vue';
 import Storecontrol from '@/components/backend/Storecontrol.vue';
 import Newscontrol from '@/components/Backend/Newscontrol.vue';
-
+import Shipcontrol from '@/components/Backend/shipcontrol.vue';
+import ordercontrol from '@/components/Backend/ordercontrol.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/oauth2/redirect',
@@ -198,8 +198,8 @@ const routes: Array<RouteRecordRaw> = [
         component: MemberManagement,
       },
       {
-        path: 'inventory-management',
-        component: InventoryManagement,
+        path: 'order-management',
+        component: ordercontrol,
       },
       {
         path: 'news-management',
@@ -207,12 +207,12 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'shipment-management',
-        component: ShipmentManagement,
+        component: Shipcontrol,
       },
-      {
-        path: 'permission-management',
-        component: PermissionManagement,
-      },
+      // {
+      //   path: 'permission-management',
+      //   component: PermissionManagement,
+      // },
       {
         path: 'product-data-management',
         component: ProductDataManagement,
