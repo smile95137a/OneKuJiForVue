@@ -22,8 +22,7 @@
           </div>
           <div class="form-group">
             <label for="stockQuantity">數量</label>
-            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1"
-              required>
+            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1" required>
           </div>
           <div class="form-group">
             <label for="width">寬度</label>
@@ -44,6 +43,12 @@
           <div class="form-group">
             <label for="specialPrice">特價</label>
             <input id="specialPrice" type="number" v-model.number="productForm.specialPrice" min="0" step="0.01">
+          </div>
+
+          <!-- 新增商品詳情欄位 -->
+          <div class="form-group">
+            <label for="details">商品詳情</label>
+            <textarea id="details" v-model="productForm.details" required></textarea>
           </div>
 
           <div class="form-group">
@@ -106,8 +111,7 @@
       <tbody>
         <tr v-for="product in paginatedProducts" :key="product.storeProductId">
           <td>
-            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片"
-              class="product-image">
+            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片" class="product-image">
             <span v-else>無圖片</span>
           </td>
           <td>{{ product.productName }}</td>
@@ -128,11 +132,11 @@
     <div v-if="totalPages > 1" class="pagination">
       <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="btn btn-small">上一頁</button>
       <span>{{ currentPage }} / {{ totalPages }}</span>
-      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
-        class="btn btn-small">下一頁</button>
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn btn-small">下一頁</button>
     </div>
   </div>
 </template>
+
 <script lang="ts">
 import { StoreCategory, StoreProductReq, StoreProductRes } from '@/interfaces/store';
 import { StoreProductStatus } from '@/interfaces/store';
@@ -169,7 +173,8 @@ export default defineComponent({
       specialPrice: 0,
       status: StoreProductStatus.UNAVAILABLE,
       shippingPrice: 0,
-      size: 0
+      size: 0,
+      details: '', // 初始化商品詳情
     });
 
     const currentPage = ref(1);
@@ -212,7 +217,7 @@ export default defineComponent({
     };
 
     const validateForm = (): boolean => {
-      if (!productForm.productName || !productForm.description || !productForm.price || !productForm.stockQuantity || !productForm.categoryId) {
+      if (!productForm.productName || !productForm.description || !productForm.price || !productForm.stockQuantity || !productForm.categoryId || !productForm.details) {
         alert('請填寫所有必要的字段');
         return false;
       }
@@ -241,6 +246,7 @@ export default defineComponent({
           specialPrice: Number(productForm.specialPrice),
           status: productForm.status,
           imageUrl: productForm.originalImages,
+          details: productForm.details, // 商品詳情
         };
 
         if (editingProduct.value) {
@@ -249,22 +255,19 @@ export default defineComponent({
           formData.append('productReq', JSON.stringify(productData));
         }
 
-        // 检查 newImages 是否存在且不为空
+        // 檢查 newImages 是否存在且不為空
         if (productForm.newImages && productForm.newImages.length > 0) {
-          // 过滤掉空文件
+          // 過濾掉空文件
           const validFiles = productForm.newImages.filter(file => file && file.size > 0);
 
           if (validFiles.length > 0) {
-            // 如果有有效文件，将它们添加到 formData
             validFiles.forEach((file, index) => {
               formData.append('images', file, file.name);
             });
           } else {
-            // 如果没有有效文件，添加一个空数组标记
             formData.append('images', JSON.stringify([]));
           }
         } else {
-          // 如果 newImages 不存在或为空，添加一个空数组标记
           formData.append('images', JSON.stringify([]));
         }
 
@@ -328,7 +331,8 @@ export default defineComponent({
         specialPrice: 0,
         status: StoreProductStatus.UNAVAILABLE,
         shippingPrice: 0,
-        size: 0
+        size: 0,
+        details: '', // 初始化商品詳情
       });
       editingProduct.value = null;
       showAddForm.value = false;
@@ -342,6 +346,7 @@ export default defineComponent({
         newImages: [],
         originalImages: [...(product.imageUrl || [])],
         categoryId: product.categoryId.toString(),
+        details: product.details, // 加入商品詳情
       });
       showAddForm.value = true;
     };
