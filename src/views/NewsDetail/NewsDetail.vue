@@ -13,6 +13,8 @@
       />
     </div>
     <div v-html="newsItem.preview"></div>
+    <!-- 新增：顯示新聞詳細內容 -->
+    <div class="newsDetail__fullContent" v-html="newsItem.content"></div>
   </div>
 </template>
 
@@ -24,12 +26,12 @@ import { getNewsById, News } from '@/services/frontend/newsService';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 
 const breadcrumbItems = ref([{ name: '首頁' }, { name: '最新消息' }]);
-// 获取当前路由
+// 獲取當前路由
 const route = useRoute();
-// 定义新闻项
+// 定義新聞項
 const newsItem = ref<News | null>(null);
 
-// 获取新闻详情
+// 獲取新聞詳情
 const fetchNewsDetail = async (newsUid: string) => {
   try {
     const { success, data, message } = await getNewsById(newsUid);
@@ -46,8 +48,10 @@ const fetchNewsDetail = async (newsUid: string) => {
 
 onMounted(() => {
   const newsUid = String(route.params.newsUid);
-  fetchNewsDetail(newsUid); // 调用 API 获取新闻详情
+  fetchNewsDetail(newsUid); // 調用 API 獲取新聞詳情
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>
