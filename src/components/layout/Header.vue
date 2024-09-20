@@ -1,12 +1,71 @@
 <script setup lang="ts">
 import logoImg from '@/assets/image/logo1.png';
 import { useAuthStore, useDialogStore, useSlidebarStore } from '@/stores';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+const API_URL = import.meta.env.VITE_BASE_API_URL;
 
 const slidebarStore = useSlidebarStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const dialogStore = useDialogStore();
+const defaultMessage = '歡迎來到再來一抽一番賞';
+// 跑馬燈消息
+const marqueeMessage = ref(defaultMessage);
+
+// WebSocket 客戶端
+let stompClient: Client | null = null;
+let messageTimeout: NodeJS.Timeout | null = null;
+
+const connectWebSocket = () => {
+  const socket = new SockJS(`${API_URL}/ws`);
+  
+  stompClient = new Client({
+    webSocketFactory: () => socket,
+    onConnect: () => {
+      console.log('Connected to WebSocket');
+      stompClient?.subscribe('/topic/lottery', (message) => {
+        console.log('Received message:', message.body);  // For debugging
+        if (message.body) {
+          const data = JSON.parse(message.body);
+          marqueeMessage.value = `玩家 ${data.nickName} 獲得了 ${data.name}`;
+          
+          if (messageTimeout) {
+            clearTimeout(messageTimeout);
+          }
+
+          messageTimeout = setTimeout(() => {
+            marqueeMessage.value = defaultMessage;
+          }, 10000);
+        }
+      });
+    },
+    onStompError: (frame) => {
+      console.error('Broker reported error: ' + frame.headers['message']);
+      console.error('Additional details: ' + frame.body);
+    },
+  });
+
+  stompClient.activate();
+};
+
+// 在組件掛載時連接 WebSocket
+onMounted(() => {
+  connectWebSocket();
+});
+
+// 組件卸載時關閉 WebSocket 連接
+onBeforeUnmount(() => {
+  if (stompClient) {
+    stompClient.deactivate();
+  }
+
+  if (messageTimeout) {
+    clearTimeout(messageTimeout);
+  }
+});
 
 const handleLogout = () => {
   authStore.clearAuthData();
@@ -107,6 +166,16 @@ const handleDailySignIn = async () => {
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </div>
+          <router-link
+            class="header__nav-item"
+            to="/prize-checkout"
+            active-class="header__nav-item--active"
+          >
+            賞品盒
+            <div class="header__nav-item-icon">
+              <i class="fa-solid fa-angle-right"></i>
+            </div>
+          </router-link>
         </div>
       </div>
       <div class="header__btns">
@@ -138,7 +207,7 @@ const handleDailySignIn = async () => {
     </div>
     <div class="header__marquee">
       <p class="header__text">
-        一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈一番賞通知跑馬燈...
+        {{ marqueeMessage }}
       </p>
     </div>
   </div>
