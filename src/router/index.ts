@@ -30,17 +30,16 @@ import Privacy from '@/views/Privacy/Privacy.vue';
 import Register from '@/views/Register/Register.vue';
 import Transaction from '@/views/Transaction/Transaction.vue';
 // 后台组件
-import InventoryManagement from '@/components/backend/InventoryManagement.vue';
 import MemberManagement from '@/components/backend/MemberManagement.vue';
 import Newscontrol from '@/components/backend/Newscontrol.vue';
-import PermissionManagement from '@/components/backend/PermissionsManagement.vue';
 import ProductDataManagement from '@/components/backend/ProductDataManagement.vue';
-import ShipmentManagement from '@/components/backend/ShipmentManagement.vue';
 import Storecontrol from '@/components/backend/Storecontrol.vue';
 import AdminDashboard from '@/views/Control/AdminDashboard.vue';
 import AdminLogin from '@/views/Control/AdminLogin.vue';
 import PrizeCheckout from '@/views/Prize/PrizeCheckout.vue';
 
+import ordercontrol from '@/components/backend/ordercontrol.vue';
+import Shipcontrol from '@/components/backend/shipcontrol.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/oauth2/redirect',
@@ -204,8 +203,8 @@ const routes: Array<RouteRecordRaw> = [
         component: MemberManagement,
       },
       {
-        path: 'inventory-management',
-        component: InventoryManagement,
+        path: 'order-management',
+        component: ordercontrol,
       },
       {
         path: 'news-management',
@@ -213,12 +212,12 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'shipment-management',
-        component: ShipmentManagement,
+        component: Shipcontrol,
       },
-      {
-        path: 'permission-management',
-        component: PermissionManagement,
-      },
+      // {
+      //   path: 'permission-management',
+      //   component: PermissionManagement,
+      // },
       {
         path: 'product-data-management',
         component: ProductDataManagement,
