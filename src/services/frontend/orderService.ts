@@ -69,6 +69,22 @@ export const payCartItem = async (
   }
 };
 
+export const payPrizeCartItem = async (
+  payCart: any
+): Promise<ApiResponse<boolean>> => {
+  try {
+    const response = await api.post<ApiResponse<boolean>>(
+      `${basePath}/product/pay`,
+      payCart
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    throw error;
+  }
+};
+
+
 export const ecpayCheckout = async (userId: number): Promise<string> => {
   try {
     const response = await api.post<string>(`${basePath}/ecpayCheckout`, {

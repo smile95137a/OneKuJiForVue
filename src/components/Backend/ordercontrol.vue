@@ -32,7 +32,7 @@
             <td>{{ order.bonusPointsEarned ?? 'N/A' }}</td>
             <td>{{ formatDate(order.createdAt) }}</td>
             <td>
-              <select v-model="order.status" @change="updateOrderStatus(order)" class="status-select">
+              <select v-model="order.resultStatus" @change="updateOrderStatus(order)" class="status-select">
                 <option value="PREPARING_SHIPMENT">準備發貨</option>
                 <option value="SHIPPED">已發貨</option>
               </select>
@@ -85,9 +85,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue';
-import { getAllOrder, getOrderDetailsByOrderId, updateOrder } from '@/services/backend/orderservice';
 import { Order, OrderDetail } from '@/interfaces/order';
+import { getAllOrder, getOrderDetailsByOrderId, updateOrder } from '@/services/backend/orderservice';
+import { computed, onMounted, ref } from 'vue';
 
 const orders = ref<Order[]>([]);
 const filteredOrders = ref<Order[]>([]);
@@ -117,9 +117,9 @@ const filterOrders = (status: string) => {
   
   if (status === 'UNSELECTED') {
     // 篩選出狀態為 null 或未定義的訂單
-    filteredOrders.value = orders.value.filter(order => !order.status);
+    filteredOrders.value = orders.value.filter(order => !order.resultStatus);
   } else if (status) {
-    filteredOrders.value = orders.value.filter(order => order.status === status);
+    filteredOrders.value = orders.value.filter(order => order.resultStatus === status);
   } else {
     filteredOrders.value = orders.value; // 顯示所有訂單
   }
@@ -134,18 +134,22 @@ const _paginatedOrders = computed(() => {
 
 const totalPages = computed(() => Math.ceil(filteredOrders.value.length / itemsPerPage));
 
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleString('zh-TW');
-};
+function formatDate(dateArray: [any, any, any, any, any, any]) {
+  const [year, month, day, hour, minute, second] = dateArray;
+  const date = new Date(year, month - 1, day, hour, minute, second);
 
+  const pad = (num: { toString: () => string; }) => num.toString().padStart(2, '0');
+
+  return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(minute)} 分 ${pad(second)} 秒`;
+}
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD' }).format(value);
 };
 
 const updateOrderStatus = async (order: Order) => {
   try {
-    await updateOrder(order.id, { status: order.status });
-    console.log(`已更新訂單 ${order.id} 的狀態為 ${order.status}`);
+    await updateOrder(order.id, { resultStatus: order.resultStatus });
+    console.log(`已更新訂單 ${order.id} 的狀態為 ${order.resultStatus}`);
   } catch (error) {
     console.error('Error updating order status:', error);
   }

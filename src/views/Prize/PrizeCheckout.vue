@@ -7,9 +7,9 @@
             </div>
             <Card v-for="item in items" :key="item.prizeCartItemId" custom-class="m-b-24">
                 <div class="mallCheckout__product">
-                    <div v-if="items.length > 1"
+                    <div v-if="items.length > 0"
                         class="mallCheckout__product-item mallCheckout__product-item--selected">
-                        <input type="checkbox" v-model="item.isSelected" @change="fetchShippingMethod" />
+                        <input type="checkbox" v-model="item.isSelected" @change="onItemSelectionChange" />
                     </div>
                     <div class="mallCheckout__product-item mallCheckout__product-item--img">
                         <MImage :src="item.imageUrls[0]" />
@@ -40,19 +40,6 @@
             <Card>
                 <div class="mallCheckout__shippings">
                     <div class="mallCheckout__shipping">
-                        <!-- <div class="mallCheckout__shipping-item mallCheckout__shipping-item--title">
-                            寄送
-                        </div>
-                        <div class="mallCheckout__shipping-item mallCheckout__shipping-item--options">
-                            <div v-for="option in shippingOptions" :key="option.name"
-                                class="mallCheckout__shipping-option">
-                                <input type="radio" :value="option.value" v-model="shippingMethod" />
-                                <label>{{ option.name }} (${{ option.price }})</label>
-                            </div>
-                        </div>
-                        <div class="mallCheckout__shipping-item mallCheckout__shipping-item--price">
-                            <p class="mallCheckout__text">${{ selectedShippingPrice }}</p>
-                        </div> -->
                         <div class="mallCheckout__shipping-item mallCheckout__shipping-item--title">
                             寄送
                         </div>
@@ -270,11 +257,7 @@ import MSelect from '@/components/common/MSelect.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import { paymentOptions, shippingOptions } from '@/data/orderOptions';
-import {
-    addCartItem,
-    removeCartItem,
-} from '@/services/frontend/cartItemService';
-import { payCartItem } from '@/services/frontend/orderService';
+import { payPrizeCartItem } from '@/services/frontend/orderService';
 import { removePrizeCartItem } from '@/services/frontend/prizeCartItemService';
 import { getPrizeCart } from '@/services/frontend/prizeCartService';
 import { getShippingMethod } from '@/services/frontend/shippingMethodService';
@@ -459,16 +442,16 @@ const onSubmit = handleSubmit(async (values: any) => {
 
     const payCart = {
         ...values,
-        cartItemIds: selectedItems.map((x) => x.cartItemId),
+        prizeCartItemIds: selectedItems.map((x) => x.prizeCartItemId),
     };
 
     try {
         loadingStore.startLoading();
-        const { success, data } = await payCartItem(payCart);
+        const { success, data } = await payPrizeCartItem(payCart);
         loadingStore.stopLoading();
         if (success) {
             router.push({
-                name: 'MallOrderSuccess',
+                name: 'PrizeOrderSuccess',
                 params: { orderNumber: data.toString() },
             });
         } else {
@@ -512,49 +495,6 @@ const loadCartItems = async () => {
         console.error('Failed to load cart items:', error);
     }
     loadingStore.stopLoading();
-};
-
-const increaseQuantity = async (item: any) => {
-    loadingStore.startLoading();
-    const cartItem = {
-        productCode: item.productCode,
-        quantity: 1,
-    };
-    try {
-        const response = await addCartItem(cartItem);
-        if (response.success) {
-            await loadCartItems();
-        } else {
-            console.error('添加購物車失敗:', response.message);
-        }
-    } catch (error) {
-        console.error('添加購物車時發生錯誤:', error);
-    }
-    loadingStore.stopLoading();
-};
-
-const decreaseQuantity = async (item: any) => {
-    loadingStore.startLoading();
-
-    try {
-        const response =
-            item.quantity - 1 === 0
-                ? await removeCartItem(item.cartItemId)
-                : await addCartItem({
-                    productCode: item.productCode,
-                    quantity: -1,
-                });
-
-        if (response.success) {
-            await loadCartItems();
-        } else {
-            console.error(response.message);
-        }
-    } catch (error) {
-        console.error('操作購物車時發生錯誤:', error);
-    } finally {
-        loadingStore.stopLoading();
-    }
 };
 
 const deleteProduct = async (item: any) => {
@@ -667,5 +607,13 @@ const fetchShippingMethod = async () => {
         console.error('Error fetching shipping methods:', error);
     }
 };
-
+watch(items, () => {
+  if (items.value.length > 0) {
+    fetchShippingMethod();
+  }
+}, { deep: true, immediate: true });
+const onItemSelectionChange = (item: { isSelected: boolean; }) => {
+  item.isSelected = !item.isSelected;
+  fetchShippingMethod();
+};
 </script>

@@ -23,11 +23,11 @@
 
 <script lang="ts" setup>
 import NoData from '@/components/common/NoData.vue';
+import ProductCard from '@/components/frontend/ProductCard.vue';
 import { IProduct, getAllProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import ProductCard from '@/components/frontend/ProductCard.vue';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -39,7 +39,8 @@ const fetchProducts = async () => {
     const { success, message, data } = await getAllProduct();
     loadingStore.stopLoading();
     if (success) {
-      products.value = data.filter(
+      const availableProducts = data.filter((p: IProduct) => p.status === 'AVAILABLE');
+      products.value = availableProducts.filter(
         (product) => product.productType === 'GACHA'
       );
     } else {

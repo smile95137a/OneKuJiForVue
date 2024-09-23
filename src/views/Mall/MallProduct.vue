@@ -209,22 +209,22 @@
 </template>
 
 <script lang="ts" setup>
-import lineImg from '@/assets/image/line.png';
-import metaImg from '@/assets/image/meta.png';
-import linkImg from '@/assets/image/link.png';
-import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import se from '@/assets/image/711.png';
 import familyMart from '@/assets/image/familyMart.png';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import lineImg from '@/assets/image/line.png';
+import linkImg from '@/assets/image/link.png';
+import metaImg from '@/assets/image/meta.png';
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
+import MImage from '@/components/frontend/MImage.vue';
+import { addCartItem } from '@/services/frontend/cartItemService';
 import {
   getStoreProductById,
   toggleFavorite,
   updateProductPopularity,
 } from '@/services/frontend/storeProductService';
-import MImage from '@/components/frontend/MImage.vue';
-import { addCartItem } from '@/services/frontend/cartItemService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();

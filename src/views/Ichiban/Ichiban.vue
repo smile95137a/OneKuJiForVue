@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
 import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
-import MCardHeader from '@/components/common/MCardHeader.vue';
-import { computed, onMounted, ref } from 'vue';
 import { getAllProduct, IProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -27,6 +27,7 @@ const filteredProducts = computed(() => {
 
   return products.value.filter(
     (product) =>
+      product.status === 'AVAILABLE' &&
       product.productType === 'PRIZE' &&
       product.prizeCategory === buttonCategory
   );

@@ -29,6 +29,7 @@ export interface User {
     email: string;
     phoneNumber: string;
     address: string;
+    roleId: number;
   }
   
   export interface ApiResponse<T> {

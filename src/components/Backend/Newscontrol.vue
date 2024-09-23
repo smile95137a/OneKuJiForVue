@@ -79,9 +79,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted } from 'vue';
-import { NewsService } from '@/services/backend/newsservice';
 import { News, NewsStatus } from '@/interfaces/news';
+import { NewsService } from '@/services/backend/newsservice';
+import { onMounted, reactive, ref } from 'vue';
 
 const newsList = ref<News[]>([]);
 const showNewsModal = ref(false);
@@ -206,12 +206,14 @@ const resetNewsForm = () => {
   });
 };
 
-const formatDate = (dateString: string | null): string => {
-  if (!dateString) {
-    return '日期無效';
-  }
-  return new Date(dateString).toLocaleString('zh-TW');
-};
+function formatDate(dateArray: [any, any, any, any, any, any]) {
+  const [year, month, day, hour, minute, second] = dateArray;
+  const date = new Date(year, month - 1, day, hour, minute, second);
+
+  const pad = (num: { toString: () => string; }) => num.toString().padStart(2, '0');
+
+  return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(minute)} 分 ${pad(second)} 秒`;
+}
 
 const formatImageUrl = (url: string | File): string => {
   if (typeof url === 'string') {

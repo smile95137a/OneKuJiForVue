@@ -7,50 +7,33 @@
       </div>
       <Card v-for="item in items" :key="item.cartItemId" custom-class="m-b-24">
         <div class="mallCheckout__product">
-          <div
-            v-if="items.length > 1"
-            class="mallCheckout__product-item mallCheckout__product-item--selected"
-          >
-            <input type="checkbox" v-model="item.isSelected" />
-          </div>
-          <div
-            class="mallCheckout__product-item mallCheckout__product-item--img"
-          >
+          <div v-if="items.length > 0"
+                        class="mallCheckout__product-item mallCheckout__product-item--selected">
+                        <input type="checkbox" v-model="item.isSelected" @change="onItemSelectionChange" />
+                    </div>
+          <div class="mallCheckout__product-item mallCheckout__product-item--img">
             <MImage :src="item.imageUrls[0]" />
           </div>
-          <div
-            class="mallCheckout__product-item mallCheckout__product-item--name"
-          >
+          <div class="mallCheckout__product-item mallCheckout__product-item--name">
             <p class="mallCheckout__text">{{ item.productName }}</p>
           </div>
-          <div
-            class="mallCheckout__product-item mallCheckout__product-item--quantity"
-          >
-            <button
-              class="mallCheckout__product-quantityBtn mallCheckout__product-quantityBtn--decrease"
-              @click="decreaseQuantity(item)"
-            >
+          <div class="mallCheckout__product-item mallCheckout__product-item--quantity">
+            <button class="mallCheckout__product-quantityBtn mallCheckout__product-quantityBtn--decrease"
+              @click="decreaseQuantity(item)">
               <i class="fa-solid fa-minus"></i>
             </button>
             <span>{{ item.quantity }}</span>
-            <button
-              class="mallCheckout__product-quantityBtn mallCheckout__product-quantityBtn--increase"
-              @click="increaseQuantity(item)"
-            >
+            <button class="mallCheckout__product-quantityBtn mallCheckout__product-quantityBtn--increase"
+              @click="increaseQuantity(item)">
               <i class="fa-solid fa-plus"></i>
             </button>
           </div>
-          <div
-            class="mallCheckout__product-item mallCheckout__product-item--price"
-          >
+          <div class="mallCheckout__product-item mallCheckout__product-item--price">
             <p class="mallCheckout__text">
               ${{ formatPrice(item.totalPrice) }}
             </p>
           </div>
-          <div
-            class="mallCheckout__product-item mallCheckout__product-item--delete"
-            @click="deleteProduct(item)"
-          >
+          <div class="mallCheckout__product-item mallCheckout__product-item--delete" @click="deleteProduct(item)">
             <i class="fa-solid fa-trash-can"></i>
           </div>
         </div>
@@ -61,51 +44,30 @@
       <Card>
         <div class="mallCheckout__shippings">
           <div class="mallCheckout__shipping">
-            <div
-              class="mallCheckout__shipping-item mallCheckout__shipping-item--title"
-            >
+            <div class="mallCheckout__shipping-item mallCheckout__shipping-item--title">
               寄送
             </div>
-            <div
-              class="mallCheckout__shipping-item mallCheckout__shipping-item--options"
-            >
-              <div
-                v-for="option in shippingOptions"
-                :key="option.name"
-                class="mallCheckout__shipping-option"
-              >
-                <input
-                  type="radio"
-                  :value="option.value"
-                  v-model="shippingMethod"
-                />
-                <label>{{ option.name }} (${{ option.price }})</label>
+            <div class="mallCheckout__shipping-item mallCheckout__shipping-item--options">
+              <div v-for="option in shippingMethods" :key="option.name" class="mallCheckout__shipping-option">
+                <input type="radio" :value="option.name" v-model="selectedShippingMethod" :id="option.name" />
+                <label :for="option.name">{{ option.name }} (${{ option.shippingPrice }})</label>
               </div>
             </div>
-            <div
-              class="mallCheckout__shipping-item mallCheckout__shipping-item--price"
-            >
+            <div class="mallCheckout__shipping-item mallCheckout__shipping-item--price">
               <p class="mallCheckout__text">${{ selectedShippingPrice }}</p>
             </div>
           </div>
           <div class="mallCheckout__divider"></div>
           <div class="mallCheckout__billInfo">
             <div class="mallCheckout__form">
-              <div
-                class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--names"
-              >
+              <div class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--names">
                 <div class="w-50 w-md-100">
                   <p class="mallCheckout__text mallCheckout__text--required">
                     購買人姓名
                   </p>
-                  <input
-                    class="mallCheckout__form-input"
-                    v-model="billingName"
-                    v-bind="billingNameProps"
-                    :class="{
-                      'mallCheckout__form-input--error': errors.billingName,
-                    }"
-                  />
+                  <input class="mallCheckout__form-input" v-model="billingName" v-bind="billingNameProps" :class="{
+                    'mallCheckout__form-input--error': errors.billingName,
+                  }" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.billingName }}
                   </p>
@@ -114,14 +76,9 @@
                   <p class="mallCheckout__text mallCheckout__text--required">
                     購買人Email
                   </p>
-                  <input
-                    class="mallCheckout__form-input"
-                    v-model="billingEmail"
-                    v-bind="billingEmailProps"
-                    :class="{
-                      'mallCheckout__form-input--error': errors.billingEmail,
-                    }"
-                  />
+                  <input class="mallCheckout__form-input" v-model="billingEmail" v-bind="billingEmailProps" :class="{
+                    'mallCheckout__form-input--error': errors.billingEmail,
+                  }" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.billingEmail }}
                   </p>
@@ -131,59 +88,38 @@
                 <p class="mallCheckout__text mallCheckout__text--required">
                   購買人電話
                 </p>
-                <input
-                  class="mallCheckout__form-input"
-                  v-model="billingPhone"
-                  v-bind="billingPhoneProps"
-                  :class="{
-                    'mallCheckout__form-input--error': errors.billingPhone,
-                  }"
-                />
+                <input class="mallCheckout__form-input" v-model="billingPhone" v-bind="billingPhoneProps" :class="{
+                  'mallCheckout__form-input--error': errors.billingPhone,
+                }" />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.billingPhone }}
                 </p>
               </div>
               <div class="mallCheckout__form-inputs--addr">
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
-                  <p
-                    class="mallCheckout__text"
-                    :class="{
-                      'mallCheckout__text--required':
-                        shippingMethod === 'homeDelivery',
-                    }"
-                  >
+                  <p class="mallCheckout__text" :class="{
+                    'mallCheckout__text--required':
+                      shippingMethod === 'homeDelivery',
+                  }">
                     購買人地址
                   </p>
-                  <MSelect
-                    :options="billCityOptions"
-                    v-model="billingCity"
-                    v-bind="billingCityProps"
-                    customClass="mselect--checkoutFormBill"
-                  />
+                  <MSelect :options="billCityOptions" v-model="billingCity" v-bind="billingCityProps"
+                    customClass="mselect--checkoutFormBill" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.billingCity }}
                   </p>
                 </div>
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
-                  <MSelect
-                    :options="billAreaOptions"
-                    v-model="billingArea"
-                    v-bind="billingAreaProps"
-                    customClass="mselect--checkoutFormBill"
-                  />
+                  <MSelect :options="billAreaOptions" v-model="billingArea" v-bind="billingAreaProps"
+                    customClass="mselect--checkoutFormBill" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.billingArea }}
                   </p>
                 </div>
                 <div class="mallCheckout__form-inputs w-50 w-md-100">
-                  <input
-                    class="mallCheckout__form-input"
-                    v-model="billingAddress"
-                    v-bind="billingAddressProps"
-                    :class="{
-                      'mallCheckout__form-input--error': errors.billingAddress,
-                    }"
-                  />
+                  <input class="mallCheckout__form-input" v-model="billingAddress" v-bind="billingAddressProps" :class="{
+                    'mallCheckout__form-input--error': errors.billingAddress,
+                  }" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.billingAddress }}
                   </p>
@@ -194,21 +130,14 @@
           <div class="mallCheckout__divider"></div>
           <div class="mallCheckout__shippingInfo">
             <div class="mallCheckout__form">
-              <div
-                class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--names"
-              >
+              <div class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--names">
                 <div class="w-50 w-md-100">
                   <p class="mallCheckout__text mallCheckout__text--required">
                     收貨人姓名
                   </p>
-                  <input
-                    class="mallCheckout__form-input"
-                    v-model="shippingName"
-                    v-bind="shippingNameProps"
-                    :class="{
-                      'mallCheckout__form-input--error': errors.shippingName,
-                    }"
-                  />
+                  <input class="mallCheckout__form-input" v-model="shippingName" v-bind="shippingNameProps" :class="{
+                    'mallCheckout__form-input--error': errors.shippingName,
+                  }" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.shippingName }}
                   </p>
@@ -217,14 +146,9 @@
                   <p class="mallCheckout__text mallCheckout__text--required">
                     收貨人Email
                   </p>
-                  <input
-                    class="mallCheckout__form-input"
-                    v-model="shippingEmail"
-                    v-bind="shippingEmailProps"
-                    :class="{
-                      'mallCheckout__form-input--error': errors.shippingEmail,
-                    }"
-                  />
+                  <input class="mallCheckout__form-input" v-model="shippingEmail" v-bind="shippingEmailProps" :class="{
+                    'mallCheckout__form-input--error': errors.shippingEmail,
+                  }" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.shippingEmail }}
                   </p>
@@ -234,77 +158,51 @@
                 <p class="mallCheckout__text mallCheckout__text--required">
                   收貨人電話
                 </p>
-                <input
-                  class="mallCheckout__form-input"
-                  v-model="shippingPhone"
-                  v-bind="shippingPhoneProps"
-                  :class="{
-                    'mallCheckout__form-input--error': errors.shippingPhone,
-                  }"
-                />
+                <input class="mallCheckout__form-input" v-model="shippingPhone" v-bind="shippingPhoneProps" :class="{
+                  'mallCheckout__form-input--error': errors.shippingPhone,
+                }" />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.shippingPhone }}
                 </p>
               </div>
               <div class="mallCheckout__form-inputs--addr">
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
-                  <p
-                    class="mallCheckout__text"
-                    :class="{
-                      'mallCheckout__text--required':
-                        shippingMethod === 'homeDelivery',
-                    }"
-                  >
+                  <p class="mallCheckout__text" :class="{
+                    'mallCheckout__text--required':
+                      shippingMethod === 'homeDelivery',
+                  }">
                     收貨人城市
                   </p>
-                  <MSelect
-                    :options="shippingCityOptions"
-                    v-model="shippingCity"
-                    v-bind="shippingCityProps"
-                    customClass="mselect--checkoutFormBill"
-                  />
+                  <MSelect :options="shippingCityOptions" v-model="shippingCity" v-bind="shippingCityProps"
+                    customClass="mselect--checkoutFormBill" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.shippingCity }}
                   </p>
                 </div>
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
-                  <p
-                    class="mallCheckout__text"
-                    :class="{
-                      'mallCheckout__text--required':
-                        shippingMethod === 'homeDelivery',
-                    }"
-                  >
+                  <p class="mallCheckout__text" :class="{
+                    'mallCheckout__text--required':
+                      shippingMethod === 'homeDelivery',
+                  }">
                     收貨人區域
                   </p>
-                  <MSelect
-                    :options="shippingAreaOptions"
-                    v-model="shippingArea"
-                    v-bind="shippingAreaProps"
-                    customClass="mselect--checkoutFormBill"
-                  />
+                  <MSelect :options="shippingAreaOptions" v-model="shippingArea" v-bind="shippingAreaProps"
+                    customClass="mselect--checkoutFormBill" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.shippingArea }}
                   </p>
                 </div>
                 <div class="mallCheckout__form-inputs w-50 w-md-100">
-                  <p
-                    class="mallCheckout__text"
-                    :class="{
-                      'mallCheckout__text--required':
-                        shippingMethod === 'homeDelivery',
-                    }"
-                  >
+                  <p class="mallCheckout__text" :class="{
+                    'mallCheckout__text--required':
+                      shippingMethod === 'homeDelivery',
+                  }">
                     收貨人地址
                   </p>
-                  <input
-                    class="mallCheckout__form-input"
-                    v-model="shippingAddress"
-                    v-bind="shippingAddressProps"
+                  <input class="mallCheckout__form-input" v-model="shippingAddress" v-bind="shippingAddressProps"
                     :class="{
                       'mallCheckout__form-input--error': errors.shippingAddress,
-                    }"
-                  />
+                    }" />
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.shippingAddress }}
                   </p>
@@ -314,19 +212,11 @@
           </div>
           <div class="mallCheckout__divider"></div>
           <div class="mallCheckout__invoice">
-            <div
-              class="mallCheckout__invoice-item mallCheckout__invoice-item--title"
-            >
+            <div class="mallCheckout__invoice-item mallCheckout__invoice-item--title">
               發票
             </div>
-            <div
-              class="mallCheckout__invoice-item mallCheckout__invoice-item--select"
-            >
-              <MSelect
-                v-model="invoice"
-                :options="invoiceOptions"
-                customClass="mallCheckout__invoice-select"
-              />
+            <div class="mallCheckout__invoice-item mallCheckout__invoice-item--select">
+              <MSelect v-model="invoice" :options="invoiceOptions" customClass="mallCheckout__invoice-select" />
             </div>
           </div>
         </div>
@@ -338,24 +228,12 @@
       <Card>
         <div class="p-y-48 p-x-48">
           <div class="mallCheckout__payment">
-            <div
-              class="mallCheckout__payment-item mallCheckout__payment-item--title"
-            >
+            <div class="mallCheckout__payment-item mallCheckout__payment-item--title">
               付款
             </div>
-            <div
-              class="mallCheckout__payment-item mallCheckout__payment-item--options"
-            >
-              <div
-                v-for="option in paymentOptions"
-                :key="option.name"
-                class="mallCheckout__payment-option"
-              >
-                <input
-                  type="radio"
-                  :value="option.value"
-                  v-model="paymentMethod"
-                />
+            <div class="mallCheckout__payment-item mallCheckout__payment-item--options">
+              <div v-for="option in paymentOptions" :key="option.name" class="mallCheckout__payment-option">
+                <input type="radio" :value="option.value" v-model="paymentMethod" />
                 <label>{{ option.name }} </label>
               </div>
             </div>
@@ -402,27 +280,28 @@
 </template>
 
 <script lang="ts" setup>
-import { useForm } from 'vee-validate';
-import * as yup from 'yup';
 import Card from '@/components/common/Card.vue';
+import MSelect from '@/components/common/MSelect.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
+import { paymentOptions, shippingOptions } from '@/data/orderOptions';
 import {
   addCartItem,
   removeCartItem,
 } from '@/services/frontend/cartItemService';
 import { getCart } from '@/services/frontend/cartService';
 import { payCartItem } from '@/services/frontend/orderService';
-import { useDialogStore, useLoadingStore } from '@/stores';
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import MSelect from '@/components/common/MSelect.vue';
+import { getShippingMethod } from '@/services/frontend/shippingMethodService';
 import {
   getAllCityNames,
   getAreaListByCityName,
   getZipCodeByCityAndAreaName,
 } from '@/services/frontend/taiwanCitiesService';
-import { shippingOptions, paymentOptions } from '@/data/orderOptions';
+import { useDialogStore, useLoadingStore } from '@/stores';
+import { useForm } from 'vee-validate';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import * as yup from 'yup';
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
@@ -559,10 +438,10 @@ const [paymentMethod, paymentMethodProps] = defineField('paymentMethod');
 const [invoice, invoiceProps] = defineField('invoice');
 
 const selectedShippingPrice = computed(() => {
-  const selectedOption = shippingOptions.find(
-    (option) => option.value === shippingMethod.value
-  );
-  return selectedOption ? selectedOption.price : 150;
+    const selectedOption = shippingMethods.value.find(
+        (option) => option.name === selectedShippingMethod.value
+    );
+    return selectedOption ? selectedOption.shippingPrice : 0;
 });
 
 const totalProductAmount = computed(() => {
@@ -678,9 +557,9 @@ const decreaseQuantity = async (item: any) => {
       item.quantity - 1 === 0
         ? await removeCartItem(item.cartItemId)
         : await addCartItem({
-            productCode: item.productCode,
-            quantity: -1,
-          });
+          productCode: item.productCode,
+          quantity: -1,
+        });
 
     if (response.success) {
       await loadCartItems();
@@ -714,6 +593,7 @@ const deleteProduct = async (item: any) => {
 };
 
 onMounted(() => {
+  fetchShippingMethod();
   loadCartItems();
   const cityNames = getAllCityNames();
   billCityOptions.value = [
@@ -726,6 +606,7 @@ onMounted(() => {
   ];
   billAreaOptions.value = [{ value: '', label: '行政區' }];
   shippingAreaOptions.value = [{ value: '', label: '行政區' }];
+
 });
 
 watch(billingCity, (newCity) => {
@@ -784,4 +665,37 @@ watch(billingArea, (newArea) => {
     setFieldValue('billingZipCode', '');
   }
 });
+const fetchShippingMethod = async () => {
+  if (totalProductSize.value === 0) {
+    return;
+  }
+
+  try {
+    // 通过总重量调用 API 获取店家和运费信息
+    const size = totalProductSize.value;
+    const response = await getShippingMethod(size);
+    shippingMethods.value = response.data;
+    if (shippingMethods.value.length > 0) {
+      selectedShippingMethod.value = shippingMethods.value[0].name;
+    }
+  } catch (error) {
+    console.error('Error fetching shipping methods:', error);
+  }
+};
+const totalProductSize = computed(() => {
+  return items.value
+    .filter((item) => item.isSelected)
+    .reduce((sum: any, item: { size: any; }) => sum + item.size, 0);
+});
+const selectedShippingMethod = ref('');
+const shippingMethods = ref<any[]>([]);
+watch(items, () => {
+  if (items.value.length > 0) {
+    fetchShippingMethod();
+  }
+}, { deep: true, immediate: true });
+const onItemSelectionChange = (item: { isSelected: boolean; }) => {
+  item.isSelected = !item.isSelected;
+  fetchShippingMethod();
+};
 </script>

@@ -15,11 +15,7 @@
     </div>
 
     <div class="search-section">
-      <input 
-        v-model="searchInput" 
-        placeholder="輸入會員編號、電話或電子郵件搜索會員" 
-        @input="debounceSearch"
-      />
+      <input v-model="searchInput" placeholder="輸入會員編號、電話或電子郵件搜索會員" @input="debounceSearch" />
     </div>
 
     <div class="table-container">
@@ -82,10 +78,22 @@
       <div class="modal-content">
         <h3>編輯會員</h3>
         <form @submit.prevent="updateMember">
+          <!-- 其他欄位 -->
           <div v-for="field in memberFields" :key="field.key">
             <label :for="'edit-' + field.key">{{ field.label }}:</label>
             <input :id="'edit-' + field.key" v-model="(editingMember as any)[field.key]" :type="field.type" required>
           </div>
+
+          <!-- 角色選擇 -->
+          <div>
+            <label for="edit-roleId">角色:</label>
+            <select id="edit-roleId" v-model="editingMember.roleId" required>
+              <option v-for="role in roleOptions" :key="role.value" :value="role.value">
+                {{ role.label }}
+              </option>
+            </select>
+          </div>
+
           <button type="submit">更新</button>
           <button type="button" @click="showUpdateMemberModal = false">取消</button>
         </form>
@@ -95,10 +103,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
 import { User, UserReq } from '@/interfaces/user';
 import { userService } from '@/services/backend/userservice';
 import { debounce } from 'lodash';
+import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 
 export default defineComponent({
   name: 'MemberManagement',
@@ -111,13 +119,22 @@ export default defineComponent({
     const showUpdateMemberModal = ref(false);
     const searchInput = ref('');
 
+    const roleOptions = [
+      { value: 1, label: '權限控管管理者' },
+      { value: 2, label: '一般管理者' },
+      { value: 3, label: '驗證會員' },
+      { value: 4, label: '未驗證會員' },
+      { value: 5, label: '黑名單會員' }
+    ];
+
     const newMember = reactive<UserReq>({
       username: '',
       password: '',
       nickname: '',
       email: '',
       phoneNumber: '',
-      address: ''
+      address: '',
+      roleId: 4
     });
 
     const editingMember = reactive<User>({
@@ -145,7 +162,8 @@ export default defineComponent({
       { key: 'nickname', label: '暱稱', type: 'text' },
       { key: 'email', label: '電子郵件', type: 'email' },
       { key: 'phoneNumber', label: '電話號碼', type: 'tel' },
-      { key: 'address', label: '地址', type: 'text' }
+      { key: 'address', label: '地址', type: 'text' },
+      { key: 'roleId', label: '會員權限', type: 'text' }
     ];
 
     const statItems = ref([
@@ -206,7 +224,7 @@ export default defineComponent({
       if (!query) {
         displayedMembers.value = allMembers.value;
       } else {
-        displayedMembers.value = allMembers.value.filter(member => 
+        displayedMembers.value = allMembers.value.filter(member =>
           member.id.toString().includes(query) ||
           member.phoneNumber.toLowerCase().includes(query) ||
           member.email.toLowerCase().includes(query)
@@ -308,7 +326,8 @@ export default defineComponent({
       debounceSearch,
       handleDeleteMember,
       formatDate,
-      memberFields
+      memberFields,
+      roleOptions
     };
   }
 });
@@ -359,7 +378,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -388,7 +408,7 @@ th {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {

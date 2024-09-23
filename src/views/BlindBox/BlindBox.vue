@@ -50,14 +50,13 @@
 
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
-import ProductCard from '@/components/frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
-import MSelect from '@/components/common/MSelect.vue';
 import NoData from '@/components/common/NoData.vue';
-import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import ProductCard from '@/components/frontend/ProductCard.vue';
 import { IProduct, getAllProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
+import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -69,6 +68,7 @@ const filteredProducts = computed(() => {
     return products.value;
   }
   return products.value.filter((product) =>
+    product.status === 'AVAILABLE' &&
     product.productName.toLowerCase().includes(searchTerm.value.toLowerCase())
   );
 });

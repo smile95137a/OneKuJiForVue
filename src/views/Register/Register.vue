@@ -29,8 +29,7 @@ const router = useRouter();
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 const schema = yup.object({
-  username: yup.string().required('使用者是必填項'),
-  email: yup.string().required('Email 是必填項').email('Email 格式不正確'),
+  username: yup.string().required('Email 是必填項').email('Email 格式不正確'),
   phoneNumber: yup.string().required('手機是必填項'),
   password: yup.string().required('密碼是必填項').min(6, '密碼最少6個字符'),
   confirmPassword: yup
@@ -121,7 +120,7 @@ const onSubmit = handleSubmit(async (values) => {
         <div class="register__main">
           <div class="register__form">
             <div class="register__form-inputs">
-              <p class="register__text register__text--required">使用者名稱</p>
+              <p class="register__text register__text--required">信箱</p>
               <input
                 class="register__form-input"
                 v-model="username"
@@ -158,18 +157,6 @@ const onSubmit = handleSubmit(async (values) => {
               />
               <p class="register__text register__text--error">
                 {{ errors.confirmPassword }}
-              </p>
-            </div>
-            <div class="register__form-inputs">
-              <p class="register__text register__text--required">email</p>
-              <input
-                class="register__form-input"
-                v-model="email"
-                v-bind="emailProps"
-                :class="{ 'register__form-input--error': errors.email }"
-              />
-              <p class="register__text register__text--error">
-                {{ errors.email }}
               </p>
             </div>
             <div class="register__form-inputs m-t-20">

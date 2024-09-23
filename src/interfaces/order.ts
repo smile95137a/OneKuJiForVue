@@ -10,7 +10,7 @@ export interface Order {
   totalAmount: number;
   bonusPointsEarned: number | null;
   bonusPointsUsed: number | null;
-  status: string;  // 將 status 改為 string
+  resultStatus: string;  // 將 status 改為 string
   paymentMethod: string | null;
   paymentStatus: string | null;
   createdAt: string;

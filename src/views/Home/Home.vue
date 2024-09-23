@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
-import ProductCard from '@/components/frontend/ProductCard.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import NoData from '@/components/common/NoData.vue';
+import MImage from '@/components/frontend/MImage.vue';
+import ProductCard from '@/components/frontend/ProductCard.vue';
+import { Banner, getAllBanners } from '@/services/frontend/bannerService'; // 引入 getAllBanners
 import { getAllProduct, IProduct } from '@/services/frontend/productService';
-import { getAllBanners, Banner } from '@/services/frontend/bannerService'; // 引入 getAllBanners
-import { useDialogStore, useLoadingStore } from '@/stores';
+import { useLoadingStore } from '@/stores';
 import { Navigation } from 'swiper/modules';
 import 'swiper/scss';
 import 'swiper/scss/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import MImage from '@/components/frontend/MImage.vue';
 
 const router = useRouter();
 
@@ -39,13 +39,14 @@ const fetchProducts = async () => {
     const { success, message, data } = await getAllProduct();
     loadingStore.stopLoading();
     if (success) {
-      prizeProducts.value = data.filter(
+      const availableProducts = data.filter((p: IProduct) => p.status === 'AVAILABLE');
+      prizeProducts.value = availableProducts.filter(
         (p: IProduct) => p.productType === 'PRIZE'
       );
-      blindBoxProducts.value = data.filter(
+      blindBoxProducts.value = availableProducts.filter(
         (p: IProduct) => p.productType === 'BLIND_BOX'
       );
-      gachaProducts.value = data.filter(
+      gachaProducts.value = availableProducts.filter(
         (p: IProduct) => p.productType === 'GACHA'
       );
     } else {

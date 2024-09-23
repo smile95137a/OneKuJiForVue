@@ -21,7 +21,8 @@
       <tbody>
         <tr v-for="product in products" :key="product.productId">
           <td>
-            <img v-if="product.imageUrls && product.imageUrls.length" :src="formatImageUrl(product.imageUrls[0])" alt="產品圖片" class="product-image">
+            <img v-if="product.imageUrls && product.imageUrls.length" :src="formatImageUrl(product.imageUrls[0])"
+              alt="產品圖片" class="product-image">
             <span v-else>無圖片</span>
           </td>
           <td>{{ product.productName }}</td>
@@ -58,7 +59,7 @@
           <div>
             <label for="productType">產品類型</label>
             <select id="productType" v-model="productForm.productType" required>
-              <option v-for="type in ProductType" :key="type" :value="type">{{ type }}</option>
+              <option v-for="(label, value) in productTypeOptions" :key="value" :value="value">{{ label }}</option>
             </select>
           </div>
           <div v-if="productForm.productType === ProductType.PRIZE">
@@ -84,7 +85,7 @@
           <div>
             <label for="status">狀態</label>
             <select id="status" v-model="productForm.status" required>
-              <option v-for="status in ProductStatus" :key="status" :value="status">{{ status }}</option>
+              <option v-for="(label, value) in productStatusOptions" :key="value" :value="value">{{ label }}</option>
             </select>
           </div>
           <div>
@@ -165,7 +166,9 @@
           <div>
             <label for="detailGrade">等級</label>
             <select id="detailGrade" v-model="detailForm.grade">
-              <option v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
+              <option
+                v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']"
+                :key="grade" :value="grade">
                 {{ grade }}
               </option>
             </select>
@@ -201,9 +204,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { DetailReq, DetailRes, PrizeCategory, ProductReq, ProductRes, ProductStatus, ProductType } from '@/interfaces/product';
 import { productservice } from '@/services/backend/productservice';
-import { ProductReq, ProductRes, ProductStatus, ProductType, PrizeCategory, DetailReq, DetailRes } from '@/interfaces/product';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 
 // 數據
 const products = ref<ProductRes[]>([]);
@@ -234,6 +237,18 @@ const productForm = reactive<ProductReq>({
   status: ProductStatus.AVAILABLE,
   specification: '',
 });
+const productTypeOptions: Record<ProductType, string> = {
+  [ProductType.PRIZE]: '一番賞',
+  [ProductType.GACHA]: '扭蛋',
+  [ProductType.BLIND_BOX]: '盲盒',
+  [ProductType.CUSTMER_PRIZE]: '自製一番賞'
+};
+const productStatusOptions: Record<ProductStatus, string> = {
+  [ProductStatus.AVAILABLE]: '上架',
+  [ProductStatus.UNAVAILABLE]: '下架',
+  [ProductStatus.NOT_AVAILABLE_YET]: '未上架',
+  [ProductStatus.SOLD_OUT]: '上架已售完'
+};
 
 const detailForm = reactive<DetailReq>({
   productDetailId: undefined,
@@ -282,7 +297,10 @@ const fetchProducts = async () => {
     const response = await productservice.getAllProducts();
     console.log('獲取產品列表響應:', response);
     if (response.success) {
-      products.value = response.data;
+      products.value = response.data.map(product => ({
+            ...product,
+            status: productStatusOptions[product.status as ProductStatus] || product.status
+          }));
       console.log('產品列表已更新', products.value);
     } else {
       console.error('獲取產品列表失敗:', response.message);
@@ -382,7 +400,7 @@ const handleProductSubmit = async () => {
       console.log('創建新產品');
       response = await productservice.createProduct(productForm);
     }
-    
+
     console.log('產品提交響應:', response);
     if (response.success) {
       await fetchProducts();
@@ -407,7 +425,7 @@ const handleDetailSubmit = async () => {
       detailForm.productId = currentProductId.value!;
       response = await productservice.createProductDetails([detailForm]);
     }
-    
+
     console.log('商品詳情提交響應:', response);
     if (response.success) {
       await fetchProductDetails(currentProductId.value!);
@@ -549,7 +567,8 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
   color: #333;
 }
 
-h1, h2 {
+h1,
+h2 {
   color: #2c3e50;
   margin-bottom: 20px;
 }
@@ -574,10 +593,11 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
@@ -608,7 +628,7 @@ tr:nth-child(even) {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -621,7 +641,7 @@ tr:nth-child(even) {
   width: 80%;
   max-width: 600px;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   max-height: 80vh;
   overflow-y: auto;
 }
@@ -659,7 +679,9 @@ input[type="file"] {
     padding: 20px;
   }
 
-  table, th, td {
+  table,
+  th,
+  td {
     font-size: 14px;
   }
 
