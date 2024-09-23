@@ -68,6 +68,7 @@ export interface DetailReq {
   width: number;
   height: number;
   specification: string;
+  probability:number;
 }
 
 export interface DetailRes {

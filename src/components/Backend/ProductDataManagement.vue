@@ -186,6 +186,11 @@
             <input id="detailHeight" v-model.number="detailForm.height" type="number" required>
           </div>
           <div>
+            <label for="detailHeight">機率</label>
+            <input id="detailHeight" v-model.number="detailForm.probability" type="number" step="0.01" min="0" max="1"
+              required>
+          </div>
+          <div>
             <label for="detailImage">商品圖片</label>
             <input id="detailImage" type="file" @change="handleDetailImageUpload" multiple accept="image/*">
           </div>
@@ -265,7 +270,8 @@ const detailForm = reactive<DetailReq>({
   length: 0,
   width: 0,
   height: 0,
-  specification: ''
+  specification: '',
+  probability: 0.0
 });
 
 // 生命週期鉤子
@@ -298,9 +304,9 @@ const fetchProducts = async () => {
     console.log('獲取產品列表響應:', response);
     if (response.success) {
       products.value = response.data.map(product => ({
-            ...product,
-            status: productStatusOptions[product.status as ProductStatus] || product.status
-          }));
+        ...product,
+        status: productStatusOptions[product.status as ProductStatus] || product.status
+      }));
       console.log('產品列表已更新', products.value);
     } else {
       console.error('獲取產品列表失敗:', response.message);
