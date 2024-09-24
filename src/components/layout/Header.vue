@@ -11,9 +11,7 @@ const slidebarStore = useSlidebarStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const dialogStore = useDialogStore();
-const defaultMessage = '歡迎來到再來一抽一番賞';
-// 跑馬燈消息
-const marqueeMessage = ref(defaultMessage);
+const marqueeMessage = ref<string | null>(null);
 
 // WebSocket 客戶端
 let stompClient: Client | null = null;
@@ -27,7 +25,6 @@ const connectWebSocket = () => {
     onConnect: () => {
       console.log('Connected to WebSocket');
       stompClient?.subscribe('/topic/lottery', (message) => {
-        console.log('Received message:', message.body); // For debugging
         if (message.body) {
           const data = JSON.parse(message.body);
           marqueeMessage.value = `玩家 ${data.nickName} 獲得了 ${data.name}`;
@@ -37,8 +34,8 @@ const connectWebSocket = () => {
           }
 
           messageTimeout = setTimeout(() => {
-            marqueeMessage.value = defaultMessage;
-          }, 10000);
+            marqueeMessage.value = null;
+          }, 20000);
         }
       });
     },
@@ -201,7 +198,7 @@ const handleDailySignIn = async () => {
         </template>
       </div>
     </div>
-    <div class="header__marquee">
+    <div class="header__marquee" v-if="marqueeMessage">
       <p class="header__text">
         {{ marqueeMessage }}
       </p>
