@@ -75,16 +75,16 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
-import { useRouter } from 'vue-router';
-import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
-import {
-  getPagedStoreProducts,
-  IStoreProduct,
-} from '@/services/frontend/storeProductService';
 import {
   getAllCategories,
   IStoreCategory,
 } from '@/services/frontend/storeCategoryService';
+import {
+  getPagedStoreProducts,
+  IStoreProduct,
+} from '@/services/frontend/storeProductService';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 const products = ref<any[]>([]);
 const showProducts = ref<any[]>([]);
@@ -116,7 +116,10 @@ const loadMoreProducts = async () => {
   loading.value = true;
   try {
     const { data } = await getPagedStoreProducts(page.value, size.value);
-    const newProducts = data;
+    const newProducts = data.filter(product => product.status === 'AVAILABLE');
+
+    newProducts.filter
+
     if (newProducts.length < size.value) {
       allLoaded.value = true;
     }
