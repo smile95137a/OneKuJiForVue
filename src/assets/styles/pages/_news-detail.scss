@@ -14,6 +14,6 @@ $root-block-name: '.newsDetail';
 
   &__content {
     margin-top: 24px;
-    @include flex(center, center, column);
+    @include flex(null, null, column);
   }
 }

@@ -39,7 +39,9 @@ const fetchProducts = async () => {
     const { success, message, data } = await getAllProduct();
     loadingStore.stopLoading();
     if (success) {
-      const availableProducts = data.filter((p: IProduct) => p.status === 'AVAILABLE');
+      const availableProducts = data.filter(
+        (p: IProduct) => p.status === 'AVAILABLE'
+      );
       prizeProducts.value = availableProducts.filter(
         (p: IProduct) => p.productType === 'PRIZE'
       );
@@ -110,12 +112,7 @@ onMounted(() => {
           :key="banner.bannerUid"
           @click="goToProductDetail(banner)"
         >
-          <div class="slider__item">
-            <MImage
-              :src="banner.imageUrls[0]"
-              custom-class="slider__item-img"
-            />
-          </div>
+          <MImage :src="banner.imageUrls[0]" custom-class="slider__item-img" />
         </SwiperSlide>
       </Swiper>
     </div>
@@ -174,9 +171,4 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
-.slider {
-  width: 100%;
-  overflow: hidden;
-}
-</style>
+<style scoped></style>

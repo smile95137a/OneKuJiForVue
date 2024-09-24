@@ -241,6 +241,7 @@ $letter-spacing-nums: 100;
 .grid {
   display: grid;
   grid-template-columns: repeat(100, 1fr); // 默認 100 列
+  grid-auto-rows: min-content;
 }
 
 @for $i from 1 through 100 {

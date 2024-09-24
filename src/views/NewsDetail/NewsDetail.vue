@@ -6,6 +6,13 @@
         <p class="newsDetail__text">{{ newsItem.title }}</p>
       </div>
     </div>
+    <p class="newsDetail__text">
+      <DateFormatter
+        :date="newsItem.createdDate"
+        format="YYYY/MM/DD HH:mm:ss"
+      />
+    </p>
+    <hr class="m-t-24" />
     <div class="newsDetail__content">
       <MImage
         v-if="newsItem.imageUrls && newsItem.imageUrls.length > 0"
@@ -24,6 +31,7 @@ import { useRoute } from 'vue-router';
 import MImage from '@/components/frontend/MImage.vue';
 import { getNewsById, News } from '@/services/frontend/newsService';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
+import DateFormatter from '@/components/common/DateFormatter.vue';
 
 const breadcrumbItems = ref([{ name: '首頁' }, { name: '最新消息' }]);
 // 獲取當前路由
@@ -52,6 +60,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
