@@ -36,7 +36,7 @@ export const drawPrize = async (
 // 獲取抽獎狀態
 export const getDrawStatus = async (
   productId: number
-): Promise<ApiResponse<PrizeNumber[]>> => {
+): Promise<ApiResponse<any>> => {
   try {
     const response = await api.get(`${basePath}/status/${productId}`);
     return response.data;
@@ -67,7 +67,7 @@ export const executeDraw = async (
 export const executeRandomDraw = async (
   productId: number,
   userUid: string
-): Promise<ApiResponse<DrawResult>> => {
+): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/random/${productId}`, null, {
       params: { userUid },

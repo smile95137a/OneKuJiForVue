@@ -464,8 +464,23 @@ $root-block-name: '.product-detail-one';
 
 .mcard--product-detail-one {
   margin-bottom: 36px;
+
+  .product-detail-one__countdown {
+    margin: 12px 0;
+    @include flex(center, center);
+    font-size: 30px;
+    font-weight: 400;
+
+    color: #fe4206;
+    @include screen(md) {
+      font-size: 20px;
+      margin: 8px 0;
+    }
+  }
+
   .product-detail-one__text {
     margin: 40px 0;
+    margin-bottom: 20px;
     @include flex(center, center);
     font-size: 30px;
     font-weight: 400;

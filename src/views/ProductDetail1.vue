@@ -108,6 +108,9 @@
         <div class="product-detail-one__text" ref="introduceSection">
           剩餘數量：{{ remainingQuantity }} / 總數量：{{ ~~ticketList?.length }}
         </div>
+        <p v-if="countdown > 0" class="product-detail-one__countdown">
+          剩餘時間: {{ Math.floor(countdown / 60) }} 分 {{ countdown % 60 }} 秒
+        </p>
         <div class="product-detail-one__boxs">
           <div
             v-for="(ticket, index) in ticketList"
@@ -222,8 +225,9 @@ import {
 } from '@/services/frontend/productDetailService';
 import { getProductById, IProduct } from '@/services/frontend/productService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import moment from 'moment';
 
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
@@ -242,6 +246,33 @@ const introduceSection = ref<HTMLElement | null>(null);
 const showOption = ref(false);
 const showOptionRandom = ref(false);
 const customQuantity = ref(1);
+
+const countdown = ref<number>(0);
+let countdownInterval: NodeJS.Timeout | null = null;
+
+const endTimes = ref<string | null>(null);
+
+const startCountdown = (endTime: string) => {
+  const endMoment = moment(endTime);
+  const now = moment();
+
+  const duration = endMoment.diff(now, 'seconds');
+  countdown.value = duration > 0 ? duration : 0;
+
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  countdownInterval = setInterval(() => {
+    if (countdown.value > 0) {
+      countdown.value--;
+    } else {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+    }
+  }, 1000);
+};
+
 const remainingQuantity = computed(() => {
   if (!ticketList.value) {
     return 0;
@@ -276,6 +307,14 @@ onMounted(async () => {
 
     if (drawStatusResponse.data) {
       ticketList.value = drawStatusResponse.data.prizeNumberList;
+
+      if (product.value?.productType === 'PRIZE') {
+        const endTime = drawStatusResponse.data.endTimes || null;
+        if (endTime) {
+          endTimes.value = endTime;
+          startCountdown(endTime);
+        }
+      }
     }
   } catch (error: any) {
     const { message } = error.response.data;
@@ -287,11 +326,25 @@ onMounted(async () => {
   loadingStore.stopLoading();
 });
 
+onBeforeUnmount(() => {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+});
+
 const fetchDrawStatus = async () => {
   try {
     const { data } = await getDrawStatus(productId);
     if (data) {
       ticketList.value = data.prizeNumberList;
+
+      if (product.value?.productType === 'PRIZE') {
+        const newEndTime = data.endTimes || null;
+        if (newEndTime) {
+          endTimes.value = newEndTime;
+          startCountdown(newEndTime);
+        }
+      }
     } else {
       dialogStore.openInfoDialog({
         title: '系統通知',
