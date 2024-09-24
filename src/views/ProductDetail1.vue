@@ -275,7 +275,7 @@ onMounted(async () => {
     }
 
     if (drawStatusResponse.data) {
-      ticketList.value = drawStatusResponse.data;
+      ticketList.value = drawStatusResponse.data.prizeNumberList;
     }
   } catch (error: any) {
     const { message } = error.response.data;
@@ -291,7 +291,7 @@ const fetchDrawStatus = async () => {
   try {
     const { data } = await getDrawStatus(productId);
     if (data) {
-      ticketList.value = data;
+      ticketList.value = data.prizeNumberList;
     } else {
       dialogStore.openInfoDialog({
         title: '系統通知',
