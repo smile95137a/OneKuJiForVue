@@ -46,13 +46,13 @@ $root-block-name: '.header';
   }
 
   &__menu {
-    font-size: 56px;
+    display: none;
     @include screen(md) {
+      display: block;
       font-size: 28px;
     }
   }
   &__logo {
-    margin-left: 40px;
     @include w_h(132px, 132px);
     @include screen(md) {
       margin-left: 8px;
@@ -143,7 +143,7 @@ $root-block-name: '.header';
 
   &__btns {
     @include flex(center);
-    width: 320px;
+    width: 420px;
     height: 55px;
     gap: 16px;
     @include screen(md) {
