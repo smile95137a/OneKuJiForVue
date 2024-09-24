@@ -147,48 +147,95 @@
       <div class="modal-content">
         <h2>{{ editingDetail ? '編輯商品' : '新增商品' }}</h2>
         <form @submit.prevent="handleDetailSubmit">
-          <div>
-            <label for="detailProductName">商品名稱</label>
-            <input id="detailProductName" v-model="detailForm.productName" required>
+          <div v-if="!editingDetail">
+            <h3>批量新增</h3>
+            <div v-for="(detail, index) in batchDetails" :key="index" class="batch-item">
+              <h4>商品 #{{ index + 1 }}</h4>
+              <div>
+                <label :for="'detailProductName' + index">商品名稱</label>
+                <input :id="'detailProductName' + index" v-model="detail.productName" required>
+              </div>
+              <div>
+                <label :for="'detailDescription' + index">描述</label>
+                <textarea :id="'detailDescription' + index" v-model="detail.description" required></textarea>
+              </div>
+              <div>
+                <label :for="'detailQuantity' + index">數量</label>
+                <input :id="'detailQuantity' + index" type="number" v-model.number="detail.quantity" required>
+              </div>
+              <div>
+                <label :for="'detailGrade' + index">等級</label>
+                <select :id="'detailGrade' + index" v-model="detail.grade">
+                  <option v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
+                    {{ grade }}
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label :for="'detailSpecification' + index">規格</label>
+                <input :id="'detailSpecification' + index" v-model="detail.specification">
+              </div>
+              <div>
+                <label :for="'detailLength' + index">長度</label>
+                <input :id="'detailLength' + index" type="number" v-model.number="detail.length">
+              </div>
+              <div>
+                <label :for="'detailWidth' + index">寬度</label>
+                <input :id="'detailWidth' + index" type="number" v-model.number="detail.width">
+              </div>
+              <div>
+                <label :for="'detailHeight' + index">高度</label>
+                <input :id="'detailHeight' + index" type="number" v-model.number="detail.height">
+              </div>
+              <div>
+                <label :for="'detailProbability' + index">機率</label>
+                <input :id="'detailProbability' + index" type="number" v-model.number="detail.probability" step="0.01" min="0" max="1">
+              </div>
+              <button type="button" @click="removeDetailFromBatch(index)">移除</button>
+            </div>
+            <button type="button" @click="addDetailToBatch">新增另一個商品</button>
           </div>
-          <div>
-            <label for="detailDescription">描述</label>
-            <textarea id="detailDescription" v-model="detailForm.description" required></textarea>
-          </div>
-          <div>
-            <label for="detailNote">備註</label>
-            <textarea id="detailNote" v-model="detailForm.note"></textarea>
-          </div>
-          <div>
-            <label for="detailQuantity">數量</label>
-            <input id="detailQuantity" type="number" v-model.number="detailForm.quantity" required>
-          </div>
-          <div>
-            <label for="detailGrade">等級</label>
-            <select id="detailGrade" v-model="detailForm.grade">
-              <option
-                v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']"
-                :key="grade" :value="grade">
-                {{ grade }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label for="detailLength">長度</label>
-            <input id="detailLength" v-model.number="detailForm.length" type="number" required>
-          </div>
-          <div>
-            <label for="detailWidth">寬度</label>
-            <input id="detailWidth" v-model.number="detailForm.width" type="number" required>
-          </div>
-          <div>
-            <label for="detailHeight">高度</label>
-            <input id="detailHeight" v-model.number="detailForm.height" type="number" required>
-          </div>
-          <div>
-            <label for="detailHeight">機率</label>
-            <input id="detailHeight" v-model.number="detailForm.probability" type="number" step="0.01" min="0" max="1"
-              required>
+          <div v-else>
+            <div>
+              <label for="detailProductName">商品名稱</label>
+              <input id="detailProductName" v-model="detailForm.productName" required>
+            </div>
+            <div>
+              <label for="detailDescription">描述</label>
+              <textarea id="detailDescription" v-model="detailForm.description" required></textarea>
+            </div>
+            <div>
+              <label for="detailNote">備註</label>
+              <textarea id="detailNote" v-model="detailForm.note"></textarea>
+            </div>
+            <div>
+              <label for="detailQuantity">數量</label>
+              <input id="detailQuantity" type="number" v-model.number="detailForm.quantity" required>
+            </div>
+            <div>
+              <label for="detailGrade">等級</label>
+              <select id="detailGrade" v-model="detailForm.grade">
+                <option v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
+                  {{ grade }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label for="detailLength">長度</label>
+              <input id="detailLength" v-model.number="detailForm.length" type="number">
+            </div>
+            <div>
+              <label for="detailWidth">寬度</label>
+              <input id="detailWidth" v-model.number="detailForm.width" type="number">
+            </div>
+            <div>
+              <label for="detailHeight">高度</label>
+              <input id="detailHeight" v-model.number="detailForm.height" type="number">
+            </div>
+            <div>
+              <label for="detailProbability">機率</label>
+              <input id="detailProbability" v-model.number="detailForm.probability" type="number" step="0.01" min="0" max="1">
+            </div>
           </div>
           <div>
             <label for="detailImage">商品圖片</label>
@@ -222,6 +269,7 @@ const showDetailModal = ref(false);
 const editingProduct = ref<ProductRes | null>(null);
 const editingDetail = ref<DetailRes | null>(null);
 const currentProductId = ref<number | null>(null);
+  const batchDetails = ref<DetailReq[]>([]);
 
 // 計算屬性
 const totalQuantity = computed(() => {
@@ -379,6 +427,7 @@ const openAddDetailModal = () => {
   console.log('打開新增商品詳情模態窗');
   editingDetail.value = null;
   resetDetailForm();
+  batchDetails.value = [{ ...detailForm }];
   showDetailModal.value = true;
 };
 
@@ -393,6 +442,7 @@ const closeDetailModal = () => {
   console.log('關閉商品詳情模態窗');
   showDetailModal.value = false;
   resetDetailForm();
+  batchDetails.value = [];
 };
 
 const handleProductSubmit = async () => {
@@ -421,15 +471,18 @@ const handleProductSubmit = async () => {
 
 const handleDetailSubmit = async () => {
   try {
-    console.log('開始提交商品詳情表單', detailForm);
+    console.log('開始提交商品詳情表單');
     let response;
     if (editingDetail.value) {
       console.log('更新現有商品詳情', editingDetail.value.productDetailId);
       response = await productservice.updateProductDetail(editingDetail.value.productDetailId, detailForm);
     } else {
-      console.log('創建新商品詳情');
-      detailForm.productId = currentProductId.value!;
-      response = await productservice.createProductDetails([detailForm]);
+      console.log('批量創建新商品詳情');
+      const detailsToSubmit = batchDetails.value.map(detail => ({
+        ...detail,
+        productId: currentProductId.value!
+      }));
+      response = await productservice.createProductDetails(detailsToSubmit);
     }
 
     console.log('商品詳情提交響應:', response);
@@ -539,6 +592,7 @@ const resetDetailForm = () => {
     width: 0,
     height: 0,
     specification: '',
+    probability: 0.0
   });
 };
 
@@ -562,6 +616,14 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
       return '無';
   }
 };
+
+const addDetailToBatch = () => {
+  batchDetails.value.push({ ...detailForm });
+};
+
+const removeDetailFromBatch = (index: number) => {
+  batchDetails.value.splice(index, 1);
+};
 </script>
 
 <style scoped>
@@ -573,8 +635,7 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
   color: #333;
 }
 
-h1,
-h2 {
+h1, h2 {
   color: #2c3e50;
   margin-bottom: 20px;
 }
@@ -602,8 +663,7 @@ table {
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-th,
-td {
+th, td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
@@ -679,6 +739,19 @@ input[type="file"] {
   padding: 10px 0;
 }
 
+.batch-item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.batch-item h4 {
+  margin-top: 0;
+  color: #3498db;
+}
+
 @media (max-width: 768px) {
   .modal-content {
     width: 95%;
@@ -694,6 +767,10 @@ input[type="file"] {
   button {
     padding: 8px 12px;
     font-size: 12px;
+  }
+
+  .batch-item {
+    padding: 10px;
   }
 }
 </style>

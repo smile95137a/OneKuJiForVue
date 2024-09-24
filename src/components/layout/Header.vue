@@ -21,17 +21,17 @@ let messageTimeout: NodeJS.Timeout | null = null;
 
 const connectWebSocket = () => {
   const socket = new SockJS(`${API_URL}/ws`);
-  
+
   stompClient = new Client({
     webSocketFactory: () => socket,
     onConnect: () => {
       console.log('Connected to WebSocket');
       stompClient?.subscribe('/topic/lottery', (message) => {
-        console.log('Received message:', message.body);  // For debugging
+        console.log('Received message:', message.body); // For debugging
         if (message.body) {
           const data = JSON.parse(message.body);
           marqueeMessage.value = `玩家 ${data.nickName} 獲得了 ${data.name}`;
-          
+
           if (messageTimeout) {
             clearTimeout(messageTimeout);
           }
@@ -155,17 +155,7 @@ const handleDailySignIn = async () => {
               <i class="fa-solid fa-angle-right"></i>
             </div>
           </router-link>
-          <div
-            class="header__nav-item"
-            active-class="header__nav-item--active"
-            @click="handleDailySignIn"
-            v-if="authStore.isLogin"
-          >
-            每日簽到
-            <div class="header__nav-item-icon">
-              <i class="fa-solid fa-angle-right"></i>
-            </div>
-          </div>
+
           <router-link
             class="header__nav-item"
             to="/prize-checkout"
@@ -193,6 +183,12 @@ const handleDailySignIn = async () => {
             <router-link class="cartBtn__main" to="/mall-checkout">
               <i class="fa-solid fa-cart-shopping"></i>
             </router-link>
+          </div>
+          <div
+            class="header__btn header__btn--dailySignIn"
+            @click="handleDailySignIn"
+          >
+            <i class="fa-solid fa-pen"></i>
           </div>
         </template>
         <template v-else>
