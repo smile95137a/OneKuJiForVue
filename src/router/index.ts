@@ -29,6 +29,8 @@ import Policy from '@/views/Policy/Policy.vue';
 import Privacy from '@/views/Privacy/Privacy.vue';
 import Register from '@/views/Register/Register.vue';
 import Transaction from '@/views/Transaction/Transaction.vue';
+import Verify from '@/views/Verify/Verify.vue';
+
 // 后台组件
 import MemberManagement from '@/components/backend/MemberManagement.vue';
 import Newscontrol from '@/components/backend/Newscontrol.vue';
@@ -44,6 +46,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/oauth2/redirect',
     component: OAuth2Redirect,
+  },
+  {
+    path: '/verify/:token',
+    component: Verify,
   },
   {
     path: '/login',

@@ -216,7 +216,10 @@ import linkImg from '@/assets/image/link.png';
 import metaImg from '@/assets/image/meta.png';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
-import { addCartItem } from '@/services/frontend/cartItemService';
+import {
+  addCartItem,
+  checkQuantity,
+} from '@/services/frontend/cartItemService';
 import {
   getStoreProductById,
   toggleFavorite,
@@ -344,31 +347,39 @@ const handleAddToCart = async (redirectToCheckout = false) => {
       productCode: product.value.productCode,
       quantity: quantity.value,
     };
-    try {
-      loadingStore.startLoading();
-      const response = await addCartItem(cartItem);
-      loadingStore.stopLoading();
-      if (response.success) {
-        if (redirectToCheckout) {
-          router.push('/mall-checkout');
+    const isCanAddCart = await checkQuantity(cartItem);
+    if (isCanAddCart) {
+      try {
+        loadingStore.startLoading();
+        const response = await addCartItem(cartItem);
+        loadingStore.stopLoading();
+        if (response.success) {
+          if (redirectToCheckout) {
+            router.push('/mall-checkout');
+          } else {
+            await dialogStore.openInfoDialog({
+              title: '系統消息',
+              message: '商品成功加到購物車',
+            });
+          }
         } else {
           await dialogStore.openInfoDialog({
             title: '系統消息',
-            message: '商品成功加到購物車',
+            message: `添加購物車失敗: ${response.message}`,
           });
         }
-      } else {
+      } catch (error) {
+        loadingStore.stopLoading();
+        console.error('添加購物車時發生錯誤:', error);
         await dialogStore.openInfoDialog({
           title: '系統消息',
-          message: `添加購物車失敗: ${response.message}`,
+          message: '添加購物車時發生錯誤，請稍後再試。',
         });
       }
-    } catch (error) {
-      loadingStore.stopLoading();
-      console.error('添加購物車時發生錯誤:', error);
+    } else {
       await dialogStore.openInfoDialog({
         title: '系統消息',
-        message: '添加購物車時發生錯誤，請稍後再試。',
+        message: '超出庫存數量。',
       });
     }
   }
