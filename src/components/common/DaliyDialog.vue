@@ -7,6 +7,9 @@
     <div class="daliyDialog">
       <div class="daliyDialog__header">
         <div class="daliyDialog__logo"></div>
+        <div class="daliyDialog__close" @click="handleClose(false)">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
       </div>
 
       <div class="daliyDialog__main">
