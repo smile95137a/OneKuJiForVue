@@ -143,7 +143,6 @@ $root-block-name: '.header';
 
   &__btns {
     @include flex(center);
-    width: 420px;
     height: 55px;
     gap: 16px;
     @include screen(md) {

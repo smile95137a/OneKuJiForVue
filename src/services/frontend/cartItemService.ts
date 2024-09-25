@@ -35,3 +35,18 @@ export const removeCartItem = async (
     throw error;
   }
 };
+
+export const checkQuantity = async (
+  cartItem: CartItem
+): Promise<ApiResponse<boolean>> => {
+  try {
+    const response = await api.post<ApiResponse<boolean>>(
+      `${basePath}/checkQua`,
+      cartItem
+    );
+    return response.data;
+  } catch (error) {
+    console.error('檢查商品數量時發生錯誤:', error);
+    throw error;
+  }
+};
