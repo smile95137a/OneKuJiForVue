@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
 import moment from 'moment';
+import { computed } from 'vue';
 
 interface DateFormatterProps {
   date: string;

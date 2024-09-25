@@ -39,6 +39,7 @@ import AdminLogin from '@/views/Control/AdminLogin.vue';
 import PrizeCheckout from '@/views/Prize/PrizeCheckout.vue';
 
 import ordercontrol from '@/components/backend/ordercontrol.vue';
+import ProductRecommendation from '@/components/backend/ProductRecommendation.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
 const routes: Array<RouteRecordRaw> = [
   {
@@ -213,6 +214,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'shipment-management',
         component: Shipcontrol,
+      },
+      {
+        path: 'product-recommendation',
+        component: ProductRecommendation,
       },
       // {
       //   path: 'permission-management',
