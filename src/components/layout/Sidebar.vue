@@ -27,6 +27,7 @@ export default defineComponent({
       { name: '商城資料管理', path: '/admin/store-control', icon: 'fas fa-store' },
       { name: '最新消息管理', path: '/admin/news-management', icon: 'fas fa-newspaper' },
       { name: '訂單狀態管理', path: '/admin/order-management', icon: 'fas fa-newspaper' },
+      { name: '推薦訊息管理', path: '/admin/recommend-management', icon: 'fas fa-newspaper' },
     ]);
 
     return {

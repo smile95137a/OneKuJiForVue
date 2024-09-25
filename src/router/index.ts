@@ -40,6 +40,7 @@ import PrizeCheckout from '@/views/Prize/PrizeCheckout.vue';
 
 import ordercontrol from '@/components/backend/ordercontrol.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
+import Recommend from '@/components/Backend/recommend.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/oauth2/redirect',
@@ -201,6 +202,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'member-management',
         component: MemberManagement,
+      },
+      {
+        path: 'recommend-management',
+        component: Recommend,
       },
       {
         path: 'order-management',
