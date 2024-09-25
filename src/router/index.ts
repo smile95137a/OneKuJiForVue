@@ -29,6 +29,8 @@ import Policy from '@/views/Policy/Policy.vue';
 import Privacy from '@/views/Privacy/Privacy.vue';
 import Register from '@/views/Register/Register.vue';
 import Transaction from '@/views/Transaction/Transaction.vue';
+import Verify from '@/views/Verify/Verify.vue';
+
 // 后台组件
 import MemberManagement from '@/components/backend/MemberManagement.vue';
 import Newscontrol from '@/components/backend/Newscontrol.vue';
@@ -41,10 +43,15 @@ import PrizeCheckout from '@/views/Prize/PrizeCheckout.vue';
 import ordercontrol from '@/components/backend/ordercontrol.vue';
 import ProductRecommendation from '@/components/backend/ProductRecommendation.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
+import Recommend from '@/components/Backend/recommend.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/oauth2/redirect',
     component: OAuth2Redirect,
+  },
+  {
+    path: '/verify/:token',
+    component: Verify,
   },
   {
     path: '/login',
@@ -202,6 +209,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'member-management',
         component: MemberManagement,
+      },
+      {
+        path: 'recommend-management',
+        component: Recommend,
       },
       {
         path: 'order-management',

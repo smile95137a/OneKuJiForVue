@@ -5,6 +5,7 @@ import MSelect from '@/components/common/MSelect.vue';
 import {
   getAllCityNames,
   getAreaListByCityName,
+  getZipCodeByCityAndAreaName,
 } from '@/services/frontend/taiwanCitiesService';
 import { registerUser } from '@/services/frontend/userService';
 import { useDialogStore, useLoadingStore } from '@/stores';
@@ -15,16 +16,6 @@ import * as yup from 'yup';
 
 const cityOptions = ref<{ value: string; label: string }[]>([]);
 const areaOptions = ref<{ value: string; label: string }[]>([]);
-
-onMounted(() => {
-  const cityNames = getAllCityNames();
-  cityOptions.value = [
-    { value: '', label: '縣市' },
-    ...cityNames.map((city) => ({ value: city, label: city })),
-  ];
-  areaOptions.value = [{ value: '', label: '行政區' }];
-});
-
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
@@ -38,10 +29,15 @@ const schema = yup.object({
     .required('確認密碼是必填項'),
   nickname: yup.string().required('暱稱是必填項'),
   addressName: yup.string(),
+  zipCode: yup.string(),
   city: yup.string(),
   area: yup.string(),
   address: yup.string(),
   lineId: yup.string(),
+  agreeTerms: yup
+    .boolean()
+    .oneOf([true], '您必須同意網站服務條款和隱私權政策。')
+    .required(),
 });
 
 const { defineField, handleSubmit, errors, setFieldValue } = useForm({
@@ -54,10 +50,12 @@ const { defineField, handleSubmit, errors, setFieldValue } = useForm({
     confirmPassword: '',
     nickname: '',
     addressName: '',
+    zipCode: '',
     city: '',
     area: '',
     address: '',
     lineId: '',
+    agreeTerms: false,
   },
 });
 
@@ -72,22 +70,7 @@ const [city, cityProps] = defineField('city');
 const [area, areaProps] = defineField('area');
 const [address, addressProps] = defineField('address');
 const [lineId, lineIdProps] = defineField('lineId');
-
-watch(city, (newCity) => {
-  if (newCity) {
-    setFieldValue('area', '');
-    const areas = getAreaListByCityName(newCity);
-    areaOptions.value = [
-      { value: '', label: '行政區' },
-      ...areas.map((area) => ({
-        value: area.areaName,
-        label: area.areaName,
-      })),
-    ];
-  } else {
-    areaOptions.value = [{ value: '', label: '行政區' }];
-  }
-});
+const [agreeTerms, agreeTermsProps] = defineField('agreeTerms');
 
 const onSubmit = handleSubmit(async (values) => {
   try {
@@ -106,6 +89,43 @@ const onSubmit = handleSubmit(async (values) => {
   } catch (error) {
     loadingStore.stopLoading();
     console.log(error);
+  }
+});
+
+onMounted(() => {
+  const cityNames = getAllCityNames();
+  cityOptions.value = [
+    { value: '', label: '縣市' },
+    ...cityNames.map((city) => ({ value: city, label: city })),
+  ];
+  areaOptions.value = [{ value: '', label: '行政區' }];
+});
+
+watch(city, (newCity) => {
+  if (newCity) {
+    setFieldValue('area', '');
+    const areas = getAreaListByCityName(newCity);
+    areaOptions.value = [
+      { value: '', label: '行政區' },
+      ...areas.map((area) => ({
+        value: area.areaName,
+        label: area.areaName,
+      })),
+    ];
+  } else {
+    areaOptions.value = [{ value: '', label: '行政區' }];
+  }
+});
+
+watch(area, (newArea) => {
+  if (newArea) {
+    setFieldValue('zipCode', '');
+    const zipCode = getZipCodeByCityAndAreaName(city.value, newArea);
+    if (zipCode) {
+      setFieldValue('zipCode', zipCode);
+    }
+  } else {
+    setFieldValue('zipCode', '');
   }
 });
 </script>
@@ -253,8 +273,20 @@ const onSubmit = handleSubmit(async (values) => {
           </div>
         </div>
         <div class="register__other">
-          <p class="register__text">
-            我同意 一番賞 提供的 <u>網站服務條款</u> 與 <u>隱私權政策</u> 。
+          <div class="register__checkbox">
+            <input
+              id="agreeTerms"
+              type="checkbox"
+              v-model="agreeTerms"
+              :class="{ 'register__checkbox--error': errors.agreeTerms }"
+            />
+            <label for="agreeTerms">
+              我同意 <u>一番賞</u> 提供的 <u>網站服務條款</u> 與
+              <u>隱私權政策</u> 。
+            </label>
+          </div>
+          <p class="register__text register__text--error">
+            {{ errors.agreeTerms }}
           </p>
           <div class="register__other-btn">
             <button type="submit" class="register__btn">註冊成為會員</button>

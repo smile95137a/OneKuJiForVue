@@ -36,6 +36,17 @@ $root-block-name: '.daliyDialog';
     }
   }
 
+  &__close {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    z-index: 9;
+    transform: translateY(-50%);
+    &-img {
+      @include w_h(255px, 255px);
+    }
+  }
+
   &__main {
     flex: 1;
     background: #ffe7cc;

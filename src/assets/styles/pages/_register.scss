@@ -51,9 +51,6 @@ $root-block-name: '.register';
         }
       }
       margin-bottom: 4px;
-      &--error {
-        color: #fe4206;
-      }
     }
 
     &-input {
@@ -119,5 +116,11 @@ $root-block-name: '.register';
 
     font-size: 20px;
     text-align: center;
+  }
+
+  &__text {
+    &--error {
+      color: #fe4206 !important;
+    }
   }
 }
