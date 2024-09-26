@@ -342,11 +342,13 @@ const detailForm = reactive<DetailReq>({
   specification: '',
   probability: 0.0
 });
+
 // 判斷圖片 URL 是否有效
 const isValidImageUrl = (url: string | File): boolean => {
   if (url instanceof File) return url.size > 0; // 確保文件大小有效
   return typeof url === 'string' && url.trim() !== ''; // 過濾掉空字符串
 };
+
 // 生命週期鉤子
 onMounted(async () => {
   console.log('組件已掛載，開始獲取產品列表');
@@ -391,12 +393,14 @@ const fetchProducts = async () => {
 
 const fetchProductDetails = async (productId: number) => {
   try {
-    console.log('開始獲取產品詳情', productId);
     const response = await productservice.getAllProductDetails();
-    console.log('獲取產品詳情響應:', response);
     if (response.success) {
-      productDetails.value = response.data.filter(detail => detail.productId === productId);
-      console.log('產品詳情已更新', productDetails.value);
+      productDetails.value = response.data
+        .filter(detail => detail.productId === productId)
+        .map(detail => ({
+          ...detail,
+          imageUrls: detail.imageUrls.filter(url => url.trim() !== '') // 過濾空的圖片URL
+        }));
       updateProductStockQuantity(productId);
       const currentProduct = products.value.find(p => p.productId === productId);
       if (currentProduct) {
@@ -409,6 +413,7 @@ const fetchProductDetails = async (productId: number) => {
     console.error('獲取產品詳情時發生錯誤:', error);
   }
 };
+
 
 const updateProductStockQuantity = (productId: number) => {
   const totalQuantity = productDetails.value.reduce((sum, detail) => sum + detail.quantity, 0);
@@ -454,7 +459,7 @@ const closeProductDetailsModal = () => {
 const openAddDetailModal = () => {
   console.log('打開新增商品詳情模態窗');
   editingDetail.value = null;
-  resetDetailForm();
+  // 初始化 imageUrls 為空數組
   batchDetails.value = [{ ...detailForm, imageUrls: [] }];
   if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
     batchDetails.value[0].probability = 1;
@@ -465,6 +470,8 @@ const openAddDetailModal = () => {
 const openEditDetailModal = (detail: DetailRes) => {
   console.log('打開編輯商品詳情模態窗', detail);
   editingDetail.value = detail;
+  // 確保清理空的 imageUrls
+  detail.imageUrls = detail.imageUrls.filter(url => url.trim() !== '');
   Object.assign(detailForm, detail);
   showDetailModal.value = true;
 };
@@ -499,48 +506,39 @@ const handleProductSubmit = async () => {
     console.error('提交產品時發生錯誤:', error);
   }
 };
+const cleanImageUrls = (detail: DetailReq) => ({
+  ...detail,
+  imageUrls: detail.imageUrls.filter(url => url instanceof File || (typeof url === 'string' && url.trim() !== '')) // 過濾空URL
+});
 
 // 提交商品詳情的表單處理邏輯
 const handleDetailSubmit = async () => {
   try {
-    console.log('開始提交商品詳情表單');
     let response;
 
-    // 過濾無效的圖片 URL
-    const cleanImageUrls = (detail: DetailReq) => ({
+    // 過濾無效的圖片URL
+    const cleanedDetails = batchDetails.value.map(detail => cleanImageUrls({
       ...detail,
-      imageUrls: detail.imageUrls.filter(url => url instanceof File || (typeof url === 'string' && url.trim() !== '')) // 過濾空 URL
-    });
+      productId: currentProductId.value!,
+      probability: currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX ? 1 : detail.probability
+    }));
 
     if (editingDetail.value) {
-      console.log('更新現有商品詳情', editingDetail.value.productDetailId);
-      if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
-        detailForm.probability = 1;
-      }
-      const cleanedDetail = cleanImageUrls(detailForm);
-      response = await productservice.updateProductDetail(editingDetail.value.productDetailId, cleanedDetail);
+      response = await productservice.updateProductDetail(editingDetail.value.productDetailId, cleanImageUrls(detailForm));
     } else {
-      console.log('批量創建新商品詳情');
-      const detailsToSubmit = batchDetails.value.map(detail => cleanImageUrls({
-        ...detail,
-        productId: currentProductId.value!,
-        probability: currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX ? 1 : detail.probability
-      }));
-      response = await productservice.createProductDetails(detailsToSubmit);
+      response = await productservice.createProductDetails(cleanedDetails);
     }
 
-    console.log('商品詳情提交響應:', response);
     if (response.success) {
       await fetchProductDetails(currentProductId.value!);
       closeDetailModal();
     } else {
-      console.error('提交商品詳情失敗:', response.message);
+      console.error('提交失敗:', response.message);
     }
   } catch (error) {
-    console.error('提交商品詳情時發生錯誤:', error);
+    console.error('提交時發生錯誤:', error);
   }
 };
-
 
 const deleteProduct = async (productId: number) => {
   if (confirm('確定要刪除這個產品系列嗎？')) {
@@ -588,29 +586,25 @@ const handleImageUpload = (event: Event) => {
 };
 
 const handleDetailImageUpload = (event: Event, detailIndex?: number) => {
-  console.log('處理商品詳情圖片上傳');
   const target = event.target as HTMLInputElement;
   if (target.files) {
-    const files = Array.from(target.files).filter(file => file.size > 0); // 過濾掉空文件
+    const files = Array.from(target.files).filter(file => file.size > 0); // 過濾空的文件
     if (editingDetail.value) {
-      detailForm.imageUrls = [...detailForm.imageUrls, ...files];
-      console.log('編輯模式下更新的商品詳情圖片:', detailForm.imageUrls);
+      detailForm.imageUrls = [...detailForm.imageUrls, ...files]; // 編輯時更新圖片列表
     } else if (detailIndex !== undefined) {
       const updatedDetail = { ...batchDetails.value[detailIndex] };
       updatedDetail.imageUrls = [...(updatedDetail.imageUrls || []), ...files];
-      batchDetails.value.splice(detailIndex, 1, updatedDetail);
-      console.log('批量新增模式下更新的商品詳情圖片:', batchDetails.value[detailIndex].imageUrls);
+      batchDetails.value.splice(detailIndex, 1, updatedDetail); // 更新批量新增中的圖片列表
     }
   }
 };
 
+
 const removeImage = (index: number) => {
-  console.log('移除產品圖片', index);
-  productForm.imageUrls.splice(index, 1); // 從 imageUrls 中移除指定索引的圖片
+  productForm.imageUrls.splice(index, 1); // 從 productForm 的 imageUrls 中移除圖片
 };
 
 const removeDetailImage = (detailIndex: number, imageIndex?: number) => {
-  console.log('移除商品詳情圖片', detailIndex, imageIndex);
   if (editingDetail.value) {
     detailForm.imageUrls.splice(detailIndex, 1); // 編輯模式下移除指定索引的圖片
   } else if (imageIndex !== undefined) {
@@ -620,8 +614,8 @@ const removeDetailImage = (detailIndex: number, imageIndex?: number) => {
   }
 };
 
+
 const resetProductForm = () => {
-  console.log('重置產品表單');
   Object.assign(productForm, {
     productName: '',
     description: '',
@@ -629,7 +623,7 @@ const resetProductForm = () => {
     sliverPrice: 0,
     bonusPrice: 0,
     stockQuantity: 0,
-    imageUrls: [],
+    imageUrls: [], // 重置為空數組
     productType: ProductType.PRIZE,
     prizeCategory: PrizeCategory.NONE,
     status: ProductStatus.NOT_AVAILABLE_YET,
@@ -638,7 +632,6 @@ const resetProductForm = () => {
 };
 
 const resetDetailForm = () => {
-  console.log('重置商品詳情表單');
   Object.assign(detailForm, {
     productId: currentProductId.value,
     description: '',
@@ -646,7 +639,7 @@ const resetDetailForm = () => {
     quantity: 0,
     productName: '',
     grade: 'A',
-    imageUrls: [],
+    imageUrls: [], // 重置為空數組
     length: 0,
     width: 0,
     height: 0,
@@ -655,12 +648,13 @@ const resetDetailForm = () => {
   });
 };
 
+
 // 格式化圖片 URL，支持 File 和 string 類型的 URL
 const formatImageUrl = (url: string | File): string => {
   if (typeof url === 'string') {
-    return url.trim() !== '' ? productservice.getImageUrl(url) : ''; // 過濾掉空的字符串
+    return url.trim() !== '' ? productservice.getImageUrl(url) : ''; // 過濾空的字符串
   }
-  return URL.createObjectURL(url); // 對 File 類型生成預覽 URL
+  return URL.createObjectURL(url); // 對 File 類型生成預覽URL
 };
 
 
@@ -681,17 +675,20 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
 const addDetailToBatch = () => {
   const newDetail = { 
     ...detailForm, 
-    imageUrls: [] // 確保新增的詳情項目的 imageUrls 被正確初始化為空數組
+    imageUrls: [] // 確保新增的詳情項目的 imageUrls 被初始化為空數組
   };
   if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
     newDetail.probability = 1;
   }
   batchDetails.value.push(newDetail);
 };
+
+
 const removeDetailFromBatch = (index: number) => {
   batchDetails.value.splice(index, 1);
 };
 </script>
+
 <style scoped>
 .product-management {
   max-width: 1200px;
