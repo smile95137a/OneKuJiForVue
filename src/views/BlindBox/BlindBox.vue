@@ -79,7 +79,8 @@ const fetchProducts = async () => {
     const { success, message, data } = await getAllProduct();
     loadingStore.stopLoading();
     if (success) {
-      products.value = data.filter(
+      const availableProducts = data.filter((p: IProduct) => p.status === 'AVAILABLE');
+      products.value = availableProducts.filter(
         (product) => product.productType === 'BLIND_BOX'
       );
     } else {
