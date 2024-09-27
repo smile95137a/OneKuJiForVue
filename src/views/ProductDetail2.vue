@@ -166,6 +166,7 @@ const handleDraw = async () => {
           remainingQuantity: remainingQuantity.value,
           count: 1,
           total: totalAmount,
+          drawData: data,
         }
       );
     }
