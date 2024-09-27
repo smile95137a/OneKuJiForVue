@@ -20,6 +20,7 @@
             ]"
             @click="changeMainImage(index)"
           >
+            z
             <MImage :src="imageUrl" />
           </div>
         </div>
@@ -205,10 +206,36 @@
         </div>
       </div>
     </div>
+    <MallProductSlider
+      v-if="likedProducts.length > 0"
+      sliderClass="mall-product__slider--likes"
+      title="你可能會喜歡"
+      :products="likedProducts"
+      icon='<i class="fa-regular fa-face-grin-hearts"></i>'
+    />
+    <MallProductSlider
+      v-if="recommendedProducts.length > 0"
+      sliderClass="mall-product__slider--recommend"
+      title="店長推薦"
+      :products="recommendedProducts"
+      icon='<i class="fa-solid fa-crown"></i>'
+    />
+    <MallProductSlider
+      v-if="hotProducts.length > 0"
+      :slidesPerView="4"
+      sliderClass="mall-product__slider--hot"
+      title="熱銷排行"
+      :products="hotProducts"
+      icon='<i class="fa-solid fa-fire-flame-curved"></i>'
+      slideClass="p-y-12 p-x-12"
+      :spaceBetween="0"
+      :isRank="true"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
+import MallProductSlider from '@/components/frontend/MallProductSlider.vue';
 import se from '@/assets/image/711.png';
 import familyMart from '@/assets/image/familyMart.png';
 import lineImg from '@/assets/image/line.png';
@@ -221,6 +248,7 @@ import {
   checkQuantity,
 } from '@/services/frontend/cartItemService';
 import {
+  getPagedStoreProducts,
   getStoreProductById,
   toggleFavorite,
   updateProductPopularity,
@@ -228,6 +256,7 @@ import {
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { getMappingById } from '@/services/frontend/recommendationService';
 
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
@@ -253,6 +282,9 @@ const isFavorite = ref(false);
 
 const selectedImageIndex = ref(0);
 const selectedImage = ref('');
+const likedProducts = ref<any[]>([]);
+const recommendedProducts = ref<any[]>([]);
+const hotProducts = ref<any[]>([]);
 const changeMainImage = (index: number) => {
   selectedImageIndex.value = index;
   selectedImage.value = product.value.imageUrls[index];
@@ -412,15 +444,32 @@ const updatePopularity = async () => {
 
 onMounted(async () => {
   try {
-    const { success, data, message } = await getStoreProductById(productCode);
+    const [{ success, data, message }, likedResponse, recommendedResponse] =
+      await Promise.all([
+        getStoreProductById(productCode),
+        getPagedStoreProducts(0, 20),
+        getPagedStoreProducts(0, 20),
+      ]);
     if (success) {
       product.value = data;
-      selectedImage.value = data.imageUrls[0];
-      favoriteCount.value = data.favoritesCount;
-      isFavorite.value = data.favorited;
+      selectedImage.value = data.imageUrls[0] ?? '';
+      favoriteCount.value = data.favoritesCount ?? 0;
+      isFavorite.value = data.favorited ?? false;
       breadcrumbItems.value.push({ name: data.productName });
     } else {
       console.log(message);
+    }
+
+    if (likedResponse?.success) {
+      likedProducts.value = likedResponse.data;
+    } else {
+      console.log('Failed to load liked products');
+    }
+
+    if (recommendedResponse?.success) {
+      recommendedProducts.value = recommendedResponse.data;
+    } else {
+      console.log('Failed to load recommended products');
     }
   } catch (err) {
     console.error(err);
