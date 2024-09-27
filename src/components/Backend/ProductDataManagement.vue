@@ -94,7 +94,7 @@
           </div>
           <div>
             <label for="productImage">產品圖片</label>
-            <input id="productImage" type="file" @change="handleImageUpload" multiple accept="image/*">
+            <input id="productImage" type="file" @change="(event: Event) => handleImageUpload(event)" multiple accept="image/*">
           </div>
           <div v-if="productForm.imageUrls.length > 0">
             <div v-for="(image, index) in productForm.imageUrls" :key="index">
@@ -163,13 +163,17 @@
                 <label :for="'detailQuantity' + index">數量</label>
                 <input :id="'detailQuantity' + index" type="number" v-model.number="detail.quantity" required>
               </div>
-              <div>
+              <div v-if="currentProductType === ProductType.PRIZE">
                 <label :for="'detailGrade' + index">等級</label>
                 <select :id="'detailGrade' + index" v-model="detail.grade">
                   <option v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
                     {{ grade }}
                   </option>
                 </select>
+              </div>
+              <div v-if="currentProductType === ProductType.PRIZE">
+                <label :for="'detailSliverPrice' + index">銀幣價格</label>
+                <input :id="'detailSliverPrice' + index" type="number" v-model.number="detail.sliverPrice" step="0.01">
               </div>
               <div>
                 <label :for="'detailSpecification' + index">規格</label>
@@ -187,9 +191,19 @@
                 <label :for="'detailHeight' + index">高度</label>
                 <input :id="'detailHeight' + index" type="number" v-model.number="detail.height">
               </div>
-              <div>
+              <div v-if="currentProductType === ProductType.PRIZE">
                 <label :for="'detailProbability' + index">機率</label>
                 <input :id="'detailProbability' + index" type="number" v-model.number="detail.probability" step="0.01" min="0" max="1">
+              </div>
+              <div>
+                <label :for="'detailImage' + index">商品圖片</label>
+                <input :id="'detailImage' + index" type="file" @change="(event: Event) => handleDetailImageUpload(event, index)" multiple accept="image/*">
+              </div>
+              <div v-if="detail.imageUrls && detail.imageUrls.length > 0">
+                <div v-for="(image, imageIndex) in detail.imageUrls" :key="imageIndex">
+                  <img v-if="isValidImageUrl(image)" :src="formatImageUrl(image)" alt="商品圖片" style="width: 100px; height: 100px;">
+                  <button type="button" @click="removeDetailImage(index, imageIndex)">移除</button>
+                </div>
               </div>
               <button type="button" @click="removeDetailFromBatch(index)">移除</button>
             </div>
@@ -212,13 +226,17 @@
               <label for="detailQuantity">數量</label>
               <input id="detailQuantity" type="number" v-model.number="detailForm.quantity" required>
             </div>
-            <div>
+            <div v-if="currentProductType === ProductType.PRIZE">
               <label for="detailGrade">等級</label>
               <select id="detailGrade" v-model="detailForm.grade">
                 <option v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
                   {{ grade }}
                 </option>
               </select>
+            </div>
+            <div v-if="currentProductType === ProductType.PRIZE">
+              <label for="detailSliverPrice">銀幣價格</label>
+              <input id="detailSliverPrice" v-model.number="detailForm.sliverPrice" type="number" step="0.01">
             </div>
             <div>
               <label for="detailLength">長度</label>
@@ -232,19 +250,19 @@
               <label for="detailHeight">高度</label>
               <input id="detailHeight" v-model.number="detailForm.height" type="number">
             </div>
-            <div>
+            <div v-if="currentProductType === ProductType.PRIZE">
               <label for="detailProbability">機率</label>
               <input id="detailProbability" v-model.number="detailForm.probability" type="number" step="0.01" min="0" max="1">
             </div>
-          </div>
-          <div>
-            <label for="detailImage">商品圖片</label>
-            <input id="detailImage" type="file" @change="handleDetailImageUpload" multiple accept="image/*">
-          </div>
-          <div v-if="detailForm.imageUrls.length > 0">
-            <div v-for="(image, index) in detailForm.imageUrls" :key="index">
-              <img :src="formatImageUrl(image)" alt="商品圖片" style="width: 100px; height: 100px;">
-              <button type="button" @click="removeDetailImage(index)">移除</button>
+            <div>
+              <label for="detailImage">商品圖片</label>
+              <input id="detailImage" type="file" @change="(event: Event) => handleDetailImageUpload(event)" multiple accept="image/*">
+            </div>
+            <div v-if="detailForm.imageUrls && detailForm.imageUrls.length > 0">
+              <div v-for="(image, index) in detailForm.imageUrls" :key="index">
+                <img v-if="isValidImageUrl(image)" :src="formatImageUrl(image)" alt="商品圖片" style="width: 100px; height: 100px;">
+                <button type="button" @click="removeDetailImage(index)">移除</button>
+              </div>
             </div>
           </div>
           <button type="submit">{{ editingDetail ? '更新' : '新增' }}</button>
@@ -269,7 +287,8 @@ const showDetailModal = ref(false);
 const editingProduct = ref<ProductRes | null>(null);
 const editingDetail = ref<DetailRes | null>(null);
 const currentProductId = ref<number | null>(null);
-  const batchDetails = ref<DetailReq[]>([]);
+const currentProductType = ref<ProductType>(ProductType.PRIZE);
+const batchDetails = ref<DetailReq[]>([]);
 
 // 計算屬性
 const totalQuantity = computed(() => {
@@ -287,15 +306,17 @@ const productForm = reactive<ProductReq>({
   imageUrls: [],
   productType: ProductType.PRIZE,
   prizeCategory: PrizeCategory.NONE,
-  status: ProductStatus.AVAILABLE,
+  status: ProductStatus.NOT_AVAILABLE_YET,
   specification: '',
 });
+
 const productTypeOptions: Record<ProductType, string> = {
   [ProductType.PRIZE]: '一番賞',
   [ProductType.GACHA]: '扭蛋',
   [ProductType.BLIND_BOX]: '盲盒',
   [ProductType.CUSTMER_PRIZE]: '自製一番賞'
 };
+
 const productStatusOptions: Record<ProductStatus, string> = {
   [ProductStatus.AVAILABLE]: '上架',
   [ProductStatus.UNAVAILABLE]: '下架',
@@ -311,7 +332,7 @@ const detailForm = reactive<DetailReq>({
   quantity: 0,
   stockQuantity: 0,
   productName: '',
-  grade: 'A',  // 預設等級
+  grade: 'A',
   price: 0,
   sliverPrice: 0,
   imageUrls: [],
@@ -321,6 +342,12 @@ const detailForm = reactive<DetailReq>({
   specification: '',
   probability: 0.0
 });
+
+// 判斷圖片 URL 是否有效
+const isValidImageUrl = (url: string | File): boolean => {
+  if (url instanceof File) return url.size > 0; // 確保文件大小有效
+  return typeof url === 'string' && url.trim() !== ''; // 過濾掉空字符串
+};
 
 // 生命週期鉤子
 onMounted(async () => {
@@ -366,14 +393,19 @@ const fetchProducts = async () => {
 
 const fetchProductDetails = async (productId: number) => {
   try {
-    console.log('開始獲取產品詳情', productId);
     const response = await productservice.getAllProductDetails();
-    console.log('獲取產品詳情響應:', response);
     if (response.success) {
-      productDetails.value = response.data.filter(detail => detail.productId === productId);
-      console.log('產品詳情已更新', productDetails.value);
-      // 更新產品的庫存數量
+      productDetails.value = response.data
+        .filter(detail => detail.productId === productId)
+        .map(detail => ({
+          ...detail,
+          imageUrls: detail.imageUrls.filter(url => url.trim() !== '') // 過濾空的圖片URL
+        }));
       updateProductStockQuantity(productId);
+      const currentProduct = products.value.find(p => p.productId === productId);
+      if (currentProduct) {
+        currentProductType.value = currentProduct.productType;
+      }
     } else {
       console.error('獲取產品詳情失敗:', response.message);
     }
@@ -381,6 +413,7 @@ const fetchProductDetails = async (productId: number) => {
     console.error('獲取產品詳情時發生錯誤:', error);
   }
 };
+
 
 const updateProductStockQuantity = (productId: number) => {
   const totalQuantity = productDetails.value.reduce((sum, detail) => sum + detail.quantity, 0);
@@ -426,14 +459,19 @@ const closeProductDetailsModal = () => {
 const openAddDetailModal = () => {
   console.log('打開新增商品詳情模態窗');
   editingDetail.value = null;
-  resetDetailForm();
-  batchDetails.value = [{ ...detailForm }];
+  // 初始化 imageUrls 為空數組
+  batchDetails.value = [{ ...detailForm, imageUrls: [] }];
+  if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
+    batchDetails.value[0].probability = 1;
+  }
   showDetailModal.value = true;
 };
 
 const openEditDetailModal = (detail: DetailRes) => {
   console.log('打開編輯商品詳情模態窗', detail);
   editingDetail.value = detail;
+  // 確保清理空的 imageUrls
+  detail.imageUrls = detail.imageUrls.filter(url => url.trim() !== '');
   Object.assign(detailForm, detail);
   showDetailModal.value = true;
 };
@@ -468,32 +506,37 @@ const handleProductSubmit = async () => {
     console.error('提交產品時發生錯誤:', error);
   }
 };
+const cleanImageUrls = (detail: DetailReq) => ({
+  ...detail,
+  imageUrls: detail.imageUrls.filter(url => url instanceof File || (typeof url === 'string' && url.trim() !== '')) // 過濾空URL
+});
 
+// 提交商品詳情的表單處理邏輯
 const handleDetailSubmit = async () => {
   try {
-    console.log('開始提交商品詳情表單');
     let response;
+
+    // 過濾無效的圖片URL
+    const cleanedDetails = batchDetails.value.map(detail => cleanImageUrls({
+      ...detail,
+      productId: currentProductId.value!,
+      probability: currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX ? 1 : detail.probability
+    }));
+
     if (editingDetail.value) {
-      console.log('更新現有商品詳情', editingDetail.value.productDetailId);
-      response = await productservice.updateProductDetail(editingDetail.value.productDetailId, detailForm);
+      response = await productservice.updateProductDetail(editingDetail.value.productDetailId, cleanImageUrls(detailForm));
     } else {
-      console.log('批量創建新商品詳情');
-      const detailsToSubmit = batchDetails.value.map(detail => ({
-        ...detail,
-        productId: currentProductId.value!
-      }));
-      response = await productservice.createProductDetails(detailsToSubmit);
+      response = await productservice.createProductDetails(cleanedDetails);
     }
 
-    console.log('商品詳情提交響應:', response);
     if (response.success) {
       await fetchProductDetails(currentProductId.value!);
       closeDetailModal();
     } else {
-      console.error('提交商品詳情失敗:', response.message);
+      console.error('提交失敗:', response.message);
     }
   } catch (error) {
-    console.error('提交商品詳情時發生錯誤:', error);
+    console.error('提交時發生錯誤:', error);
   }
 };
 
@@ -531,38 +574,48 @@ const deleteProductDetail = async (productDetailId: number) => {
   }
 };
 
+// 用於處理產品圖片上傳
 const handleImageUpload = (event: Event) => {
-  console.log('處理圖片上傳');
+  console.log('處理產品圖片上傳');
   const target = event.target as HTMLInputElement;
   if (target.files) {
-    const files = Array.from(target.files);
+    const files = Array.from(target.files).filter(file => file.size > 0); // 確保文件不是空的
     productForm.imageUrls = [...productForm.imageUrls, ...files];
     console.log('更新後的產品圖片:', productForm.imageUrls);
   }
 };
 
-const handleDetailImageUpload = (event: Event) => {
-  console.log('處理商品詳情圖片上傳');
+const handleDetailImageUpload = (event: Event, detailIndex?: number) => {
   const target = event.target as HTMLInputElement;
   if (target.files) {
-    const files = Array.from(target.files);
-    detailForm.imageUrls = [...detailForm.imageUrls, ...files];
-    console.log('更新後的商品詳情圖片:', detailForm.imageUrls);
+    const files = Array.from(target.files).filter(file => file.size > 0); // 過濾空的文件
+    if (editingDetail.value) {
+      detailForm.imageUrls = [...detailForm.imageUrls, ...files]; // 編輯時更新圖片列表
+    } else if (detailIndex !== undefined) {
+      const updatedDetail = { ...batchDetails.value[detailIndex] };
+      updatedDetail.imageUrls = [...(updatedDetail.imageUrls || []), ...files];
+      batchDetails.value.splice(detailIndex, 1, updatedDetail); // 更新批量新增中的圖片列表
+    }
   }
 };
 
+
 const removeImage = (index: number) => {
-  console.log('移除產品圖片', index);
-  productForm.imageUrls.splice(index, 1);
+  productForm.imageUrls.splice(index, 1); // 從 productForm 的 imageUrls 中移除圖片
 };
 
-const removeDetailImage = (index: number) => {
-  console.log('移除商品詳情圖片', index);
-  detailForm.imageUrls.splice(index, 1);
+const removeDetailImage = (detailIndex: number, imageIndex?: number) => {
+  if (editingDetail.value) {
+    detailForm.imageUrls.splice(detailIndex, 1); // 編輯模式下移除指定索引的圖片
+  } else if (imageIndex !== undefined) {
+    const updatedDetail = { ...batchDetails.value[detailIndex] };
+    updatedDetail.imageUrls.splice(imageIndex, 1); // 批量新增模式下移除指定圖片
+    batchDetails.value.splice(detailIndex, 1, updatedDetail);
+  }
 };
+
 
 const resetProductForm = () => {
-  console.log('重置產品表單');
   Object.assign(productForm, {
     productName: '',
     description: '',
@@ -570,24 +623,23 @@ const resetProductForm = () => {
     sliverPrice: 0,
     bonusPrice: 0,
     stockQuantity: 0,
-    imageUrls: [],
+    imageUrls: [], // 重置為空數組
     productType: ProductType.PRIZE,
     prizeCategory: PrizeCategory.NONE,
-    status: ProductStatus.AVAILABLE,
+    status: ProductStatus.NOT_AVAILABLE_YET,
     specification: '',
   });
 };
 
 const resetDetailForm = () => {
-  console.log('重置商品詳情表單');
   Object.assign(detailForm, {
     productId: currentProductId.value,
     description: '',
     note: '',
     quantity: 0,
     productName: '',
-    grade: 'A',  // 預設等級
-    imageUrls: [],
+    grade: 'A',
+    imageUrls: [], // 重置為空數組
     length: 0,
     width: 0,
     height: 0,
@@ -596,12 +648,15 @@ const resetDetailForm = () => {
   });
 };
 
+
+// 格式化圖片 URL，支持 File 和 string 類型的 URL
 const formatImageUrl = (url: string | File): string => {
   if (typeof url === 'string') {
-    return productservice.getImageUrl(url);
+    return url.trim() !== '' ? productservice.getImageUrl(url) : ''; // 過濾空的字符串
   }
-  return URL.createObjectURL(url);
+  return URL.createObjectURL(url); // 對 File 類型生成預覽URL
 };
+
 
 const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
   switch (category) {
@@ -618,8 +673,16 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
 };
 
 const addDetailToBatch = () => {
-  batchDetails.value.push({ ...detailForm });
+  const newDetail = { 
+    ...detailForm, 
+    imageUrls: [] // 確保新增的詳情項目的 imageUrls 被初始化為空數組
+  };
+  if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
+    newDetail.probability = 1;
+  }
+  batchDetails.value.push(newDetail);
 };
+
 
 const removeDetailFromBatch = (index: number) => {
   batchDetails.value.splice(index, 1);
