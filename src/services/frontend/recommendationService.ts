@@ -12,9 +12,11 @@ export const getAllMappings = async (): Promise<ApiResponse<any[]>> => {
   }
 };
 
-export const getMappingById = async (id: number): Promise<ApiResponse<any>> => {
+export const getMappingById = async (
+  id: number
+): Promise<ApiResponse<any[]>> => {
   try {
-    const response = await api.get<ApiResponse<any>>(`${basePath}/${id}`);
+    const response = await api.get<ApiResponse<any[]>>(`${basePath}/${id}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching mapping by id ${id}:`, error);

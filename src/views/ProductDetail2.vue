@@ -82,6 +82,7 @@ import {
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import { drawPrize, getDrawStatus } from '@/services/frontend/drawService';
+import { getMappingById } from '@/services/frontend/recommendationService';
 
 const route = useRoute();
 const productId = Number(route.params.id);
@@ -102,13 +103,19 @@ const remainingQuantity = computed(() => {
 onMounted(async () => {
   loadingStore.startLoading();
   try {
-    const [productRes, productDetailRes, drawStatusResponse, allProductRes] =
-      await Promise.all([
-        getProductById(productId),
-        getProductDetailById(productId),
-        getDrawStatus(productId),
-        getAllProduct(),
-      ]);
+    const [
+      productRes,
+      productDetailRes,
+      drawStatusResponse,
+      allProductRes,
+      recommendationRes,
+    ] = await Promise.all([
+      getProductById(productId),
+      getProductDetailById(productId),
+      getDrawStatus(productId),
+      getAllProduct(),
+      getMappingById(1),
+    ]);
 
     if (productRes.data) {
       product.value = productRes.data;
@@ -128,11 +135,8 @@ onMounted(async () => {
       ticketList.value = drawStatusResponse.data.prizeNumberList;
     }
 
-    if (allProductRes.data) {
-      gachaList.value = allProductRes.data.filter(
-        (x) =>
-          x.productId !== product.value?.productId && x.productType === 'GACHA'
-      );
+    if (recommendationRes.data) {
+      gachaList.value = recommendationRes.data;
     }
   } catch (err) {
     console.error('An error occurred:', err);

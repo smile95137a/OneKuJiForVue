@@ -11,7 +11,8 @@ $root-block-name: '.productCard2';
       background: #fe4206;
     }
   }
-  &--last {
+  &--last,
+  &--sp {
     #{$p__img-balance} {
       background: #eb9838;
     }

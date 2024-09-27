@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 interface ApiResponse<T> {
-  code: number;
+  code: string;
   message: string;
   success: boolean;
   data: T;

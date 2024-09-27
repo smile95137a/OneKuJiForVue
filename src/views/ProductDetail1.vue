@@ -63,44 +63,10 @@
             v-for="(product, index) in productDetail"
             :key="index"
             :product="product"
+            customClass="product-detail-one__products--card"
           />
         </div>
       </Card>
-
-      <Card customClass="mcard--product-detail-one">
-        <template #header>
-          <MCardHeader title="賞品介紹" />
-        </template>
-        <div class="product-detail-one__productIntroduce">
-          <div
-            class="product-detail-one__productIntroduce-box product-detail-one__productIntroduce-box--one"
-          >
-            <div
-              v-for="(product, index) in productDetail?.filter(
-                (_, index) => index % 2 !== 0
-              )"
-              :key="index"
-              class="product-detail-one__productIntroduce-img"
-            >
-              <MImage :src="product.imageUrls[0]" />
-            </div>
-          </div>
-          <div
-            class="product-detail-one__productIntroduce-box product-detail-one__productIntroduce-box--two"
-          >
-            <div
-              v-for="(product, index) in productDetail?.filter(
-                (_, index) => index % 2 === 0
-              )"
-              :key="index"
-              class="product-detail-one__productIntroduce-img"
-            >
-              <MImage :src="product.imageUrls[0]" />
-            </div>
-          </div>
-        </div>
-      </Card>
-
       <Card customClass="mcard--product-detail-one">
         <template #header>
           <MCardHeader title="檢視抽況" />
@@ -143,7 +109,39 @@
         </div>
       </Card>
     </div>
-
+    <Card customClass="mcard--product-detail-one">
+      <template #header>
+        <MCardHeader title="賞品介紹" />
+      </template>
+      <div class="product-detail-one__productIntroduce">
+        <div
+          class="product-detail-one__productIntroduce-box product-detail-one__productIntroduce-box--one"
+        >
+          <div
+            v-for="(product, index) in productDetail?.filter(
+              (_, index) => index % 2 !== 0
+            )"
+            :key="index"
+            class="product-detail-one__productIntroduce-img"
+          >
+            <MImage :src="product.imageUrls[0]" />
+          </div>
+        </div>
+        <div
+          class="product-detail-one__productIntroduce-box product-detail-one__productIntroduce-box--two"
+        >
+          <div
+            v-for="(product, index) in productDetail?.filter(
+              (_, index) => index % 2 === 0
+            )"
+            :key="index"
+            class="product-detail-one__productIntroduce-img"
+          >
+            <MImage :src="product.imageUrls[0]" />
+          </div>
+        </div>
+      </div>
+    </Card>
     <div class="product-detail-one__backBtns">
       <router-link class="product-detail-one__backBtn" to="/ichiban">
         返回一番賞

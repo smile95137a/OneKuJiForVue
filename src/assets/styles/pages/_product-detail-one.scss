@@ -492,3 +492,9 @@ $root-block-name: '.product-detail-one';
     }
   }
 }
+
+.product-detail-one__products--card {
+  .productCard2__detail {
+    max-height: 96px;
+  }
+}

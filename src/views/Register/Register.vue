@@ -80,7 +80,8 @@ const onSubmit = handleSubmit(async (values) => {
     if (success) {
       await dialogStore.openInfoDialog({
         title: '系統消息',
-        message: '恭喜您，註冊成功！我們很高興您成為我們的一員。',
+        message:
+          '恭喜您，註冊成功！我們很高興您成為我們的一員，請檢查您的信箱以完成後續步驟。',
       });
       router.push('/home');
     } else {

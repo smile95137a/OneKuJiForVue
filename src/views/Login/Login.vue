@@ -122,7 +122,7 @@ const [password, passwordProps] = defineField('password');
 const onSubmit = handleSubmit(async (values) => {
   try {
     loadingStore.startLoading();
-    const { success, data } = await login(values);
+    const { success, data, code } = await login(values);
     loadingStore.stopLoading();
     if (success) {
       authStore.setToken(data.accessToken);
@@ -130,9 +130,18 @@ const onSubmit = handleSubmit(async (values) => {
       loadingStore.stopLoading();
       router.push('/home');
     } else {
+      let message = '登入失敗，系統問題請聯繫管理員。';
+      if (code === '998') {
+        message =
+          '登入失敗，尚未認證，請至信箱收信，如未收到驗證信，請聯繫客服。';
+      } else if (code === '999') {
+        message = '登入失敗，請檢查您的帳號和密碼，然後再試一次。';
+      } else if (code === '997') {
+        message = '登入失敗，黑名單。';
+      }
       await dialogStore.openInfoDialog({
         title: '系統通知',
-        message: '登入失敗，請檢查您的帳號和密碼，然後再試一次。',
+        message,
       });
     }
   } catch (error) {

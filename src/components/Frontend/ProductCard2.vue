@@ -1,6 +1,10 @@
 <template>
   <div
-    :class="['productCard2', `productCard2--${product.grade.toLowerCase()}`]"
+    :class="[
+      'productCard2',
+      `productCard2--${product.grade.toLowerCase()}`,
+      customClass,
+    ]"
   >
     <div class="productCard2__img">
       <MImage :src="product.imageUrls[0]" />
@@ -33,14 +37,15 @@ interface IProductCard2Props {
 const props = defineProps<IProductCard2Props>();
 
 const ProductGrade = {
-  A: 'Ａ賞',
-  B: 'Ｂ賞',
-  C: 'Ｃ賞',
-  D: 'Ｄ賞',
-  E: 'Ｅ賞',
-  F: 'Ｆ賞',
-  G: 'Ｇ賞',
+  A: 'A賞',
+  B: 'B賞',
+  C: 'C賞',
+  D: 'D賞',
+  E: 'E賞',
+  F: 'F賞',
+  G: 'G賞',
   H: 'H賞',
+  SP: 'SP賞',
   LAST: '最後賞',
 };
 
