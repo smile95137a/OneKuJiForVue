@@ -3,7 +3,7 @@
   <div class="productCard__img-content productCard__img-content--mall">
     <div class="productCard__img-detail">
       <div v-if="!isRank" class="productCard__img-status">預購</div>
-      <div class="productCard__img-price">
+      <div class="productCard__img-price productCard__img-price--mall">
         <p class="productCard__img-money" v-if="product.isSpecialPrice">
           <del class="productCard__text">$ {{ product.price }}</del>
         </p>
