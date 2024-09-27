@@ -47,7 +47,7 @@
         ></div>
       </div>
 
-      <div class="product-detail__likes">
+      <div class="product-detail__likes" v-if="gachaList?.length > 0">
         <div class="product-detail__likes-title">
           <p class="product-detail__text">你可能會喜歡</p>
         </div>
@@ -56,7 +56,7 @@
             v-for="(product, index) in gachaList"
             :key="index"
             :product="product"
-            :customClass="`productCard--style2 productCard--like`"
+            :customClass="` productCard--like`"
           />
         </div>
       </div>
@@ -114,7 +114,7 @@ onMounted(async () => {
       getProductDetailById(productId),
       getDrawStatus(productId),
       getAllProduct(),
-      getMappingById(1),
+      getAllProduct(),
     ]);
 
     if (productRes.data) {
@@ -136,6 +136,8 @@ onMounted(async () => {
     }
 
     if (recommendationRes.data) {
+      console.log(recommendationRes.data);
+
       gachaList.value = recommendationRes.data;
     }
   } catch (err) {
