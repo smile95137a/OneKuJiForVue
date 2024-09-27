@@ -127,7 +127,6 @@ const onSubmit = handleSubmit(async (values) => {
     if (success) {
       authStore.setToken(data.accessToken);
       authStore.setUser(data.user);
-      loadingStore.stopLoading();
       router.push('/home');
     } else {
       let message = '登入失敗，系統問題請聯繫管理員。';
@@ -146,7 +145,10 @@ const onSubmit = handleSubmit(async (values) => {
     }
   } catch (error) {
     loadingStore.stopLoading();
-    console.log(error);
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message: '系統問題，請稍後再嘗試。',
+    });
   }
 });
 

@@ -421,6 +421,7 @@ const handleExchange = async () => {
             remainingQuantity: remainingQuantity.value,
             count: data.length,
             total: totalAmount,
+            drawData: data,
           }
         );
       }

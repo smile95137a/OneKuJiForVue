@@ -1,5 +1,9 @@
 <template>
-  <Dialog :isOpen="isOpen" :customClass="customClass" @close="handleClose">
+  <Dialog
+    :isOpen="isOpen"
+    :customClass="['dialog--confirmDialog', customClass]"
+    @close="handleClose"
+  >
     <div class="confirmDialog">
       <div class="confirmDialog__header">
         <div class="confirmDialog__logo">
@@ -40,6 +44,30 @@
             </p>
           </div>
         </div>
+        <div class="confirmDialog__main-product-divider m-y-24">
+          <p class="confirmDialog__text">抽中賞品</p>
+        </div>
+        <div class="confirmDialog__main-product grid">
+          <div class="col-4 col-lg-6 col-md-8 col-sm-12">
+            <!-- Content here -->
+          </div>
+
+          <div
+            v-for="(draw, index) in confirmDialogData?.drawData"
+            :key="index"
+            class="col-25 col-lg-25 col-md-25 col-sm-100"
+          >
+            <div class="grid p-x-12">
+              <div class="col-50">
+                <MImage :src="draw.imageUrls" />
+              </div>
+              <div class="col-50">
+                {{ draw.productName }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="confirmDialog__main-product-divider m-y-24"></div>
         <div class="confirmDialog__main-btns">
           <div
             class="confirmDialog__main-btn confirmDialog__main-btn--cancel"
@@ -65,6 +93,7 @@ import logoImg from '@/assets/image/logo1.png';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { computed } from 'vue';
 import { useDialogStore } from '@/stores/dialogStore';
+import MImage from '@/components/frontend/MImage.vue';
 
 const dialogStore = useDialogStore();
 

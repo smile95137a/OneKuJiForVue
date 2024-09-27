@@ -8,6 +8,7 @@ interface ConfirmDialogData {
   remainingQuantity: number;
   count: number;
   total: number;
+  drawData: any;
 }
 
 export function useConfirmDialog() {

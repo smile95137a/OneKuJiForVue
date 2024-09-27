@@ -14,6 +14,19 @@ $root-block-style: '.downDialog';
     }
   }
 
+  &--confirmDialog {
+    #{$p__main} {
+      @include abs-center;
+      @include flex;
+      @include w_h(calc(100% - 36px), auto);
+      max-width: 1200px;
+      min-height: 500px;
+      box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.12);
+      z-index: 11;
+      max-height: 75%;
+    }
+  }
+
   &--daliyDialog {
     #{$p__main} {
       height: 600px;

@@ -10,6 +10,9 @@ $root-block-name: '.productCard';
 
   $p__detail: #{$p}__detail;
   $p__img-status: #{$p}__img-status;
+  $p__img-money: #{$p}__img-money;
+  $p__img-unit: #{$p}__img-unit;
+
   $p: &;
 
   border-radius: 30px;
@@ -109,10 +112,11 @@ $root-block-name: '.productCard';
       border-radius: 30px;
       background: #fe4206;
       color: #fff;
+
       @include flex(center, center, column);
       font-size: 20px;
       font-weight: 500;
-
+      z-index: 6;
       @include screen(md) {
         width: 71px;
         height: 32px;
@@ -124,16 +128,19 @@ $root-block-name: '.productCard';
       z-index: 3;
     }
     &-balance {
-      width: 140px;
+      width: 230px;
       height: 42px;
       background: #eb9838;
       border-radius: 30px;
       position: absolute;
-      bottom: 12px;
+      top: 12px;
       left: 8px;
-      @include flex(center, center, column);
+      @include flex(end, center, column);
       font-size: 20px;
       font-weight: 500;
+      z-index: 5;
+      padding-left: 100px;
+      padding-right: 12px;
       #{$p__text} {
         color: #fff;
         letter-spacing: 2px;
@@ -141,7 +148,43 @@ $root-block-name: '.productCard';
     }
 
     &-price {
-      min-width: 200px;
+      height: 68px;
+      @include flex(end, end, row);
+      position: absolute;
+      bottom: 12px;
+      left: 8px;
+      color: #fff;
+      gap: 8px;
+      #{$p__img-money} {
+        @include flex(end, null, column);
+        height: 50px;
+        #{$p__text} {
+          font-size: 50px;
+          font-weight: 600;
+          color: #fed706;
+        }
+      }
+
+      #{$p__img-unit} {
+        @include flex(end);
+        #{$p__text} {
+          letter-spacing: -1px;
+          color: #fff;
+          font-size: 14px;
+          &--icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #fff;
+            color: #eb9838;
+            font-size: 16px;
+            @include flex(center, center, column);
+          }
+        }
+      }
+    }
+
+    &-sliverPrice {
       height: 68px;
       @include flex(end, end, row);
       position: absolute;
@@ -149,17 +192,36 @@ $root-block-name: '.productCard';
       right: 8px;
       color: #fff;
       gap: 8px;
-    }
 
-    &-money {
-      @include flex(end, null, column);
-      height: 50px;
-      #{$p__text} {
-        font-size: 50px;
-        font-weight: 600;
-        color: #fed706;
+      #{$p__img-money} {
+        @include flex(end, null, column);
+        height: 50px;
+        #{$p__text} {
+          font-size: 50px;
+          font-weight: 600;
+          color: #d9d9d9;
+        }
+      }
+
+      #{$p__img-unit} {
+        @include flex(end);
+        #{$p__text} {
+          letter-spacing: -1px;
+          color: #fff;
+          font-size: 14px;
+          &--icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #fff;
+            color: #7c7c7c;
+            font-size: 16px;
+            @include flex(center, center, column);
+          }
+        }
       }
     }
+
     &-spMoney {
       @include flex(center, end, column);
       height: 50px;
@@ -168,23 +230,6 @@ $root-block-name: '.productCard';
         font-weight: 600;
         line-height: 1;
         color: #fed706;
-      }
-    }
-    &-unit {
-      @include flex(end);
-      #{$p__text} {
-        letter-spacing: -1px;
-        color: #fff;
-        font-size: 14px;
-        &--icon {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: #fff;
-          color: #eb9838;
-          font-size: 16px;
-          @include flex(center, center, column);
-        }
       }
     }
   }
