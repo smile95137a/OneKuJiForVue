@@ -20,7 +20,6 @@
             ]"
             @click="changeMainImage(index)"
           >
-            z
             <MImage :src="imageUrl" />
           </div>
         </div>
