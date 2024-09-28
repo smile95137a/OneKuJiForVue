@@ -6,10 +6,10 @@ $root-block-name: '.productCard';
   $p__img: #{$p}__img;
   $p__img-price: #{$p}__img-price;
   $p__img-money: #{$p}__img-money;
-  $p__img-status: #{$p}__img-status;
 
   $p__detail: #{$p}__detail;
   $p__img-status: #{$p}__img-status;
+  $p__img-balance: #{$p}__img-balance;
   $p__img-money: #{$p}__img-money;
   $p__img-unit: #{$p}__img-unit;
 
@@ -24,9 +24,15 @@ $root-block-name: '.productCard';
     padding-top: 20px;
     #{$p__img-status} {
       top: -20px;
+      left: calc(50% - 86.25px);
+      transform: translateX(-50%);
+    }
+    #{$p__img-balance} {
+      top: -20px;
       left: 50%;
       transform: translateX(-50%);
     }
+
     #{$p__img} {
       img {
         border-radius: 60px 60px 0 0;
@@ -119,7 +125,6 @@ $root-block-name: '.productCard';
       z-index: 6;
       @include screen(md) {
         width: 71px;
-        height: 32px;
         font-size: 14px;
       }
     }
