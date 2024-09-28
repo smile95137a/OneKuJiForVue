@@ -42,7 +42,7 @@
       >
         <p class="productCard__img-money">
           <span class="productCard__text">
-            <NumberFormatter :number="product.sliverPrice" />
+            <NumberFormatter :number="product.bonusPrice" />
           </span>
         </p>
         <p class="productCard__img-unit">

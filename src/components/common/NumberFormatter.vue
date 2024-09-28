@@ -6,7 +6,7 @@
 import { computed } from 'vue';
 
 interface NumberFormatterProps {
-  number: number;
+  number: any;
   locale?: string;
   options?: Intl.NumberFormatOptions;
 }
@@ -19,6 +19,6 @@ const formattedNumber = computed(() => {
     style: 'decimal',
     ...options,
   });
-  return formatter.format(number);
+  return formatter.format(~~number);
 });
 </script>
