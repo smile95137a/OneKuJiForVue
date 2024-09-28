@@ -16,8 +16,10 @@ const title = ref('官方一番賞');
 
 const buttons = [
   { type: 'official', title: '官方一番賞', category: 'FIGURE' },
+  { type: 'bonus', title: '自製賞', category: 'BONUS' },
   { type: '3c', title: '3C一番賞', category: 'C3' },
   { type: 'bonus', title: '紅利賞', category: 'BONUS' },
+  
 ];
 
 const filteredProducts = computed(() => {
