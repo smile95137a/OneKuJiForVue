@@ -7,7 +7,10 @@
       </p>
     </div>
     <div class="productCard__img-detail">
-      <div class="productCard__img-price">
+      <div
+        class="productCard__img-price"
+        v-if="product.prizeCategory !== 'BONUS'"
+      >
         <p class="productCard__img-money">
           <span class="productCard__text">
             <NumberFormatter :number="product.price" />
@@ -18,7 +21,10 @@
           <span class="productCard__text">/抽</span>
         </p>
       </div>
-      <div class="productCard__img-sliverPrice">
+      <div
+        class="productCard__img-sliverPrice"
+        v-if="product.prizeCategory !== 'BONUS'"
+      >
         <p class="productCard__img-money">
           <span class="productCard__text">
             <NumberFormatter :number="product.sliverPrice" />
@@ -26,6 +32,23 @@
         </p>
         <p class="productCard__img-unit">
           <span class="productCard__text productCard__text--icon">銀</span>
+          <span class="productCard__text">/抽</span>
+        </p>
+      </div>
+
+      <div
+        class="productCard__img-bonus"
+        v-if="product.prizeCategory === 'BONUS'"
+      >
+        <p class="productCard__img-money">
+          <span class="productCard__text">
+            <NumberFormatter :number="product.sliverPrice" />
+          </span>
+        </p>
+        <p class="productCard__img-unit">
+          <span class="productCard__text productCard__text--icon">
+            <i class="fa-solid fa-gift"></i>
+          </span>
           <span class="productCard__text">/抽</span>
         </p>
       </div>
