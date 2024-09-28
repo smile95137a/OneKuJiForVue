@@ -41,10 +41,13 @@
           class="product-detail__info product-detail__info--one"
           v-html="product?.description"
         ></div>
-        <div
-          class="product-detail__info product-detail__info--two"
-          v-html="product?.description"
-        ></div>
+        <div class="product-detail__info product-detail__info--two">
+          一番賞、扭蛋、盲盒商品為「線上機率型」商品，一但完成抽獎程序，恕無法接受「退貨及退款」！
+          除非有品質瑕疵，「收到商品拆封請全程綠影以保護雙方權益」。
+          商品運送及海關檢驗時可能有盒損、原廠二次膠拆檢等狀況。若您對於盒況有相當高的要求，建議您不要購買！
+          消費者購買前請「務必」確認我們的消費規範再進行購買，謝謝！
+          本公司保留對平台活動、商品及相關規定條款新增、變更、修改、終止之權利。
+        </div>
       </div>
 
       <div class="product-detail__likes" v-if="gachaList?.length > 0">
@@ -113,7 +116,7 @@ onMounted(async () => {
       getProductById(productId),
       getProductDetailById(productId),
       getDrawStatus(productId),
-      getAllProduct(),
+      getMappingById(1),
       getAllProduct(),
     ]);
 

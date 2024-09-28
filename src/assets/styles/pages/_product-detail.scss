@@ -215,7 +215,6 @@ $root-block-name: '.product-detail';
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 48px;
-      justify-items: center;
 
       @include screen(md) {
         grid-template-columns: 1fr 1fr;
