@@ -189,9 +189,15 @@
         </div>
         <div
           class="product-detail-one__btn product-detail-one__btn--im"
-          @click="handleExchange"
+          @click="handleExchange(1)"
         >
-          立即兌換
+          金幣兌換
+        </div>
+        <div
+          class="product-detail-one__btn product-detail-one__btn--im"
+          @click="handleExchange(2)"
+        >
+          銀幣兌換
         </div>
       </div>
     </div>
@@ -375,7 +381,7 @@ const handleCheckboxChange = (ticket: any) => {
   }
 };
 
-const handleExchange = async () => {
+const handleExchange = async (exchangeType: number) => {
   if (!authStore.isLogin) {
     await dialogStore.openInfoDialog({
       title: '系統消息',
@@ -399,7 +405,8 @@ const handleExchange = async () => {
       loadingStore.startLoading();
       const { success, data } = await executeDraw(
         productId,
-        activeTickets.value?.map((x) => x.number)
+        activeTickets.value?.map((x) => x.number),
+        exchangeType
       );
 
       loadingStore.stopLoading();

@@ -49,12 +49,14 @@ export const getDrawStatus = async (
 // 執行抽獎
 export const executeDraw = async (
   productId: number,
-  prizeNumbers: any[]
+  prizeNumbers: any[],
+  exchangeType: number
 ): Promise<ApiResponse<any>> => {
   try {
     const response = await api.post(`${basePath}/execute`, {
       productId,
       prizeNumbers: prizeNumbers,
+      exchangeType,
     });
     return response.data;
   } catch (error) {

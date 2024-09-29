@@ -6,6 +6,6 @@ export const shippingOptions = [
 ];
 
 export const paymentOptions = [
-  { name: '信用卡一次付清', value: 'creditCard' },
-
+  { name: '信用卡一次付清', value: 1 },
+  { name: '轉帳', value: 2 },
 ];
