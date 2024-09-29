@@ -1,9 +1,23 @@
 <template>
   <div class="product-management">
     <h1>產品系列管理</h1>
-    <button @click="openAddProductModal">新增產品系列</button>
+    <div class="filter-container">
+      <button @click="openAddProductModal">新增產品系列</button>
+      <div class="filter-form">
+        <select v-model="filterProductType" @change="handleProductTypeChange">
+          <option value="">全部類型</option>
+          <option v-for="(label, value) in productTypeOptions" :key="value" :value="value">{{ label }}</option>
+        </select>
+        <select v-if="filterProductType === ProductType.PRIZE" v-model="filterPrizeCategory">
+          <option value="">全部一番賞類別</option>
+          <option v-for="category in PrizeCategory" :key="category" :value="category">
+            {{ getPrizeCategoryDescription(category) }}
+          </option>
+        </select>
+      </div>
+    </div>
 
-    <table v-if="products.length">
+    <table v-if="filteredProducts.length">
       <thead>
         <tr>
           <th>圖片</th>
@@ -19,7 +33,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="product in products" :key="product.productId">
+        <tr v-for="product in filteredProducts" :key="product.productId">
           <td>
             <img v-if="product.imageUrls && product.imageUrls.length" :src="formatImageUrl(product.imageUrls[0])"
               alt="產品圖片" class="product-image">
@@ -272,7 +286,6 @@
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { DetailReq, DetailRes, PrizeCategory, ProductReq, ProductRes, ProductStatus, ProductType } from '@/interfaces/product';
 import { productservice } from '@/services/backend/productservice';
@@ -290,6 +303,31 @@ const currentProductId = ref<number | null>(null);
 const currentProductType = ref<ProductType>(ProductType.PRIZE);
 const batchDetails = ref<DetailReq[]>([]);
 
+// 新增這些變量
+const filterProductType = ref('');
+const filterPrizeCategory = ref('');
+
+// 添加這個計算屬性
+const filteredProducts = computed(() => {
+  return products.value.filter(product => {
+    if (filterProductType.value && product.productType !== filterProductType.value) {
+      return false;
+    }
+    if (filterProductType.value === ProductType.PRIZE && 
+        filterPrizeCategory.value && 
+        product.prizeCategory !== filterPrizeCategory.value) {
+      return false;
+    }
+    return true;
+  });
+});
+
+// 添加這個方法
+const handleProductTypeChange = () => {
+  if (filterProductType.value !== ProductType.PRIZE) {
+    filterPrizeCategory.value = '';
+  }
+};
 // 計算屬性
 const totalQuantity = computed(() => {
   return productDetails.value.reduce((sum, detail) => sum + detail.quantity, 0);
@@ -314,7 +352,6 @@ const productTypeOptions: Record<ProductType, string> = {
   [ProductType.PRIZE]: '一番賞',
   [ProductType.GACHA]: '扭蛋',
   [ProductType.BLIND_BOX]: '盲盒',
-  [ProductType.CUSTMER_PRIZE]: '自製一番賞'
 };
 
 const productStatusOptions: Record<ProductStatus, string> = {
@@ -666,6 +703,8 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
       return '家電一番賞';
     case PrizeCategory.BONUS:
       return '紅利一番賞';
+    case PrizeCategory.PRIZESELF:
+      return '自製賞';
     case PrizeCategory.NONE:
     default:
       return '無';
