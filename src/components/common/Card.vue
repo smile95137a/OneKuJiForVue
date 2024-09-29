@@ -10,8 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { defineProps } from 'vue';
+import { computed, defineProps } from 'vue';
 
 const props = defineProps({
   title: {
@@ -25,6 +24,6 @@ const props = defineProps({
 });
 
 const cardClass = computed(() => `mcard ${props.customClass}`.trim());
-</script>
+</script>  
 
 <style scoped></style>
