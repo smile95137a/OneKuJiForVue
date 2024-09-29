@@ -14,7 +14,9 @@
       />
     </div>
     <div class="productCard__detail">
-      <div class="productCard__detail-title">{{ product.productName }}</div>
+      <div class="productCard__detail-title">
+        {{ product.productName ? product.productName : product.gachaName }}
+      </div>
       <div
         class="productCard__detail-content"
         v-if="product.description"

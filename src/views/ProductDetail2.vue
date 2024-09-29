@@ -116,8 +116,8 @@ onMounted(async () => {
       getProductById(productId),
       getProductDetailById(productId),
       getDrawStatus(productId),
-      getMappingById(1),
       getAllProduct(),
+      getMappingById(4),
     ]);
 
     if (productRes.data) {

@@ -443,12 +443,17 @@ const updatePopularity = async () => {
 
 onMounted(async () => {
   try {
-    const [{ success, data, message }, likedResponse, recommendedResponse] =
-      await Promise.all([
-        getStoreProductById(productCode),
-        getPagedStoreProducts(0, 20),
-        getPagedStoreProducts(0, 20),
-      ]);
+    const [
+      { success, data, message },
+      likedResponse,
+      recommendedResponse,
+      hotProductsRes,
+    ] = await Promise.all([
+      getStoreProductById(productCode),
+      getMappingById(1),
+      getMappingById(2),
+      getMappingById(3),
+    ]);
     if (success) {
       product.value = data;
       selectedImage.value = data.imageUrls[0] ?? '';
@@ -467,6 +472,12 @@ onMounted(async () => {
 
     if (recommendedResponse?.success) {
       recommendedProducts.value = recommendedResponse.data;
+    } else {
+      console.log('Failed to load recommended products');
+    }
+
+    if (hotProductsRes?.success) {
+      hotProducts.value = hotProductsRes.data;
     } else {
       console.log('Failed to load recommended products');
     }
