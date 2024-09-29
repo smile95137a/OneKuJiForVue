@@ -141,7 +141,7 @@
                 hidden
               />
               <img :src="getTicketImg(ticket)" alt="" />
-              <p class="text-center">{{ index + 1 }}</p>
+              <p class="text-center">{{ ticket.prizeNumberId }}</p>
             </label>
           </div>
         </div>
