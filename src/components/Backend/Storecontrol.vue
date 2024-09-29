@@ -2,6 +2,17 @@
   <div class="store-management">
     <h2 class="title">商店管理</h2>
 
+<!-- 類別篩選器 -->
+<div class="filter-category">
+  <label for="filterCategory" class="filter-label">篩選類別：</label>
+  <select id="filterCategory" v-model="selectedCategory" @change="filterProducts" class="filter-select">
+    <option value="">全部</option>
+    <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId.toString()">
+      {{ category.categoryName }}
+    </option>
+  </select>
+</div>
+
     <button @click="showAddForm = true" class="btn btn-primary">新增商品</button>
 
     <div v-if="showAddForm" class="modal">
@@ -10,7 +21,7 @@
         <form @submit.prevent="handleSubmit" class="product-form">
           <div class="form-group">
             <label for="productName">商品名稱</label>
-            <input id="productName" v-model="productForm.productName" required>
+            <input id="productName" v-model="productForm.productName" required />
           </div>
           <div class="form-group">
             <label for="description">商品描述</label>
@@ -18,31 +29,31 @@
           </div>
           <div class="form-group">
             <label for="price">價格</label>
-            <input id="price" type="number" v-model.number="productForm.price" min="0" step="0.01" required>
+            <input id="price" type="number" v-model.number="productForm.price" min="0" step="0.01" required />
           </div>
           <div class="form-group">
             <label for="stockQuantity">數量</label>
-            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1" required>
+            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1" required />
           </div>
           <div class="form-group">
             <label for="width">寬度</label>
-            <input id="width" type="number" v-model.number="productForm.width" min="0" step="0.1">
+            <input id="width" type="number" v-model.number="productForm.width" min="0" step="0.1" />
           </div>
           <div class="form-group">
             <label for="height">高度</label>
-            <input id="height" type="number" v-model.number="productForm.height" min="0" step="0.1">
+            <input id="height" type="number" v-model.number="productForm.height" min="0" step="0.1" />
           </div>
           <div class="form-group">
             <label for="length">深度</label>
-            <input id="length" type="number" v-model.number="productForm.length" min="0" step="0.1">
+            <input id="length" type="number" v-model.number="productForm.length" min="0" step="0.1" />
           </div>
           <div class="form-group">
             <label for="specification">規格</label>
-            <input id="specification" v-model="productForm.specification">
+            <input id="specification" v-model="productForm.specification" />
           </div>
           <div class="form-group">
             <label for="specialPrice">特價</label>
-            <input id="specialPrice" type="number" v-model.number="productForm.specialPrice" min="0" step="0.01">
+            <input id="specialPrice" type="number" v-model.number="productForm.specialPrice" min="0" step="0.01" />
           </div>
           <div class="form-group">
             <label for="details">商品詳情</label>
@@ -72,11 +83,11 @@
           </div>
           <div class="form-group">
             <label for="images">商品圖片</label>
-            <input id="images" type="file" @change="handleFileUpload" multiple accept="image/*">
+            <input id="images" type="file" @change="handleFileUpload" multiple accept="image/*" />
           </div>
           <div v-if="productForm.imageUrl.length > 0" class="image-preview">
             <div v-for="(image, index) in productForm.imageUrl" :key="index" class="image-item">
-              <img v-if="typeof image === 'string'" :src="formatImageUrl(image)" alt="商品圖片" class="preview-image">
+              <img v-if="typeof image === 'string'" :src="formatImageUrl(image)" alt="商品圖片" class="preview-image" />
               <span v-else>{{ (image as File).name }}</span>
               <button type="button" @click="removeImage(index)" class="remove-image">移除</button>
             </div>
@@ -89,7 +100,7 @@
       </div>
     </div>
 
-    <table v-if="paginatedProducts.length" class="product-table">
+    <table v-if="filteredProducts.length" class="product-table">
       <thead>
         <tr>
           <th>圖片</th>
@@ -103,9 +114,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="product in paginatedProducts" :key="product.storeProductId">
+        <tr v-for="product in filteredProducts" :key="product.storeProductId">
           <td>
-            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片" class="product-image">
+            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片" class="product-image" />
             <span v-else>無圖片</span>
           </td>
           <td>{{ product.productName }}</td>
@@ -143,7 +154,9 @@ export default defineComponent({
   name: 'StoreManagement',
   setup() {
     const products = ref<StoreProductRes[]>([]);
+    const filteredProducts = ref<StoreProductRes[]>([]);
     const categories = ref<StoreCategory[]>([]);
+    const selectedCategory = ref('');
     const showAddForm = ref(false);
     const showAddCategoryForm = ref(false);
     const newCategoryName = ref('');
@@ -174,12 +187,12 @@ export default defineComponent({
     const currentPage = ref(1);
     const itemsPerPage = 15;
 
-    const totalPages = computed(() => Math.ceil(products.value.length / itemsPerPage));
+    const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage));
 
     const paginatedProducts = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      return products.value.slice(start, end);
+      return filteredProducts.value.slice(start, end);
     });
 
     const fetchProducts = async () => {
@@ -187,6 +200,7 @@ export default defineComponent({
         const response = await storeServices.getAllStoreProduct();
         if (response.success && Array.isArray(response.data)) {
           products.value = response.data;
+          filterProducts();
         } else {
           products.value = [];
         }
@@ -219,62 +233,60 @@ export default defineComponent({
     };
 
     const handleSubmit = async () => {
-  if (!validateForm()) {
-    return;
-  }
+      if (!validateForm()) {
+        return;
+      }
 
-  try {
-    const formData = new FormData();
+      try {
+        const formData = new FormData();
 
-    const productReq: StoreProductReq = {
-      productName: productForm.productName,
-      description: productForm.description,
-      price: Number(productForm.price),
-      stockQuantity: Number(productForm.stockQuantity),
-      categoryId: productForm.categoryId,
-      width: Number(productForm.width),
-      height: Number(productForm.height),
-      length: Number(productForm.length),
-      specification: productForm.specification,
-      shippingMethod: 'Express',
-      specialPrice: Number(productForm.specialPrice),
-      status: productForm.status,
-      imageUrl: productForm.originalImages,
-      details: productForm.details,
-      shippingPrice: 0,
-      size: 0,
+        const productReq: StoreProductReq = {
+          productName: productForm.productName,
+          description: productForm.description,
+          price: Number(productForm.price),
+          stockQuantity: Number(productForm.stockQuantity),
+          categoryId: productForm.categoryId,
+          width: Number(productForm.width),
+          height: Number(productForm.height),
+          length: Number(productForm.length),
+          specification: productForm.specification,
+          shippingMethod: 'Express',
+          specialPrice: Number(productForm.specialPrice),
+          status: productForm.status,
+          imageUrl: productForm.originalImages,
+          details: productForm.details,
+          shippingPrice: 0,
+          size: 0,
+        };
+
+        formData.append('productReq', JSON.stringify(productReq));
+
+        if (productForm.newImages && productForm.newImages.length > 0) {
+          const validFiles = productForm.newImages.filter(file => file && file.size > 0);
+          validFiles.forEach((file) => {
+            formData.append('images', file, file.name);
+          });
+        }
+
+        let response;
+        if (editingProduct.value) {
+          response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
+        } else {
+          response = await storeServices.addStoreProduct(formData);
+        }
+
+        if (response.success) {
+          alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
+          await fetchProducts();
+          resetForm();
+        } else {
+          throw new Error(response.message || '操作失敗');
+        }
+      } catch (error) {
+        console.error('Error submitting product:', error);
+        alert(`提交商品時發生錯誤: ${(error as Error).message}`);
+      }
     };
-
-    // 直接使用 'productReq' 作為 key
-    formData.append('productReq', JSON.stringify(productReq));
-
-    // 處理圖片上傳
-    if (productForm.newImages && productForm.newImages.length > 0) {
-      const validFiles = productForm.newImages.filter(file => file && file.size > 0);
-      validFiles.forEach((file, index) => {
-        formData.append('images', file, file.name);
-      });
-    }
-
-    let response;
-    if (editingProduct.value) {
-      response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
-    } else {
-      response = await storeServices.addStoreProduct(formData);
-    }
-
-    if (response.success) {
-      alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
-      await fetchProducts();
-      resetForm();
-    } else {
-      throw new Error(response.message || '操作失敗');
-    }
-  } catch (error) {
-    console.error('Error submitting product:', error);
-    alert(`提交商品時發生錯誤: ${(error as Error).message}`);
-  }
-};
 
     const addNewCategory = async () => {
       if (newCategoryName.value.trim() === '') {
@@ -358,10 +370,7 @@ export default defineComponent({
       if (files) {
         const newImages = Array.from(files);
         productForm.newImages = newImages;
-        productForm.imageUrl = [
-          ...productForm.originalImages,
-          ...newImages
-        ];
+        productForm.imageUrl = [...productForm.originalImages, ...newImages];
       }
     };
 
@@ -398,6 +407,14 @@ export default defineComponent({
       return `${product.width || 0} x ${product.height || 0} x ${product.length || 0}`;
     };
 
+    const filterProducts = () => {
+      if (selectedCategory.value === '') {
+        filteredProducts.value = products.value;
+      } else {
+        filteredProducts.value = products.value.filter(product => product.categoryId.toString() === selectedCategory.value);
+      }
+    };
+
     onMounted(async () => {
       await fetchProducts();
       await fetchCategories();
@@ -405,7 +422,9 @@ export default defineComponent({
 
     return {
       products,
+      filteredProducts,
       categories,
+      selectedCategory,
       showAddForm,
       editingProduct,
       productForm,
@@ -427,11 +446,13 @@ export default defineComponent({
       newCategoryName,
       addNewCategory,
       cancelEdit,
+      filterProducts,
       StoreProductStatus
     };
   },
 });
 </script>
+
 <style scoped>
 .store-management {
   max-width: 1200px;
@@ -711,4 +732,32 @@ export default defineComponent({
   border: 1px solid #ddd;
   border-radius: 4px;
 }
+.filter-category {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-right: 10px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.filter-select:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+  outline: none;
+}
+
 </style>

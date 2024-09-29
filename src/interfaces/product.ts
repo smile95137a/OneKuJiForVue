@@ -11,13 +11,14 @@ export enum ProductType {
   PRIZE = 'PRIZE',
   GACHA = 'GACHA',
   BLIND_BOX = 'BLIND_BOX',
-  CUSTMER_PRIZE = 'CUSTMER_PRIZE'
+  
 }
 
 export enum PrizeCategory {
   FIGURE = 'FIGURE',
   C3 = 'C3',
   BONUS = 'BONUS',
+  PRIZESELF = 'PRIZESELF',
   NONE = 'NONE'
 }
 
