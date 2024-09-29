@@ -320,7 +320,93 @@
           </div>
         </div>
       </Card>
+      <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
+        優惠及結帳
+      </div>
+      <Card>
+        <div class="p-y-48 p-x-48">
+          <div class="mallCheckout__payment">
+            <div
+              class="mallCheckout__payment-item mallCheckout__payment-item--title"
+            >
+              付款
+            </div>
+            <div
+              class="mallCheckout__payment-item mallCheckout__payment-item--options"
+            >
+              <div
+                v-for="option in paymentOptions"
+                :key="option.name"
+                class="mallCheckout__payment-option"
+              >
+                <input
+                  type="radio"
+                  :value="option.value"
+                  v-model="paymentMethod"
+                />
+                <label>{{ option.name }} </label>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        <div v-if="paymentMethod === 1" class="p-y-48 p-x-48">
+          <div class="mallCheckout__form">
+            <div
+              class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--credit"
+            >
+              <div class="w-50 w-md-100">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  卡號
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="cardNo"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.cardNo,
+                  }"
+                  placeholder="輸入信用卡卡號"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.cardNo }}
+                </p>
+              </div>
+              <div class="w-50">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  有效日期
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="expiryDate"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.expiryDate,
+                  }"
+                  placeholder="MM/YY"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.expiryDate }}
+                </p>
+              </div>
+              <div class="w-50">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  CVV
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="cvv"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.cvv,
+                  }"
+                  placeholder="三位數的CVV"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.cvv }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
       <div class="mallCheckout__total">
         <div class="mallCheckout__total-item">
           <p class="mallCheckout__text mallCheckout__text--title">運費：</p>
@@ -490,6 +576,9 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     paymentMethod: paymentOptions[0].value,
     invoice: invoiceOptions[0].value,
     sameAsBilling: false,
+    cardNo: '',
+    expiryDate: '',
+    cvv: '',
   },
 });
 
@@ -511,7 +600,9 @@ const [shippingMethod, shippingMethodProps] = defineField('shippingMethod');
 const [paymentMethod, paymentMethodProps] = defineField('paymentMethod');
 const [invoice, invoiceProps] = defineField('invoice');
 const [sameAsBilling, sameAsBillingProps] = defineField('sameAsBilling');
-
+const [cardNo, cardNoProps] = defineField('cardNo');
+const [expiryDate, expiryDateProps] = defineField('expiryDate');
+const [cvv, cvvProps] = defineField('cvv');
 const selectedShippingPrice = computed(() => {
   const selectedOption = shippingMethods.value.find(
     (option) => option.name === selectedShippingMethod.value

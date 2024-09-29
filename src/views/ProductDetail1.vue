@@ -12,19 +12,54 @@
           </p>
         </div>
         <div class="product-detail-one__action">
-          <div class="product-detail-one__price">
-            <p class="product-detail-one__price-money">
-              <span class="product-detail-one__text">{{ product?.price }}</span>
-            </p>
-            <p class="product-detail-one__price-unit">
-              <span
-                class="product-detail-one__text product-detail-one__text--icon"
-              >
-                金
-              </span>
-              <span class="product-detail-one__text">/抽</span>
-            </p>
+          <div class="product-detail-one__prices">
+            <div class="product-detail-one__price" v-if="!showBouns">
+              <p class="product-detail-one__price-money">
+                <span class="product-detail-one__text">{{
+                  product?.price
+                }}</span>
+              </p>
+              <p class="product-detail-one__price-unit">
+                <span
+                  class="product-detail-one__text product-detail-one__text--icon"
+                >
+                  金
+                </span>
+                <span class="product-detail-one__text">/抽</span>
+              </p>
+            </div>
+            <div class="product-detail-one__sliverPrice" v-if="!showBouns">
+              <p class="product-detail-one__sliverPrice-money">
+                <span class="product-detail-one__text">{{
+                  product?.sliverPrice
+                }}</span>
+              </p>
+              <p class="product-detail-one__sliverPrice-unit">
+                <span
+                  class="product-detail-one__text product-detail-one__text--icon"
+                >
+                  銀
+                </span>
+                <span class="product-detail-one__text">/抽</span>
+              </p>
+            </div>
+            <div class="product-detail-one__bonus" v-if="showBouns">
+              <p class="product-detail-one__bonus-money">
+                <span class="product-detail-one__text">{{
+                  product?.bonusPrice
+                }}</span>
+              </p>
+              <p class="product-detail-one__bonus-unit">
+                <span
+                  class="product-detail-one__text product-detail-one__text--icon"
+                >
+                  紅
+                </span>
+                <span class="product-detail-one__text">/抽</span>
+              </p>
+            </div>
           </div>
+
           <div class="product-detail-one__action-btns">
             <div
               class="product-detail-one__action-btn"
@@ -190,14 +225,23 @@
         <div
           class="product-detail-one__btn product-detail-one__btn--im"
           @click="handleExchange(1)"
+          v-if="!showBouns"
         >
           金幣兌換
         </div>
         <div
           class="product-detail-one__btn product-detail-one__btn--im"
           @click="handleExchange(2)"
+          v-if="!showBouns"
         >
           銀幣兌換
+        </div>
+        <div
+          class="product-detail-one__btn product-detail-one__btn--im"
+          @click="handleExchange(3)"
+          v-if="showBouns"
+        >
+          紅利兌換
         </div>
       </div>
     </div>
@@ -251,6 +295,7 @@ const activeTickets = ref<any[]>([]);
 
 const introduceSection = ref<HTMLElement | null>(null);
 const showOption = ref(false);
+const showBouns = ref(false);
 const showOptionRandom = ref(false);
 const customQuantity = ref(1);
 
@@ -300,6 +345,7 @@ onMounted(async () => {
     if (productResponse.data) {
       product.value = productResponse.data;
       const { productType } = productResponse.data;
+      showBouns.value = productResponse.data.prizeCategory === 'BONUS';
       const productTypeLabel = PRODUCT_TYPE_LABELS[productType];
       if (productTypeLabel) {
         breadcrumbItems.value.push({ name: productTypeLabel });
