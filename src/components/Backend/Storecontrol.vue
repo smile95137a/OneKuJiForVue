@@ -44,13 +44,10 @@
             <label for="specialPrice">特價</label>
             <input id="specialPrice" type="number" v-model.number="productForm.specialPrice" min="0" step="0.01">
           </div>
-
-          <!-- 新增商品詳情欄位 -->
           <div class="form-group">
             <label for="details">商品詳情</label>
             <textarea id="details" v-model="productForm.details" required></textarea>
           </div>
-
           <div class="form-group">
             <label for="status">狀態</label>
             <select v-model="productForm.status">
@@ -58,7 +55,6 @@
               <option :value="StoreProductStatus.UNAVAILABLE">未上架</option>
             </select>
           </div>
-
           <div class="form-group">
             <label for="category">類別</label>
             <select id="category" v-model="productForm.categoryId" required>
@@ -69,13 +65,11 @@
             </select>
             <button type="button" @click="showAddCategoryForm = true" class="btn btn-small">新增類別</button>
           </div>
-
           <div v-if="showAddCategoryForm" class="add-category-form">
             <input v-model="newCategoryName" placeholder="輸入新類別名稱" />
             <button type="button" @click="addNewCategory" class="btn btn-small">確認新增</button>
             <button type="button" @click="showAddCategoryForm = false" class="btn btn-small">取消</button>
           </div>
-
           <div class="form-group">
             <label for="images">商品圖片</label>
             <input id="images" type="file" @change="handleFileUpload" multiple accept="image/*">
@@ -174,7 +168,7 @@ export default defineComponent({
       status: StoreProductStatus.UNAVAILABLE,
       shippingPrice: 0,
       size: 0,
-      details: '', // 初始化商品詳情
+      details: '',
     });
 
     const currentPage = ref(1);
@@ -225,71 +219,62 @@ export default defineComponent({
     };
 
     const handleSubmit = async () => {
-      if (!validateForm()) {
-        return;
-      }
+  if (!validateForm()) {
+    return;
+  }
 
-      try {
-        const formData = new FormData();
+  try {
+    const formData = new FormData();
 
-        const productData = {
-          productName: productForm.productName,
-          description: productForm.description,
-          price: Number(productForm.price),
-          stockQuantity: Number(productForm.stockQuantity),
-          categoryId: productForm.categoryId,
-          width: Number(productForm.width),
-          height: Number(productForm.height),
-          length: Number(productForm.length),
-          specification: productForm.specification,
-          shippingMethod: 'Express',
-          specialPrice: Number(productForm.specialPrice),
-          status: productForm.status,
-          imageUrl: productForm.originalImages,
-          details: productForm.details, // 商品詳情
-        };
-
-        if (editingProduct.value) {
-          formData.append('storeProductReq', JSON.stringify(productData));
-        } else {
-          formData.append('productReq', JSON.stringify(productData));
-        }
-
-        // 檢查 newImages 是否存在且不為空
-        if (productForm.newImages && productForm.newImages.length > 0) {
-          // 過濾掉空文件
-          const validFiles = productForm.newImages.filter(file => file && file.size > 0);
-
-          if (validFiles.length > 0) {
-            validFiles.forEach((file, index) => {
-              formData.append('images', file, file.name);
-            });
-          } else {
-            formData.append('images', JSON.stringify([]));
-          }
-        } else {
-          formData.append('images', JSON.stringify([]));
-        }
-
-        let response;
-        if (editingProduct.value) {
-          response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
-        } else {
-          response = await storeServices.addStoreProduct(formData);
-        }
-
-        if (response.success) {
-          alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
-          await fetchProducts();
-          resetForm();
-        } else {
-          throw new Error(response.message || '操作失敗');
-        }
-      } catch (error) {
-        console.error('Error submitting product:', error);
-        alert(`提交商品時發生錯誤: ${(error as Error).message}`);
-      }
+    const productReq: StoreProductReq = {
+      productName: productForm.productName,
+      description: productForm.description,
+      price: Number(productForm.price),
+      stockQuantity: Number(productForm.stockQuantity),
+      categoryId: productForm.categoryId,
+      width: Number(productForm.width),
+      height: Number(productForm.height),
+      length: Number(productForm.length),
+      specification: productForm.specification,
+      shippingMethod: 'Express',
+      specialPrice: Number(productForm.specialPrice),
+      status: productForm.status,
+      imageUrl: productForm.originalImages,
+      details: productForm.details,
+      shippingPrice: 0,
+      size: 0,
     };
+
+    // 直接使用 'productReq' 作為 key
+    formData.append('productReq', JSON.stringify(productReq));
+
+    // 處理圖片上傳
+    if (productForm.newImages && productForm.newImages.length > 0) {
+      const validFiles = productForm.newImages.filter(file => file && file.size > 0);
+      validFiles.forEach((file, index) => {
+        formData.append('images', file, file.name);
+      });
+    }
+
+    let response;
+    if (editingProduct.value) {
+      response = await storeServices.updateStoreProduct(editingProduct.value.storeProductId, formData);
+    } else {
+      response = await storeServices.addStoreProduct(formData);
+    }
+
+    if (response.success) {
+      alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
+      await fetchProducts();
+      resetForm();
+    } else {
+      throw new Error(response.message || '操作失敗');
+    }
+  } catch (error) {
+    console.error('Error submitting product:', error);
+    alert(`提交商品時發生錯誤: ${(error as Error).message}`);
+  }
+};
 
     const addNewCategory = async () => {
       if (newCategoryName.value.trim() === '') {
@@ -332,7 +317,7 @@ export default defineComponent({
         status: StoreProductStatus.UNAVAILABLE,
         shippingPrice: 0,
         size: 0,
-        details: '', // 初始化商品詳情
+        details: '',
       });
       editingProduct.value = null;
       showAddForm.value = false;
@@ -346,7 +331,7 @@ export default defineComponent({
         newImages: [],
         originalImages: [...(product.imageUrl || [])],
         categoryId: product.categoryId.toString(),
-        details: product.details, // 加入商品詳情
+        details: product.details,
       });
       showAddForm.value = true;
     };
