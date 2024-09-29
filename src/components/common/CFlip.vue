@@ -51,7 +51,7 @@
       </div>
       <div class="grid" v-for="item in orderData.orderDetails" :key="item.id">
         <div class="col-25 p-x-12">
-          {{ item.productDetailName }}
+          {{ item.storeProduct.productName }}
         </div>
         <div class="col-25 p-x-12">
           {{ item.quantity }}
@@ -69,7 +69,6 @@
 
 <script lang="ts" setup>
 import { PropType, ref } from 'vue';
-import MImage from '@/components/frontend/MImage.vue';
 
 const props = defineProps({
   index: Number,
