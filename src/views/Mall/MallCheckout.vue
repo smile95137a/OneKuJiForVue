@@ -48,7 +48,7 @@
             class="mallCheckout__product-item mallCheckout__product-item--price"
           >
             <p class="mallCheckout__text">
-              ${{ formatPrice(item.totalPrice) }}
+              $<NumberFormatter :number="item.totalPrice" />
             </p>
           </div>
           <div
@@ -437,25 +437,25 @@
         <div class="mallCheckout__total-item">
           <p class="mallCheckout__text mallCheckout__text--title">商品：</p>
           <p class="mallCheckout__text mallCheckout__text--money">
-            ${{ formatPrice(totalProductAmount) }}
+            <NumberFormatter :number="totalProductAmount" />
           </p>
         </div>
         <div class="mallCheckout__total-item">
           <p class="mallCheckout__text mallCheckout__text--title">運費：</p>
           <p class="mallCheckout__text mallCheckout__text--money">
-            ${{ formatPrice(totalShippingAmount) }}
+            $<NumberFormatter :number="totalShippingAmount" />
           </p>
         </div>
         <div class="mallCheckout__total-item">
           <p class="mallCheckout__text mallCheckout__text--title">折扣：</p>
           <p class="mallCheckout__text mallCheckout__text--money">
-            -${{ formatPrice(totalDiscountAmount) }}
+            -$<NumberFormatter :number="totalDiscountAmount" />
           </p>
         </div>
         <div class="mallCheckout__total-item m-t-36">
           <p class="mallCheckout__text mallCheckout__text--title">總金額：</p>
           <p class="mallCheckout__text mallCheckout__text--totalMoney">
-            ${{ formatPrice(finalAmount) }}
+            $<NumberFormatter :number="finalAmount" />
           </p>
         </div>
       </div>
@@ -496,6 +496,7 @@ import { useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import * as yup from 'yup';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
@@ -704,8 +705,6 @@ const onSubmit = handleSubmit(async (values: any) => {
     });
   }
 });
-
-const formatPrice = (price: number) => `${price.toFixed(2)}`;
 
 const loadCartItems = async () => {
   loadingStore.startLoading();

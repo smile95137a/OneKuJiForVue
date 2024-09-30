@@ -33,6 +33,7 @@
               :card-type="'mall'"
               customClass="mall-product__slider-item"
               :isRank="isRank"
+              @click="goToProductPage(product.productCode)"
             />
           </SwiperSlide>
         </Swiper>
@@ -55,6 +56,7 @@ import 'swiper/scss/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 
 import ProductCard from '@/components/frontend/ProductCard.vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   sliderClass: {
@@ -93,6 +95,10 @@ const props = defineProps({
 
 const prevBtn = ref(null);
 const nextBtn = ref(null);
+const router = useRouter();
+const goToProductPage = (productId: string) => {
+  router.push({ name: 'MallProduct', params: { id: productId } });
+};
 </script>
 
 <style scoped></style>

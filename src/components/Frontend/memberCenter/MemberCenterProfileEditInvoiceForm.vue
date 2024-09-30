@@ -42,6 +42,27 @@
           }}</span>
         </div>
       </div>
+      <div
+        class="memberCenter__profileEditInvoiceForm-form memberCenter__profileEditInvoiceForm-form--other"
+      >
+        <div class="memberCenter__profileEditInvoiceForm-form-inputs m-t-20">
+          <p class="memberCenter__text memberCenter__text--required">
+            載具條碼
+          </p>
+          <input
+            type="text"
+            class="memberCenter__profileEditInvoiceForm-form-input"
+            v-model="vehicle"
+            v-bind="vehicleProps"
+            :class="{
+              'memberCenter__profileEditForm-form-input--error': errors.vehicle,
+            }"
+          />
+          <span class="memberCenter__text memberCenter__text--error">{{
+            errors.vehicle
+          }}</span>
+        </div>
+      </div>
     </div>
     <div class="memberCenter__profileEditInvoiceForm-btns">
       <button type="submit" class="memberCenter__profileEditInvoiceForm-btn">
@@ -69,9 +90,7 @@ const invoiceInfoOptions = ref<{ value: string; label: string }[]>([
   { value: '', label: '請選擇發票資訊' },
   { value: 'donation', label: '捐贈發票' },
   { value: 'mobileCarrier', label: '手機載具' },
-  { value: 'citizenDigitalCarrier', label: '自然人憑證載具' },
   { value: 'personalEInvoice', label: '個人電子發票' },
-  { value: 'tripartiteEInvoice', label: '三聯式電子發跳' },
 ]);
 
 const schema = yup.object({
@@ -87,6 +106,7 @@ const { defineField, handleSubmit, errors, setFieldValue } = useForm({
   initialValues: {
     invoiceInfo: '',
     invoiceInfoEmail: '',
+    vehicle: '',
   },
 });
 
@@ -119,6 +139,7 @@ const onSubmit = handleSubmit(async (values) => {
 const [invoiceInfo, invoiceInfoProps] = defineField('invoiceInfo');
 const [invoiceInfoEmail, invoiceInfoEmailProps] =
   defineField('invoiceInfoEmail');
+const [vehicle, vehicleProps] = defineField('vehicle');
 
 const fetchUserInfo = async () => {
   try {
@@ -126,6 +147,7 @@ const fetchUserInfo = async () => {
 
     setFieldValue('invoiceInfo', userInfo.invoiceInfo);
     setFieldValue('invoiceInfoEmail', userInfo.invoiceInfoEmail);
+    setFieldValue('vehicle', userInfo.vehicle);
   } catch (error) {
     console.error('获取用户信息失败:', error);
   }

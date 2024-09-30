@@ -31,6 +31,7 @@ import Register from '@/views/Register/Register.vue';
 import Transaction from '@/views/Transaction/Transaction.vue';
 import Verify from '@/views/Verify/Verify.vue';
 import Deposit from '@/views/Deposit/Deposit.vue';
+import PrizeOrderSuccess from '@/views/Prize/PrizeOrderSuccess.vue';
 
 // 后台组件
 import MemberManagement from '@/components/backend/MemberManagement.vue';
@@ -115,6 +116,12 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/prize-checkout',
     component: PrizeCheckout,
+    meta: { layout: 'default', requiresAuth: true },
+  },
+  {
+    path: '/prize-order-success/:orderNumber',
+    name: 'PrizeOrderSuccess',
+    component: PrizeOrderSuccess,
     meta: { layout: 'default', requiresAuth: true },
   },
   {
