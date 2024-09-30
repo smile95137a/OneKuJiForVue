@@ -28,6 +28,7 @@ export default defineComponent({
       { name: '最新消息管理', path: '/admin/news-management', icon: 'fas fa-newspaper' },
       { name: '訂單狀態管理', path: '/admin/order-management', icon: 'fas fa-newspaper' },
       { name: '推薦商品管理', path: '/admin/product-recommendation', icon: 'fas fa-newspaper' },
+      { name: 'banner狀態管理', path: '/admin/banner-controler', icon: 'fas fa-newspaper' },
 
     ]);
 

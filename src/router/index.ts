@@ -44,6 +44,7 @@ import PrizeCheckout from '@/views/Prize/PrizeCheckout.vue';
 import ordercontrol from '@/components/backend/ordercontrol.vue';
 import ProductRecommendation from '@/components/backend/ProductRecommendation.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
+import Banner from '@/components/Backend/banner.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/oauth2/redirect',
@@ -243,6 +244,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'store-control',
         component: Storecontrol,
+      },
+      {
+        path: 'banner-controler',
+        component: Banner,
       },
     ],
   },
