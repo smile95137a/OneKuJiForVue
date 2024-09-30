@@ -253,7 +253,7 @@ import {
   updateProductPopularity,
 } from '@/services/frontend/storeProductService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getMappingById } from '@/services/frontend/recommendationService';
 
@@ -262,7 +262,7 @@ const dialogStore = useDialogStore();
 const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
-const productCode = route.params.id;
+const productCode = ref(route.params.id);
 
 const breadcrumbItems = ref([{ name: '首頁' }, { name: '商城' }]);
 const product = ref<any | null>(null);
@@ -441,57 +441,56 @@ const updatePopularity = async () => {
   }
 };
 
-onMounted(async () => {
+const loadProductData = async (id) => {
   try {
     const [
-      { success, data, message },
+      productResponse,
       likedResponse,
       recommendedResponse,
       hotProductsRes,
     ] = await Promise.all([
-      getStoreProductById(productCode),
+      getStoreProductById(id),
       getMappingById(1),
       getMappingById(2),
       getMappingById(3),
     ]);
-    if (success) {
-      product.value = data;
-      selectedImage.value = data.imageUrls[0] ?? '';
-      favoriteCount.value = data.favoritesCount ?? 0;
-      isFavorite.value = data.favorited ?? false;
-      breadcrumbItems.value.push({ name: data.productName });
-    } else {
-      console.log(message);
+
+    if (productResponse.success) {
+      product.value = productResponse.data;
+      selectedImage.value = product.value.imageUrls[0] ?? '';
+      favoriteCount.value = product.value.favoritesCount ?? 0;
+      isFavorite.value = product.value.favorited ?? false;
+      breadcrumbItems.value.push({ name: product.value.productName });
     }
 
     if (likedResponse?.success) {
       likedProducts.value = likedResponse.data;
-    } else {
-      console.log('Failed to load liked products');
     }
 
     if (recommendedResponse?.success) {
       recommendedProducts.value = recommendedResponse.data;
-    } else {
-      console.log('Failed to load recommended products');
     }
 
     if (hotProductsRes?.success) {
       hotProducts.value = hotProductsRes.data;
-    } else {
-      console.log('Failed to load recommended products');
     }
   } catch (err) {
     console.error(err);
   }
-  if (contentDiv.value) {
-    showToggle.value = contentDiv.value.scrollHeight > maxHeight;
-  }
+};
 
-  timeoutId = setTimeout(() => {
-    updatePopularity();
-  }, 30000);
+onMounted(() => {
+  loadProductData(productCode.value);
 });
+
+// 監聽路由參數變化，當 id 改變時重新加載產品數據
+watch(
+  () => route.params.id,
+  (newId) => {
+    productCode.value = newId;
+    loadProductData(newId);
+  }
+);
 
 onBeforeUnmount(() => {
   // 清除計時器

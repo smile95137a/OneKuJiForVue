@@ -60,6 +60,7 @@
             :key="index"
             :product="product"
             :customClass="` productCard--like`"
+            @click="goToProduct(product.productId)"
           />
         </div>
       </div>
@@ -68,8 +69,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
@@ -88,7 +89,8 @@ import { drawPrize, getDrawStatus } from '@/services/frontend/drawService';
 import { getMappingById } from '@/services/frontend/recommendationService';
 
 const route = useRoute();
-const productId = Number(route.params.id);
+const router = useRouter();
+const productId = ref(Number(route.params.id));
 const breadcrumbItems = ref([{ name: '首頁' }]);
 const product = ref<IProduct | null>(null);
 const productDetail = ref<IProductDetail[] | null>(null);
@@ -103,7 +105,10 @@ const remainingQuantity = computed(() => {
   }
   return ticketList.value.filter((x) => !x.isDrawn).length;
 });
-onMounted(async () => {
+
+const loadProductData = async () => {
+  console.log(productId.value);
+
   loadingStore.startLoading();
   try {
     const [
@@ -113,9 +118,9 @@ onMounted(async () => {
       allProductRes,
       recommendationRes,
     ] = await Promise.all([
-      getProductById(productId),
-      getProductDetailById(productId),
-      getDrawStatus(productId),
+      getProductById(productId.value),
+      getProductDetailById(productId.value),
+      getDrawStatus(productId.value),
       getAllProduct(),
       getMappingById(4),
     ]);
@@ -139,15 +144,25 @@ onMounted(async () => {
     }
 
     if (recommendationRes.data) {
-      console.log(recommendationRes.data);
-
       gachaList.value = recommendationRes.data;
     }
   } catch (err) {
     console.error('An error occurred:', err);
   }
   loadingStore.stopLoading();
+};
+
+onMounted(async () => {
+  loadProductData();
 });
+
+watch(
+  () => route.params.id,
+  (newId) => {
+    productId.value = Number(newId); // 更新 productId 的值
+    loadProductData(); // 調用加載數據函數
+  }
+);
 
 const handleDraw = async () => {
   try {
@@ -183,6 +198,10 @@ const handleDraw = async () => {
       message: errorMessage,
     });
   }
+};
+
+const goToProduct = (id: number) => {
+  router.push({ name: 'ProductDetail2', params: { id } });
 };
 
 const fetchDrawStatus = async () => {

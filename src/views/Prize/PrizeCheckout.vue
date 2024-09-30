@@ -642,6 +642,8 @@ const onSubmit = handleSubmit(async (values: any) => {
   try {
     loadingStore.startLoading();
     const { success, data } = await payPrizeCartItem(payCart);
+    console.log(success);
+
     loadingStore.stopLoading();
     if (success) {
       router.push({
