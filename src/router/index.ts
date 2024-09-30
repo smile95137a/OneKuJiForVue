@@ -30,6 +30,7 @@ import Privacy from '@/views/Privacy/Privacy.vue';
 import Register from '@/views/Register/Register.vue';
 import Transaction from '@/views/Transaction/Transaction.vue';
 import Verify from '@/views/Verify/Verify.vue';
+import Deposit from '@/views/Deposit/Deposit.vue';
 
 // 后台组件
 import MemberManagement from '@/components/backend/MemberManagement.vue';
@@ -72,6 +73,12 @@ const routes: Array<RouteRecordRaw> = [
     component: Transaction,
     meta: { layout: 'default' },
   },
+  {
+    path: '/deposit',
+    component: Deposit,
+    meta: { layout: 'default' },
+  },
+
   {
     path: '/privacy',
     component: Privacy,
