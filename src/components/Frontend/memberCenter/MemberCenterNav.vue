@@ -60,6 +60,18 @@
         <span class="memberCenter__text">抽獎記錄 </span>
       </router-link>
     </div>
+    <div class="memberCenter__nav-item">
+      <router-link
+        to="/member-center/deposit"
+        class="memberCenter__nav-link"
+        active-class="memberCenter__nav-link--active"
+      >
+        <span class="memberCenter__nav-icon"
+          ><i class="fa-solid fa-receipt"></i
+        ></span>
+        <span class="memberCenter__text">會員儲值</span>
+      </router-link>
+    </div>
   </div>
 </template>
 

@@ -19,6 +19,8 @@ import DrawHistory from '@/views/MemberCenter/DrawHistory.vue';
 import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
 import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
+import Deposit from '@/views/MemberCenter/Deposit.vue';
+
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 import Rewards from '@/views/MemberCenter/Rewards.vue';
 import News from '@/views/News/News.vue';
@@ -30,7 +32,6 @@ import Privacy from '@/views/Privacy/Privacy.vue';
 import Register from '@/views/Register/Register.vue';
 import Transaction from '@/views/Transaction/Transaction.vue';
 import Verify from '@/views/Verify/Verify.vue';
-import Deposit from '@/views/Deposit/Deposit.vue';
 import PrizeOrderSuccess from '@/views/Prize/PrizeOrderSuccess.vue';
 
 // 后台组件
@@ -45,7 +46,7 @@ import PrizeCheckout from '@/views/Prize/PrizeCheckout.vue';
 import ordercontrol from '@/components/backend/ordercontrol.vue';
 import ProductRecommendation from '@/components/backend/ProductRecommendation.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
-import Banner from '@/components/Backend/banner.vue';
+import Banner from '@/components/backend/banner.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/oauth2/redirect',
@@ -73,11 +74,6 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/transaction',
     component: Transaction,
-    meta: { layout: 'default' },
-  },
-  {
-    path: '/deposit',
-    component: Deposit,
     meta: { layout: 'default' },
   },
 
@@ -132,6 +128,11 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '',
         redirect: { name: 'ProfileEdit' },
+      },
+      {
+        path: 'deposit',
+        name: 'Deposit',
+        component: Deposit,
       },
       {
         path: 'profile-edit',
