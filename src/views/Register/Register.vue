@@ -33,7 +33,7 @@ const schema = yup.object({
   city: yup.string(),
   area: yup.string(),
   address: yup.string(),
-  lineId: yup.string(),
+  lineId: yup.string().required('LINE ID 是必填項'),
   agreeTerms: yup
     .boolean()
     .oneOf([true], '您必須同意網站服務條款和隱私權政策。')
@@ -210,7 +210,7 @@ watch(area, (newArea) => {
               </p>
             </div>
             <div class="register__form-inputs m-t-20">
-              <p class="register__text">LINE ID</p>
+              <p class="register__text register__text--required">LINE ID</p>
               <input
                 class="register__form-input"
                 v-model="lineId"
