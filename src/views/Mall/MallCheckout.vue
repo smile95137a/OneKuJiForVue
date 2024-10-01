@@ -326,7 +326,14 @@
               </div>
             </div>
           </div>
-          <div class="mallCheckout__divider"></div>
+        </div>
+      </Card>
+
+      <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
+        優惠及結帳
+      </div>
+      <Card>
+        <div class="p-y-48 p-x-48">
           <div class="mallCheckout__invoice">
             <div
               class="mallCheckout__invoice-item mallCheckout__invoice-item--title"
@@ -338,19 +345,60 @@
             >
               <MSelect
                 v-model="invoice"
-                :options="invoiceOptions"
+                :options="invoiceInfoOptions"
                 customClass="mallCheckout__invoice-select"
               />
             </div>
           </div>
-        </div>
-      </Card>
+          <div v-if="invoice === 'donation'" class="p-y-24">
+            <div class="mallCheckout__form">
+              <div class="mallCheckout__form-inputs">
+                <div class="w-100">
+                  <p class="mallCheckout__text mallCheckout__text--required">
+                    愛心碼
+                  </p>
+                  <input
+                    class="mallCheckout__form-input"
+                    v-model="donationCode"
+                    :class="{
+                      'mallCheckout__form-input--error': errors.donationCode,
+                    }"
+                    placeholder="輸入愛心碼"
+                  />
+                  <p class="mallCheckout__text mallCheckout__text--error">
+                    {{ errors.donationCode }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
-        優惠及結帳
-      </div>
-      <Card>
-        <div class="p-y-48 p-x-48">
+          <div v-if="invoice === 'mobileCarrier'" class="p-y-24">
+            <div class="mallCheckout__form">
+              <div class="mallCheckout__form-inputs">
+                <div class="w-100">
+                  <p class="mallCheckout__text mallCheckout__text--required">
+                    手機載具號碼
+                  </p>
+                  <input
+                    class="mallCheckout__form-input"
+                    v-model="mobileCarrierCode"
+                    :class="{
+                      'mallCheckout__form-input--error':
+                        errors.mobileCarrierCode,
+                    }"
+                    placeholder="輸入手機載具號碼"
+                  />
+                  <p class="mallCheckout__text mallCheckout__text--error">
+                    {{ errors.mobileCarrierCode }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mallCheckout__divider"></div>
+
           <div class="mallCheckout__payment">
             <div
               class="mallCheckout__payment-item mallCheckout__payment-item--title"
@@ -508,7 +556,12 @@ const billAreaOptions = ref<{ value: string; label: string }[]>([]);
 const shippingCityOptions = ref<{ value: string; label: string }[]>([]);
 const shippingAreaOptions = ref<{ value: string; label: string }[]>([]);
 
-const invoiceOptions = [{ value: 'donation', label: '捐贈' }];
+const invoiceInfoOptions = ref<{ value: string; label: string }[]>([
+  { value: '', label: '請選擇發票資訊' },
+  { value: 'donation', label: '捐贈發票' },
+  { value: 'mobileCarrier', label: '手機載具' },
+  { value: 'personalEInvoice', label: '個人電子發票' },
+]);
 
 const schema = yup.object({
   shippingName: yup.string().required('收貨人姓名為必填'),
@@ -610,7 +663,9 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     billingAddress: '',
     shippingMethod: shippingOptions[0].value,
     paymentMethod: paymentOptions[0].value,
-    invoice: invoiceOptions[0].value,
+    invoice: invoiceInfoOptions.value[0].value,
+    vehide: '',
+    donationCode: '',
     sameAsBilling: false,
     cardNo: '',
     expiryDate: '',
@@ -635,6 +690,8 @@ const [billingAddress, billingAddressProps] = defineField('billingAddress');
 const [shippingMethod, shippingMethodProps] = defineField('shippingMethod');
 const [paymentMethod, paymentMethodProps] = defineField('paymentMethod');
 const [invoice, invoiceProps] = defineField('invoice');
+const [vehide, vehideProps] = defineField('vehide');
+const [donationCode, donationCodeProps] = defineField('donationCode');
 const [sameAsBilling, sameAsBillingProps] = defineField('sameAsBilling');
 
 const [cardNo, cardNoProps] = defineField('cardNo');
