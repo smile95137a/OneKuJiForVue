@@ -28,7 +28,7 @@ const schema = yup.object({
     .matches(/^[0-9]+$/, '卡號只能包含數字')
     .min(16, '卡號必須為 16 位數')
     .max(16, '卡號必須為 16 位數'),
-  expiryDate: yup
+  expireDate: yup
     .string()
     .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, '無效的過期日期 (MM/YY)')
     .required('過期日期為必填'),
@@ -44,7 +44,7 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     paymentMethod: '',
     cardHolderName: '',
     cardNo: '',
-    expiryDate: '',
+    expireDate: '',
     cvv: '',
     amount: '',
     buyerTelm: '',
@@ -55,7 +55,7 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
 const [cardHolderName, cardHolderNameProps] = defineField('cardHolderName');
 const [paymentMethod, paymentMethodProps] = defineField('paymentMethod');
 const [cardNo, cardNoProps] = defineField('cardNo');
-const [expiryDate, expiryDateProps] = defineField('expiryDate');
+const [expireDate, expireDateProps] = defineField('expireDate');
 const [cvv, cvvProps] = defineField('cvv');
 const [amount, amountProps] = defineField('amount');
 const [buyerTelm, buyerTelmProps] = defineField('buyerTelm');
@@ -251,14 +251,14 @@ const onSubmit = handleSubmit(async (values) => {
               </p>
               <input
                 class="mallCheckout__form-input"
-                v-model="expiryDate"
+                v-model="expireDate"
                 :class="{
-                  'mallCheckout__form-input--error': errors.expiryDate,
+                  'mallCheckout__form-input--error': errors.expireDate,
                 }"
                 placeholder="MM/YY"
               />
               <p class="mallCheckout__text mallCheckout__text--error">
-                {{ errors.expiryDate }}
+                {{ errors.expireDate }}
               </p>
             </div>
             <div class="w-100">
