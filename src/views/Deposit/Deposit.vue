@@ -177,7 +177,7 @@ const onSubmit = handleSubmit(async (values) => {
           <div
             class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--credit"
           >
-            <div class="w-50">
+            <div class="w-100">
               <p class="mallCheckout__text mallCheckout__text--required">
                 聯絡電話
               </p>
@@ -193,7 +193,7 @@ const onSubmit = handleSubmit(async (values) => {
                 {{ errors.buyerTelm }}
               </p>
             </div>
-            <div class="w-50">
+            <div class="w-100">
               <p class="mallCheckout__text mallCheckout__text--required">
                 電子郵件
               </p>
@@ -209,7 +209,11 @@ const onSubmit = handleSubmit(async (values) => {
                 {{ errors.buyerMail }}
               </p>
             </div>
-            <div class="w-50">
+          </div>
+          <div
+            class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--credit"
+          >
+            <div class="w-100">
               <p class="mallCheckout__text mallCheckout__text--required">
                 持卡人姓名
               </p>
@@ -225,7 +229,7 @@ const onSubmit = handleSubmit(async (values) => {
                 {{ errors.cardHolderName }}
               </p>
             </div>
-            <div class="w-50">
+            <div class="w-100">
               <p class="mallCheckout__text mallCheckout__text--required">
                 卡號
               </p>
@@ -241,7 +245,7 @@ const onSubmit = handleSubmit(async (values) => {
                 {{ errors.cardNo }}
               </p>
             </div>
-            <div class="w-50">
+            <div class="w-100">
               <p class="mallCheckout__text mallCheckout__text--required">
                 有效日期
               </p>
@@ -257,7 +261,7 @@ const onSubmit = handleSubmit(async (values) => {
                 {{ errors.expiryDate }}
               </p>
             </div>
-            <div class="w-50">
+            <div class="w-100">
               <p class="mallCheckout__text mallCheckout__text--required">CVV</p>
               <input
                 class="mallCheckout__form-input"
