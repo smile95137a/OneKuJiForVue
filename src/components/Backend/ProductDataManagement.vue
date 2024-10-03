@@ -29,6 +29,7 @@
           <th>紅利價格</th>
           <th>庫存</th>
           <th>狀態</th>
+          <th>商品類別</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -47,6 +48,7 @@
           <td>{{ product.prizeCategory === PrizeCategory.BONUS ? product.bonusPrice : '-' }}</td>
           <td>{{ product.stockQuantity }}</td>
           <td>{{ product.status }}</td>
+          <td>{{ getCategoryName(product.categoryId) }}</td>
           <td>
             <button @click="openEditProductModal(product)">編輯</button>
             <button @click="deleteProduct(product.productId)">刪除</button>
@@ -107,8 +109,22 @@
             <input id="specification" v-model="productForm.specification">
           </div>
           <div>
+          <label for="categorySelect">商品類別</label>
+          <select id="categorySelect" v-model="selectedCategoryId" @change="handleCategoryChange">
+            <option value="">選擇現有類別或創建新類別</option>
+            <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId">
+              {{ category.categoryName }}
+            </option>
+            <option value="new">創建新類別</option>
+          </select>
+        </div>
+        <div v-if="selectedCategoryId === 'new'">
+          <label for="newCategory">新類別名稱</label>
+          <input id="newCategory" v-model="newCategoryName" required>
+        </div>
+          <div>
             <label for="productImage">產品圖片</label>
-            <input id="productImage" type="file" @change="(event: Event) => handleImageUpload(event)" multiple accept="image/*">
+            <input id="productImage" type="file" @change="handleImageUpload" multiple accept="image/*">
           </div>
           <div v-if="productForm.imageUrls.length > 0">
             <div v-for="(image, index) in productForm.imageUrls" :key="index">
@@ -211,7 +227,7 @@
               </div>
               <div>
                 <label :for="'detailImage' + index">商品圖片</label>
-                <input :id="'detailImage' + index" type="file" @change="(event: Event) => handleDetailImageUpload(event, index)" multiple accept="image/*">
+                <input :id="'detailImage' + index" type="file" @change="(event) => handleDetailImageUpload(event, index)" multiple accept="image/*">
               </div>
               <div v-if="detail.imageUrls && detail.imageUrls.length > 0">
                 <div v-for="(image, imageIndex) in detail.imageUrls" :key="imageIndex">
@@ -270,7 +286,7 @@
             </div>
             <div>
               <label for="detailImage">商品圖片</label>
-              <input id="detailImage" type="file" @change="(event: Event) => handleDetailImageUpload(event)" multiple accept="image/*">
+              <input id="detailImage" type="file" @change="handleDetailImageUpload" multiple accept="image/*">
             </div>
             <div v-if="detailForm.imageUrls && detailForm.imageUrls.length > 0">
               <div v-for="(image, index) in detailForm.imageUrls" :key="index">
@@ -286,8 +302,9 @@
     </div>
   </div>
 </template>
+
 <script lang="ts" setup>
-import { DetailReq, DetailRes, PrizeCategory, ProductReq, ProductRes, ProductStatus, ProductType } from '@/interfaces/product';
+import { DetailReq, DetailRes, PrizeCategory, ProductReq, ProductRes, ProductStatus, ProductType, ProductCategory } from '@/interfaces/product';
 import { productservice } from '@/services/backend/productservice';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 
@@ -302,10 +319,14 @@ const editingDetail = ref<DetailRes | null>(null);
 const currentProductId = ref<number | null>(null);
 const currentProductType = ref<ProductType>(ProductType.PRIZE);
 const batchDetails = ref<DetailReq[]>([]);
+const categoryNameMap = ref(new Map<number, string>());
 
 // 新增這些變量
 const filterProductType = ref('');
 const filterPrizeCategory = ref('');
+const categories = ref<ProductCategory[]>([]);
+const selectedCategoryId = ref<number | string>('');
+const newCategoryName = ref('');
 
 // 添加這個計算屬性
 const filteredProducts = computed(() => {
@@ -322,12 +343,6 @@ const filteredProducts = computed(() => {
   });
 });
 
-// 添加這個方法
-const handleProductTypeChange = () => {
-  if (filterProductType.value !== ProductType.PRIZE) {
-    filterPrizeCategory.value = '';
-  }
-};
 // 計算屬性
 const totalQuantity = computed(() => {
   return productDetails.value.reduce((sum, detail) => sum + detail.quantity, 0);
@@ -346,6 +361,7 @@ const productForm = reactive<ProductReq>({
   prizeCategory: PrizeCategory.NONE,
   status: ProductStatus.NOT_AVAILABLE_YET,
   specification: '',
+  categoryId: null,
 });
 
 const productTypeOptions: Record<ProductType, string> = {
@@ -380,16 +396,11 @@ const detailForm = reactive<DetailReq>({
   probability: 0.0
 });
 
-// 判斷圖片 URL 是否有效
-const isValidImageUrl = (url: string | File): boolean => {
-  if (url instanceof File) return url.size > 0; // 確保文件大小有效
-  return typeof url === 'string' && url.trim() !== ''; // 過濾掉空字符串
-};
-
 // 生命週期鉤子
 onMounted(async () => {
   console.log('組件已掛載，開始獲取產品列表');
   await fetchProducts();
+  await fetchCategories();
 });
 
 // 監聽 productForm.productType 和 prizeCategory 的變化
@@ -420,11 +431,35 @@ const fetchProducts = async () => {
         status: productStatusOptions[product.status as ProductStatus] || product.status
       }));
       console.log('產品列表已更新', products.value);
+      
+      // 獲取所有類別並建立 ID 到名稱的映射
+      const categoriesResponse = await productservice.getAllCategories();
+      if (categoriesResponse.success) {
+        categoryNameMap.value = new Map(
+          categoriesResponse.data.map(category => [category.categoryId, category.categoryName])
+        );
+      }
     } else {
       console.error('獲取產品列表失敗:', response.message);
     }
   } catch (error) {
     console.error('獲取產品列表時發生錯誤:', error);
+  }
+};
+
+
+const fetchCategories = async () => {
+  try {
+    console.log('開始獲取類別列表');
+    const response = await productservice.getAllCategories();
+    console.log('獲取類別列表響應:', response);
+    if (response.success) {
+      categories.value = response.data;
+    } else {
+      console.error('獲取類別列表失敗:', response.message);
+    }
+  } catch (error) {
+    console.error('獲取類別列表時發生錯誤:', error);
   }
 };
 
@@ -451,7 +486,6 @@ const fetchProductDetails = async (productId: number) => {
   }
 };
 
-
 const updateProductStockQuantity = (productId: number) => {
   const totalQuantity = productDetails.value.reduce((sum, detail) => sum + detail.quantity, 0);
   const productIndex = products.value.findIndex(p => p.productId === productId);
@@ -471,7 +505,16 @@ const openEditProductModal = (product: ProductRes) => {
   console.log('打開編輯產品模態窗', product);
   editingProduct.value = product;
   Object.assign(productForm, product);
+  // 設置選中的類別ID
+  selectedCategoryId.value = product.categoryId || '';
+  newCategoryName.value = ''; // 清空新類別名稱
   showProductModal.value = true;
+};
+
+// 新增一個計算屬性來獲取類別名稱
+const getCategoryName = (categoryId: number | null) => {
+  if (!categoryId) return '-';
+  return categoryNameMap.value.get(categoryId) || '-';
 };
 
 const closeProductModal = () => {
@@ -496,7 +539,6 @@ const closeProductDetailsModal = () => {
 const openAddDetailModal = () => {
   console.log('打開新增商品詳情模態窗');
   editingDetail.value = null;
-  // 初始化 imageUrls 為空數組
   batchDetails.value = [{ ...detailForm, imageUrls: [] }];
   if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
     batchDetails.value[0].probability = 1;
@@ -507,7 +549,6 @@ const openAddDetailModal = () => {
 const openEditDetailModal = (detail: DetailRes) => {
   console.log('打開編輯商品詳情模態窗', detail);
   editingDetail.value = detail;
-  // 確保清理空的 imageUrls
   detail.imageUrls = detail.imageUrls.filter(url => url.trim() !== '');
   Object.assign(detailForm, detail);
   showDetailModal.value = true;
@@ -519,10 +560,40 @@ const closeDetailModal = () => {
   resetDetailForm();
   batchDetails.value = [];
 };
-
+const handleCategoryChange = (event: Event) => {
+  const target = event.target as HTMLSelectElement;
+  if (target.value === 'new') {
+    selectedCategoryId.value = 'new';
+    productForm.categoryId = null;
+    // 不清空 newCategoryName，允許用戶輸入新類別名稱
+  } else if (target.value === '') {
+    selectedCategoryId.value = '';
+    productForm.categoryId = null;
+    newCategoryName.value = '';
+  } else {
+    const categoryId = parseInt(target.value);
+    selectedCategoryId.value = categoryId;
+    productForm.categoryId = categoryId;
+    newCategoryName.value = ''; // 清空新類別名稱，因為選擇了現有類別
+  }
+};
 const handleProductSubmit = async () => {
   try {
     console.log('開始提交產品表單', productForm);
+    
+    // 處理類別
+    if (selectedCategoryId.value === 'new' && newCategoryName.value) {
+      const newCategoryResponse = await productservice.createCategory({ categoryName: newCategoryName.value });
+      if (newCategoryResponse.success) {
+        productForm.categoryId = newCategoryResponse.data.categoryId;
+      } else {
+        console.error('創建新類別失敗:', newCategoryResponse.message);
+        return;
+      }
+    } else if (typeof selectedCategoryId.value === 'number') {
+      productForm.categoryId = selectedCategoryId.value;
+    }
+
     let response;
     if (editingProduct.value) {
       console.log('更新現有產品', editingProduct.value.productId);
@@ -543,17 +614,16 @@ const handleProductSubmit = async () => {
     console.error('提交產品時發生錯誤:', error);
   }
 };
+
 const cleanImageUrls = (detail: DetailReq) => ({
   ...detail,
   imageUrls: detail.imageUrls.filter(url => url instanceof File || (typeof url === 'string' && url.trim() !== '')) // 過濾空URL
 });
 
-// 提交商品詳情的表單處理邏輯
 const handleDetailSubmit = async () => {
   try {
     let response;
 
-    // 過濾無效的圖片URL
     const cleanedDetails = batchDetails.value.map(detail => cleanImageUrls({
       ...detail,
       productId: currentProductId.value!,
@@ -611,7 +681,6 @@ const deleteProductDetail = async (productDetailId: number) => {
   }
 };
 
-// 用於處理產品圖片上傳
 const handleImageUpload = (event: Event) => {
   console.log('處理產品圖片上傳');
   const target = event.target as HTMLInputElement;
@@ -636,7 +705,6 @@ const handleDetailImageUpload = (event: Event, detailIndex?: number) => {
   }
 };
 
-
 const removeImage = (index: number) => {
   productForm.imageUrls.splice(index, 1); // 從 productForm 的 imageUrls 中移除圖片
 };
@@ -651,7 +719,6 @@ const removeDetailImage = (detailIndex: number, imageIndex?: number) => {
   }
 };
 
-
 const resetProductForm = () => {
   Object.assign(productForm, {
     productName: '',
@@ -665,7 +732,10 @@ const resetProductForm = () => {
     prizeCategory: PrizeCategory.NONE,
     status: ProductStatus.NOT_AVAILABLE_YET,
     specification: '',
+    categoryId: null,
   });
+  selectedCategoryId.value = '';
+  newCategoryName.value = '';
 };
 
 const resetDetailForm = () => {
@@ -685,7 +755,6 @@ const resetDetailForm = () => {
   });
 };
 
-
 // 格式化圖片 URL，支持 File 和 string 類型的 URL
 const formatImageUrl = (url: string | File): string => {
   if (typeof url === 'string') {
@@ -693,7 +762,6 @@ const formatImageUrl = (url: string | File): string => {
   }
   return URL.createObjectURL(url); // 對 File 類型生成預覽URL
 };
-
 
 const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
   switch (category) {
@@ -722,12 +790,23 @@ const addDetailToBatch = () => {
   batchDetails.value.push(newDetail);
 };
 
-
 const removeDetailFromBatch = (index: number) => {
   batchDetails.value.splice(index, 1);
 };
-</script>
 
+const handleProductTypeChange = () => {
+  if (filterProductType.value !== ProductType.PRIZE) {
+    filterPrizeCategory.value = '';
+  }
+};
+
+
+
+const isValidImageUrl = (url: string | File): boolean => {
+  if (url instanceof File) return url.size > 0; // 確保文件大小有效
+  return typeof url === 'string' && url.trim() !== ''; // 過濾掉空字符串
+};
+</script>
 <style scoped>
 .product-management {
   max-width: 1200px;

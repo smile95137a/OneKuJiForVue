@@ -1,4 +1,6 @@
-import { ApiResponse, DetailApiResponse, DetailListApiResponse, DetailReq, PrizeCategory, ProductApiResponse, ProductListApiResponse, ProductReq, ProductType } from '@/interfaces/product';
+// src/services/backend/productservice.ts
+
+import { ApiResponse, DetailApiResponse, DetailListApiResponse, DetailReq, PrizeCategory, ProductApiResponse, ProductListApiResponse, ProductReq, ProductType, ProductCategory, ProductCategoryApiResponse, ProductCategoryListApiResponse } from '@/interfaces/product';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
@@ -219,4 +221,67 @@ export const productservice = {
     console.log(`生成圖片 URL: ${imagePath}`);
     return `${API_IMAGE_URL}/img${imagePath}`;
   },
+
+  // 新增的類別相關方法
+  getAllCategories: async (): Promise<ProductCategoryListApiResponse> => {
+    console.log('調用 getAllCategories API');
+    try {
+      const response = await axiosInstance.get<ProductCategoryListApiResponse>('/productCategory/all');
+      console.log('getAllCategories 響應:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('getAllCategories 錯誤:', error);
+      throw error;
+    }
+  },
+
+  getCategoryById: async (id: number): Promise<ProductCategoryApiResponse> => {
+    console.log(`調用 getCategoryById API, id: ${id}`);
+    try {
+      const response = await axiosInstance.get<ProductCategoryApiResponse>(`/productCategory/${id}`);
+      console.log('getCategoryById 響應:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('getCategoryById 錯誤:', error);
+      throw error;
+    }
+  },
+
+  createCategory: async (category: { categoryName: string }): Promise<ProductCategoryApiResponse> => {
+    console.log('調用 createCategory API', category);
+    try {
+      const response = await axiosInstance.post<ProductCategoryApiResponse>('/productCategory', category);
+      console.log('createCategory 響應:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('createCategory 錯誤:', error);
+      throw error;
+    }
+  },
+
+  updateCategory: async (id: number, category: ProductCategory): Promise<ProductCategoryApiResponse> => {
+    console.log(`調用 updateCategory API, id: ${id}`, category);
+    try {
+      const response = await axiosInstance.put<ProductCategoryApiResponse>(`/productCategory/${id}`, category);
+      console.log('updateCategory 響應:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('updateCategory 錯誤:', error);
+      throw error;
+    }
+  },
+
+  deleteCategory: async (id: number): Promise<ApiResponse<void>> => {
+    console.log(`調用 deleteCategory API, id: ${id}`);
+    try {
+      const response =await axiosInstance.delete<ApiResponse<void>>(`/productCategory/${id}`);
+      console.log('deleteCategory 響應:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('deleteCategory 錯誤:', error);
+      throw error;
+    }
+  },
 };
+
+export default productservice;

@@ -11,7 +11,6 @@ export enum ProductType {
   PRIZE = 'PRIZE',
   GACHA = 'GACHA',
   BLIND_BOX = 'BLIND_BOX',
-  
 }
 
 export enum PrizeCategory {
@@ -20,6 +19,12 @@ export enum PrizeCategory {
   BONUS = 'BONUS',
   PRIZESELF = 'PRIZESELF',
   NONE = 'NONE'
+}
+
+export interface ProductCategory {
+  categoryId: number;
+  categoryName: string;
+  categoryUUid?: string;
 }
 
 export interface ProductReq {
@@ -35,6 +40,7 @@ export interface ProductReq {
   status: ProductStatus;
   bonusPrice: number;
   specification: string;
+  categoryId: number | null;
 }
 
 export interface ProductRes {
@@ -47,9 +53,11 @@ export interface ProductRes {
   imageUrls: string[];
   productType: ProductType;
   prizeCategory: PrizeCategory;
-  status: ProductStatus;
+  status: string | ProductStatus
   bonusPrice: number;
   specification: string;
+  category: ProductCategory | null;
+  categoryId: number | null;
 }
 
 export interface DetailReq {
@@ -57,7 +65,6 @@ export interface DetailReq {
   productId: number;
   description: string;
   note: string;
-  //size: string;
   quantity: number;
   stockQuantity: number;
   productName: string;
@@ -69,7 +76,7 @@ export interface DetailReq {
   width: number;
   height: number;
   specification: string;
-  probability:number;
+  probability: number;
 }
 
 export interface DetailRes {
@@ -102,3 +109,5 @@ export type ProductApiResponse = ApiResponse<ProductRes>;
 export type ProductListApiResponse = ApiResponse<ProductRes[]>;
 export type DetailApiResponse = ApiResponse<DetailRes>;
 export type DetailListApiResponse = ApiResponse<DetailRes[]>;
+export type ProductCategoryApiResponse = ApiResponse<ProductCategory>;
+export type ProductCategoryListApiResponse = ApiResponse<ProductCategory[]>;
