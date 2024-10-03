@@ -13,7 +13,7 @@ $root-block-name: '.header';
     min-height: 147px;
     @include flex(center, null);
     padding: 0 12%;
-    background: #fff5ea;
+    background: #ffe7cc;
     @include screen(lg) {
       padding: 0 4%;
     }

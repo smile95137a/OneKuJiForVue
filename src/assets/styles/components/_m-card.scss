@@ -3,11 +3,19 @@ $root-block-name: '.mcard';
 #{$root-block-name} {
   $p: &;
   $p__text: #{$p}__text;
+  $p__header: #{$p}__header;
 
   @include flex(null, null, column);
   border-radius: 30px;
   overflow: hidden;
   width: 100%;
+
+  &--ichiban {
+    #{ $p__header} {
+      padding: 0;
+      align-items: end;
+    }
+  }
   &--login,
   &--register,
   &--mainpage,

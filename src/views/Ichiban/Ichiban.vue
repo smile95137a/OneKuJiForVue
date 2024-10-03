@@ -21,6 +21,15 @@ const buttons = [
   { type: 'bonus', title: '紅利賞', category: 'BONUS' },
 ];
 
+const selectedTypes = ref<number[]>([]);
+
+const categories = ref([
+  { categoryId: 1, categoryName: 'Category 1' },
+  { categoryId: 2, categoryName: 'Category 2' },
+  { categoryId: 3, categoryName: 'Category 3' },
+]);
+
+// Filtered products based on active button and selected categories
 const filteredProducts = computed(() => {
   const buttonCategory = buttons.find(
     (btn) => btn.type === activeBtn.value
@@ -30,15 +39,31 @@ const filteredProducts = computed(() => {
     (product) =>
       product.status === 'AVAILABLE' &&
       product.productType === 'PRIZE' &&
-      product.prizeCategory === buttonCategory
+      product.prizeCategory === buttonCategory &&
+      (selectedTypes.value.length === 0 ||
+        selectedTypes.value.includes(product.categoryId))
   );
 });
 
+// Handle button click for different product types
 const handleBtnClick = (btnType: string, btnTitle: string) => {
   activeBtn.value = btnType;
   title.value = btnTitle;
+  filterAndSortProducts(); // Optionally refilter on button click if needed
 };
 
+// Handle category change
+const handleTypeChange = () => {
+  filterAndSortProducts(); // Call the filtering function when category changes
+};
+
+// Dummy function (optional if you want more control over filtering)
+const filterAndSortProducts = () => {
+  // This can be expanded to add sorting or more complex filtering if needed
+  console.log('Filtering and sorting applied');
+};
+
+// Fetch products from the API
 const fetchProducts = async () => {
   try {
     loadingStore.startLoading();
@@ -54,10 +79,13 @@ const fetchProducts = async () => {
     console.log(error);
   }
 };
+
+// Navigate to product details
 const navigateToDetail = (productId: number) => {
   router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });
 };
 
+// Fetch data and initialize component on mount
 onMounted(() => {
   const queryType = router.currentRoute.value.query.type as string;
   const selectedButton = buttons.find((btn) => btn.type === queryType);
@@ -77,28 +105,45 @@ onMounted(() => {
     <div class="product__title">
       <div class="product__text" data-text="一番賞">一番賞</div>
     </div>
-    <div class="product__btns">
-      <div
-        v-for="btn in buttons"
-        :key="btn.type"
-        :class="[
-          'product__btn',
-          { 'product__btn--active': activeBtn === btn.type },
-        ]"
-        @click="handleBtnClick(btn.type, btn.title)"
-      >
-        {{ btn.title }}
-      </div>
-    </div>
-
-    <Card customClass="mcard--home">
+    <Card customClass="mcard--ichiban">
       <template #header>
-        <MCardHeader :title="title" />
+        <div class="product__btns">
+          <div
+            v-for="btn in buttons"
+            :key="btn.type"
+            :class="[
+              'product__btn',
+              { 'product__btn--active': activeBtn === btn.type },
+            ]"
+            @click="handleBtnClick(btn.type, btn.title)"
+          >
+            {{ btn.title }}
+          </div>
+        </div>
       </template>
       <div class="product__list">
         <div class="product__list-title">
-          <div class="product__list-filter">
-            <i class="fa-solid fa-filter"></i>
+          <div class="product__list-btns">
+            <label
+              v-for="category in categories"
+              :key="category.categoryId"
+              class="product__list-btn"
+              :class="{
+                'product__list-btn--active': selectedTypes.includes(
+                  category.categoryId
+                ),
+              }"
+              :for="String(category.categoryId)"
+            >
+              <input
+                type="checkbox"
+                :value="category.categoryId"
+                v-model="selectedTypes"
+                @change="handleTypeChange"
+                :id="String(category.categoryId)"
+              />
+              {{ category.categoryName }}
+            </label>
           </div>
         </div>
 
