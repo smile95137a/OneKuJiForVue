@@ -49,7 +49,7 @@
           </div>
           <div class="form-group">
             <label for="content">內容</label>
-            <textarea id="content" v-model="currentNews.content" required></textarea>
+            <ckeditor :editor="editor" v-model="currentNews.content" :config="editorConfig"></ckeditor>
           </div>
           <div class="form-group">
             <label for="status">狀態</label>
@@ -82,10 +82,17 @@
 import { News, NewsStatus } from '@/interfaces/news';
 import { NewsService } from '@/services/backend/newsservice';
 import { onMounted, reactive, ref } from 'vue';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { Ckeditor } from '@ckeditor/ckeditor5-vue';
 
 const newsList = ref<News[]>([]);
 const showNewsModal = ref(false);
 const isEditing = ref(false);
+const editor = ClassicEditor;
+const editorConfig = {
+  toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
+  language: 'zh-tw'
+};
 
 const currentNews = reactive<Partial<News> & { imageUrls: (string | File)[] }>({
   title: '',
@@ -131,27 +138,23 @@ const handleNewsSubmit = async () => {
   try {
     const formData = new FormData();
 
-    // 建立其他新聞資料的 JSON 字串
     const newsData = {
       title: currentNews.title,
       preview: currentNews.preview,
       content: currentNews.content,
       status: currentNews.status,
       author: currentNews.author,
-      imageUrls: currentNews.imageUrls.filter(img => typeof img === 'string') // 只保留原有的 URL
+      imageUrls: currentNews.imageUrls.filter(img => typeof img === 'string')
     };
 
-    // 把 JSON 字串加入 FormData
     formData.append('newsReq', JSON.stringify(newsData));
 
-    // 加入圖片檔案，若有新圖片則處理
     currentNews.imageUrls.forEach((image) => {
       if (image instanceof File) {
         formData.append('images', image);
       }
     });
 
-    // 判斷是更新還是新增新聞
     if (isEditing.value && currentNews.newsUid) {
       await NewsService.updateNews(currentNews.newsUid, formData);
       alert('新聞更新成功');
@@ -160,14 +163,13 @@ const handleNewsSubmit = async () => {
       alert('新聞創建成功');
     }
 
-    await fetchNews(); // 刷新新聞列表
-    closeNewsModal();  // 關閉模態框
+    await fetchNews();
+    closeNewsModal();
   } catch (error) {
     console.error('提交新聞失敗:', error);
     alert('提交新聞失敗，請稍後再試。');
   }
 };
-
 
 const deleteNews = async (newsUid: string) => {
   if (confirm('確定要刪除這則消息嗎？')) {
@@ -190,7 +192,6 @@ const handleImageUpload = (event: Event) => {
   }
 };
 
-// 移除已選圖片
 const removeImage = (index: number) => {
   currentNews.imageUrls.splice(index, 1);
 };
@@ -206,11 +207,11 @@ const resetNewsForm = () => {
   });
 };
 
-function formatDate(dateArray: [any, any, any, any, any, any]) {
+function formatDate(dateArray: [number, number, number, number, number, number]) {
   const [year, month, day, hour, minute, second] = dateArray;
   const date = new Date(year, month - 1, day, hour, minute, second);
 
-  const pad = (num: { toString: () => string; }) => num.toString().padStart(2, '0');
+  const pad = (num: number) => num.toString().padStart(2, '0');
 
   return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(minute)} 分 ${pad(second)} 秒`;
 }
@@ -381,5 +382,9 @@ th {
 
 .pagination button {
   margin: 0 10px;
+}
+
+:deep(.ck-editor__editable_inline) {
+  min-height: 200px;
 }
 </style>

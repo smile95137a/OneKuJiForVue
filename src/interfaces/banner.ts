@@ -1,39 +1,26 @@
-// banner.ts
-import { ProductType, ProductStatus, PrizeCategory } from '@/interfaces/product';
+// src/interfaces/banner.ts
 
-export interface Banner {
-  bannerId: number;
-  bannerUid: string;
-  imageUrls: string[];
-  productId: number;
-  status: BannerStatus;
-  createdAt: string;
-  updatedAt: string;
-  productType: ProductType;
-}
+import { ProductType } from './product';
 
 export enum BannerStatus {
   AVAILABLE = 'AVAILABLE',
   UNAVAILABLE = 'UNAVAILABLE'
 }
 
-export interface BannerReq {
-  bannerUid?: string;
-  imageUrls: (string | File)[];
-  productId: number;
-  status: BannerStatus;
-  productType: ProductType;
-}
-
-export interface BannerRes {
+export interface Banner {
   bannerId: number;
   bannerUid: string;
-  imageUrls: string[];
   productId: number;
   status: BannerStatus;
+  productType: ProductType;
+  imageUrls: string[];
   createdAt: string;
   updatedAt: string;
-  productType: ProductType;
+}
+
+export interface BannerReq {
+  productId: number;
+  status: BannerStatus;
 }
 
 export interface ApiResponse<T> {
@@ -43,5 +30,11 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-export type BannerApiResponse = ApiResponse<BannerRes>;
-export type BannerListApiResponse = ApiResponse<BannerRes[]>;
+export type BannerApiResponse = ApiResponse<Banner>;
+export type BannerListApiResponse = ApiResponse<Banner[]>;
+
+// 用於創建或更新 Banner 的請求體
+export interface BannerFormData {
+  productId: number;
+  status: BannerStatus;
+}

@@ -9,8 +9,8 @@
             <img :src="bannerservice.getImageUrl(banner.imageUrls[0])" :alt="banner.bannerUid" />
             <div class="banner-details">
               <p>ID: {{ banner.bannerId }}</p>
-              <p>狀態: {{ banner.status }}</p>
-              <p>產品類型: {{ banner.productType }}</p>
+              <p>狀態: {{ getStatusLabel(banner.status) }}</p>
+              <p>產品類型: {{ getProductTypeLabel(banner.productType) }}</p>
               <p>產品 ID: {{ banner.productId }}</p>
             </div>
             <div class="banner-actions">
@@ -29,16 +29,16 @@
           <div>
             <label for="productType">產品類型:</label>
             <select v-model="selectedProductType" id="productType" @change="onProductTypeChange" required>
-              <option v-for="type in Object.values(ProductType)" :key="type" :value="type">
-                {{ type }}
+              <option v-for="type in productTypeOptions" :key="type.value" :value="type.value">
+                {{ type.label }}
               </option>
             </select>
           </div>
           <div v-if="selectedProductType === ProductType.PRIZE">
             <label for="prizeCategory">獎品類別:</label>
             <select v-model="selectedPrizeCategory" id="prizeCategory" @change="onPrizeCategoryChange" required>
-              <option v-for="category in Object.values(PrizeCategory)" :key="category" :value="category">
-                {{ category }}
+              <option v-for="category in prizeCategoryOptions" :key="category.value" :value="category.value">
+                {{ category.label }}
               </option>
             </select>
           </div>
@@ -56,8 +56,8 @@
           <div>
             <label for="status">狀態:</label>
             <select v-model="bannerForm.status" id="status" required>
-              <option v-for="status in Object.values(BannerStatus)" :key="status" :value="status">
-                {{ status }}
+              <option v-for="status in statusOptions" :key="status.value" :value="status.value">
+                {{ status.label }}
               </option>
             </select>
           </div>
@@ -90,6 +90,25 @@
       const selectedProductType = ref<ProductType>(ProductType.PRIZE);
       const selectedPrizeCategory = ref<PrizeCategory>(PrizeCategory.NONE);
       const availableProducts = ref<ProductRes[]>([]);
+  
+      const productTypeOptions = [
+        { value: ProductType.PRIZE, label: '一番賞' },
+        { value: ProductType.GACHA, label: '扭蛋' },
+        { value: ProductType.BLIND_BOX, label: '盲盒' },
+      ];
+  
+      const prizeCategoryOptions = [
+        { value: PrizeCategory.FIGURE, label: '官方一番賞' },
+        { value: PrizeCategory.C3, label: '家電一番賞' },
+        { value: PrizeCategory.BONUS, label: '紅利賞' },
+        { value: PrizeCategory.PRIZESELF, label: '自製賞' },
+        { value: PrizeCategory.NONE, label: '無' },
+      ];
+  
+      const statusOptions = [
+        { value: BannerStatus.AVAILABLE, label: '啟用' },
+        { value: BannerStatus.UNAVAILABLE, label: '停用' },
+      ];
   
       const selectedProduct = computed(() => {
         return availableProducts.value.find(product => product.productId === bannerForm.value.productId);
@@ -135,7 +154,7 @@
       };
   
       const onProductChange = () => {
-        // 產品改變時，可以在這裡添加額外的邏輯
+        // 產品改變時的額外邏輯（如果需要）
       };
   
       const submitBannerForm = async () => {
@@ -184,6 +203,14 @@
         selectedPrizeCategory.value = PrizeCategory.NONE;
       };
   
+      const getProductTypeLabel = (type: ProductType) => {
+        return productTypeOptions.find(option => option.value === type)?.label || type;
+      };
+  
+      const getStatusLabel = (status: BannerStatus) => {
+        return statusOptions.find(option => option.value === status)?.label || status;
+      };
+  
       onMounted(() => {
         fetchBanners();
         fetchAvailableProducts();
@@ -203,7 +230,9 @@
         bannerservice,
         ProductType,
         PrizeCategory,
-        BannerStatus,
+        productTypeOptions,
+        prizeCategoryOptions,
+        statusOptions,
         submitBannerForm,
         editBanner,
         deleteBanner,
@@ -211,6 +240,8 @@
         onProductTypeChange,
         onPrizeCategoryChange,
         onProductChange,
+        getProductTypeLabel,
+        getStatusLabel,
       };
     },
   });
