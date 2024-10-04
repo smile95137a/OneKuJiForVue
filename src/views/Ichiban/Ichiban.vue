@@ -6,7 +6,7 @@ import ProductCard from '@/components/frontend/ProductCard.vue';
 import { getAllCategories } from '@/services/frontend/productCategoryService';
 import { getAllProduct, IProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -15,6 +15,10 @@ const products = ref<IProduct[]>([]);
 const activeBtn = ref('official');
 const title = ref('官方一番賞');
 const searchTerm = ref('');
+const loading = ref(false);
+const page = ref(0);
+const size = ref(20);
+const allLoaded = ref(false);
 
 const buttons = [
   { type: 'official', title: '官方一番賞', category: 'FIGURE' },
@@ -66,9 +70,11 @@ const handleBtnClick = (btnType: string, btnTitle: string) => {
 
 const fetchProducts = async () => {
   try {
-    loadingStore.startLoading();
-    const { success, message, data } = await getAllProduct();
-    loadingStore.stopLoading();
+    const { success, message, data } = await getAllProduct(
+      page.value,
+      size.value
+    );
+
     if (success) {
       products.value = data;
     } else {
@@ -80,12 +86,33 @@ const fetchProducts = async () => {
   }
 };
 
-// Navigate to product details
+const loadMoreProducts = async () => {
+  if (allLoaded.value || loading.value) return;
+
+  loading.value = true;
+  try {
+    loadingStore.startLoading();
+    const { data } = await getAllProduct(page.value, size.value);
+    loadingStore.stopLoading();
+    const newProducts = data;
+
+    if (newProducts.length < size.value) {
+      allLoaded.value = true;
+    }
+
+    products.value = [...products.value, ...newProducts];
+    page.value++;
+  } catch (error) {
+    console.error('加載產品時發生錯誤:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
 const navigateToDetail = (productId: number) => {
   router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });
 };
 
-// Fetch data and initialize component on mount
 onMounted(() => {
   const queryType = router.currentRoute.value.query.type as string;
   const selectedButton = buttons.find((btn) => btn.type === queryType);
@@ -94,8 +121,43 @@ onMounted(() => {
     title.value = selectedButton.title;
   }
 
-  fetchProducts();
   fetchCategories();
+});
+
+const handleScroll = () => {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight;
+  const clientHeight = window.innerHeight;
+
+  if (scrollTop + clientHeight >= scrollHeight - 10 && !loading.value) {
+    loadMoreProducts();
+  }
+};
+
+const lockScroll = () => {
+  document.body.style.overflow = 'hidden';
+};
+
+const unlockScroll = () => {
+  document.body.style.overflow = '';
+};
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+  loadMoreProducts();
+});
+
+onBeforeUnmount(() => {
+  unlockScroll();
+  window.removeEventListener('scroll', handleScroll);
+});
+
+watch(loading, (newValue) => {
+  if (newValue) {
+    lockScroll();
+  } else {
+    unlockScroll();
+  }
 });
 </script>
 

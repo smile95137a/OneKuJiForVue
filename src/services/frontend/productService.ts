@@ -23,10 +23,14 @@ export interface IProduct {
 
 const basePath = '/product';
 
-export const getAllProduct = async (): Promise<ApiResponse<IProduct[]>> => {
+export const getAllProduct = async (
+  page: number = 0,
+  size: number = 6
+): Promise<ApiResponse<IProduct[]>> => {
   try {
     const response = await api.get<ApiResponse<IProduct[]>>(
-      `${basePath}/query`
+      `${basePath}/query`,
+      { params: { page, size } }
     );
     return response.data;
   } catch (error) {
