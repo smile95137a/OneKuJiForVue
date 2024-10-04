@@ -445,7 +445,7 @@
                   {{ errors.cardNo }}
                 </p>
               </div>
-              <div class="w-50">
+              <div class="w-50 w-md-100">
                 <p class="mallCheckout__text mallCheckout__text--required">
                   有效日期
                 </p>
@@ -461,7 +461,7 @@
                   {{ errors.expiryDate }}
                 </p>
               </div>
-              <div class="w-50">
+              <div class="w-50 w-md-100">
                 <p class="mallCheckout__text mallCheckout__text--required">
                   CVV
                 </p>
@@ -475,6 +475,58 @@
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.cvv }}
+                </p>
+              </div>
+            </div>
+            <div
+              class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--credit"
+            >
+              <div class="w-50 w-md-100">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  持卡人姓名
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="cardHolderName"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.cardHolderName,
+                  }"
+                  placeholder="輸入持卡人姓名"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.cardHolderName }}
+                </p>
+              </div>
+              <div class="w-50 w-md-100">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  聯絡電話
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="buyerTelm"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.buyerTelm,
+                  }"
+                  placeholder="輸入聯絡電話"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.buyerTelm }}
+                </p>
+              </div>
+              <div class="w-50 w-md-100">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  電子郵件
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="buyerMail"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.buyerMail,
+                  }"
+                  placeholder="輸入電子郵件"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.buyerMail }}
                 </p>
               </div>
             </div>
@@ -670,6 +722,9 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     cardNo: '',
     expiryDate: '',
     cvv: '',
+    cardHolderName: '',
+    buyerTelm: '',
+    buyerMail: '',
   },
 });
 
@@ -697,6 +752,10 @@ const [sameAsBilling, sameAsBillingProps] = defineField('sameAsBilling');
 const [cardNo, cardNoProps] = defineField('cardNo');
 const [expiryDate, expiryDateProps] = defineField('expiryDate');
 const [cvv, cvvProps] = defineField('cvv');
+
+const [cardHolderName, cardHolderNameProps] = defineField('cardHolderName');
+const [buyerTelm, buyerTelmProps] = defineField('buyerTelm');
+const [buyerMail, buyerMailProps] = defineField('buyerMail');
 
 const selectedShippingPrice = computed(() => {
   const selectedOption = shippingMethods.value.find(
