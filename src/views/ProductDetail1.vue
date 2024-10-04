@@ -262,6 +262,7 @@ import ticketImgF from '@/assets/image/ticket_F.png';
 import ticketImgG from '@/assets/image/ticket_G.png';
 import ticketImgH from '@/assets/image/ticket_H.png';
 import ticketImgI from '@/assets/image/ticket_I.png';
+import ticketImgSP from '@/assets/image/ticket_SP.png';
 import ticketImgBlank from '@/assets/image/ticket_blank.png';
 import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
@@ -509,6 +510,7 @@ const getTicketImg = (ticket: any) => {
       G: ticketImgG,
       H: ticketImgH,
       I: ticketImgI,
+      SP: ticketImgSP,
     };
 
     return isDrawn ? ticketImages[level] || ticketImgBlank : ticketImg;

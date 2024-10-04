@@ -57,12 +57,14 @@
             class="col-25 col-lg-25 col-md-25 col-sm-100"
           >
             <div class="grid p-x-12">
-              <div class="col-50">
+              <div class="col-50 p-r-12">
                 <MImage :src="group[0].imageUrls" />
               </div>
               <div class="col-50">
-                {{ group[0].productName }}*
-                <NumberFormatter :number="group?.length ?? 0" />
+                {{ group[0].productName }}
+                <span class="confirmDialog__text confirmDialog__text--num"
+                  >X <NumberFormatter :number="group?.length ?? 0"
+                /></span>
               </div>
             </div>
           </div>
