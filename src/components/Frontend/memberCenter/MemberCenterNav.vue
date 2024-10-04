@@ -72,6 +72,18 @@
         <span class="memberCenter__text">會員儲值</span>
       </router-link>
     </div>
+    <div class="memberCenter__nav-item">
+      <router-link
+        to="/member-center/prize-checkout"
+        class="memberCenter__nav-link"
+        active-class="memberCenter__nav-link--active"
+      >
+        <span class="memberCenter__nav-icon"
+          ><i class="fa-solid fa-receipt"></i
+        ></span>
+        <span class="memberCenter__text">賞品盒</span>
+      </router-link>
+    </div>
   </div>
 </template>
 

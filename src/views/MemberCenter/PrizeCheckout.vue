@@ -1,7 +1,6 @@
 <template>
   <form @submit.prevent="onSubmit">
-    <Breadcrumbs :items="breadcrumbItems" />
-    <div class="mallCheckout">
+    <div class="mallCheckout p-24">
       <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
         商品資訊
       </div>

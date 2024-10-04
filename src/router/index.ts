@@ -41,7 +41,7 @@ import ProductDataManagement from '@/components/backend/ProductDataManagement.vu
 import Storecontrol from '@/components/backend/Storecontrol.vue';
 import AdminDashboard from '@/views/Control/AdminDashboard.vue';
 import AdminLogin from '@/views/Control/AdminLogin.vue';
-import PrizeCheckout from '@/views/Prize/PrizeCheckout.vue';
+import PrizeCheckout from '@/views/MemberCenter/PrizeCheckout.vue';
 
 import ordercontrol from '@/components/backend/ordercontrol.vue';
 import ProductRecommendation from '@/components/backend/ProductRecommendation.vue';
@@ -109,11 +109,7 @@ const routes: Array<RouteRecordRaw> = [
     component: MallOrderSuccess,
     meta: { layout: 'default', requiresAuth: true },
   },
-  {
-    path: '/prize-checkout',
-    component: PrizeCheckout,
-    meta: { layout: 'default', requiresAuth: true },
-  },
+
   {
     path: '/prize-order-success/:orderNumber',
     name: 'PrizeOrderSuccess',
@@ -133,6 +129,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'deposit',
         name: 'Deposit',
         component: Deposit,
+      },
+      {
+        path: 'prize-checkout',
+        name: 'PrizeCheckout',
+        component: PrizeCheckout,
       },
       {
         path: 'profile-edit',

@@ -62,20 +62,14 @@ const [buyerTelm, buyerTelmProps] = defineField('buyerTelm');
 const [buyerMail, buyerMailProps] = defineField('buyerMail');
 
 const depositList = [
-  { id: 'deposit2', value: '150', num: '150' },
-  { id: 'deposit3', value: '300', num: '300' },
-  { id: 'deposit4', value: '500', num: '500' },
-  { id: 'deposit5', value: '1000', num: '1000' },
-  { id: 'deposit6', value: '1500', num: '1500' },
-  { id: 'deposit7', value: '3000', num: '3000' },
-  { id: 'deposit8', value: '5000', num: '5000' },
-  { id: 'deposit9', value: '8000', num: '8000' },
-  { id: 'deposit10', value: '10000', num: '10000' },
-  { id: 'deposit11', value: '15000', num: '15000' },
-  { id: 'deposit12', value: '20000', num: '20000' },
-  { id: 'deposit13', value: '50000', num: '50000' },
-  { id: 'deposit14', value: '80000', num: '80000' },
-  { id: 'deposit15', value: '100000', num: '100000' },
+  { id: 'deposit1', value: '1000', num: '1000' },
+  { id: 'deposit2', value: '3000', num: '3000' },
+  { id: 'deposit3', value: '5000', num: '5000' },
+  { id: 'deposit4', value: '8000', num: '8000' },
+  { id: 'deposit5', value: '10000', num: '10000' },
+  { id: 'deposit6', value: '20000', num: '20000' },
+  { id: 'deposit7', value: '30000', num: '30000' },
+  { id: 'deposit8', value: '50000', num: '50000' },
 ];
 
 // 提交表單的處理邏輯
