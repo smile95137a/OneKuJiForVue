@@ -47,16 +47,22 @@ export const topUp = async (
   }
 };
 
-export const claimReward = async (
-  userId: number
-): Promise<ApiResponse<string>> => {
+export const claimReward = async (): Promise<ApiResponse<string>> => {
   try {
-    const response = await api.get<ApiResponse<string>>(`${basePath}/claim`, {
-      params: { userId },
-    });
+    const response = await api.get<ApiResponse<string>>(`${basePath}/claim`);
     return response.data;
   } catch (error) {
     console.error('Error claiming reward:', error);
+    throw error;
+  }
+};
+
+export const getTotalConsumeAmount = async (): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.get<ApiResponse<any>>(`${basePath}/getTotal`);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting total consume amount:', error);
     throw error;
   }
 };
