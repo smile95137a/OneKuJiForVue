@@ -127,7 +127,7 @@ const handleDailySignIn = async () => {
             to="/gacha"
             active-class="header__nav-item--active"
           >
-            扭蛋抽獎
+            扭蛋
             <div class="header__nav-item-icon">
               <i class="fa-solid fa-angle-right"></i>
             </div>
