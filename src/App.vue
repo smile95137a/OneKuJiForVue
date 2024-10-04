@@ -9,7 +9,7 @@
     </div>
     <Footer v-if="route.meta.layout !== 'admin'" />
   </div>
-  <ConfirmDialog />
+  <ConfirmDialog v-if="dialogStore.isConfirmDialogOpen" />
   <OneKuJiDialog />
   <InfoDialog />
   <DaliyDialog v-if="dialogStore.isDaliyDialogOpen" />

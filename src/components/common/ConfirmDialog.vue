@@ -9,6 +9,9 @@
         <div class="confirmDialog__logo">
           <img :src="logoImg" class="confirmDialog__logo-img" />
         </div>
+        <div class="confirmDialog__close" @click="handleClose(false)">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
       </div>
 
       <div class="confirmDialog__main">
@@ -48,21 +51,18 @@
           <p class="confirmDialog__text">抽中賞品</p>
         </div>
         <div class="confirmDialog__main-product grid">
-          <div class="col-4 col-lg-6 col-md-8 col-sm-12">
-            <!-- Content here -->
-          </div>
-
           <div
-            v-for="(draw, index) in confirmDialogData?.drawData"
-            :key="index"
+            v-for="(group, productId) in groupedDrawData"
+            :key="productId"
             class="col-25 col-lg-25 col-md-25 col-sm-100"
           >
             <div class="grid p-x-12">
               <div class="col-50">
-                <MImage :src="draw.imageUrls" />
+                <MImage :src="group[0].imageUrls" />
               </div>
               <div class="col-50">
-                {{ draw.productName }}
+                {{ group[0].productName }}*
+                <NumberFormatter :number="group?.length ?? 0" />
               </div>
             </div>
           </div>
@@ -91,7 +91,7 @@
 import Dialog from './Dialog.vue';
 import logoImg from '@/assets/image/logo1.png';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useDialogStore } from '@/stores/dialogStore';
 import MImage from '@/components/frontend/MImage.vue';
 
@@ -101,6 +101,8 @@ const isOpen = computed(() => dialogStore.isConfirmDialogOpen);
 const customClass = computed(() => dialogStore.customClass);
 const confirmDialogData = computed(() => dialogStore.confirmDialogData);
 
+const groupedDrawData = ref([]);
+
 const handleClose = (result: boolean) => {
   dialogStore.closeConfirmDialog(result);
 };
@@ -108,6 +110,24 @@ const handleClose = (result: boolean) => {
 const handleConfirm = () => {
   dialogStore.closeConfirmDialog(true);
 };
+
+onMounted(() => {
+  if (confirmDialogData?.value.drawData) {
+    const groupedData = confirmDialogData?.value.drawData.reduce(
+      (acc: any, draw: any) => {
+        const productId = draw.productId;
+        if (!acc[productId]) {
+          acc[productId] = [];
+        }
+        acc[productId].push(draw);
+        return acc;
+      },
+      {}
+    );
+
+    groupedDrawData.value = groupedData;
+  }
+});
 </script>
 
 <style scoped></style>
