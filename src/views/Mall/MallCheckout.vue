@@ -334,65 +334,56 @@
       </div>
       <Card>
         <div class="p-y-48 p-x-48">
-          <div class="mallCheckout__invoice">
-            <div
-              class="mallCheckout__invoice-item mallCheckout__invoice-item--title"
-            >
-              發票
-            </div>
-            <div
-              class="mallCheckout__invoice-item mallCheckout__invoice-item--select"
-            >
-              <MSelect
-                v-model="invoice"
-                :options="invoiceInfoOptions"
-                customClass="mallCheckout__invoice-select"
-              />
-            </div>
-          </div>
-          <div v-if="invoice === 'donation'" class="p-y-24">
-            <div class="mallCheckout__form">
-              <div class="mallCheckout__form-inputs">
-                <div class="w-100">
-                  <p class="mallCheckout__text mallCheckout__text--required">
-                    愛心碼
-                  </p>
-                  <input
-                    class="mallCheckout__form-input"
-                    v-model="donationCode"
-                    :class="{
-                      'mallCheckout__form-input--error': errors.donationCode,
-                    }"
-                    placeholder="輸入愛心碼"
-                  />
-                  <p class="mallCheckout__text mallCheckout__text--error">
-                    {{ errors.donationCode }}
-                  </p>
-                </div>
+          <div class="grid">
+            <div class="col-50 mallCheckout__form">
+              <div
+                class="mallCheckout__invoice-item mallCheckout__invoice-item--title mallCheckout__text"
+              >
+                發票
+              </div>
+              <div
+                class="mallCheckout__invoice-item mallCheckout__invoice-item--select"
+              >
+                <MSelect
+                  v-model="invoice"
+                  :options="invoiceInfoOptions"
+                  customClass="mallCheckout__invoice-select"
+                />
               </div>
             </div>
-          </div>
-
-          <div v-if="invoice === 'mobileCarrier'" class="p-y-24">
-            <div class="mallCheckout__form">
-              <div class="mallCheckout__form-inputs">
-                <div class="w-100">
-                  <p class="mallCheckout__text mallCheckout__text--required">
-                    手機載具號碼
-                  </p>
-                  <input
-                    class="mallCheckout__form-input"
-                    v-model="mobileCarrierCode"
-                    :class="{
-                      'mallCheckout__form-input--error':
-                        errors.mobileCarrierCode,
-                    }"
-                    placeholder="輸入手機載具號碼"
-                  />
-                  <p class="mallCheckout__text mallCheckout__text--error">
-                    {{ errors.mobileCarrierCode }}
-                  </p>
-                </div>
+            <div class="col-100"></div>
+            <div class="col-50 mallCheckout__form">
+              <div v-if="invoice === 'donation'" class="">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  愛心碼
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="donationCode"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.donationCode,
+                  }"
+                  placeholder="輸入愛心碼"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.donationCode }}
+                </p>
+              </div>
+              <div v-if="invoice === 'mobileCarrier'" class="">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  手機載具號碼
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="vehicle"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.vehicle,
+                  }"
+                  placeholder="輸入手機載具號碼"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.vehicle }}
+                </p>
               </div>
             </div>
           </div>
@@ -736,7 +727,7 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     shippingMethod: shippingOptions[0].value,
     paymentMethod: paymentOptions[0].value,
     invoice: invoiceInfoOptions.value[0].value,
-    vehide: '',
+    vehicle: '',
     donationCode: '',
     sameAsBilling: false,
     cardNo: '',
@@ -765,7 +756,7 @@ const [billingAddress, billingAddressProps] = defineField('billingAddress');
 const [shippingMethod, shippingMethodProps] = defineField('shippingMethod');
 const [paymentMethod, paymentMethodProps] = defineField('paymentMethod');
 const [invoice, invoiceProps] = defineField('invoice');
-const [vehide, vehideProps] = defineField('vehide');
+const [vehicle, vehicleProps] = defineField('vehicle');
 const [donationCode, donationCodeProps] = defineField('donationCode');
 const [sameAsBilling, sameAsBillingProps] = defineField('sameAsBilling');
 
@@ -851,10 +842,19 @@ const loadCartItems = async () => {
     ]);
 
     const { data: userInfo } = userInfoResponse;
-    const { phoneNumber, city, area, address, addressName, zipCode, username } =
-      userInfo;
+    const {
+      phoneNumber,
+      city,
+      area,
+      address,
+      addressName,
+      zipCode,
+      username,
+      vehicle,
+    } = userInfo;
 
     const { success, data } = cartResponse;
+    setFieldValue('vehicle', vehicle || '');
 
     setFieldValue('billingEmail', username || '');
     setFieldValue('billingName', addressName || '');

@@ -324,6 +324,62 @@
       </div>
       <Card>
         <div class="p-y-48 p-x-48">
+          <div class="grid">
+            <div class="col-50 mallCheckout__form">
+              <div
+                class="mallCheckout__invoice-item mallCheckout__invoice-item--title mallCheckout__text"
+              >
+                發票
+              </div>
+              <div
+                class="mallCheckout__invoice-item mallCheckout__invoice-item--select"
+              >
+                <MSelect
+                  v-model="invoice"
+                  :options="invoiceInfoOptions"
+                  customClass="mallCheckout__invoice-select"
+                />
+              </div>
+            </div>
+            <div class="col-100"></div>
+            <div class="col-50 mallCheckout__form">
+              <div v-if="invoice === 'donation'" class="">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  愛心碼
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="donationCode"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.donationCode,
+                  }"
+                  placeholder="輸入愛心碼"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.donationCode }}
+                </p>
+              </div>
+              <div v-if="invoice === 'mobileCarrier'" class="">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  手機載具號碼
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="vehicle"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.vehicle,
+                  }"
+                  placeholder="輸入手機載具號碼"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.vehicle }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mallCheckout__divider"></div>
+
           <div class="mallCheckout__payment">
             <div
               class="mallCheckout__payment-item mallCheckout__payment-item--title"
@@ -523,7 +579,13 @@ const billAreaOptions = ref<{ value: string; label: string }[]>([]);
 const shippingCityOptions = ref<{ value: string; label: string }[]>([]);
 const shippingAreaOptions = ref<{ value: string; label: string }[]>([]);
 const shippingMethods = ref<any[]>([]);
-const invoiceOptions = [{ value: 'donation', label: '捐贈' }];
+
+const invoiceInfoOptions = ref<{ value: string; label: string }[]>([
+  { value: '', label: '請選擇發票資訊' },
+  { value: 'donation', label: '捐贈發票' },
+  { value: 'mobileCarrier', label: '手機載具' },
+  { value: 'personalEInvoice', label: '個人電子發票' },
+]);
 const selectedShippingMethod = ref('');
 const schema = yup.object({
   shippingName: yup.string().required('收貨人姓名為必填'),
@@ -645,7 +707,9 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     billingAddress: '',
     shippingMethod: shippingOptions[0].value,
     paymentMethod: paymentOptions[0].value,
-    invoice: invoiceOptions[0].value,
+    invoice: invoiceInfoOptions.value[0].value,
+    vehicle: '',
+    donationCode: '',
     sameAsBilling: false,
     cardNo: '',
     expiryDate: '',
@@ -673,6 +737,8 @@ const [billingAddress, billingAddressProps] = defineField('billingAddress');
 const [shippingMethod, shippingMethodProps] = defineField('shippingMethod');
 const [paymentMethod, paymentMethodProps] = defineField('paymentMethod');
 const [invoice, invoiceProps] = defineField('invoice');
+const [vehicle, vehicleProps] = defineField('vehicle');
+const [donationCode, donationCodeProps] = defineField('donationCode');
 const [sameAsBilling, sameAsBillingProps] = defineField('sameAsBilling');
 const [cardNo, cardNoProps] = defineField('cardNo');
 const [expiryDate, expiryDateProps] = defineField('expiryDate');
@@ -755,10 +821,19 @@ const loadCartItems = async () => {
     ]);
 
     const { data: userInfo } = userInfoResponse;
-    const { phoneNumber, city, area, address, addressName, zipCode, username } =
-      userInfo;
+    const {
+      phoneNumber,
+      city,
+      area,
+      address,
+      addressName,
+      zipCode,
+      username,
+      vehicle,
+    } = userInfo;
 
     const { success, data } = cartResponse;
+    setFieldValue('vehicle', vehicle || '');
     setFieldValue('billingEmail', username || '');
     setFieldValue('billingName', addressName || '');
     setFieldValue('billingPhone', phoneNumber || '');
