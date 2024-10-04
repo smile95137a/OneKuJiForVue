@@ -1,7 +1,7 @@
 <template>
   <div class="product3">
     <div class="product3__title">
-      <div class="product3__text" data-text="扭蛋抽獎">扭蛋抽獎</div>
+      <div class="product3__text" data-text="扭蛋">扭蛋</div>
     </div>
     <div class="product3__list">
       <div v-if="products.length === 0" class="product__no-data">
