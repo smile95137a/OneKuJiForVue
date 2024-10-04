@@ -117,7 +117,7 @@ onMounted(() => {
   if (confirmDialogData?.value.drawData) {
     const groupedData = confirmDialogData?.value.drawData.reduce(
       (acc: any, draw: any) => {
-        const productId = draw.productId;
+        const productId = draw.productDetailId;
         if (!acc[productId]) {
           acc[productId] = [];
         }
