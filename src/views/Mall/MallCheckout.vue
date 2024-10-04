@@ -455,7 +455,7 @@
                   :class="{
                     'mallCheckout__form-input--error': errors.expiryDate,
                   }"
-                  placeholder="MM/YY"
+                  placeholder="MMYY"
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.expiryDate }}
@@ -694,6 +694,26 @@ const schema = yup.object({
     }),
   shippingMethod: yup.string().required('請選擇寄送方式'),
   paymentMethod: yup.string().required('請選擇付款方式'),
+  cardHolderName: yup
+    .string()
+    .required('請輸入持卡人姓名')
+    .matches(/^[A-Za-z\s]+$/, '持卡人姓名只能包含字母和空格')
+    .min(3, '持卡人姓名必須至少包含 3 個字符')
+    .max(50, '持卡人姓名不能超過 50 個字符'),
+  cardNo: yup
+    .string()
+    .required('請輸入卡號')
+    .matches(/^[0-9]+$/, '卡號只能包含數字')
+    .min(16, '卡號必須為 16 位數')
+    .max(16, '卡號必須為 16 位數'),
+  expiryDate: yup
+    .string()
+    .matches(/^(0[1-9]|1[0-2])([0-9]{2})$/, '無效的過期日期 (MMYY)')
+    .required('過期日期為必填'),
+  cvv: yup.string().length(3, 'CVV 必須為 3 位數').required('CVV 為必填'),
+  amount: yup.string().required('請選擇儲值金額'),
+  buyerTelm: yup.string().required('請輸入聯絡電話'),
+  buyerMail: yup.string().email('無效的電子郵件').required('請輸入電子郵件'),
 });
 
 const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
