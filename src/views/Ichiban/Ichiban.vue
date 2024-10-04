@@ -3,6 +3,7 @@ import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
+import { getAllCategories } from '@/services/frontend/productCategoryService';
 import { getAllProduct, IProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import { computed, onMounted, ref } from 'vue';
@@ -13,6 +14,7 @@ const loadingStore = useLoadingStore();
 const products = ref<IProduct[]>([]);
 const activeBtn = ref('official');
 const title = ref('官方一番賞');
+const searchTerm = ref('');
 
 const buttons = [
   { type: 'official', title: '官方一番賞', category: 'FIGURE' },
@@ -23,13 +25,8 @@ const buttons = [
 
 const selectedTypes = ref<number[]>([]);
 
-const categories = ref([
-  { categoryId: 1, categoryName: 'Category 1' },
-  { categoryId: 2, categoryName: 'Category 2' },
-  { categoryId: 3, categoryName: 'Category 3' },
-]);
+const categories = ref([]);
 
-// Filtered products based on active button and selected categories
 const filteredProducts = computed(() => {
   const buttonCategory = buttons.find(
     (btn) => btn.type === activeBtn.value
@@ -41,29 +38,32 @@ const filteredProducts = computed(() => {
       product.productType === 'PRIZE' &&
       product.prizeCategory === buttonCategory &&
       (selectedTypes.value.length === 0 ||
-        selectedTypes.value.includes(product.categoryId))
+        selectedTypes.value.includes(product.categoryUUid)) &&
+      product.productName.toLowerCase().includes(searchTerm.value.toLowerCase())
   );
 });
 
-// Handle button click for different product types
+const fetchCategories = async () => {
+  try {
+    loadingStore.startLoading();
+    const { success, message, data } = await getAllCategories();
+    loadingStore.stopLoading();
+    if (success) {
+      categories.value = data;
+    } else {
+      console.log(message);
+    }
+  } catch (error) {
+    loadingStore.stopLoading();
+    console.log(error);
+  }
+};
+
 const handleBtnClick = (btnType: string, btnTitle: string) => {
   activeBtn.value = btnType;
   title.value = btnTitle;
-  filterAndSortProducts(); // Optionally refilter on button click if needed
 };
 
-// Handle category change
-const handleTypeChange = () => {
-  filterAndSortProducts(); // Call the filtering function when category changes
-};
-
-// Dummy function (optional if you want more control over filtering)
-const filterAndSortProducts = () => {
-  // This can be expanded to add sorting or more complex filtering if needed
-  console.log('Filtering and sorting applied');
-};
-
-// Fetch products from the API
 const fetchProducts = async () => {
   try {
     loadingStore.startLoading();
@@ -95,6 +95,7 @@ onMounted(() => {
   }
 
   fetchProducts();
+  fetchCategories();
 });
 </script>
 
@@ -126,24 +127,38 @@ onMounted(() => {
           <div class="product__list-btns">
             <label
               v-for="category in categories"
-              :key="category.categoryId"
+              :key="category.categoryUUid"
               class="product__list-btn"
               :class="{
                 'product__list-btn--active': selectedTypes.includes(
-                  category.categoryId
+                  category.categoryUUid
                 ),
               }"
-              :for="String(category.categoryId)"
+              :for="String(category.categoryUUid)"
             >
               <input
                 type="checkbox"
-                :value="category.categoryId"
+                :value="category.categoryUUid"
                 v-model="selectedTypes"
                 @change="handleTypeChange"
-                :id="String(category.categoryId)"
+                :id="String(category.categoryUUid)"
               />
               {{ category.categoryName }}
             </label>
+          </div>
+          <div class="product__list-search">
+            <div class="product__input">
+              <div class="product__input-main">
+                <input
+                  type="text"
+                  v-model="searchTerm"
+                  placeholder="搜尋商品名稱"
+                />
+              </div>
+              <div class="product__input-icon font-size-28">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </div>
+            </div>
           </div>
         </div>
 
