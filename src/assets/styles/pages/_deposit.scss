@@ -6,7 +6,8 @@ $root-block-name: '.deposit';
 
   &__item {
     @include flex(center, center, column);
-    padding: 48px;
+    width: 100%;
+    padding: 24px 0;
     border-radius: 30px;
     background-color: #fff8f0;
     &-radio {
@@ -29,6 +30,11 @@ $root-block-name: '.deposit';
       background: #fdf4eb;
       .deposit__item-icon {
         color: #eb9838;
+      }
+    }
+    &-img {
+      img {
+        max-width: 174px;
       }
     }
     &-icon {
@@ -99,14 +105,12 @@ $root-block-name: '.deposit';
     &-items {
       padding: 24px;
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
       gap: 16px;
 
       @include screen(lg) {
-        grid-template-columns: 1fr 1fr;
       }
       @include screen(md) {
-        grid-template-columns: 1fr;
         padding: 8px;
         gap: 16px;
       }
