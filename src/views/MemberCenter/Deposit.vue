@@ -1,13 +1,15 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
-import dbox from '@/assets/image/dbox.png';
+import dbox from '@/assets/image/dp.png';
 import { paymentOptions } from '@/data/orderOptions';
 import * as yup from 'yup';
 import { useForm } from 'vee-validate';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import { useRouter } from 'vue-router';
 import { topUp } from '@/services/frontend/paymentService';
+import c1 from '@/assets/image/coin-1.png';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -125,11 +127,16 @@ const onSubmit = handleSubmit(async (values) => {
               :value="deposit.value"
               v-model="amount"
             />
-            <i class="fas fa-check-circle deposit__item-icon"></i>
+            <label :for="deposit.id"></label>
             <div class="deposit__item-img">
               <img :src="dbox" alt="" />
             </div>
-            <div class="deposit__item-num">{{ deposit.num }}</div>
+            <div class="deposit__item-num">
+              <div class="deposit__item-icon">
+                <img :src="c1" alt="代幣" />
+              </div>
+              <NumberFormatter :number="deposit.num" />
+            </div>
           </label>
         </div>
       </div>

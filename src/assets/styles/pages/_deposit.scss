@@ -7,12 +7,23 @@ $root-block-name: '.deposit';
   &__item {
     @include flex(center, center, column);
     padding: 48px;
-    border-radius: 24px;
-    border: 2px solid #ccc;
-    background-color: #fff5ea;
+    border-radius: 30px;
+    background-color: #fff8f0;
     &-radio {
       display: none;
+      + label::before {
+        font-family: 'Font Awesome 6 Free';
+        content: '\f0c8';
+        font-size: 30px;
+        color: #fe4206;
+      }
+      &:checked + label::before {
+        content: '\f14a';
+        color: #fe4206;
+        font-weight: 900;
+      }
     }
+
     &.active {
       border: 2px solid #eb9838;
       background: #fdf4eb;
@@ -20,13 +31,15 @@ $root-block-name: '.deposit';
         color: #eb9838;
       }
     }
-    &-img {
-      width: 100%;
+    &-icon {
+      width: 50px;
+      height: 50px;
     }
     &-num {
-      margin-top: 12px;
-      color: #eb9838;
-      font-size: 24px;
+      font-size: 40px;
+      font-weight: 900;
+      @include flex(center);
+      gap: 24px;
     }
   }
 
