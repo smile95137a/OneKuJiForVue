@@ -116,9 +116,9 @@ const loadMoreProducts = async () => {
   loading.value = true;
   try {
     const { data } = await getPagedStoreProducts(page.value, size.value);
-    const newProducts = data.filter(product => product.status === 'AVAILABLE');
-
-    newProducts.filter
+    const newProducts = data.filter(
+      (product) => product.status === 'AVAILABLE'
+    );
 
     if (newProducts.length < size.value) {
       allLoaded.value = true;

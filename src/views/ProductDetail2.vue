@@ -78,11 +78,7 @@ import {
   getProductDetailById,
   IProductDetail,
 } from '@/services/frontend/productDetailService';
-import {
-  getAllProduct,
-  getProductById,
-  IProduct,
-} from '@/services/frontend/productService';
+import { getProductById, IProduct } from '@/services/frontend/productService';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import { drawPrize, getDrawStatus } from '@/services/frontend/drawService';
@@ -115,13 +111,11 @@ const loadProductData = async () => {
       productRes,
       productDetailRes,
       drawStatusResponse,
-      allProductRes,
       recommendationRes,
     ] = await Promise.all([
       getProductById(productId.value),
       getProductDetailById(productId.value),
       getDrawStatus(productId.value),
-      getAllProduct(),
       getMappingById(4),
     ]);
 

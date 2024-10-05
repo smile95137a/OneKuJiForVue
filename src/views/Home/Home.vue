@@ -36,21 +36,21 @@ const goToProductDetail = (banner: Banner) => {
 const fetchProducts = async () => {
   try {
     loadingStore.startLoading();
-    const { success, message, data } = await getAllProduct();
+    const { success, message, data } = await getAllProduct(0, 50);
     loadingStore.stopLoading();
     if (success) {
-      const availableProducts = data.filter(
-        (p: IProduct) => p.status === 'AVAILABLE'
-      );
-      prizeProducts.value = availableProducts.filter(
-        (p: IProduct) => p.productType === 'PRIZE'
-      );
-      blindBoxProducts.value = availableProducts.filter(
-        (p: IProduct) => p.productType === 'BLIND_BOX'
-      );
-      gachaProducts.value = availableProducts.filter(
-        (p: IProduct) => p.productType === 'GACHA'
-      );
+      const availableProducts = data
+        .filter((p: IProduct) => p.status === 'AVAILABLE')
+        .slice(0, 6);
+      prizeProducts.value = availableProducts
+        .filter((p: IProduct) => p.productType === 'PRIZE')
+        .slice(0, 6);
+      blindBoxProducts.value = availableProducts
+        .filter((p: IProduct) => p.productType === 'BLIND_BOX')
+        .slice(0, 6);
+      gachaProducts.value = availableProducts
+        .filter((p: IProduct) => p.productType === 'GACHA')
+        .slice(0, 6);
     } else {
       console.log(message);
     }

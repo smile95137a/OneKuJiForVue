@@ -31,6 +31,25 @@ const selectedTypes = ref<number[]>([]);
 
 const categories = ref([]);
 
+const filteredCategories = computed(() => {
+  const buttonCategory = buttons.find(
+    (btn) => btn.type === activeBtn.value
+  )?.category;
+
+  const pcategoryUUidArr = products.value
+    .filter(
+      (product) =>
+        product.status === 'AVAILABLE' &&
+        product.productType === 'PRIZE' &&
+        product.prizeCategory === buttonCategory
+    )
+    .map((product) => product.categoryUUid);
+
+  return categories.value.filter((category) =>
+    pcategoryUUidArr.includes(category.categoryUUid)
+  );
+});
+
 const filteredProducts = computed(() => {
   const buttonCategory = buttons.find(
     (btn) => btn.type === activeBtn.value
@@ -66,24 +85,6 @@ const fetchCategories = async () => {
 const handleBtnClick = (btnType: string, btnTitle: string) => {
   activeBtn.value = btnType;
   title.value = btnTitle;
-};
-
-const fetchProducts = async () => {
-  try {
-    const { success, message, data } = await getAllProduct(
-      page.value,
-      size.value
-    );
-
-    if (success) {
-      products.value = data;
-    } else {
-      console.log(message);
-    }
-  } catch (error) {
-    loadingStore.stopLoading();
-    console.log(error);
-  }
 };
 
 const loadMoreProducts = async () => {
@@ -188,7 +189,7 @@ watch(loading, (newValue) => {
         <div class="product__list-title">
           <div class="product__list-btns">
             <label
-              v-for="category in categories"
+              v-for="category in filteredCategories"
               :key="category.categoryUUid"
               class="product__list-btn"
               :class="{
