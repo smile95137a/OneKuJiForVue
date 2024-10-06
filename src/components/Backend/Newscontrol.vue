@@ -233,16 +233,13 @@ const resetNewsForm = () => {
   });
 };
 
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hour = date.getHours();
-  const minute = date.getMinutes();
-  const second = date.getSeconds();
+function formatDate(dateArray: number[]) {
+  if (!dateArray || dateArray.length === 0) return '無效日期'; // 處理無效的日期
+
+  const [year, month, day, hour, minute, second] = dateArray;
   return `${year}年${month}月${day}日 ${hour}時${minute}分${second}秒`;
 }
+
 </script>
 
 <style scoped>
