@@ -3,6 +3,10 @@
     <h1>產品系列管理</h1>
     <div class="filter-container">
       <button @click="openAddProductModal">新增產品系列</button>
+       <!-- 商品類別管理按鈕 -->
+    <div class="category-management">
+      <button @click="openCategoryModal">管理商品類別</button>
+    </div>
       <div class="filter-form">
         <select v-model="filterProductType" @change="handleProductTypeChange">
           <option value="">全部類型</option>
@@ -14,6 +18,50 @@
             {{ getPrizeCategoryDescription(category) }}
           </option>
         </select>
+      </div>
+    </div>
+
+   
+
+    <!-- 商品類別管理模態窗 -->
+    <div v-if="showCategoryModal" class="modal">
+      <div class="modal-content">
+        <h2>商品類別管理</h2>
+        <button @click="openAddCategoryModal">新增商品類別</button>
+        <table v-if="categories.length">
+          <thead>
+            <tr>
+              <th>類別名稱</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="category in categories" :key="category.categoryId">
+              <td>{{ category.categoryName }}</td>
+              <td>
+                <button @click="openEditCategoryModal(category)">編輯</button>
+                <button @click="deleteCategory(category.categoryId)">刪除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else>暫無商品類別</p>
+        <button type="button" @click="closeCategoryModal">關閉</button>
+      </div>
+    </div>
+
+    <!-- 新增/編輯商品類別模態窗 -->
+    <div v-if="showCategoryEditModal" class="modal">
+      <div class="modal-content">
+        <h2>{{ editingCategory ? '編輯商品類別' : '新增商品類別' }}</h2>
+        <form @submit.prevent="handleCategorySubmit">
+          <div>
+            <label for="categoryName">類別名稱</label>
+            <input id="categoryName" v-model="categoryForm.categoryName" required />
+          </div>
+          <button type="submit">{{ editingCategory ? '更新' : '新增' }}</button>
+          <button type="button" @click="closeCategoryEditModal">取消</button>
+        </form>
       </div>
     </div>
 
@@ -70,7 +118,7 @@
           </div>
           <div>
             <label for="description">描述</label>
-            <textarea id="description" v-model="productForm.description" required></textarea>
+            <textarea id="description" v-model="productForm.description"></textarea>
           </div>
           <div>
             <label for="productType">產品類型</label>
@@ -109,19 +157,19 @@
             <input id="specification" v-model="productForm.specification">
           </div>
           <div>
-          <label for="categorySelect">商品類別</label>
-          <select id="categorySelect" v-model="selectedCategoryId" @change="handleCategoryChange">
-            <option value="">選擇現有類別或創建新類別</option>
-            <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId">
-              {{ category.categoryName }}
-            </option>
-            <option value="new">創建新類別</option>
-          </select>
-        </div>
-        <div v-if="selectedCategoryId === 'new'">
-          <label for="newCategory">新類別名稱</label>
-          <input id="newCategory" v-model="newCategoryName" required>
-        </div>
+            <label for="categorySelect">商品類別</label>
+            <select id="categorySelect" v-model="selectedCategoryId" @change="handleCategoryChange">
+              <option value="">選擇現有類別或創建新類別</option>
+              <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId">
+                {{ category.categoryName }}
+              </option>
+              <option value="new">創建新類別</option>
+            </select>
+          </div>
+          <div v-if="selectedCategoryId === 'new'">
+            <label for="newCategory">新類別名稱</label>
+            <input id="newCategory" v-model="newCategoryName" required>
+          </div>
           <div>
             <label for="productImage">產品圖片</label>
             <input id="productImage" type="file" @change="handleImageUpload" multiple accept="image/*">
@@ -187,7 +235,7 @@
               </div>
               <div>
                 <label :for="'detailDescription' + index">描述</label>
-                <textarea :id="'detailDescription' + index" v-model="detail.description" required></textarea>
+                <textarea :id="'detailDescription' + index" v-model="detail.description"></textarea>
               </div>
               <div>
                 <label :for="'detailQuantity' + index">數量</label>
@@ -196,7 +244,7 @@
               <div v-if="currentProductType === ProductType.PRIZE">
                 <label :for="'detailGrade' + index">等級</label>
                 <select :id="'detailGrade' + index" v-model="detail.grade">
-                  <option v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
+                  <option v-for="grade in ['SP','LAST','A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
                     {{ grade }}
                   </option>
                 </select>
@@ -210,16 +258,10 @@
                 <input :id="'detailSpecification' + index" v-model="detail.specification">
               </div>
               <div>
-                <label :for="'detailLength' + index">長度</label>
-                <input :id="'detailLength' + index" type="number" v-model.number="detail.length">
-              </div>
-              <div>
-                <label :for="'detailWidth' + index">寬度</label>
-                <input :id="'detailWidth' + index" type="number" v-model.number="detail.width">
-              </div>
-              <div>
-                <label :for="'detailHeight' + index">高度</label>
-                <input :id="'detailHeight' + index" type="number" v-model.number="detail.height">
+                <label :for="'detailSize' + index">尺寸</label>
+                <select :id="'detailSize' + index" v-model="detail.size" @change="updateDimensions(detail)">
+                  <option v-for="size in sizeOptions" :key="size" :value="size">{{ size }}</option>
+                </select>
               </div>
               <div v-if="currentProductType === ProductType.PRIZE">
                 <label :for="'detailProbability' + index">機率</label>
@@ -246,7 +288,7 @@
             </div>
             <div>
               <label for="detailDescription">描述</label>
-              <textarea id="detailDescription" v-model="detailForm.description" required></textarea>
+              <textarea id="detailDescription" v-model="detailForm.description"></textarea>
             </div>
             <div>
               <label for="detailNote">備註</label>
@@ -259,7 +301,7 @@
             <div v-if="currentProductType === ProductType.PRIZE">
               <label for="detailGrade">等級</label>
               <select id="detailGrade" v-model="detailForm.grade">
-                <option v-for="grade in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
+                <option v-for="grade in ['SP','LAST','A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
                   {{ grade }}
                 </option>
               </select>
@@ -269,16 +311,14 @@
               <input id="detailSliverPrice" v-model.number="detailForm.sliverPrice" type="number" step="0.01">
             </div>
             <div>
-              <label for="detailLength">長度</label>
-              <input id="detailLength" v-model.number="detailForm.length" type="number">
+              <label for="detailSpecification">規格</label>
+              <input id="detailSpecification" v-model="detailForm.specification">
             </div>
             <div>
-              <label for="detailWidth">寬度</label>
-              <input id="detailWidth" v-model.number="detailForm.width" type="number">
-            </div>
-            <div>
-              <label for="detailHeight">高度</label>
-              <input id="detailHeight" v-model.number="detailForm.height" type="number">
+              <label for="detailSize">尺寸</label>
+              <select id="detailSize" v-model="detailForm.size" @change="updateDimensions(detailForm)">
+                <option v-for="size in sizeOptions" :key="size" :value="size">{{ size }}</option>
+              </select>
             </div>
             <div v-if="currentProductType === ProductType.PRIZE">
               <label for="detailProbability">機率</label>
@@ -318,17 +358,105 @@ const editingProduct = ref<ProductRes | null>(null);
 const editingDetail = ref<DetailRes | null>(null);
 const currentProductId = ref<number | null>(null);
 const currentProductType = ref<ProductType>(ProductType.PRIZE);
-const batchDetails = ref<DetailReq[]>([]);
+const batchDetails = ref<(DetailReq & { size?: number })[]>([]);
 const categoryNameMap = ref(new Map<number, string>());
+// 類別管理數據
+const showCategoryModal = ref(false);
+const showCategoryEditModal = ref(false);
+const editingCategory = ref<ProductCategory | null>(null);
+const categoryForm = reactive<{ categoryName: string }>({
+  categoryName: '',
+});
 
-// 新增這些變量
+// 打開商品類別管理模態窗
+const openCategoryModal = () => {
+  showCategoryModal.value = true;
+};
+
+// 關閉商品類別管理模態窗
+const closeCategoryModal = () => {
+  showCategoryModal.value = false;
+};
+
+// 打開新增類別模態窗
+const openAddCategoryModal = () => {
+  editingCategory.value = null;
+  categoryForm.categoryName = '';
+  showCategoryEditModal.value = true;
+};
+
+// 打開編輯類別模態窗
+const openEditCategoryModal = (category: ProductCategory) => {
+  editingCategory.value = category;
+  categoryForm.categoryName = category.categoryName;
+  showCategoryEditModal.value = true;
+};
+
+// 關閉新增/編輯類別模態窗
+const closeCategoryEditModal = () => {
+  showCategoryEditModal.value = false;
+  categoryForm.categoryName = '';
+};
+
+// 提交新增或編輯類別
+const handleCategorySubmit = async () => {
+  try {
+    let response;
+    if (editingCategory.value) {
+      // 編輯類別
+      response = await productservice.updateCategory(editingCategory.value.categoryId, {
+        categoryId: editingCategory.value.categoryId,
+        categoryName: categoryForm.categoryName,
+      });
+    } else {
+      // 創建新類別
+      response = await productservice.createCategory({ categoryName: categoryForm.categoryName });
+    }
+
+    if (response.success) {
+      // 創建/更新成功後重新加載類別列表
+      await fetchCategories();
+      closeCategoryEditModal();
+      alert(editingCategory.value ? '更新成功' : '創建成功');
+    } else {
+      // 創建/更新失敗，顯示錯誤信息
+      alert(`操作失敗：${response.message || '發生未知錯誤'}`);
+    }
+  } catch (error) {
+    console.error('提交類別時發生錯誤:', error);
+    alert('操作失敗：伺服器錯誤，請稍後再試');
+  }
+};
+
+// 刪除類別
+const deleteCategory = async (categoryId: number) => {
+  if (confirm('確定要刪除這個類別嗎？')) {
+    try {
+      const response = await productservice.deleteCategory(categoryId);
+      if (response.success) {
+        await fetchCategories();
+        alert('刪除成功');
+      } else {
+        alert(`刪除失敗：${response.message || '該類別下有產品，無法刪除'}`);
+      }
+    } catch (error) {
+      console.error('刪除類別時發生錯誤:', error);
+      alert('刪除失敗：伺服器錯誤，請稍後再試');
+    }
+  }
+};
+
+// 篩選和類別相關
 const filterProductType = ref('');
 const filterPrizeCategory = ref('');
 const categories = ref<ProductCategory[]>([]);
 const selectedCategoryId = ref<number | string>('');
 const newCategoryName = ref('');
 
-// 添加這個計算屬性
+// 尺寸選項
+const sizeOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
+
+// 計算屬性
 const filteredProducts = computed(() => {
   return products.value.filter(product => {
     if (filterProductType.value && product.productType !== filterProductType.value) {
@@ -343,7 +471,6 @@ const filteredProducts = computed(() => {
   });
 });
 
-// 計算屬性
 const totalQuantity = computed(() => {
   return productDetails.value.reduce((sum, detail) => sum + detail.quantity, 0);
 });
@@ -377,7 +504,7 @@ const productStatusOptions: Record<ProductStatus, string> = {
   [ProductStatus.SOLD_OUT]: '上架已售完'
 };
 
-const detailForm = reactive<DetailReq>({
+const detailForm = reactive<DetailReq & { size?: number }>({
   productDetailId: undefined,
   productId: 0,
   description: '',
@@ -391,19 +518,19 @@ const detailForm = reactive<DetailReq>({
   imageUrls: [],
   length: 0,
   width: 0,
-  height: 0,
+  height: 2,
   specification: '',
-  probability: 0.0
+  probability: 0.0,
+  size: 10
 });
 
 // 生命週期鉤子
 onMounted(async () => {
-  console.log('組件已掛載，開始獲取產品列表');
   await fetchProducts();
   await fetchCategories();
 });
 
-// 監聽 productForm.productType 和 prizeCategory 的變化
+// 監聽器
 watch(() => productForm.productType, (newType) => {
   if (newType !== ProductType.PRIZE) {
     productForm.prizeCategory = PrizeCategory.NONE;
@@ -422,17 +549,13 @@ watch(() => productForm.prizeCategory, (newCategory) => {
 // 方法
 const fetchProducts = async () => {
   try {
-    console.log('開始獲取產品列表');
     const response = await productservice.getAllProducts();
-    console.log('獲取產品列表響應:', response);
     if (response.success) {
       products.value = response.data.map(product => ({
         ...product,
         status: productStatusOptions[product.status as ProductStatus] || product.status
       }));
-      console.log('產品列表已更新', products.value);
       
-      // 獲取所有類別並建立 ID 到名稱的映射
       const categoriesResponse = await productservice.getAllCategories();
       if (categoriesResponse.success) {
         categoryNameMap.value = new Map(
@@ -447,12 +570,9 @@ const fetchProducts = async () => {
   }
 };
 
-
 const fetchCategories = async () => {
   try {
-    console.log('開始獲取類別列表');
     const response = await productservice.getAllCategories();
-    console.log('獲取類別列表響應:', response);
     if (response.success) {
       categories.value = response.data;
     } else {
@@ -471,7 +591,7 @@ const fetchProductDetails = async (productId: number) => {
         .filter(detail => detail.productId === productId)
         .map(detail => ({
           ...detail,
-          imageUrls: detail.imageUrls.filter(url => url.trim() !== '') // 過濾空的圖片URL
+          imageUrls: detail.imageUrls.filter(url => url.trim() !== '')
         }));
       updateProductStockQuantity(productId);
       const currentProduct = products.value.find(p => p.productId === productId);
@@ -495,49 +615,41 @@ const updateProductStockQuantity = (productId: number) => {
 };
 
 const openAddProductModal = () => {
-  console.log('打開新增產品模態窗');
   editingProduct.value = null;
   resetProductForm();
   showProductModal.value = true;
 };
 
 const openEditProductModal = (product: ProductRes) => {
-  console.log('打開編輯產品模態窗', product);
   editingProduct.value = product;
   Object.assign(productForm, product);
-  // 設置選中的類別ID
   selectedCategoryId.value = product.categoryId || '';
-  newCategoryName.value = ''; // 清空新類別名稱
+  newCategoryName.value = '';
   showProductModal.value = true;
 };
 
-// 新增一個計算屬性來獲取類別名稱
 const getCategoryName = (categoryId: number | null) => {
   if (!categoryId) return '-';
   return categoryNameMap.value.get(categoryId) || '-';
 };
 
 const closeProductModal = () => {
-  console.log('關閉產品模態窗');
   showProductModal.value = false;
   resetProductForm();
 };
 
 const openProductDetailsModal = async (productId: number) => {
-  console.log('打開產品詳情模態窗', productId);
   currentProductId.value = productId;
   await fetchProductDetails(productId);
   showProductDetailsModal.value = true;
 };
 
 const closeProductDetailsModal = () => {
-  console.log('關閉產品詳情模態窗');
   showProductDetailsModal.value = false;
   currentProductId.value = null;
 };
 
 const openAddDetailModal = () => {
-  console.log('打開新增商品詳情模態窗');
   editingDetail.value = null;
   batchDetails.value = [{ ...detailForm, imageUrls: [] }];
   if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
@@ -547,25 +659,24 @@ const openAddDetailModal = () => {
 };
 
 const openEditDetailModal = (detail: DetailRes) => {
-  console.log('打開編輯商品詳情模態窗', detail);
   editingDetail.value = detail;
   detail.imageUrls = detail.imageUrls.filter(url => url.trim() !== '');
   Object.assign(detailForm, detail);
+  detailForm.size = calculateSize(detail.length, detail.width);
   showDetailModal.value = true;
 };
 
 const closeDetailModal = () => {
-  console.log('關閉商品詳情模態窗');
   showDetailModal.value = false;
   resetDetailForm();
   batchDetails.value = [];
 };
+
 const handleCategoryChange = (event: Event) => {
   const target = event.target as HTMLSelectElement;
   if (target.value === 'new') {
     selectedCategoryId.value = 'new';
     productForm.categoryId = null;
-    // 不清空 newCategoryName，允許用戶輸入新類別名稱
   } else if (target.value === '') {
     selectedCategoryId.value = '';
     productForm.categoryId = null;
@@ -574,14 +685,12 @@ const handleCategoryChange = (event: Event) => {
     const categoryId = parseInt(target.value);
     selectedCategoryId.value = categoryId;
     productForm.categoryId = categoryId;
-    newCategoryName.value = ''; // 清空新類別名稱，因為選擇了現有類別
+    newCategoryName.value = '';
   }
 };
+
 const handleProductSubmit = async () => {
   try {
-    console.log('開始提交產品表單', productForm);
-    
-    // 處理類別
     if (selectedCategoryId.value === 'new' && newCategoryName.value) {
       const newCategoryResponse = await productservice.createCategory({ categoryName: newCategoryName.value });
       if (newCategoryResponse.success) {
@@ -596,14 +705,11 @@ const handleProductSubmit = async () => {
 
     let response;
     if (editingProduct.value) {
-      console.log('更新現有產品', editingProduct.value.productId);
       response = await productservice.updateProduct(editingProduct.value.productId, productForm);
     } else {
-      console.log('創建新產品');
       response = await productservice.createProduct(productForm);
     }
 
-    console.log('產品提交響應:', response);
     if (response.success) {
       await fetchProducts();
       closeProductModal();
@@ -617,20 +723,20 @@ const handleProductSubmit = async () => {
 
 const cleanImageUrls = (detail: DetailReq) => ({
   ...detail,
-  imageUrls: detail.imageUrls.filter(url => url instanceof File || (typeof url === 'string' && url.trim() !== '')) // 過濾空URL
+  imageUrls: detail.imageUrls.filter(url => url instanceof File || (typeof url === 'string' && url.trim() !== ''))
 });
 
 const handleDetailSubmit = async () => {
   try {
     let response;
 
-    const cleanedDetails = batchDetails.value.map(detail => cleanImageUrls({
-      ...detail,
-      productId: currentProductId.value!,
-      probability: currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX ? 1 : detail.probability
-    }));
+    const cleanedDetails = batchDetails.value.map(detail => {
+      updateDimensions(detail);
+      return cleanImageUrls(detail);
+    });
 
     if (editingDetail.value) {
+      updateDimensions(detailForm);
       response = await productservice.updateProductDetail(editingDetail.value.productDetailId, cleanImageUrls(detailForm));
     } else {
       response = await productservice.createProductDetails(cleanedDetails);
@@ -650,9 +756,7 @@ const handleDetailSubmit = async () => {
 const deleteProduct = async (productId: number) => {
   if (confirm('確定要刪除這個產品系列嗎？')) {
     try {
-      console.log('開始刪除產品', productId);
       const response = await productservice.deleteProduct(productId);
-      console.log('刪除產品響應:', response);
       if (response.success) {
         await fetchProducts();
       } else {
@@ -667,9 +771,7 @@ const deleteProduct = async (productId: number) => {
 const deleteProductDetail = async (productDetailId: number) => {
   if (confirm('確定要刪除這個商品嗎？')) {
     try {
-      console.log('開始刪除商品詳情', productDetailId);
       const response = await productservice.deleteProductDetail(productDetailId);
-      console.log('刪除商品詳情響應:', response);
       if (response.success) {
         await fetchProductDetails(currentProductId.value!);
       } else {
@@ -682,39 +784,37 @@ const deleteProductDetail = async (productDetailId: number) => {
 };
 
 const handleImageUpload = (event: Event) => {
-  console.log('處理產品圖片上傳');
   const target = event.target as HTMLInputElement;
   if (target.files) {
-    const files = Array.from(target.files).filter(file => file.size > 0); // 確保文件不是空的
+    const files = Array.from(target.files).filter(file => file.size > 0);
     productForm.imageUrls = [...productForm.imageUrls, ...files];
-    console.log('更新後的產品圖片:', productForm.imageUrls);
   }
 };
 
 const handleDetailImageUpload = (event: Event, detailIndex?: number) => {
   const target = event.target as HTMLInputElement;
   if (target.files) {
-    const files = Array.from(target.files).filter(file => file.size > 0); // 過濾空的文件
+    const files = Array.from(target.files).filter(file => file.size > 0);
     if (editingDetail.value) {
-      detailForm.imageUrls = [...detailForm.imageUrls, ...files]; // 編輯時更新圖片列表
+      detailForm.imageUrls = [...detailForm.imageUrls, ...files];
     } else if (detailIndex !== undefined) {
       const updatedDetail = { ...batchDetails.value[detailIndex] };
       updatedDetail.imageUrls = [...(updatedDetail.imageUrls || []), ...files];
-      batchDetails.value.splice(detailIndex, 1, updatedDetail); // 更新批量新增中的圖片列表
+      batchDetails.value.splice(detailIndex, 1, updatedDetail);
     }
   }
 };
 
 const removeImage = (index: number) => {
-  productForm.imageUrls.splice(index, 1); // 從 productForm 的 imageUrls 中移除圖片
+  productForm.imageUrls.splice(index, 1);
 };
 
 const removeDetailImage = (detailIndex: number, imageIndex?: number) => {
   if (editingDetail.value) {
-    detailForm.imageUrls.splice(detailIndex, 1); // 編輯模式下移除指定索引的圖片
+    detailForm.imageUrls.splice(detailIndex, 1);
   } else if (imageIndex !== undefined) {
     const updatedDetail = { ...batchDetails.value[detailIndex] };
-    updatedDetail.imageUrls.splice(imageIndex, 1); // 批量新增模式下移除指定圖片
+    updatedDetail.imageUrls.splice(imageIndex, 1);
     batchDetails.value.splice(detailIndex, 1, updatedDetail);
   }
 };
@@ -727,7 +827,7 @@ const resetProductForm = () => {
     sliverPrice: 0,
     bonusPrice: 0,
     stockQuantity: 0,
-    imageUrls: [], // 重置為空數組
+    imageUrls: [],
     productType: ProductType.PRIZE,
     prizeCategory: PrizeCategory.NONE,
     status: ProductStatus.NOT_AVAILABLE_YET,
@@ -746,21 +846,21 @@ const resetDetailForm = () => {
     quantity: 0,
     productName: '',
     grade: 'A',
-    imageUrls: [], // 重置為空數組
+    imageUrls: [],
     length: 0,
     width: 0,
-    height: 0,
+    height: 2,
     specification: '',
-    probability: 0.0
+    probability: 0.0,
+    size: 10
   });
 };
 
-// 格式化圖片 URL，支持 File 和 string 類型的 URL
 const formatImageUrl = (url: string | File): string => {
   if (typeof url === 'string') {
-    return url.trim() !== '' ? productservice.getImageUrl(url) : ''; // 過濾空的字符串
+    return url.trim() !== '' ? productservice.getImageUrl(url) : '';
   }
-  return URL.createObjectURL(url); // 對 File 類型生成預覽URL
+  return URL.createObjectURL(url);
 };
 
 const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
@@ -782,11 +882,13 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
 const addDetailToBatch = () => {
   const newDetail = { 
     ...detailForm, 
-    imageUrls: [] // 確保新增的詳情項目的 imageUrls 被初始化為空數組
+    imageUrls: [],
+    size: 10
   };
   if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
     newDetail.probability = 1;
   }
+  updateDimensions(newDetail);
   batchDetails.value.push(newDetail);
 };
 
@@ -800,13 +902,25 @@ const handleProductTypeChange = () => {
   }
 };
 
-
-
 const isValidImageUrl = (url: string | File): boolean => {
-  if (url instanceof File) return url.size > 0; // 確保文件大小有效
-  return typeof url === 'string' && url.trim() !== ''; // 過濾掉空字符串
+  if (url instanceof File) return url.size > 0;
+  return typeof url === 'string' && url.trim() !== '';
+};
+
+const updateDimensions = (detail: DetailReq & { size?: number }) => {
+  if (detail.size !== undefined) {
+    const dimension = Math.floor((detail.size - 2) / 2);
+    detail.length = dimension;
+    detail.width = dimension;
+    detail.height = 2;
+  }
+};
+
+const calculateSize = (length: number, width: number): number => {
+  return Math.min(200, Math.max(10, (length + width) * 2 + 2));
 };
 </script>
+
 <style scoped>
 .product-management {
   max-width: 1200px;
@@ -954,4 +1068,5 @@ input[type="file"] {
     padding: 10px;
   }
 }
+
 </style>
