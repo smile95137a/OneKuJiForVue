@@ -49,6 +49,7 @@
           </div>
           <div class="form-group">
             <label for="content">內容</label>
+            <!-- CKEditor with custom upload adapter -->
             <ckeditor :editor="editor" v-model="currentNews.content" :config="editorConfig"></ckeditor>
           </div>
           <div class="form-group">
@@ -57,16 +58,6 @@
               <option :value="NewsStatus.AVAILABLE">發布</option>
               <option :value="NewsStatus.UNAVAILABLE">不發布</option>
             </select>
-          </div>
-          <div class="form-group">
-            <label for="images">上傳圖片</label>
-            <input type="file" id="images" @change="handleImageUpload" multiple accept="image/*" />
-          </div>
-          <div v-if="currentNews.imageUrls.length > 0" class="image-preview">
-            <div v-for="(image, index) in currentNews.imageUrls" :key="index" class="image-item">
-              <img :src="formatImageUrl(image)" alt="新聞圖片" />
-              <button type="button" @click="removeImage(index)" class="remove-image">移除</button>
-            </div>
           </div>
           <div class="form-actions">
             <button type="submit" class="btn btn-primary">{{ isEditing ? '更新' : '創建' }}</button>
@@ -89,18 +80,33 @@ const newsList = ref<News[]>([]);
 const showNewsModal = ref(false);
 const isEditing = ref(false);
 const editor = ClassicEditor;
+
+// 自定義 CKEditor 配置，啟用圖片大小調整功能
 const editorConfig = {
-  toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
-  language: 'zh-tw'
+  toolbar: [
+    'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', '|', 'imageResize'
+  ],
+  language: 'zh-tw',
+  image: {
+    toolbar: ['imageStyle:full', 'imageStyle:side', 'imageResize'],
+    resizeOptions: [
+      { name: 'resizeImage:original', label: '原始大小', value: null },
+      { name: 'resizeImage:50', label: '50%', value: '50' },
+      { name: 'resizeImage:75', label: '75%', value: '75' },
+    ],
+    resizeUnit: '%',
+  },
+  extraPlugins: [CustomUploadAdapterPlugin],
 };
 
-const currentNews = reactive<Partial<News> & { imageUrls: (string | File)[] }>({
+// 當前新聞表單
+const currentNews = reactive<Partial<News> & { imageFiles: File[] }>({
   title: '',
   preview: '',
   content: '',
-  imageUrls: [],
   status: NewsStatus.UNAVAILABLE,
   author: '',
+  imageFiles: [], // 保存圖片檔案的地方
 });
 
 onMounted(async () => {
@@ -133,28 +139,28 @@ const closeNewsModal = () => {
   showNewsModal.value = false;
   resetNewsForm();
 };
-
 const handleNewsSubmit = async () => {
   try {
     const formData = new FormData();
 
-    const newsData = {
+    // 構建 `newsReq`，包含所有新聞相關的數據
+    const newsReq = {
       title: currentNews.title,
       preview: currentNews.preview,
       content: currentNews.content,
       status: currentNews.status,
       author: currentNews.author,
-      imageUrls: currentNews.imageUrls.filter(img => typeof img === 'string')
     };
 
-    formData.append('newsReq', JSON.stringify(newsData));
+    // 將 `newsReq` 作為一個 JSON 字串附加到 `FormData`
+    formData.append('newsReq', JSON.stringify(newsReq));
 
-    currentNews.imageUrls.forEach((image) => {
-      if (image instanceof File) {
-        formData.append('images', image);
-      }
+    // 附加圖片檔案
+    currentNews.imageFiles.forEach((file) => {
+      formData.append('images', file);
     });
 
+    // 根據是否是編輯模式來發送請求
     if (isEditing.value && currentNews.newsUid) {
       await NewsService.updateNews(currentNews.newsUid, formData);
       alert('新聞更新成功');
@@ -171,6 +177,38 @@ const handleNewsSubmit = async () => {
   }
 };
 
+// 自定義上傳適配器，用於 CKEditor 圖片上傳
+class MyCustomUploadAdapter {
+  loader: any;
+
+  constructor(loader: any) {
+    this.loader = loader;
+  }
+
+  upload() {
+    return this.loader.file
+      .then((file: File) => {
+        // 將圖片文件添加到 currentNews.imageFiles 中，稍後會一同提交
+        currentNews.imageFiles.push(file);
+        // 返回圖片的預覽 URL，這樣 CKEditor 可以即時顯示圖片
+        return {
+          default: URL.createObjectURL(file),
+        };
+      });
+  }
+
+  abort() {
+    console.log('圖片上傳被中止');
+  }
+}
+
+// 在 CKEditor 中註冊這個自定義適配器
+function CustomUploadAdapterPlugin(editor: any) {
+  editor.plugins.get('FileRepository').createUploadAdapter = (loader: any) => {
+    return new MyCustomUploadAdapter(loader);
+  };
+}
+
 const deleteNews = async (newsUid: string) => {
   if (confirm('確定要刪除這則消息嗎？')) {
     try {
@@ -184,44 +222,27 @@ const deleteNews = async (newsUid: string) => {
   }
 };
 
-const handleImageUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (target.files) {
-    const files = Array.from(target.files);
-    currentNews.imageUrls = [...currentNews.imageUrls, ...files];
-  }
-};
-
-const removeImage = (index: number) => {
-  currentNews.imageUrls.splice(index, 1);
-};
-
 const resetNewsForm = () => {
   Object.assign(currentNews, {
     title: '',
     preview: '',
     content: '',
-    imageUrls: [],
     status: NewsStatus.UNAVAILABLE,
     author: '',
+    imageFiles: [],
   });
 };
 
-function formatDate(dateArray: [number, number, number, number, number, number]) {
-  const [year, month, day, hour, minute, second] = dateArray;
-  const date = new Date(year, month - 1, day, hour, minute, second);
-
-  const pad = (num: number) => num.toString().padStart(2, '0');
-
-  return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(minute)} 分 ${pad(second)} 秒`;
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const second = date.getSeconds();
+  return `${year}年${month}月${day}日 ${hour}時${minute}分${second}秒`;
 }
-
-const formatImageUrl = (url: string | File): string => {
-  if (typeof url === 'string') {
-    return NewsService.getImageUrl(url);
-  }
-  return URL.createObjectURL(url);
-};
 </script>
 
 <style scoped>
@@ -382,9 +403,5 @@ th {
 
 .pagination button {
   margin: 0 10px;
-}
-
-:deep(.ck-editor__editable_inline) {
-  min-height: 200px;
 }
 </style>
