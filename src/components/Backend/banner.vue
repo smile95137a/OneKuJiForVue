@@ -1,69 +1,77 @@
 <template>
   <div class="banner-container">
-    <h2>Banner 管理</h2>
-    <div v-if="loading">加載中...</div>
-    <div v-else-if="error">{{ error }}</div>
+    <h2 class="page-title">Banner 管理</h2>
+    <div v-if="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <span>加載中...</span>
+    </div>
+    <div v-else-if="error" class="error-message">{{ error }}</div>
     <div v-else>
       <div class="banner-list">
         <div v-for="banner in banners" :key="banner.bannerId" class="banner-item">
-          <img :src="bannerservice.getImageUrl(banner.imageUrls[0])" :alt="banner.bannerUid" />
+          <img :src="getBannerImageUrl(banner)" :alt="banner.bannerUid" class="banner-image" />
           <div class="banner-details">
-            <p>ID: {{ banner.bannerId }}</p>
-            <p>狀態: {{ getStatusLabel(banner.status) }}</p>
-            <p>產品類型: {{ getProductTypeLabel(banner.productType) }}</p>
-            <p>產品 ID: {{ banner.productId }}</p>
+            <h3>Banner ID: {{ banner.bannerId }}</h3>
+            <p><strong>狀態:</strong> <span :class="['status-badge', banner.status]">{{ getStatusLabel(banner.status) }}</span></p>
+            <p><strong>產品類型:</strong> {{ getProductTypeLabel(banner.productType) }}</p>
+            <p><strong>產品 ID:</strong> {{ banner.productId }}</p>
           </div>
           <div class="banner-actions">
-            <button @click="editBanner(banner)">編輯</button>
-            <button @click="deleteBanner(banner.bannerId)">刪除</button>
+            <button @click="deleteBanner(banner.bannerId)" class="btn btn-delete">刪除</button>
           </div>
         </div>
       </div>
-      <button @click="showAddBannerForm = true">新增 Banner</button>
+      <button @click="showAddBannerForm = true" class="btn btn-add">新增 Banner</button>
     </div>
 
-    <!-- 新增/編輯 Banner 表單 -->
-    <div v-if="showAddBannerForm || editingBanner" class="banner-form">
-      <h3>{{ editingBanner ? '編輯' : '新增' }} Banner</h3>
-      <form @submit.prevent="submitBannerForm">
-        <div>
-          <label for="productType">產品類型:</label>
-          <select v-model="selectedProductType" id="productType" @change="onProductTypeChange" required>
-            <option v-for="type in productTypeOptions" :key="type.value" :value="type.value">
-              {{ type.label }}
-            </option>
-          </select>
-        </div>
-        <div v-if="selectedProductType === ProductType.PRIZE">
-          <label for="prizeCategory">獎品類別:</label>
-          <select v-model="selectedPrizeCategory" id="prizeCategory" @change="onPrizeCategoryChange" required>
-            <option v-for="category in prizeCategoryOptions" :key="category.value" :value="category.value">
-              {{ category.label }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label for="productId">產品:</label>
-          <select v-model="bannerForm.productId" id="productId" @change="onProductChange" required>
-            <option v-for="product in availableProducts" :key="product.productId" :value="product.productId">
-              {{ product.productName }}
-            </option>
-          </select>
-        </div>
-        <div v-if="selectedProduct">
-          <img :src="bannerservice.getImageUrl(selectedProduct.imageUrls[0])" alt="產品圖片" class="product-image-preview" />
-        </div>
-        <div>
-          <label for="status">狀態:</label>
-          <select v-model="bannerForm.status" id="status" required>
-            <option v-for="status in statusOptions" :key="status.value" :value="status.value">
-              {{ status.label }}
-            </option>
-          </select>
-        </div>
-        <button type="submit">{{ editingBanner ? '更新' : '創建' }}</button>
-        <button type="button" @click="cancelForm">取消</button>
-      </form>
+    <!-- 新增 Banner 表單 -->
+    <div v-if="showAddBannerForm" class="modal-overlay" @click.self="cancelForm">
+      <div class="banner-form">
+        <h3>新增 Banner</h3>
+        <form @submit.prevent="submitBannerForm">
+          <div class="form-group">
+            <label for="productType">產品類型:</label>
+            <select v-model="bannerForm.productType" id="productType" @change="onProductTypeChange" required>
+              <option v-for="type in productTypeOptions" :key="type.value" :value="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
+          <div v-if="bannerForm.productType === ProductType.PRIZE" class="form-group">
+            <label for="prizeCategory">獎品類別:</label>
+            <select v-model="selectedPrizeCategory" id="prizeCategory" @change="onPrizeCategoryChange" required>
+              <option v-for="category in prizeCategoryOptions" :key="category.value" :value="category.value">
+                {{ category.label }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="productId">產品:</label>
+            <select v-model="bannerForm.productId" id="productId" @change="onProductChange" required>
+              <option v-for="product in availableProducts" :key="product.productId" :value="product.productId">
+                {{ product.productName }}
+              </option>
+            </select>
+          </div>
+          <div v-if="selectedProduct" class="form-group">
+            <img :src="getBannerImageUrl(selectedProduct)" alt="產品圖片" class="product-image-preview" />
+          </div>
+          <div class="form-group">
+            <label for="status">狀態:</label>
+            <select v-model="bannerForm.status" id="status" required>
+              <option v-for="status in statusOptions" :key="status.value" :value="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" :disabled="submitting">
+              {{ submitting ? '保存中...' : '創建' }}
+            </button>
+            <button type="button" @click="cancelForm" class="btn btn-secondary" :disabled="submitting">取消</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -82,14 +90,14 @@ export default defineComponent({
     const loading = ref(true);
     const error = ref<string | null>(null);
     const showAddBannerForm = ref(false);
-    const editingBanner = ref<Banner | null>(null);
     const bannerForm = ref<BannerFormData>({
       productId: 0,
       status: BannerStatus.AVAILABLE,
+      productType: ProductType.PRIZE,
     });
-    const selectedProductType = ref<ProductType>(ProductType.PRIZE);
     const selectedPrizeCategory = ref<PrizeCategory>(PrizeCategory.NONE);
     const availableProducts = ref<ProductRes[]>([]);
+    const submitting = ref(false);
 
     const productTypeOptions = [
       { value: ProductType.PRIZE, label: '一番賞' },
@@ -117,19 +125,20 @@ export default defineComponent({
     const fetchBanners = async () => {
       try {
         loading.value = true;
+        error.value = null;
         const response = await bannerservice.getAllBanners();
         banners.value = response.data;
-        loading.value = false;
       } catch (err) {
         console.error('加載 Banner 失敗:', err);
         error.value = '加載 Banner 失敗';
+      } finally {
         loading.value = false;
       }
     };
 
     const fetchAvailableProducts = async () => {
       try {
-        const response = await productservice.getAllProductsByType(selectedProductType.value);
+        const response = await productservice.getAllProductsByType(bannerForm.value.productType);
         availableProducts.value = response.data;
       } catch (err) {
         console.error('加載產品失敗:', err);
@@ -144,7 +153,7 @@ export default defineComponent({
     };
 
     const onPrizeCategoryChange = async () => {
-      if (selectedProductType.value === ProductType.PRIZE) {
+      if (bannerForm.value.productType === ProductType.PRIZE) {
         try {
           const response = await productservice.getOneKuJiType(selectedPrizeCategory.value);
           availableProducts.value = response.data;
@@ -162,27 +171,23 @@ export default defineComponent({
 
     const submitBannerForm = async () => {
       try {
-        if (editingBanner.value) {
-          await bannerservice.updateBanner(editingBanner.value.bannerUid, bannerForm.value);
-        } else {
-          await bannerservice.createBanner(bannerForm.value);
-        }
+        submitting.value = true;
+        error.value = null;
+        const bannerData: BannerReq = {
+          productId: bannerForm.value.productId,
+          status: bannerForm.value.status,
+          productType: bannerForm.value.productType,
+        };
+
+        await bannerservice.createBanner(bannerData);
         await fetchBanners();
         cancelForm();
       } catch (err) {
         console.error('保存 Banner 失敗:', err);
         error.value = '保存 Banner 失敗';
+      } finally {
+        submitting.value = false;
       }
-    };
-
-    const editBanner = (banner: Banner) => {
-      editingBanner.value = banner;
-      bannerForm.value = {
-        productId: banner.productId,
-        status: banner.status,
-      };
-      selectedProductType.value = banner.productType;
-      fetchAvailableProducts();
     };
 
     const deleteBanner = async (id: number) => {
@@ -199,12 +204,11 @@ export default defineComponent({
 
     const cancelForm = () => {
       showAddBannerForm.value = false;
-      editingBanner.value = null;
       bannerForm.value = {
         productId: 0,
         status: BannerStatus.AVAILABLE,
+        productType: ProductType.PRIZE,
       };
-      selectedProductType.value = ProductType.PRIZE;
       selectedPrizeCategory.value = PrizeCategory.NONE;
     };
 
@@ -214,6 +218,12 @@ export default defineComponent({
 
     const getStatusLabel = (status: BannerStatus) => {
       return statusOptions.find(option => option.value === status)?.label || status;
+    };
+
+    const getBannerImageUrl = (banner: Banner | ProductRes) => {
+      return banner.imageUrls && banner.imageUrls.length > 0
+        ? bannerservice.getImageUrl(banner.imageUrls[0])
+        : '';
     };
 
     onMounted(() => {
@@ -226,20 +236,17 @@ export default defineComponent({
       loading,
       error,
       showAddBannerForm,
-      editingBanner,
       bannerForm,
-      selectedProductType,
       selectedPrizeCategory,
       availableProducts,
       selectedProduct,
-      bannerservice,
+      submitting,
       ProductType,
       PrizeCategory,
       productTypeOptions,
       prizeCategoryOptions,
       statusOptions,
       submitBannerForm,
-      editBanner,
       deleteBanner,
       cancelForm,
       onProductTypeChange,
@@ -247,70 +254,208 @@ export default defineComponent({
       onProductChange,
       getProductTypeLabel,
       getStatusLabel,
+      getBannerImageUrl,
     };
   },
 });
 </script>
-
 <style scoped>
 .banner-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.page-title {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 28px;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #e74c3c;
+  text-align: center;
+  font-size: 18px;
+  margin-top: 20px;
 }
 
 .banner-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
 }
 
 .banner-item {
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  background-color: #fff;
 }
 
-.banner-item img, .product-image-preview {
+.banner-item:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.banner-image {
   width: 100%;
-  height: auto;
+  height: 200px;
   object-fit: cover;
-  max-height: 200px;
 }
 
 .banner-details {
-  margin-top: 10px;
+  padding: 15px;
+}
+
+.banner-details h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status-badge.AVAILABLE {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.status-badge.UNAVAILABLE {
+  background-color: #e74c3c;
+  color: white;
 }
 
 .banner-actions {
-  margin-top: 10px;
   display: flex;
   justify-content: space-between;
+  padding: 10px 15px;
+  background-color: #f8f9fa;
+}
+
+.btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-edit {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-add {
+  background-color: #2ecc71;
+  color: white;
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .banner-form {
-  margin-top: 20px;
-  border: 1px solid #ddd;
+  background-color: white;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
 }
 
-.banner-form div {
-  margin-bottom: 10px;
+.form-group {
+  margin-bottom: 15px;
 }
 
-.banner-form label {
+.form-group label {
   display: block;
   margin-bottom: 5px;
+  font-weight: bold;
 }
 
-.banner-form input,
-.banner-form select {
+.form-group select, .form-group input {
   width: 100%;
-  padding: 5px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
-.banner-form button {
-  margin-right: 10px;
+.product-image-preview {
+  max-width: 100%;
+  height: auto;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .banner-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .banner-form {
+    width: 95%;
+  }
 }
 </style>

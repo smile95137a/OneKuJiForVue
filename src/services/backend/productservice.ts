@@ -274,7 +274,7 @@ export const productservice = {
   deleteCategory: async (id: number): Promise<ApiResponse<void>> => {
     console.log(`調用 deleteCategory API, id: ${id}`);
     try {
-      const response =await axiosInstance.delete<ApiResponse<void>>(`/productCategory/${id}`);
+      const response = await axiosInstance.delete<ApiResponse<void>>(`/productCategory/${id}`);
       console.log('deleteCategory 響應:', response.data);
       return response.data;
     } catch (error) {

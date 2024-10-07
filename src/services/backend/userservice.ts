@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
-import { User, UserReq, ApiResponse } from '@/interfaces/user';
+import { User, UserReq, ApiResponse, SliverUpdate } from '@/interfaces/user';
 
 const baseURL = import.meta.env.VITE_BASE_API_URL2;
 
@@ -46,5 +46,12 @@ export const userService = {
   deleteUser: (userId: number) => apiCall<void>({ 
     method: 'DELETE', 
     url: `/user/delete/${userId}` 
+  }),
+
+  // 新增的銀幣發放方法
+  distributeSilver: (sliverUpdate: SliverUpdate) => apiCall<void>({
+    method: 'POST',
+    url: '/user/updateSliver',
+    data: sliverUpdate
   }),
 };

@@ -21,6 +21,7 @@ export interface Banner {
 export interface BannerReq {
   productId: number;
   status: BannerStatus;
+  productType: ProductType;
 }
 
 export interface ApiResponse<T> {
@@ -33,8 +34,9 @@ export interface ApiResponse<T> {
 export type BannerApiResponse = ApiResponse<Banner>;
 export type BannerListApiResponse = ApiResponse<Banner[]>;
 
-// 用於創建或更新 Banner 的請求體
+// 用於創建或更新 Banner 的表單數據
 export interface BannerFormData {
   productId: number;
   status: BannerStatus;
+  productType: ProductType;
 }

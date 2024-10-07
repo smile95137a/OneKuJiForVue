@@ -1,4 +1,3 @@
-// bannerservice.ts
 import axios from 'axios';
 import { Banner, BannerReq, BannerApiResponse, BannerListApiResponse } from '@/interfaces/banner';
 
@@ -21,7 +20,7 @@ export const bannerservice = {
     }
   },
 
-  createBanner: async (bannerData: { productId: number; status: string }): Promise<BannerApiResponse> => {
+  createBanner: async (bannerData: BannerReq): Promise<BannerApiResponse> => {
     try {
       const formData = new FormData();
       formData.append('bannerReq', JSON.stringify(bannerData));
@@ -37,7 +36,7 @@ export const bannerservice = {
     }
   },
 
-  updateBanner: async (bannerUid: string, bannerData: { productId: number; status: string }): Promise<BannerApiResponse> => {
+  updateBanner: async (bannerUid: string, bannerData: BannerReq): Promise<BannerApiResponse> => {
     try {
       const formData = new FormData();
       formData.append('bannerReq', JSON.stringify(bannerData));
