@@ -155,11 +155,6 @@ const handleNewsSubmit = async () => {
     // 將 `newsReq` 作為一個 JSON 字串附加到 `FormData`
     formData.append('newsReq', JSON.stringify(newsReq));
 
-    // 附加圖片檔案
-    currentNews.imageFiles.forEach((file) => {
-      formData.append('images', file);
-    });
-
     // 根據是否是編輯模式來發送請求
     if (isEditing.value && currentNews.newsUid) {
       await NewsService.updateNews(currentNews.newsUid, formData);
