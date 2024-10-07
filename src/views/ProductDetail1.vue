@@ -262,6 +262,24 @@ import ticketImgF from '@/assets/image/ticket_F.png';
 import ticketImgG from '@/assets/image/ticket_G.png';
 import ticketImgH from '@/assets/image/ticket_H.png';
 import ticketImgI from '@/assets/image/ticket_I.png';
+import ticketImgJ from '@/assets/image/ticket_J.png';
+import ticketImgK from '@/assets/image/ticket_K.png';
+import ticketImgL from '@/assets/image/ticket_L.png';
+import ticketImgM from '@/assets/image/ticket_M.png';
+import ticketImgN from '@/assets/image/ticket_N.png';
+import ticketImgO from '@/assets/image/ticket_O.png';
+import ticketImgP from '@/assets/image/ticket_P.png';
+import ticketImgQ from '@/assets/image/ticket_Q.png';
+import ticketImgR from '@/assets/image/ticket_R.png';
+import ticketImgS from '@/assets/image/ticket_S.png';
+import ticketImgT from '@/assets/image/ticket_T.png';
+import ticketImgU from '@/assets/image/ticket_U.png';
+import ticketImgV from '@/assets/image/ticket_V.png';
+import ticketImgW from '@/assets/image/ticket_W.png';
+import ticketImgX from '@/assets/image/ticket_X.png';
+import ticketImgY from '@/assets/image/ticket_Y.png';
+import ticketImgZ from '@/assets/image/ticket_Z.png';
+
 import ticketImgSP from '@/assets/image/ticket_SP.png';
 import ticketImgBlank from '@/assets/image/ticket_blank.png';
 import Card from '@/components/common/Card.vue';
@@ -510,6 +528,24 @@ const getTicketImg = (ticket: any) => {
       G: ticketImgG,
       H: ticketImgH,
       I: ticketImgI,
+      J: ticketImgJ,
+      K: ticketImgK,
+      L: ticketImgL,
+      M: ticketImgM,
+      N: ticketImgN,
+      O: ticketImgO,
+      P: ticketImgP,
+      Q: ticketImgQ,
+      R: ticketImgR,
+      S: ticketImgS,
+      T: ticketImgT,
+      U: ticketImgU,
+      V: ticketImgV,
+      W: ticketImgW,
+      X: ticketImgX,
+      Y: ticketImgY,
+      Z: ticketImgZ,
+
       SP: ticketImgSP,
     };
 
