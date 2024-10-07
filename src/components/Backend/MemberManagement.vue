@@ -3,7 +3,6 @@
     <div class="header">
       <h2 class="title">會員管理</h2>
       <div class="button-group">
-        <button class="add-member-button" @click="showAddMemberModal = true">新增會員</button>
         <button class="distribute-reward-button" @click="showDistributeRewardModal = true" :disabled="selectedMembers.length === 0">
           發放獎勵
         </button>
@@ -45,7 +44,7 @@
         <tbody>
   <tr v-for="member in paginatedMembers" :key="member.id">
     <td><input type="checkbox" v-model="selectedMembers" :value="member.id" /></td>
-    <td>{{ member.roleId === 2 ? '正式會員' : '體驗會員' }}</td>
+    <td>{{ getRoleName(member.roleId) }}</td>
     <td>{{ member.id }}</td>
     <td>{{ member.username }}</td> <!-- 帳號 -->
     <td>{{ member.nickName }}</td> <!-- 暱稱 -->
@@ -201,7 +200,10 @@ export default defineComponent({
       { title: '體驗會員', value: 0 },
       { title: '當月新增', value: 0 }
     ]);
-
+    const getRoleName = (roleId: number) => {
+  const role = roleOptions.find(option => option.value === roleId);
+  return role ? role.label : '未知角色';
+};
     const fetchMemberData = async () => {
       try {
         const response = await userService.getAllUsers();
@@ -396,7 +398,8 @@ export default defineComponent({
       toggleSelectAll,
       silverAmount,
       bonusAmount,
-      distributeReward
+      distributeReward,
+      getRoleName
     };
   } // 關閉 setup 函數
 }); // 關閉 defineComponent

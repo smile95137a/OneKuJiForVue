@@ -1,27 +1,72 @@
+// recommand.ts
+
+import { PrizeCategory, ProductStatus, ProductCategory } from '@/interfaces/product';
+
+export enum ProductType {
+    PRIZE = 'PRIZE',
+    GACHA = 'GACHA',
+    BLIND_BOX = 'BLIND_BOX',
+}
+
 export interface ProductRecommendationMapping {
-    id: number;
+    id?: number;
     storeProductId: number;
     storeProductRecommendationId: number;
-    createdDate: string;
-    updatedDate: string;
-    createdUser: string;
-    updateUser: string;
-    productName:string;
-    recommendationName:string;
+    createdDate?: number[] | null;
+    updatedDate?: number[] | null;
+    createdUser?: string | null;
+    updateUser?: string | null;
+    productName?: string | null;
+    recommendationName?: string | null;
+    imageUrl?: string; // 添加這個字段來處理圖片URL
 }
 
 export interface ApiResponse<T> {
     code: number;
     message: string;
     success: boolean;
-    data: T;
+    data: T | null;
 }
 
 export interface StoreProductRecommendation {
-    id: number; // 推薦類別唯一識別碼
-    recommendationName: string; // 推薦名稱
-    createdDate: string; // 創建時間，使用 ISO 字符串格式
-    updatedDate: string; // 更新時間，使用 ISO 字符串格式
-    createdUser: string; // 創建用戶 ID
-    updateUser: string; // 更新用戶 ID
+    id: number;
+    recommendationName: string;
+    createdDate: number[] | null;
+    updatedDate: number[] | null;
+    createdUser: string | null;
+    updateUser: string | null;
 }
+
+export interface StoreProductRes {
+    storeProductId: number;
+    productName: string;
+    description: string;
+    price: number;
+    stockQuantity: number;
+    imageUrl: string[]; // 注意這裡是數組
+    categoryId: string;
+    width: number;
+    height: number;
+    length: number;
+    specification: string;
+    productType: ProductType;
+}
+
+export interface ProductRes {
+    productId: number;
+    productName: string;
+    description: string;
+    price: number;
+    sliverPrice: number;
+    stockQuantity: number;
+    imageUrls: string[];
+    productType: ProductType;
+    prizeCategory: PrizeCategory;
+    status: string | ProductStatus;
+    bonusPrice: number;
+    specification: string;
+    category: ProductCategory | null;
+    categoryId: number | null;
+}
+
+export type ProductListApiResponse = ApiResponse<ProductRes[]>;
