@@ -20,6 +20,7 @@ import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
 import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
 import Deposit from '@/views/MemberCenter/Deposit.vue';
+import Promo from '@/views/Promo/Promo.vue';
 
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 import Rewards from '@/views/MemberCenter/Rewards.vue';
@@ -55,6 +56,11 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/verify/:token',
     component: Verify,
+  },
+  {
+    path: '/promo',
+    component: Promo,
+    meta: { layout: 'default' },
   },
   {
     path: '/login',
