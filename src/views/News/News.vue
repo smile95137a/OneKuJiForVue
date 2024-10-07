@@ -28,7 +28,7 @@
             </p>
           </div>
           <div class="col-100">
-            <p class="news__text news__text--preview">{{ item.preview }}</p>
+            <p class="news__text news__text--preview" v-html="item.preview"></p>
           </div>
         </div>
       </div>
