@@ -13,7 +13,9 @@
         </div>
 
         <div class="footer__link">常見問題</div>
-        <div class="footer__link">優惠說明</div>
+        <div class="footer__link">
+          <router-link to="/promo">優惠說明</router-link>
+        </div>
         <div class="footer__link">
           <router-link to="/transaction">交易說明</router-link>
         </div>
