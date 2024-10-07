@@ -2,8 +2,8 @@ export interface User {
   id: number;
   username: string;
   password?: string;
-  nickname: string;
-  email: string;
+  nickName: string;
+
   phoneNumber: string;
   address: string;
   createdAt: string;
@@ -25,8 +25,8 @@ export interface Role {
 export interface UserReq {
   username: string;
   password: string;
-  nickname: string;
-  email: string;
+  nickName: string;
+
   phoneNumber: string;
   address: string;
   roleId: number;

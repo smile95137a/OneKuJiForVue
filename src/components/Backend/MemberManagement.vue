@@ -30,32 +30,38 @@
             <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
             <th>會員類型</th>
             <th>會員編號</th>
-            <th>姓名</th>
+            <th>帳號</th>
+            <th>暱稱</th>
             <th>電話</th>
-            <th>電子郵件</th>
             <th>居住地址</th>
-            <th>最近修改時間</th>
-            <th>狀態</th>
+            <th>金幣</th>
+            <th>銀幣</th>
+            <th>紅利點數</th>
+            <th>修改時間</th>
+            
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="member in paginatedMembers" :key="member.id">
-            <td><input type="checkbox" v-model="selectedMembers" :value="member.id" /></td>
-            <td>{{ member.roleId === 2 ? '正式會員' : '體驗會員' }}</td>
-            <td>{{ member.id }}</td>
-            <td>{{ member.nickname }}</td>
-            <td>{{ member.phoneNumber }}</td>
-            <td>{{ member.email }}</td>
-            <td>{{ member.address }}</td>
-            <td>{{ formatDate(member.updatedAt) }}</td>
-            <td>{{ member.status }}</td>
-            <td>
-              <button @click="editMember(member)" class="edit-button">編輯</button>
-              <button class="delete-button" @click="handleDeleteMember(member)">刪除</button>
-            </td>
-          </tr>
-        </tbody>
+  <tr v-for="member in paginatedMembers" :key="member.id">
+    <td><input type="checkbox" v-model="selectedMembers" :value="member.id" /></td>
+    <td>{{ member.roleId === 2 ? '正式會員' : '體驗會員' }}</td>
+    <td>{{ member.id }}</td>
+    <td>{{ member.username }}</td> <!-- 帳號 -->
+    <td>{{ member.nickName }}</td> <!-- 暱稱 -->
+    <td>{{ member.phoneNumber }}</td>
+    <td>{{ member.address }}</td>
+    <td>{{ member.balance }}</td> <!-- 金幣 -->
+    <td>{{ member.sliverCoin }}</td> <!-- 紅利點數 -->
+    <td>{{ member.bonus }}</td> <!-- 銀幣 -->
+    <td>{{ formatDate(member.updatedAt) }}</td>
+    
+    <td>
+      <button @click="editMember(member)" class="edit-button">編輯</button>
+      <button class="delete-button" @click="handleDeleteMember(member)">刪除</button>
+    </td>
+  </tr>
+</tbody>
       </table>
     </div>
 
@@ -158,8 +164,7 @@ export default defineComponent({
     const newMember = reactive<UserReq>({
       username: '',
       password: '',
-      nickname: '',
-      email: '',
+      nickName: '',
       phoneNumber: '',
       address: '',
       roleId: 4
@@ -169,8 +174,7 @@ export default defineComponent({
       id: 0,
       username: '',
       password: '',
-      nickname: '',
-      email: '',
+      nickName: '', 
       phoneNumber: '',
       address: '',
       createdAt: '',
@@ -186,8 +190,7 @@ export default defineComponent({
 
     const memberFields = [
       { key: 'username', label: '用戶名', type: 'text' },
-      { key: 'nickname', label: '暱稱', type: 'text' },
-      { key: 'email', label: '電子郵件', type: 'email' },
+      { key: 'nickName', label: '暱稱', type: 'text' },
       { key: 'phoneNumber', label: '電話號碼', type: 'tel' },
       { key: 'address', label: '地址', type: 'text' },
     ];
@@ -252,8 +255,8 @@ export default defineComponent({
       } else {
         displayedMembers.value = allMembers.value.filter(member =>
           member.id.toString().includes(query) ||
-          member.phoneNumber.toLowerCase().includes(query) ||
-          member.email.toLowerCase().includes(query)
+          member.phoneNumber.toLowerCase().includes(query)||
+          member.username.toLowerCase().includes(query) 
         );
       }
       updateStats();
@@ -286,7 +289,7 @@ export default defineComponent({
     };
 
     const handleDeleteMember = async (member: User) => {
-      if (confirm(`確定要刪除會員 ${member.nickname} 嗎？`)) {
+      if (confirm(`確定要刪除會員 ${member.nickName} 嗎？`)) {
         try {
           const response = await userService.deleteUser(member.id);
           if (response.code === 200) {
