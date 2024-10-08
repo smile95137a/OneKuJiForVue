@@ -34,7 +34,39 @@ export const productservice = {
       throw error;
     }
   },
-
+  createSingleProductDetail: async (detailReq: DetailReq): Promise<DetailApiResponse> => {
+    console.log('調用 createSingleProductDetail API', detailReq);
+    if (!detailReq.productId || detailReq.productId <= 0) {
+      console.error('無效的 productId:', detailReq.productId);
+      throw new Error('無效的 productId');
+    }
+    const formData = new FormData();
+    const detailReqCopy = { ...detailReq };
+    const imageFiles: File[] = [];
+  
+    detailReqCopy.imageUrls.forEach((url, index) => {
+      if (url instanceof File) {
+        imageFiles.push(url);
+        detailReqCopy.imageUrls[index] = ''; // Placeholder for backend to replace
+      }
+    });
+  
+    formData.append('productDetailReq', JSON.stringify(detailReqCopy));
+    imageFiles.forEach((file) => {
+      formData.append('images', file);
+    });
+  
+    try {
+      const response = await axiosInstance.post<DetailApiResponse>('/productDetail/add', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      console.log('createSingleProductDetail 響應:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('createSingleProductDetail 錯誤:', error);
+      throw error;
+    }
+  },
   createProduct: async (productReq: ProductReq): Promise<ProductApiResponse> => {
     console.log('調用 createProduct API', productReq);
     const formData = new FormData();
@@ -148,7 +180,7 @@ export const productservice = {
     const formData = new FormData();
     const detailReqsCopy = detailReqs.map(req => ({ ...req }));
     const imageFiles: File[] = [];
-
+  
     detailReqsCopy.forEach((req, reqIndex) => {
       req.imageUrls.forEach((url, urlIndex) => {
         if (url instanceof File) {
@@ -157,12 +189,12 @@ export const productservice = {
         }
       });
     });
-
+  
     formData.append('productDetailReq', JSON.stringify(detailReqsCopy));
     imageFiles.forEach((file) => {
       formData.append('images', file);
     });
-
+  
     try {
       const response = await axiosInstance.post<DetailListApiResponse>('/productDetail/add', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },

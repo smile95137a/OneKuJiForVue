@@ -344,9 +344,13 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, computed, reactive, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { DetailReq, DetailRes, PrizeCategory, ProductReq, ProductRes, ProductStatus, ProductType, ProductCategory } from '@/interfaces/product';
 import { productservice } from '@/services/backend/productservice';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+
+// 路由相關
+const route = useRoute();
 
 // 數據
 const products = ref<ProductRes[]>([]);
@@ -360,6 +364,7 @@ const currentProductId = ref<number | null>(null);
 const currentProductType = ref<ProductType>(ProductType.PRIZE);
 const batchDetails = ref<(DetailReq & { size?: number })[]>([]);
 const categoryNameMap = ref(new Map<number, string>());
+
 // 類別管理數據
 const showCategoryModal = ref(false);
 const showCategoryEditModal = ref(false);
@@ -367,84 +372,6 @@ const editingCategory = ref<ProductCategory | null>(null);
 const categoryForm = reactive<{ categoryName: string }>({
   categoryName: '',
 });
-
-// 打開商品類別管理模態窗
-const openCategoryModal = () => {
-  showCategoryModal.value = true;
-};
-
-// 關閉商品類別管理模態窗
-const closeCategoryModal = () => {
-  showCategoryModal.value = false;
-};
-
-// 打開新增類別模態窗
-const openAddCategoryModal = () => {
-  editingCategory.value = null;
-  categoryForm.categoryName = '';
-  showCategoryEditModal.value = true;
-};
-
-// 打開編輯類別模態窗
-const openEditCategoryModal = (category: ProductCategory) => {
-  editingCategory.value = category;
-  categoryForm.categoryName = category.categoryName;
-  showCategoryEditModal.value = true;
-};
-
-// 關閉新增/編輯類別模態窗
-const closeCategoryEditModal = () => {
-  showCategoryEditModal.value = false;
-  categoryForm.categoryName = '';
-};
-
-// 提交新增或編輯類別
-const handleCategorySubmit = async () => {
-  try {
-    let response;
-    if (editingCategory.value) {
-      // 編輯類別
-      response = await productservice.updateCategory(editingCategory.value.categoryId, {
-        categoryId: editingCategory.value.categoryId,
-        categoryName: categoryForm.categoryName,
-      });
-    } else {
-      // 創建新類別
-      response = await productservice.createCategory({ categoryName: categoryForm.categoryName });
-    }
-
-    if (response.success) {
-      // 創建/更新成功後重新加載類別列表
-      await fetchCategories();
-      closeCategoryEditModal();
-      alert(editingCategory.value ? '更新成功' : '創建成功');
-    } else {
-      // 創建/更新失敗，顯示錯誤信息
-      alert(`操作失敗：${response.message || '發生未知錯誤'}`);
-    }
-  } catch (error) {
-    console.error('提交類別時發生錯誤:', error);
-    alert('操作失敗：伺服器錯誤，請稍後再試');
-  }
-};
-
-// 刪除類別
-const deleteCategory = async (categoryId: number) => {
-  if (confirm('確定要刪除這個類別嗎？')) {
-    try {
-      const response = await productservice.deleteCategory(categoryId);
-      if (response.success) {
-        await fetchCategories();
-        alert('刪除成功');
-      } else {
-        alert(`刪除失敗：${response.message || '該類別下有產品，無法刪除'}`);
-      }
-    } catch (error) {
-      console.error('刪除類別時發生錯誤:', error);
-      alert('刪除失敗：伺服器錯誤，請稍後再試');
-    }
-  }
-};
 
 // 篩選和類別相關
 const filterProductType = ref('');
@@ -528,6 +455,15 @@ const detailForm = reactive<DetailReq & { size?: number }>({
 onMounted(async () => {
   await fetchProducts();
   await fetchCategories();
+  if (route.params.productId) {
+    const productId = parseInt(route.params.productId as string);
+    if (productId > 0) {
+      currentProductId.value = productId;
+      await fetchProductDetails(productId);
+    } else {
+      console.error('無效的路由參數 productId');
+    }
+  }
 });
 
 // 監聽器
@@ -545,6 +481,18 @@ watch(() => productForm.prizeCategory, (newCategory) => {
     productForm.bonusPrice = 0;
   }
 });
+
+watch(
+  () => route.params.productId,
+  async (newProductId) => {
+    if (newProductId) {
+      currentProductId.value = parseInt(newProductId as string);
+      await fetchProductDetails(currentProductId.value);
+    } else {
+      currentProductId.value = null;
+    }
+  }
+);
 
 // 方法
 const fetchProducts = async () => {
@@ -639,6 +587,11 @@ const closeProductModal = () => {
 };
 
 const openProductDetailsModal = async (productId: number) => {
+  if (!productId || productId <= 0) {
+    console.error('無效的產品ID');
+    alert('無法打開產品詳情：無效的產品ID');
+    return;
+  }
   currentProductId.value = productId;
   await fetchProductDetails(productId);
   showProductDetailsModal.value = true;
@@ -650,8 +603,17 @@ const closeProductDetailsModal = () => {
 };
 
 const openAddDetailModal = () => {
+  if (!currentProductId.value) {
+    console.error('當前產品ID未設置，無法添加商品');
+    // TODO: 添加用戶提示
+    return;
+  }
   editingDetail.value = null;
-  batchDetails.value = [{ ...detailForm, imageUrls: [] }];
+  batchDetails.value = [{
+    ...detailForm,
+    productId: currentProductId.value,
+    imageUrls: []
+  }];
   if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
     batchDetails.value[0].probability = 1;
   }
@@ -727,29 +689,46 @@ const cleanImageUrls = (detail: DetailReq) => ({
 });
 
 const handleDetailSubmit = async () => {
+  if (!currentProductId.value || currentProductId.value <= 0) {
+    console.error('當前產品ID無效，無法提交');
+    alert('無法提交：當前產品未選擇或ID無效');
+    return;
+  }
+
   try {
     let response;
 
-    const cleanedDetails = batchDetails.value.map(detail => {
-      updateDimensions(detail);
-      return cleanImageUrls(detail);
-    });
-
     if (editingDetail.value) {
+      // 編輯單個商品詳情
       updateDimensions(detailForm);
-      response = await productservice.updateProductDetail(editingDetail.value.productDetailId, cleanImageUrls(detailForm));
+      const updatedDetail = {
+        ...cleanImageUrls(detailForm),
+        productId: currentProductId.value
+      };
+      response = await productservice.updateProductDetail(
+        editingDetail.value.productDetailId!, 
+        updatedDetail
+      );
     } else {
+      // 新增商品詳情（單筆或多筆）
+      const cleanedDetails = batchDetails.value.map(detail => ({
+        ...cleanImageUrls(detail),
+        productId: currentProductId.value
+      }));
       response = await productservice.createProductDetails(cleanedDetails);
     }
 
     if (response.success) {
-      await fetchProductDetails(currentProductId.value!);
+      await fetchProductDetails(currentProductId.value);
       closeDetailModal();
+      alert('提交成功');
     } else {
       console.error('提交失敗:', response.message);
+      alert(`提交失敗: ${response.message}`);
     }
   } catch (error) {
     console.error('提交時發生錯誤:', error);
+    alert('提交時發生錯誤，請稍後再試');
   }
 };
 
@@ -880,8 +859,14 @@ const getPrizeCategoryDescription = (category: PrizeCategory | undefined) => {
 };
 
 const addDetailToBatch = () => {
+  if (!currentProductId.value) {
+    console.error('當前產品ID未設置，無法添加商品');
+    // TODO: 添加用戶提示
+    return;
+  }
   const newDetail = { 
     ...detailForm, 
+    productId: currentProductId.value,
     imageUrls: [],
     size: 10
   };
@@ -919,8 +904,77 @@ const updateDimensions = (detail: DetailReq & { size?: number }) => {
 const calculateSize = (length: number, width: number): number => {
   return Math.min(200, Math.max(10, (length + width) * 2 + 2));
 };
-</script>
 
+// 類別管理相關方法
+const openCategoryModal = () => {
+  showCategoryModal.value = true;
+};
+
+const closeCategoryModal = () => {
+  showCategoryModal.value = false;
+};
+
+const openAddCategoryModal = () => {
+  editingCategory.value = null;
+  categoryForm.categoryName = '';
+  showCategoryEditModal.value = true;
+};
+
+const openEditCategoryModal = (category: ProductCategory) => {
+  editingCategory.value = category;
+  categoryForm.categoryName = category.categoryName;
+  showCategoryEditModal.value = true;
+};
+
+const closeCategoryEditModal = () => {
+  showCategoryEditModal.value = false;
+  categoryForm.categoryName = '';
+};
+
+const handleCategorySubmit = async () => {
+  try {
+    let response;
+    if (editingCategory.value) {
+      response = await productservice.updateCategory(editingCategory.value.categoryId, {
+        categoryId: editingCategory.value.categoryId,
+        categoryName: categoryForm.categoryName,
+      });
+    } else {
+      response = await productservice.createCategory({ categoryName: categoryForm.categoryName });
+    }
+
+    if (response.success) {
+      await fetchCategories();
+      closeCategoryEditModal();
+      alert(editingCategory.value ? '更新成功' : '創建成功');
+    } else {
+      alert(`操作失敗：${response.message || '發生未知錯誤'}`);
+    }
+  } catch (error) {
+    console.error('提交類別時發生錯誤:', error);
+    alert('操作失敗：伺服器錯誤，請稍後再試');
+  }
+};
+
+const deleteCategory = async (categoryId: number) => {
+  if (confirm('確定要刪除這個類別嗎？')) {
+    try {
+      const response = await productservice.deleteCategory(categoryId);
+      if (response.success) {
+        await fetchCategories();
+        alert('刪除成功');
+      } else {
+        alert(`刪除失敗：${response.message || '該類別下有產品，無法刪除'}`);
+      }
+    } catch (error) {
+      console.error('刪除類別時發生錯誤:', error);
+      alert('刪除失敗：伺服器錯誤，請稍後再試');
+    }
+  }
+};
+
+// 導出需要在模板中使用的方法和響應式數據
+</script>
 <style scoped>
 .product-management {
   max-width: 1200px;
