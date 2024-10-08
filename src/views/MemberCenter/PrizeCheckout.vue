@@ -436,7 +436,7 @@
                   :class="{
                     'mallCheckout__form-input--error': errors.expiryDate,
                   }"
-                  placeholder="MMYY"
+                  placeholder="YYMM"
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.expiryDate }}
@@ -680,8 +680,9 @@ const schema = yup.object({
     .max(16, '卡號必須為 16 位數'),
   expiryDate: yup
     .string()
-    .matches(/^(0[1-9]|1[0-2])([0-9]{2})$/, '無效的過期日期 (MMYY)')
+    .matches(/^([0-9]{2})(0[1-9]|1[0-2])$/, '無效的過期日期 (YYMM)')
     .required('過期日期為必填'),
+
   cvv: yup.string().length(3, 'CVV 必須為 3 位數').required('CVV 為必填'),
   amount: yup.string().required('請選擇儲值金額'),
   buyerTelm: yup.string().required('請輸入聯絡電話'),
