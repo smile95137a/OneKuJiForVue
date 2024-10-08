@@ -715,7 +715,7 @@ const handleDetailSubmit = async () => {
         ...cleanImageUrls(detail),
         productId: currentProductId.value
       }));
-      response = await productservice.createProductDetails(cleanedDetails);
+      response = await (productservice.createProductDetails as (details: any[]) => Promise<any>)(cleanedDetails);
     }
 
     if (response.success) {
