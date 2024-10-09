@@ -407,12 +407,10 @@
 
         <div v-if="paymentMethod === 1" class="p-y-48 p-x-48">
           <div class="mallCheckout__form">
-            <div
-              class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--credit"
-            >
-              <div class="w-50 w-md-100">
+            <div class="flex">
+              <div class="w-100">
                 <p class="mallCheckout__text mallCheckout__text--required">
-                  卡號
+                  信用卡號碼
                 </p>
                 <input
                   class="mallCheckout__form-input"
@@ -420,15 +418,17 @@
                   :class="{
                     'mallCheckout__form-input--error': errors.cardNo,
                   }"
-                  placeholder="輸入信用卡卡號"
+                  placeholder="輸入信用卡號碼"
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.cardNo }}
                 </p>
               </div>
-              <div class="w-50">
+            </div>
+            <div class="flex gap-x-24">
+              <div class="w-75">
                 <p class="mallCheckout__text mallCheckout__text--required">
-                  有效日期
+                  到期日(MM/YY)
                 </p>
                 <input
                   class="mallCheckout__form-input"
@@ -436,15 +436,15 @@
                   :class="{
                     'mallCheckout__form-input--error': errors.expiryDate,
                   }"
-                  placeholder="YYMM"
+                  placeholder="MM/YY"
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.expiryDate }}
                 </p>
               </div>
-              <div class="w-50">
+              <div class="w-25">
                 <p class="mallCheckout__text mallCheckout__text--required">
-                  CVV
+                  安全驗證碼
                 </p>
                 <input
                   class="mallCheckout__form-input"
@@ -452,19 +452,17 @@
                   :class="{
                     'mallCheckout__form-input--error': errors.cvv,
                   }"
-                  placeholder="三位數的CVV"
+                  placeholder="安全驗證碼"
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.cvv }}
                 </p>
               </div>
             </div>
-            <div
-              class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--credit"
-            >
-              <div class="w-50 w-md-100">
+            <div class="flex">
+              <div class="w-100">
                 <p class="mallCheckout__text mallCheckout__text--required">
-                  持卡人姓名
+                  持卡者名字
                 </p>
                 <input
                   class="mallCheckout__form-input"
@@ -472,13 +470,15 @@
                   :class="{
                     'mallCheckout__form-input--error': errors.cardHolderName,
                   }"
-                  placeholder="輸入持卡人姓名"
+                  placeholder="輸入持卡者名字"
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.cardHolderName }}
                 </p>
               </div>
-              <div class="w-50 w-md-100">
+            </div>
+            <div class="flex gap-x-24">
+              <div class="w-50">
                 <p class="mallCheckout__text mallCheckout__text--required">
                   聯絡電話
                 </p>
@@ -494,7 +494,7 @@
                   {{ errors.buyerTelm }}
                 </p>
               </div>
-              <div class="w-50 w-md-100">
+              <div class="w-50">
                 <p class="mallCheckout__text mallCheckout__text--required">
                   電子郵件
                 </p>
@@ -668,22 +668,24 @@ const schema = yup.object({
   paymentMethod: yup.string().required('請選擇付款方式'),
   cardHolderName: yup
     .string()
-    .required('請輸入持卡人姓名')
+    .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
     .matches(/^[A-Za-z\s]+$/, '持卡人姓名只能包含字母和空格')
     .min(3, '持卡人姓名必須至少包含 3 個字符')
     .max(50, '持卡人姓名不能超過 50 個字符'),
   cardNo: yup
     .string()
-    .required('請輸入卡號')
+    .required('請輸入您的信用卡號碼')
     .matches(/^[0-9]+$/, '卡號只能包含數字')
     .min(16, '卡號必須為 16 位數')
     .max(16, '卡號必須為 16 位數'),
   expiryDate: yup
     .string()
-    .matches(/^([0-9]{2})(0[1-9]|1[0-2])$/, '無效的過期日期 (YYMM)')
-    .required('過期日期為必填'),
-
-  cvv: yup.string().length(3, 'CVV 必須為 3 位數').required('CVV 為必填'),
+    .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, '無效的過期日期 (MM/YY)')
+    .required('請輸入有效到期日'),
+  cvv: yup
+    .string()
+    .length(3, '安全驗證碼必須為 3 位數')
+    .required('請輸入安全驗證碼'),
   amount: yup.string().required('請選擇儲值金額'),
   buyerTelm: yup.string().required('請輸入聯絡電話'),
   buyerMail: yup.string().email('無效的電子郵件').required('請輸入電子郵件'),

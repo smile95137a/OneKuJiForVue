@@ -20,21 +20,24 @@ const dialogStore = useDialogStore();
 const schema = yup.object({
   cardHolderName: yup
     .string()
-    .required('請輸入持卡人姓名')
+    .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
     .matches(/^[A-Za-z\s]+$/, '持卡人姓名只能包含字母和空格')
     .min(3, '持卡人姓名必須至少包含 3 個字符')
     .max(50, '持卡人姓名不能超過 50 個字符'),
   cardNo: yup
     .string()
-    .required('請輸入卡號')
+    .required('請輸入您的信用卡號碼')
     .matches(/^[0-9]+$/, '卡號只能包含數字')
     .min(16, '卡號必須為 16 位數')
     .max(16, '卡號必須為 16 位數'),
   expireDate: yup
     .string()
-    .matches(/^([0-9]{2})(0[1-9]|1[0-2])$/, '無效的過期日期 (YYMM)')
-    .required('過期日期為必填'),
-  cvv: yup.string().length(3, 'CVV 必須為 3 位數').required('CVV 為必填'),
+    .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, '無效的過期日期 (MM/YY)')
+    .required('請輸入有效到期日'),
+  cvv: yup
+    .string()
+    .length(3, '安全驗證碼必須為 3 位數')
+    .required('請輸入安全驗證碼'),
   amount: yup.string().required('請選擇儲值金額'),
   buyerTelm: yup.string().required('請輸入聯絡電話'),
   buyerMail: yup.string().email('無效的電子郵件').required('請輸入電子郵件'),
@@ -55,14 +58,14 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
   },
 });
 
-const [cardHolderName, cardHolderNameProps] = defineField('cardHolderName');
-const [paymentMethod, paymentMethodProps] = defineField('paymentMethod');
-const [cardNo, cardNoProps] = defineField('cardNo');
-const [expireDate, expireDateProps] = defineField('expireDate');
-const [cvv, cvvProps] = defineField('cvv');
-const [amount, amountProps] = defineField('amount');
-const [buyerTelm, buyerTelmProps] = defineField('buyerTelm');
-const [buyerMail, buyerMailProps] = defineField('buyerMail');
+const [cardHolderName] = defineField('cardHolderName');
+const [paymentMethod] = defineField('paymentMethod');
+const [cardNo] = defineField('cardNo');
+const [expireDate] = defineField('expireDate');
+const [cvv] = defineField('cvv');
+const [amount] = defineField('amount');
+const [buyerTelm] = defineField('buyerTelm');
+const [buyerMail] = defineField('buyerMail');
 
 const depositList = [
   { id: 'deposit1', value: '1000', num: '1000' },
@@ -169,10 +172,78 @@ const onSubmit = handleSubmit(async (values) => {
 
     <div v-if="paymentMethod === 1" class="p-y-48 p-x-48">
       <div class="mallCheckout__form">
-        <div
-          class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--credit"
-        >
+        <div class="flex">
           <div class="w-100">
+            <p class="mallCheckout__text mallCheckout__text--required">
+              信用卡號碼
+            </p>
+            <input
+              class="mallCheckout__form-input"
+              v-model="cardNo"
+              :class="{
+                'mallCheckout__form-input--error': errors.cardNo,
+              }"
+              placeholder="輸入信用卡號碼"
+            />
+            <p class="mallCheckout__text mallCheckout__text--error">
+              {{ errors.cardNo }}
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-x-24">
+          <div class="w-75">
+            <p class="mallCheckout__text mallCheckout__text--required">
+              到期日(MM/YY)
+            </p>
+            <input
+              class="mallCheckout__form-input"
+              v-model="expireDate"
+              :class="{
+                'mallCheckout__form-input--error': errors.expireDate,
+              }"
+              placeholder="MM/YY"
+            />
+            <p class="mallCheckout__text mallCheckout__text--error">
+              {{ errors.expireDate }}
+            </p>
+          </div>
+          <div class="w-25">
+            <p class="mallCheckout__text mallCheckout__text--required">
+              安全驗證碼
+            </p>
+            <input
+              class="mallCheckout__form-input"
+              v-model="cvv"
+              :class="{
+                'mallCheckout__form-input--error': errors.cvv,
+              }"
+              placeholder="安全驗證碼"
+            />
+            <p class="mallCheckout__text mallCheckout__text--error">
+              {{ errors.cvv }}
+            </p>
+          </div>
+        </div>
+        <div class="flex">
+          <div class="w-100">
+            <p class="mallCheckout__text mallCheckout__text--required">
+              持卡者名字
+            </p>
+            <input
+              class="mallCheckout__form-input"
+              v-model="cardHolderName"
+              :class="{
+                'mallCheckout__form-input--error': errors.cardHolderName,
+              }"
+              placeholder="輸入持卡者名字"
+            />
+            <p class="mallCheckout__text mallCheckout__text--error">
+              {{ errors.cardHolderName }}
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-x-24">
+          <div class="w-50">
             <p class="mallCheckout__text mallCheckout__text--required">
               聯絡電話
             </p>
@@ -188,7 +259,7 @@ const onSubmit = handleSubmit(async (values) => {
               {{ errors.buyerTelm }}
             </p>
           </div>
-          <div class="w-100">
+          <div class="w-50">
             <p class="mallCheckout__text mallCheckout__text--required">
               電子郵件
             </p>
@@ -202,70 +273,6 @@ const onSubmit = handleSubmit(async (values) => {
             />
             <p class="mallCheckout__text mallCheckout__text--error">
               {{ errors.buyerMail }}
-            </p>
-          </div>
-        </div>
-        <div
-          class="mallCheckout__form-inputs gap-x-24 mallCheckout__form-inputs--credit"
-        >
-          <div class="w-100">
-            <p class="mallCheckout__text mallCheckout__text--required">
-              持卡人姓名
-            </p>
-            <input
-              class="mallCheckout__form-input"
-              v-model="cardHolderName"
-              :class="{
-                'mallCheckout__form-input--error': errors.cardHolderName,
-              }"
-              placeholder="輸入持卡人姓名"
-            />
-            <p class="mallCheckout__text mallCheckout__text--error">
-              {{ errors.cardHolderName }}
-            </p>
-          </div>
-          <div class="w-100">
-            <p class="mallCheckout__text mallCheckout__text--required">卡號</p>
-            <input
-              class="mallCheckout__form-input"
-              v-model="cardNo"
-              :class="{
-                'mallCheckout__form-input--error': errors.cardNo,
-              }"
-              placeholder="輸入信用卡卡號"
-            />
-            <p class="mallCheckout__text mallCheckout__text--error">
-              {{ errors.cardNo }}
-            </p>
-          </div>
-          <div class="w-100">
-            <p class="mallCheckout__text mallCheckout__text--required">
-              有效日期
-            </p>
-            <input
-              class="mallCheckout__form-input"
-              v-model="expireDate"
-              :class="{
-                'mallCheckout__form-input--error': errors.expireDate,
-              }"
-              placeholder="MM/YY"
-            />
-            <p class="mallCheckout__text mallCheckout__text--error">
-              {{ errors.expireDate }}
-            </p>
-          </div>
-          <div class="w-100">
-            <p class="mallCheckout__text mallCheckout__text--required">CVV</p>
-            <input
-              class="mallCheckout__form-input"
-              v-model="cvv"
-              :class="{
-                'mallCheckout__form-input--error': errors.cvv,
-              }"
-              placeholder="三位數的CVV"
-            />
-            <p class="mallCheckout__text mallCheckout__text--error">
-              {{ errors.cvv }}
             </p>
           </div>
         </div>
