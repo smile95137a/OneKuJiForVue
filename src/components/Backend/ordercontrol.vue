@@ -4,11 +4,11 @@
 
     <!-- 新增篩選按鈕 -->
     <div class="filter-buttons">
-  <button @click="filterOrders('SHIPPED')" class="filter-btn">已發貨</button>
-  <button @click="filterOrders('PREPARING_SHIPMENT')" class="filter-btn">未發貨</button>
-  <button @click="filterOrders('')" class="filter-btn">全部訂單</button>
-  <button @click="filterOrders('UNSELECTED')" class="filter-btn">未選擇狀態</button> <!-- 新增的按鈕 -->
-</div>
+      <button @click="filterOrders('SHIPPED')" class="filter-btn">已發貨</button>
+      <button @click="filterOrders('PREPARING_SHIPMENT')" class="filter-btn">未發貨</button>
+      <button @click="filterOrders('')" class="filter-btn">全部訂單</button>
+      <button @click="filterOrders('UNSELECTED')" class="filter-btn">未選擇狀態</button> <!-- 新增的按鈕 -->
+    </div>
 
 
     <div class="order-table-container">
@@ -22,6 +22,7 @@
             <th>創建時間</th>
             <th>訂單狀態</th>
             <th>操作</th>
+            <th>建立物流訂單</th>
           </tr>
         </thead>
         <tbody>
@@ -39,6 +40,9 @@
             </td>
             <td>
               <button @click="viewOrderDetails(order.id)" class="view-details-btn">查看訂單明細</button>
+            </td>
+            <td>
+              <button @click="openModal(orderId)" class="view-details-btn">建立物流訂單</button>
             </td>
           </tr>
         </tbody>
@@ -81,12 +85,155 @@
         <p v-else class="no-data">無訂單詳情資料</p>
       </div>
     </div>
+
+    <div v-if="showModal" class="modal">
+      <div class="modal-content">
+        <h3>建立物流訂單</h3>
+        <form @submit.prevent="submitLogistics">
+          <!-- 客戶訂單編號 -->
+          <div>
+            <label for="vendorOrder">客戶訂單編號：</label>
+            <input type="text" v-model="logisticsRequest.vendorOrder" readonly />
+          </div>
+
+          <!-- 物流方式選擇 -->
+          <div>
+            <label for="logisticsMode">物流方式：</label>
+            <select v-model="logisticsRequest.logisticsMode">
+              <option value="store">便利商店配送</option>
+              <option value="home">黑貓配送</option>
+            </select>
+          </div>
+
+          <!-- 便利商店配送 -->
+          <div v-if="logisticsRequest.logisticsMode === 'store'">
+            <div>
+              <label for="storeId">門市代號：</label>
+              <input type="text" v-model="logisticsRequest.storeId" />
+            </div>
+            <div>
+              <label for="opMode">通路代號：</label>
+              <select v-model="logisticsRequest.opMode">
+                <option value="1">全家</option>
+                <option value="2">萊爾富</option>
+                <option value="3">統一超商</option>
+                <option value="4">OK 超商</option>
+              </select>
+            </div>
+            <div>
+              <label for="amount">交易金額：</label>
+              <input type="number" v-model="logisticsRequest.amount" />
+            </div>
+            <div>
+              <label for="senderName">商品價值:</label>
+              <input type="text" v-model="logisticsRequest.orderAmount" />
+            </div>
+            <div>
+              <label for="senderName">寄件人姓名：</label>
+              <input type="text" v-model="logisticsRequest.senderName" />
+            </div>
+            <div>
+              <label for="sendMobilePhone">寄件人手機電話：</label>
+              <input type="text" v-model="logisticsRequest.sendMobilePhone" />
+            </div>
+            <div>
+              <label for="receiverName">取貨人姓名：</label>
+              <input type="text" v-model="logisticsRequest.receiverName" />
+            </div>
+            <div>
+              <label for="receiverMobilePhone">取貨人手機電話：</label>
+              <input type="text" v-model="logisticsRequest.receiverMobilePhone" />
+            </div>
+            <div>
+              <label for="shipmentDate">出貨日期：</label>
+              <input type="date" v-model="logisticsRequest.shipmentDate" />
+            </div>
+          </div>
+
+          <!-- 黑貓配送 -->
+          <div v-if="logisticsRequest.logisticsMode === 'home'">
+            <div>
+              <label for="spec">規格：</label>
+              <select v-model="logisticsRequest.spec">
+                <option value="1">60cm</option>
+                <option value="2">90cm</option>
+                <option value="3">120cm</option>
+                <option value="4">150cm</option>
+              </select>
+            </div>
+            <!-- 黑貓的服務型態代碼已固定，這裡隱藏它 -->
+            <div v-if="logisticsRequest.logisticsMode === 'home'" style="display:none;">
+              <input type="hidden" v-model="logisticsRequest.serviceType" value="3" />
+            </div>
+            <div>
+              <label for="amount">交易金額：</label>
+              <input type="number" v-model="logisticsRequest.amount" />
+            </div>
+            <div>
+              <label for="senderName">商品價值:</label>
+              <input type="text" v-model="logisticsRequest.orderAmount" />
+            </div>
+            <div>
+              <label for="senderName">寄件人姓名：</label>
+              <input type="text" v-model="logisticsRequest.senderName" />
+            </div>
+            <div>
+              <label for="sendMobilePhone">寄件人手機電話：</label>
+              <input type="text" v-model="logisticsRequest.senderMobile" />
+            </div>
+            <div>
+              <label for="sendMobilePhone">寄件人郵碼：</label>
+              <input type="text" v-model="logisticsRequest.senderZipCode" />
+            </div>
+            <div>
+              <label for="sendMobilePhone">寄件人地址：</label>
+              <input type="text" v-model="logisticsRequest.senderAddress" />
+            </div>
+            <div>
+              <button type="button" @click.prevent="fetchPostNumber">查詢郵遞區號</button>
+            </div>
+            <div>
+              <label for="receiverName">取貨人姓名：</label>
+              <input type="text" v-model="logisticsRequest.recipientName" />
+            </div>
+            <div>
+              <label for="receiverMobilePhone">取貨人手機電話：</label>
+              <input type="text" v-model="logisticsRequest.recipientMobile" />
+            </div>
+            <div>
+              <label for="receiverMobilePhone">取貨人地址：</label>
+              <input type="text" v-model="logisticsRequest.recipientAddress" />
+            </div>
+            <div>
+              <label for="shipmentDate">出貨日期：</label>
+              <input type="date" v-model="logisticsRequest.shipmentDate" />
+            </div>
+            <div>
+              <label for="shipmentDate">希望配達日期：</label>
+              <input type="date" v-model="logisticsRequest.deliveryDate" />
+            </div>
+            <div>
+              <label for="deliveryTime">希望配達時間：</label>
+              <input type="time" v-model="logisticsRequest.deliveryTime" />
+            </div>
+          </div>
+
+          <!-- 提交和取消按鈕 -->
+          <div>
+            <button type="submit">提交訂單</button>
+            <button type="button" @click="closeModal2">取消</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script lang="ts" setup>
 import { Order, OrderDetail } from '@/interfaces/order';
-import { getAllOrder, getOrderDetailsByOrderId, updateOrder } from '@/services/backend/orderservice';
+import { convenience, getAllOrder, getOrderDetailsByOrderId, updateOrder } from '@/services/backend/orderservice';
+import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 
 const orders = ref<Order[]>([]);
@@ -114,7 +261,7 @@ const loadOrders = async () => {
 // 根據篩選條件過濾訂單
 const filterOrders = (status: string) => {
   currentFilter.value = status;
-  
+
   if (status === 'UNSELECTED') {
     // 篩選出狀態為 null 或未定義的訂單
     filteredOrders.value = orders.value.filter(order => !order.resultStatus);
@@ -182,6 +329,89 @@ const nextPage = () => {
 const closeModal = () => {
   showOrderDetailsModal.value = false;
 };
+
+
+const showModal = ref(false);
+const logisticsRequest = ref({
+  vendorOrder: '', // 示例訂單編號
+  logisticsMode: '', // 儲存物流方式
+  storeId: '', // 便利商店門市代號
+  opMode: '', // 通路代號
+  receiverName: '', // 取貨人姓名
+  receiverMobilePhone: '', // 取貨人手機
+  thermosphere: '', // 黑貓溫層
+  spec: '', // 黑貓規格
+  serviceType: '', // 固定黑貓的服務型態代碼
+  amount: '', // 金額
+  senderName: '', // 寄件人姓名
+  sendMobilePhone: '', // 寄件人手機
+  shipmentDate: '', // 出貨日期
+  orderAmount: '',//商品價值
+  recipientAddress: '',//取貨人地址
+  senderZipCode: '',//寄件人郵碼
+  senderAddress: '',// 寄件人地址
+  deliveryDate: '', // 希望配達日期 (yyyy-MM-dd)
+  senderMobile: '', //黑貓寄件人手機
+  recipientName: '', //黑貓取貨人姓名
+  recipientMobile: '', //// 取貨人手機電話
+  deliveryTime: '',
+});
+
+// 開啟對話框並設置訂單編號
+const openModal = (orderId: any) => {
+  const filteredOrder = orders.value.find(order => order.orderId === orderId);
+  if (filteredOrder) {
+    logisticsRequest.value.vendorOrder = filteredOrder.orderNumber; // 設置訂單號
+    showModal.value = true;
+  }
+};
+
+// 關閉對話框
+const closeModal2 = () => {
+  showModal.value = false;
+};
+
+// 提交物流訂單
+const submitLogistics = async () => {
+  try {
+    const response = await convenience(logisticsRequest.value);
+    alert('物流訂單已建立：' + response);
+    closeModal2();
+  } catch (error) {
+    alert('建立訂單失敗：' + error.response.data.message);
+  }
+};
+
+
+const fetchPostNumber = async () => {
+  try {
+    console.log('Sender Address:', logisticsRequest.value.senderAddress);
+    const address = { address: logisticsRequest.value.senderAddress };
+    const response = await axios.post('http://localhost:8080/api/express/getAddress', address);
+    const result = response.data;
+
+    // 從返回的字符串中提取 PostNumber
+    const postNumber = extractPostNumber(result);
+    if (postNumber) {
+      logisticsRequest.value.senderZipCode = postNumber;
+    } else {
+      alert('未找到郵遞區號');
+    }
+  } catch (error) {
+    console.error('獲取郵遞區號失敗:', error);
+    alert('查詢郵遞區號失敗，請稍後重試');
+  }
+};
+
+const extractPostNumber = (responseString: string) => {
+  const parts = responseString.split(',');
+  for (const part of parts) {
+    if (part.startsWith('PostNumber=')) {
+      return part.split('=')[1];
+    }
+  }
+  return null;
+};
 </script>
 
 <style scoped>
@@ -217,20 +447,24 @@ const closeModal = () => {
   overflow-x: auto;
 }
 
-.order-table, .order-details-table {
+.order-table,
+.order-details-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
 }
 
-.order-table th, .order-table td,
-.order-details-table th, .order-details-table td {
+.order-table th,
+.order-table td,
+.order-details-table th,
+.order-details-table td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
 }
 
-.order-table th, .order-details-table th {
+.order-table th,
+.order-details-table th {
   background-color: #f2f2f2;
   font-weight: bold;
 }
@@ -239,7 +473,8 @@ const closeModal = () => {
   background-color: #f9f9f9;
 }
 
-.status-select, .view-details-btn {
+.status-select,
+.view-details-btn {
   padding: 6px 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -287,7 +522,7 @@ const closeModal = () => {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -300,7 +535,7 @@ const closeModal = () => {
   width: 80%;
   max-width: 800px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .close-button {
@@ -322,5 +557,84 @@ const closeModal = () => {
   text-align: center;
   color: #666;
   font-style: italic;
+}
+
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* 半透明背景 */
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal h3 {
+  margin-bottom: 15px;
+  font-size: 1.5em;
+  color: #333;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.modal input,
+.modal select {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal input[type="date"],
+.modal input[type="number"] {
+  max-width: 100%;
+}
+
+.modal button {
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.modal button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  margin-right: 10px;
+}
+
+.modal button[type="button"] {
+  background-color: #f44336;
+  color: white;
+}
+
+.modal button:hover {
+  opacity: 0.9;
 }
 </style>

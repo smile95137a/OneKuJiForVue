@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { Order, OrderDetail } from '@/interfaces/order';
+import axios from 'axios';
 
 const API_URL = `${import.meta.env.VITE_BASE_API_URL2}`;
 
@@ -31,3 +31,13 @@ export const getOrderDetailsByOrderId = async (orderId: number): Promise<OrderDe
     const response = await axios.get<OrderDetail[]>(`${API_URL}/orderDetails/${orderId}`);
     return response.data;
 };
+
+export const convenience = async (data: any): Promise<any> => {
+    const apiUrl = `${API_URL}/express/${data.logisticsMode === 'store' ? 'convenience' : 'homeAndOffice'}`;
+    const response = await axios.post<any>(apiUrl, data);
+
+    // 直接返回解析后的 JSON 数据
+    return response.data;
+};
+
+
