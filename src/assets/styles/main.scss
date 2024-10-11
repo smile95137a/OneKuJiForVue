@@ -321,10 +321,11 @@ $letter-spacing-nums: 100;
 .layout {
   width: 100vw;
   &__main {
-    width: 100%;
+    @include w_h(100%, 100%);
+    margin: 0 auto;
+    max-width: 1280px;
     min-height: 636px;
-    height: 100%;
-    padding: 36px 12%;
+    padding: 36px 24px;
     @include screen(lg) {
       padding: 36px 4%;
     }

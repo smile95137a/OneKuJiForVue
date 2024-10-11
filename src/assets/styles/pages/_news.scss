@@ -40,12 +40,13 @@ $root-block-name: '.news';
 
       #{$p__text} {
         &--title {
-          font-size: 35px;
+          font-size: 18px;
           font-weight: 800;
         }
 
         &--preview {
-          font-size: 24px;
+          margin-top: 24px;
+          font-size: 16px;
           font-weight: 400;
           color: #515151;
         }
