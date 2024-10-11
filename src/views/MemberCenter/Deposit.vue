@@ -30,7 +30,7 @@ const schema = yup.object({
     .max(16, '卡號必須為 16 位數'),
   expireDate: yup
     .string()
-    .matches(/^(20[0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
+    .matches(/^([0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
     .required('請輸入有效到期日'),
   cvv: yup
     .string()
