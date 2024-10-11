@@ -5,7 +5,6 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 // 导入组件
 import About from '@/views/About/About.vue';
-import Blindox from '@/views/BlindBox/BlindBox.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import Gacha from '@/views/Gacha/Gacha.vue';
 import Home from '@/views/Home/Home.vue';
@@ -15,11 +14,11 @@ import Mall from '@/views/Mall/Mall.vue';
 import MallCheckout from '@/views/Mall/MallCheckout.vue';
 import MallOrderSuccess from '@/views/Mall/MallOrderSuccess.vue';
 import MallProduct from '@/views/Mall/MallProduct.vue';
+import Deposit from '@/views/MemberCenter/Deposit.vue';
 import DrawHistory from '@/views/MemberCenter/DrawHistory.vue';
 import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
 import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
-import Deposit from '@/views/MemberCenter/Deposit.vue';
 import Promo from '@/views/Promo/Promo.vue';
 
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
@@ -30,10 +29,10 @@ import NotFound from '@/views/NotFound/NotFound.vue';
 import OAuth2Redirect from '@/views/OAuth2Redirect/OAuth2Redirect.vue';
 import Policy from '@/views/Policy/Policy.vue';
 import Privacy from '@/views/Privacy/Privacy.vue';
+import PrizeOrderSuccess from '@/views/Prize/PrizeOrderSuccess.vue';
 import Register from '@/views/Register/Register.vue';
 import Transaction from '@/views/Transaction/Transaction.vue';
 import Verify from '@/views/Verify/Verify.vue';
-import PrizeOrderSuccess from '@/views/Prize/PrizeOrderSuccess.vue';
 
 // 后台组件
 import MemberManagement from '@/components/backend/MemberManagement.vue';
@@ -44,10 +43,11 @@ import AdminDashboard from '@/views/Control/AdminDashboard.vue';
 import AdminLogin from '@/views/Control/AdminLogin.vue';
 import PrizeCheckout from '@/views/MemberCenter/PrizeCheckout.vue';
 
+import Banner from '@/components/backend/banner.vue';
 import ordercontrol from '@/components/backend/ordercontrol.vue';
 import ProductRecommendation from '@/components/backend/ProductRecommendation.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
-import Banner from '@/components/backend/banner.vue';
+import Vendor from '@/components/backend/vendor.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/oauth2/redirect',
@@ -230,6 +230,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'order-management',
         component: ordercontrol,
+      },
+      {
+        path: 'vendor',
+        component: Vendor,
       },
       {
         path: 'news-management',

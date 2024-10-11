@@ -42,16 +42,11 @@
               <button @click="viewOrderDetails(order.id)" class="view-details-btn">查看訂單明細</button>
             </td>
             <td>
-              <button @click="openModal(orderId)" class="view-details-btn">建立物流訂單</button>
+              <button @click="openModal(order.orderNumber)" class="view-details-btn">建立物流訂單</button>
             </td>
           </tr>
         </tbody>
       </table>
-    </div>
-    <div class="pagination">
-      <button @click="previousPage" :disabled="currentPage === 1" class="pagination-btn">上一頁</button>
-      <span class="page-info">第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages" class="pagination-btn">下一頁</button>
     </div>
 
     <div v-if="showOrderDetailsModal" class="modal">
@@ -62,29 +57,35 @@
           <thead>
             <tr>
               <th>產品 ID</th>
-              <th>商店產品名稱</th>
-              <th>產品詳細名稱</th>
+              <th>產品名稱</th>
               <th>數量</th>
               <th>單價</th>
-              <th>結果狀態</th>
-              <th>獲得的獎勳點數</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="detail in orderDetails" :key="detail.id">
-              <td>{{ detail.productId }}</td>
-              <td>{{ detail.storeProductName }}</td>
-              <td>{{ detail.productDetailName }}</td>
+            <tr v-for="detail in orderDetails" :key="detail.orderDetailId">
+              <td>{{ detail.storeProduct?.storeProductId ?? detail.productDetailRes?.productDetailId ?? 'N/A' }}</td>
+              <td>
+                <!-- 判断 storeProduct 或 productDetailRes 是否为 null，显示相应信息 -->
+                <div v-if="detail.storeProduct">
+                  <p><strong></strong>{{ detail.storeProduct.productName }}</p>
+                </div>
+                <div v-else-if="detail.productDetailRes">
+                  <p><strong></strong>{{ detail.productDetailRes.productName }}</p>
+                </div>
+                <div v-else>
+                  <p>無產品</p>
+                </div>
+              </td>
               <td>{{ detail.quantity }}</td>
               <td>{{ formatCurrency(detail.unitPrice) }}</td>
-              <td>{{ detail.resultStatus }}</td>
-              <td>{{ detail.bonusPointsEarned ?? 'N/A' }}</td>
             </tr>
           </tbody>
         </table>
         <p v-else class="no-data">無訂單詳情資料</p>
       </div>
     </div>
+
 
     <div v-if="showModal" class="modal">
       <div class="modal-content">
@@ -101,7 +102,6 @@
             <label for="logisticsMode">物流方式：</label>
             <select v-model="logisticsRequest.logisticsMode">
               <option value="store">便利商店配送</option>
-              <option value="home">黑貓配送</option>
             </select>
           </div>
 
@@ -115,9 +115,7 @@
               <label for="opMode">通路代號：</label>
               <select v-model="logisticsRequest.opMode">
                 <option value="1">全家</option>
-                <option value="2">萊爾富</option>
                 <option value="3">統一超商</option>
-                <option value="4">OK 超商</option>
               </select>
             </div>
             <div>
@@ -149,75 +147,6 @@
               <input type="date" v-model="logisticsRequest.shipmentDate" />
             </div>
           </div>
-
-          <!-- 黑貓配送 -->
-          <div v-if="logisticsRequest.logisticsMode === 'home'">
-            <div>
-              <label for="spec">規格：</label>
-              <select v-model="logisticsRequest.spec">
-                <option value="1">60cm</option>
-                <option value="2">90cm</option>
-                <option value="3">120cm</option>
-                <option value="4">150cm</option>
-              </select>
-            </div>
-            <!-- 黑貓的服務型態代碼已固定，這裡隱藏它 -->
-            <div v-if="logisticsRequest.logisticsMode === 'home'" style="display:none;">
-              <input type="hidden" v-model="logisticsRequest.serviceType" value="3" />
-            </div>
-            <div>
-              <label for="amount">交易金額：</label>
-              <input type="number" v-model="logisticsRequest.amount" />
-            </div>
-            <div>
-              <label for="senderName">商品價值:</label>
-              <input type="text" v-model="logisticsRequest.orderAmount" />
-            </div>
-            <div>
-              <label for="senderName">寄件人姓名：</label>
-              <input type="text" v-model="logisticsRequest.senderName" />
-            </div>
-            <div>
-              <label for="sendMobilePhone">寄件人手機電話：</label>
-              <input type="text" v-model="logisticsRequest.senderMobile" />
-            </div>
-            <div>
-              <label for="sendMobilePhone">寄件人郵碼：</label>
-              <input type="text" v-model="logisticsRequest.senderZipCode" />
-            </div>
-            <div>
-              <label for="sendMobilePhone">寄件人地址：</label>
-              <input type="text" v-model="logisticsRequest.senderAddress" />
-            </div>
-            <div>
-              <button type="button" @click.prevent="fetchPostNumber">查詢郵遞區號</button>
-            </div>
-            <div>
-              <label for="receiverName">取貨人姓名：</label>
-              <input type="text" v-model="logisticsRequest.recipientName" />
-            </div>
-            <div>
-              <label for="receiverMobilePhone">取貨人手機電話：</label>
-              <input type="text" v-model="logisticsRequest.recipientMobile" />
-            </div>
-            <div>
-              <label for="receiverMobilePhone">取貨人地址：</label>
-              <input type="text" v-model="logisticsRequest.recipientAddress" />
-            </div>
-            <div>
-              <label for="shipmentDate">出貨日期：</label>
-              <input type="date" v-model="logisticsRequest.shipmentDate" />
-            </div>
-            <div>
-              <label for="shipmentDate">希望配達日期：</label>
-              <input type="date" v-model="logisticsRequest.deliveryDate" />
-            </div>
-            <div>
-              <label for="deliveryTime">希望配達時間：</label>
-              <input type="time" v-model="logisticsRequest.deliveryTime" />
-            </div>
-          </div>
-
           <!-- 提交和取消按鈕 -->
           <div>
             <button type="submit">提交訂單</button>
@@ -232,15 +161,11 @@
 
 <script lang="ts" setup>
 import { Order, OrderDetail } from '@/interfaces/order';
-import { convenience, getAllOrder, getOrderDetailsByOrderId, updateOrder } from '@/services/backend/orderservice';
+import { convenience, getAllOrder, xxx } from '@/services/backend/orderservice';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 
 const orders = ref<Order[]>([]);
-const filteredOrders = ref<Order[]>([]);
-const orderDetails = ref<OrderDetail[]>([]);
-const selectedOrderId = ref<number | null>(null);
-const showOrderDetailsModal = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 const currentFilter = ref<string>(''); // 訂單狀態篩選
@@ -289,31 +214,6 @@ function formatDate(dateArray: [any, any, any, any, any, any]) {
 
   return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(minute)} 分 ${pad(second)} 秒`;
 }
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD' }).format(value);
-};
-
-const updateOrderStatus = async (order: Order) => {
-  try {
-    await updateOrder(order.id, { resultStatus: order.resultStatus });
-    console.log(`已更新訂單 ${order.id} 的狀態為 ${order.resultStatus}`);
-  } catch (error) {
-    console.error('Error updating order status:', error);
-  }
-};
-
-const viewOrderDetails = async (orderId: number) => {
-  try {
-    selectedOrderId.value = orderId;
-    const response = await getOrderDetailsByOrderId(orderId);
-    orderDetails.value = Array.isArray(response) ? response : [response];
-    showOrderDetailsModal.value = true;
-  } catch (error) {
-    console.error('Error fetching order details:', error);
-    orderDetails.value = [];
-  }
-};
-
 const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
@@ -326,9 +226,6 @@ const nextPage = () => {
   }
 };
 
-const closeModal = () => {
-  showOrderDetailsModal.value = false;
-};
 
 
 const showModal = ref(false);
@@ -358,13 +255,19 @@ const logisticsRequest = ref({
 });
 
 // 開啟對話框並設置訂單編號
-const openModal = (orderId: any) => {
-  const filteredOrder = orders.value.find(order => order.orderId === orderId);
+const openModal = (orderNumber: any) => {
+  const filteredOrder = orders.value.find(order => order.orderNumber === orderNumber);
   if (filteredOrder) {
     logisticsRequest.value.vendorOrder = filteredOrder.orderNumber; // 設置訂單號
+    logisticsRequest.value.storeId = filteredOrder.shopId;
+    logisticsRequest.value.opMode = filteredOrder.opmode; // 初始化 opMode
+    logisticsRequest.value.amount = filteredOrder.totalAmount; // 初始化交易金額
+    logisticsRequest.value.receiverName = filteredOrder.shippingName; // 初始化取貨人姓名
+    logisticsRequest.value.receiverMobilePhone = filteredOrder.shippingPhone; // 初始化取貨人手機
     showModal.value = true;
   }
 };
+
 
 // 關閉對話框
 const closeModal2 = () => {
@@ -412,6 +315,51 @@ const extractPostNumber = (responseString: string) => {
   }
   return null;
 };
+
+
+// 當前選中的訂單 ID
+const selectedOrderId = ref<number | null>(null);
+const showOrderDetailsModal = ref(false);
+const orderDetails = ref<OrderDetail[]>([]);
+
+// 過濾訂單，這裡你可以應用自己的過濾邏輯
+const filteredOrders = ref(orders.value);
+
+// 格式化貨幣
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('zh-TW', { style: 'currency', currency: 'TWD' }).format(value);
+};
+
+// 更新訂單狀態
+const updateOrderStatus = async (order) => {
+  try {
+    
+    const response = await xxx(order.id , order.resultStatus);
+    if (response.ok) {
+      const updatedOrder = await response.json();
+      console.log('订单状态更新成功', updatedOrder);
+    } else {
+      console.error('更新订单状态失败', response.status);
+    }
+  } catch (error) {
+    console.error('请求失败', error);
+  }
+};
+// 查看訂單詳情
+const viewOrderDetails = (orderId: number) => {
+  const order = orders.value.find((o) => o.id === orderId);
+  if (order) {
+    orderDetails.value = order.orderDetails;
+    selectedOrderId.value = orderId;
+    showOrderDetailsModal.value = true;
+  }
+};
+
+// 關閉訂單詳情模態框
+const closeModal = () => {
+  showOrderDetailsModal.value = false;
+};
+
 </script>
 
 <style scoped>
@@ -637,4 +585,76 @@ const extractPostNumber = (responseString: string) => {
 .modal button:hover {
   opacity: 0.9;
 }
+body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .modal {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .close-button:hover {
+            color: #555;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+        .order-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .order-details-table th, .order-details-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+        .order-details-table th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+            color: #333;
+        }
+        .order-details-table tr:last-child td {
+            border-bottom: none;
+        }
+        .order-details-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .no-data {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            margin-top: 2rem;
+        }
 </style>

@@ -40,4 +40,14 @@ export const convenience = async (data: any): Promise<any> => {
     return response.data;
 };
 
+export const xxx = async (orderId: number, resultStatus: string): Promise<any> => {
+    const response = await axios.put(`${API_URL}/order/${orderId}`, {
+        resultStatus: resultStatus // 封装为 JSON 对象
+    }, {
+        headers: {
+            'Content-Type': 'application/json' // 指定请求类型为 JSON
+        }
+    });
+    return response.data;
+};
 
