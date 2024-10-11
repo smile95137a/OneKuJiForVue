@@ -1,15 +1,13 @@
 <script lang="ts" setup>
-import Card from '@/components/common/Card.vue';
-import MCardHeader from '@/components/common/MCardHeader.vue';
-import dbox from '@/assets/image/dp.png';
-import { paymentOptions } from '@/data/orderOptions';
-import * as yup from 'yup';
-import { useForm } from 'vee-validate';
-import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
-import { useRouter } from 'vue-router';
-import { topUp } from '@/services/frontend/paymentService';
 import c1 from '@/assets/image/coin-1.png';
+import dbox from '@/assets/image/dp.png';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import { paymentOptions } from '@/data/orderOptions';
+import { topUp } from '@/services/frontend/paymentService';
+import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
+import { useForm } from 'vee-validate';
+import { useRouter } from 'vue-router';
+import * as yup from 'yup';
 
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -32,7 +30,7 @@ const schema = yup.object({
     .max(16, '卡號必須為 16 位數'),
   expireDate: yup
     .string()
-    .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, '無效的過期日期 (MM/YY)')
+    .matches(/^(20[0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
     .required('請輸入有效到期日'),
   cvv: yup
     .string()

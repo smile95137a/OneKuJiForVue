@@ -566,6 +566,7 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import MSelect from '@/components/common/MSelect.vue';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import { paymentOptions, shippingOptions } from '@/data/orderOptions';
@@ -587,7 +588,6 @@ import { useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import * as yup from 'yup';
-import NumberFormatter from '@/components/common/NumberFormatter.vue';
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
@@ -699,7 +699,7 @@ const schema = yup.object({
     .max(16, '卡號必須為 16 位數'),
   expiryDate: yup
     .string()
-    .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, '無效的過期日期 (MM/YY)')
+    .matches(/^(20[0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
     .required('請輸入有效到期日'),
   cvv: yup
     .string()
