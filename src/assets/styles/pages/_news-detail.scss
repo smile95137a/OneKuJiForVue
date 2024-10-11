@@ -7,7 +7,7 @@ $root-block-name: '.newsDetail';
   &__title {
     @include flex(center, space-between);
     #{$p__text} {
-      font-size: 35px;
+      font-size: 24px;
       font-weight: 800;
     }
   }

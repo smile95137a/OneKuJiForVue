@@ -45,7 +45,7 @@ $root-block-name: '.mall';
     input {
       display: none;
     }
-    font-size: 25px;
+    font-size: 18px;
     font-weight: 400;
 
     @include screen(md) {
@@ -67,7 +67,7 @@ $root-block-name: '.mall';
     gap: 24px;
     padding: 0 48px;
     &-btn {
-      font-size: 24px;
+      font-size: 18px;
       font-weight: 700;
       color: #fff;
       cursor: pointer;

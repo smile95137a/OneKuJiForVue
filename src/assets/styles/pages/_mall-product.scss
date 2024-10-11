@@ -102,7 +102,7 @@ $root-block-name: '.mall-product';
       margin-left: 0;
     }
     &-title {
-      font-size: 35px;
+      font-size: 24px;
       font-weight: 800;
       word-break: break-all;
     }
@@ -118,7 +118,7 @@ $root-block-name: '.mall-product';
     }
 
     &-priceMoney {
-      font-size: 96px;
+      font-size: 80px;
       font-weight: 600;
       color: #fed706;
       line-height: 1;
@@ -273,10 +273,10 @@ $root-block-name: '.mall-product';
           color: #ffffff;
         }
         &-icon {
-          font-size: 36px;
+          font-size: 24px;
         }
         &-text {
-          font-size: 36px;
+          font-size: 24px;
           font-weight: 900;
         }
       }

@@ -43,7 +43,7 @@ $root-block-name: '.product';
     color: #b0662f;
     @include flex(center, center);
 
-    font-size: 25px;
+    font-size: 22px;
     font-weight: 400;
     transition: opacity 0.3s ease, transform 0.3s ease;
     @include screen(md) {
@@ -80,7 +80,7 @@ $root-block-name: '.product';
       input {
         display: none;
       }
-      font-size: 25px;
+      font-size: 18px;
       font-weight: 400;
 
       @include screen(md) {

@@ -44,7 +44,7 @@ $root-block-name: '.product-detail-one';
       margin-bottom: 32px;
     }
     #{ $p__text } {
-      font-size: 35px;
+      font-size: 24px;
       font-weight: 800;
     }
   }
@@ -123,7 +123,7 @@ $root-block-name: '.product-detail-one';
       color: #fff;
       border-radius: 90px;
 
-      font-size: 36px;
+      font-size: 22px;
       font-weight: 900;
       cursor: pointer;
       @include screen(md) {
@@ -145,8 +145,8 @@ $root-block-name: '.product-detail-one';
         color: #000;
         gap: 24px;
         img {
-          width: 48px;
-          height: 48px;
+          width: 32px;
+          height: 32px;
           @include screen(lg) {
             width: 26px;
             height: 26px;
@@ -162,7 +162,7 @@ $root-block-name: '.product-detail-one';
   &__price {
     @include flex;
     color: #7c7c7c;
-    height: 132px;
+    height: 104px;
     padding: 18px 0;
     @include screen(md) {
     }
@@ -172,7 +172,7 @@ $root-block-name: '.product-detail-one';
       #{$p__text} {
         line-height: 1;
 
-        font-size: 96px;
+        font-size: 60px;
         font-weight: 600;
         color: #fed706;
       }
@@ -200,7 +200,7 @@ $root-block-name: '.product-detail-one';
   &__sliverPrice {
     @include flex;
     color: #7c7c7c;
-    height: 132px;
+    height: 104px;
     padding: 18px 0;
     @include screen(md) {
     }
@@ -210,7 +210,7 @@ $root-block-name: '.product-detail-one';
       #{$p__text} {
         line-height: 1;
 
-        font-size: 96px;
+        font-size: 60px;
         font-weight: 600;
         color: #7c7c7c;
       }
@@ -237,7 +237,7 @@ $root-block-name: '.product-detail-one';
   &__bonus {
     @include flex;
     color: #ff5823;
-    height: 132px;
+    height: 104px;
     padding: 18px 0;
     @include screen(md) {
     }
@@ -247,7 +247,7 @@ $root-block-name: '.product-detail-one';
       #{$p__text} {
         line-height: 1;
 
-        font-size: 96px;
+        font-size: 60px;
         font-weight: 600;
         color: #ff5823;
       }

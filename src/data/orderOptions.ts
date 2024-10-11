@@ -5,7 +5,4 @@ export const shippingOptions = [
   { name: '中華郵政郵寄', value: 'postOffice', price: 100 },
 ];
 
-export const paymentOptions = [
-  { name: '信用卡一次付清', value: 1 },
-  { name: '轉帳', value: 2 },
-];
+export const paymentOptions = [{ name: '信用卡一次付清', value: 1 }];
