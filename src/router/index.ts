@@ -179,11 +179,6 @@ const routes: Array<RouteRecordRaw> = [
     meta: { layout: 'default' },
   },
   {
-    path: '/blindox',
-    component: Blindox,
-    meta: { layout: 'default' },
-  },
-  {
     path: '/gacha',
     component: Gacha,
     meta: { layout: 'default' },

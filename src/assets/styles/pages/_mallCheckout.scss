@@ -283,3 +283,21 @@ $root-block-name: '.mallCheckout';
     }
   }
 }
+
+.mallCheckout__button {
+  background: #eb9838;
+  color: #fff;
+  width: 150px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  width: 160px;
+  height: 55px;
+  border-radius: 10px;
+  border: 2px solid #000;
+  font-size: 25px;
+  font-weight: 500;
+}

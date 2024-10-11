@@ -609,6 +609,7 @@ import * as yup from 'yup';
 
 import { expressQuery } from '@/services/frontend/expressService';
 import { loadState, removeState, saveState } from '@/utils/Localstorage';
+import { payCartItem } from '@/services/frontend/orderService';
 const route = useRoute();
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -733,7 +734,7 @@ const schema = yup.object({
     is: (val: string) => val !== '2',
     then: (schema) =>
       schema
-      .matches(/^([0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
+        .matches(/^([0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
         .required('請輸入有效到期日'),
     otherwise: (schema) => schema.nullable(),
   }),
@@ -828,6 +829,7 @@ watch(shippingMethod, (newMethod) => {
   selectedShippingPrice.value = selectedOption
     ? selectedOption.shippingPrice
     : 0;
+  setFieldValue('shopId', '');
 });
 
 const totalProductAmount = computed(() => {
@@ -863,30 +865,29 @@ const onSubmit = handleSubmit(async (values: any) => {
     ...values,
     cartItemIds: selectedItems.map((x) => x.cartItemId),
   };
-  console.log(payCart);
 
-  // try {
-  //   loadingStore.startLoading();
-  //   const { success, data } = await payCartItem(payCart);
-  //   loadingStore.stopLoading();
-  //   if (success) {
-  //     router.push({
-  //       name: 'MallOrderSuccess',
-  //       params: { orderNumber: data.toString() },
-  //     });
-  //   } else {
-  //     await dialogStore.openInfoDialog({
-  //       title: '系統通知',
-  //       message: `支付失敗`,
-  //     });
-  //   }
-  // } catch (error) {
-  //   loadingStore.stopLoading();
-  //   await dialogStore.openInfoDialog({
-  //     title: '系統通知',
-  //     message: `支付失敗`,
-  //   });
-  // }
+  try {
+    loadingStore.startLoading();
+    const { success, data } = await payCartItem(payCart);
+    loadingStore.stopLoading();
+    if (success) {
+      router.push({
+        name: 'MallOrderSuccess',
+        params: { orderNumber: data.toString() },
+      });
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: `支付失敗`,
+      });
+    }
+  } catch (error) {
+    loadingStore.stopLoading();
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message: `支付失敗`,
+    });
+  }
 });
 
 const loadCartItems = async () => {
@@ -1140,7 +1141,6 @@ const fetchShippingMethod = async () => {
   }
 
   try {
-    // 通过总重量调用 API 获取店家和运费信息
     const size = totalProductSize.value;
     const response = await getShippingMethod(size);
     shippingMethods.value = response.data;
@@ -1172,7 +1172,7 @@ const onItemSelectionChange = (item: { isSelected: boolean }) => {
 };
 
 const selectStore = async () => {
-  const { success, data } = await expressQuery(shippingMethod.value);
+  const { success, data } = await expressQuery(shippingMethod.value, 1);
   if (success) {
     saveState('shippingData', values);
     location.href = data;
