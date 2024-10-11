@@ -80,8 +80,8 @@
               >
                 <input
                   type="radio"
-                  :value="option.name"
-                  v-model="selectedShippingMethod"
+                  :value="option.code"
+                  v-model="shippingMethod"
                   :id="option.name"
                 />
                 <label :for="option.name"
@@ -150,13 +150,15 @@
                   {{ errors.billingPhone }}
                 </p>
               </div>
-              <div class="mallCheckout__form-inputs--addr">
+              <div
+                class="mallCheckout__form-inputs--addr"
+                v-if="shippingMethod === 'home'"
+              >
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
-                      'mallCheckout__text--required':
-                        shippingMethod === 'homeDelivery',
+                      'mallCheckout__text--required': shippingMethod === 'home',
                     }"
                   >
                     購買人地址
@@ -260,13 +262,15 @@
                   {{ errors.shippingPhone }}
                 </p>
               </div>
-              <div class="mallCheckout__form-inputs--addr">
+              <div
+                class="mallCheckout__form-inputs--addr"
+                v-if="shippingMethod === 'home'"
+              >
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
-                      'mallCheckout__text--required':
-                        shippingMethod === 'homeDelivery',
+                      'mallCheckout__text--required': shippingMethod === 'home',
                     }"
                   >
                     收貨人城市
@@ -285,8 +289,7 @@
                   <p
                     class="mallCheckout__text"
                     :class="{
-                      'mallCheckout__text--required':
-                        shippingMethod === 'homeDelivery',
+                      'mallCheckout__text--required': shippingMethod === 'home',
                     }"
                   >
                     收貨人區域
@@ -305,8 +308,7 @@
                   <p
                     class="mallCheckout__text"
                     :class="{
-                      'mallCheckout__text--required':
-                        shippingMethod === 'homeDelivery',
+                      'mallCheckout__text--required': shippingMethod === 'home',
                     }"
                   >
                     收貨人地址
@@ -322,6 +324,23 @@
                   <p class="mallCheckout__text mallCheckout__text--error">
                     {{ errors.shippingAddress }}
                   </p>
+                </div>
+              </div>
+              <div
+                class="mallCheckout__form-inputs--addr"
+                v-if="['711', 'family'].includes(shippingMethod)"
+              >
+                <div v-if="storename && storeid">
+                  <p class="mallCheckout__text">門市名稱: {{ storename }}</p>
+                </div>
+                <div v-else>
+                  <button
+                    type="button"
+                    class="mallCheckout__button"
+                    @click="selectStore"
+                  >
+                    請選擇門市
+                  </button>
                 </div>
               </div>
             </div>
@@ -569,7 +588,7 @@ import MSelect from '@/components/common/MSelect.vue';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
-import { paymentOptions, shippingOptions } from '@/data/orderOptions';
+import { paymentOptions } from '@/data/orderOptions';
 import {
   addCartItem,
   removeCartItem,
@@ -586,11 +605,20 @@ import { getUserInfo } from '@/services/frontend/userService';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import * as yup from 'yup';
+<<<<<<< HEAD
+=======
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import { expressQuery } from '@/services/frontend/expressService';
+import { loadState, removeState, saveState } from '@/utils/Localstorage';
+const route = useRoute();
+>>>>>>> a7b8c867597d5ec84ee1ec36a196d65a88d3dd52
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
+const storename = route.query.storename || '';
+const storeid = route.query.storeid || '';
 
 const breadcrumbItems = [{ name: '首頁' }, { name: '結帳' }];
 const items = ref<any[]>([]);
@@ -617,7 +645,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'homeDelivery',
+      is: (val: string) => val === 'home',
       then: (schema) => schema.required('郵政編碼為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -625,7 +653,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'homeDelivery',
+      is: (val: string) => val === 'home',
       then: (schema) => schema.required('城市為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -633,7 +661,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'homeDelivery',
+      is: (val: string) => val === 'home',
       then: (schema) => schema.required('區域為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -641,7 +669,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'homeDelivery',
+      is: (val: string) => val === 'home',
       then: (schema) => schema.required('詳細地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -655,7 +683,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'homeDelivery',
+      is: (val: string) => val === 'home',
       then: (schema) => schema.required('購買人郵政編碼為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -663,7 +691,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'homeDelivery',
+      is: (val: string) => val === 'home',
       then: (schema) => schema.required('購買人縣市為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -671,7 +699,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'homeDelivery',
+      is: (val: string) => val === 'home',
       then: (schema) => schema.required('購買人區域為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -679,35 +707,57 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'homeDelivery',
+      is: (val: string) => val === 'home',
       then: (schema) => schema.required('購買人地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
   shippingMethod: yup.string().required('請選擇寄送方式'),
   paymentMethod: yup.string().required('請選擇付款方式'),
-  cardHolderName: yup
-    .string()
-    .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
-    .matches(/^[A-Za-z\s]+$/, '持卡人姓名只能包含字母和空格')
-    .min(3, '持卡人姓名必須至少包含 3 個字符')
-    .max(50, '持卡人姓名不能超過 50 個字符'),
-  cardNo: yup
-    .string()
-    .required('請輸入您的信用卡號碼')
-    .matches(/^[0-9]+$/, '卡號只能包含數字')
-    .min(16, '卡號必須為 16 位數')
-    .max(16, '卡號必須為 16 位數'),
-  expiryDate: yup
-    .string()
-    .matches(/^(20[0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
-    .required('請輸入有效到期日'),
-  cvv: yup
-    .string()
-    .length(3, '安全驗證碼必須為 3 位數')
-    .required('請輸入安全驗證碼'),
-  amount: yup.string().required('請選擇儲值金額'),
-  buyerTelm: yup.string().required('請輸入聯絡電話'),
-  buyerMail: yup.string().email('無效的電子郵件').required('請輸入電子郵件'),
+  cardHolderName: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) =>
+      schema
+        .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
+        .matches(/^[A-Za-z\s]+$/, '持卡人姓名只能包含字母和空格')
+        .min(3, '持卡人姓名必須至少包含 3 個字符')
+        .max(50, '持卡人姓名不能超過 50 個字符'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  cardNo: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) =>
+      schema
+        .required('請輸入您的信用卡號碼')
+        .matches(/^[0-9]+$/, '卡號只能包含數字')
+        .min(16, '卡號必須為 16 位數')
+        .max(16, '卡號必須為 16 位數'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  expiryDate: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) =>
+      schema
+      .matches(/^(20[0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
+        .required('請輸入有效到期日'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  cvv: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) =>
+      schema.length(3, '安全驗證碼必須為 3 位數').required('請輸入安全驗證碼'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+
+  buyerTelm: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) => schema.required('請輸入聯絡電話'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  buyerMail: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) => schema.email('無效的電子郵件').required('請輸入電子郵件'),
+    otherwise: (schema) => schema.nullable(),
+  }),
 });
 
 const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
@@ -727,7 +777,7 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     billingCity: '',
     billingArea: '',
     billingAddress: '',
-    shippingMethod: shippingOptions[0].value,
+    shippingMethod: '',
     paymentMethod: paymentOptions[0].value,
     invoice: invoiceInfoOptions.value[0].value,
     vehicle: '',
@@ -739,6 +789,7 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     cardHolderName: '',
     buyerTelm: '',
     buyerMail: '',
+    shopId: storeid,
   },
 });
 
@@ -770,12 +821,17 @@ const [cvv, cvvProps] = defineField('cvv');
 const [cardHolderName, cardHolderNameProps] = defineField('cardHolderName');
 const [buyerTelm, buyerTelmProps] = defineField('buyerTelm');
 const [buyerMail, buyerMailProps] = defineField('buyerMail');
+const [shopId, shopIdProps] = defineField('shopId');
 
-const selectedShippingPrice = computed(() => {
+const selectedShippingPrice = ref(0);
+
+watch(shippingMethod, (newMethod) => {
   const selectedOption = shippingMethods.value.find(
-    (option) => option.name === selectedShippingMethod.value
+    (option) => option.code === newMethod
   );
-  return selectedOption ? selectedOption.shippingPrice : 0;
+  selectedShippingPrice.value = selectedOption
+    ? selectedOption.shippingPrice
+    : 0;
 });
 
 const totalProductAmount = computed(() => {
@@ -811,29 +867,30 @@ const onSubmit = handleSubmit(async (values: any) => {
     ...values,
     cartItemIds: selectedItems.map((x) => x.cartItemId),
   };
+  console.log(payCart);
 
-  try {
-    loadingStore.startLoading();
-    const { success, data } = await payCartItem(payCart);
-    loadingStore.stopLoading();
-    if (success) {
-      router.push({
-        name: 'MallOrderSuccess',
-        params: { orderNumber: data.toString() },
-      });
-    } else {
-      await dialogStore.openInfoDialog({
-        title: '系統通知',
-        message: `支付失敗`,
-      });
-    }
-  } catch (error) {
-    loadingStore.stopLoading();
-    await dialogStore.openInfoDialog({
-      title: '系統通知',
-      message: `支付失敗`,
-    });
-  }
+  // try {
+  //   loadingStore.startLoading();
+  //   const { success, data } = await payCartItem(payCart);
+  //   loadingStore.stopLoading();
+  //   if (success) {
+  //     router.push({
+  //       name: 'MallOrderSuccess',
+  //       params: { orderNumber: data.toString() },
+  //     });
+  //   } else {
+  //     await dialogStore.openInfoDialog({
+  //       title: '系統通知',
+  //       message: `支付失敗`,
+  //     });
+  //   }
+  // } catch (error) {
+  //   loadingStore.stopLoading();
+  //   await dialogStore.openInfoDialog({
+  //     title: '系統通知',
+  //     message: `支付失敗`,
+  //   });
+  // }
 });
 
 const loadCartItems = async () => {
@@ -953,9 +1010,9 @@ const deleteProduct = async (item: any) => {
   loadingStore.stopLoading();
 };
 
-onMounted(() => {
+onMounted(async () => {
   fetchShippingMethod();
-  loadCartItems();
+  await loadCartItems();
   const cityNames = getAllCityNames();
   billCityOptions.value = [
     { value: '', label: '縣市' },
@@ -967,6 +1024,39 @@ onMounted(() => {
   ];
   billAreaOptions.value = [{ value: '', label: '行政區' }];
   shippingAreaOptions.value = [{ value: '', label: '行政區' }];
+  const shippingData: any = loadState('shippingData');
+
+  if (shippingData) {
+    setFieldValue('shippingName', shippingData.shippingName || '');
+    setFieldValue('shippingEmail', shippingData.shippingEmail || '');
+    setFieldValue('shippingPhone', shippingData.shippingPhone || '');
+    setFieldValue('shippingZipCode', shippingData.shippingZipCode || '');
+    setFieldValue('shippingCity', shippingData.shippingCity || '');
+    await nextTick();
+    setFieldValue('shippingArea', shippingData.shippingArea || '');
+    setFieldValue('shippingAddress', shippingData.shippingAddress || '');
+    setFieldValue('billingName', shippingData.billingName || '');
+    setFieldValue('billingEmail', shippingData.billingEmail || '');
+    setFieldValue('billingPhone', shippingData.billingPhone || '');
+    setFieldValue('billingZipCode', shippingData.billingZipCode || '');
+    setFieldValue('billingCity', shippingData.billingCity || '');
+    await nextTick();
+    setFieldValue('billingArea', shippingData.billingArea || '');
+    setFieldValue('billingAddress', shippingData.billingAddress || '');
+    setFieldValue('shippingMethod', shippingData.shippingMethod || '');
+    setFieldValue(
+      'paymentMethod',
+      shippingData.paymentMethod || paymentOptions[0].value
+    );
+    setFieldValue('cardNo', shippingData.cardNo || '');
+    setFieldValue('expiryDate', shippingData.expiryDate || '');
+    setFieldValue('cvv', shippingData.cvv || '');
+    setFieldValue('cardHolderName', shippingData.cardHolderName || '');
+    setFieldValue('buyerTelm', shippingData.buyerTelm || '');
+    setFieldValue('buyerMail', shippingData.buyerMail || '');
+    setFieldValue('shopId', shippingData.shopId || storeid);
+    removeState('shippingData');
+  }
 });
 
 watch(billingCity, (newCity) => {
@@ -1059,7 +1149,7 @@ const fetchShippingMethod = async () => {
     const response = await getShippingMethod(size);
     shippingMethods.value = response.data;
     if (shippingMethods.value.length > 0) {
-      selectedShippingMethod.value = shippingMethods.value[0].name;
+      shippingMethod.value = shippingMethods.value[0].code;
     }
   } catch (error) {
     console.error('Error fetching shipping methods:', error);
@@ -1070,7 +1160,6 @@ const totalProductSize = computed(() => {
     .filter((item) => item.isSelected)
     .reduce((sum: any, item: { size: any }) => sum + item.size, 0);
 });
-const selectedShippingMethod = ref('');
 const shippingMethods = ref<any[]>([]);
 watch(
   items,
@@ -1084,5 +1173,18 @@ watch(
 const onItemSelectionChange = (item: { isSelected: boolean }) => {
   item.isSelected = !item.isSelected;
   fetchShippingMethod();
+};
+
+const selectStore = async () => {
+  const { success, data } = await expressQuery(shippingMethod.value);
+  if (success) {
+    saveState('shippingData', values);
+    location.href = data;
+  } else {
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '系統錯誤。',
+    });
+  }
 };
 </script>
