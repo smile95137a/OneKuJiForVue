@@ -7,13 +7,15 @@ $root-block-name: '.header';
 
   width: 100%;
   @include flex(null, null, column);
+  background: #ffe7cc;
 
   &__main {
     @include w_h(100%, 100%);
+    margin: 0 auto;
+    max-width: 1280px;
     min-height: 147px;
+    padding: 0 24px;
     @include flex(center, null);
-    padding: 0 12%;
-    background: #ffe7cc;
     @include screen(lg) {
       padding: 0 4%;
     }
@@ -29,7 +31,7 @@ $root-block-name: '.header';
     @include flex(center, center);
     background: #ffce58;
     overflow: hidden;
-    padding: 0 12%;
+    padding: 0 38px;
 
     @include screen(md) {
       padding: 0 4%;
@@ -98,9 +100,7 @@ $root-block-name: '.header';
 
     &-item {
       height: 36px;
-      font-family: Noto Sans TC;
-      font-size: 25px;
-      font-weight: 500;
+      font-size: 18px;
       &--active {
         color: #eb9838;
       }
@@ -152,15 +152,18 @@ $root-block-name: '.header';
   }
   &__btn {
     @include flex(center, center);
-    width: 110px;
-    height: 55px;
+    min-width: 80px;
+    height: 36px;
+    border: 2px 0px 0px 0px;
+    opacity: 0px;
+
     border-radius: 10px;
     border: 2px solid #000;
-    font-size: 25px;
+    font-size: 18px;
     font-weight: 500;
-
+    padding: 0 12px;
     @include screen(md) {
-      width: 58px;
+      min-width: 58px;
       height: 28px;
       font-size: 14px;
       font-weight: 400;
@@ -174,10 +177,7 @@ $root-block-name: '.header';
     &--member {
       background: #eb9838;
       color: #fff;
-      width: 150px;
-      height: 56px;
       @include screen(md) {
-        width: 76px;
         height: 30px;
       }
     }
