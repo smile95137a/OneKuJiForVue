@@ -1051,7 +1051,7 @@ onMounted(async () => {
     setFieldValue('cardHolderName', shippingData.cardHolderName || '');
     setFieldValue('buyerTelm', shippingData.buyerTelm || '');
     setFieldValue('buyerMail', shippingData.buyerMail || '');
-    setFieldValue('shopId', shippingData.shopId || storeid);
+    setFieldValue('shopId', storeid);
     removeState('shippingData');
   }
 });
