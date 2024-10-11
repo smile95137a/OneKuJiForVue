@@ -191,7 +191,7 @@ const onSubmit = handleSubmit(async (values) => {
         <div class="flex gap-x-24">
           <div class="w-75">
             <p class="mallCheckout__text mallCheckout__text--required">
-              到期日(MM/YY)
+              到期日(YY/MM)
             </p>
             <input
               class="mallCheckout__form-input"
@@ -199,7 +199,7 @@ const onSubmit = handleSubmit(async (values) => {
               :class="{
                 'mallCheckout__form-input--error': errors.expireDate,
               }"
-              placeholder="MM/YY"
+              placeholder="YY/MM"
             />
             <p class="mallCheckout__text mallCheckout__text--error">
               {{ errors.expireDate }}

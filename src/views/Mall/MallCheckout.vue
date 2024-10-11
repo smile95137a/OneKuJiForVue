@@ -465,7 +465,7 @@
                   :class="{
                     'mallCheckout__form-input--error': errors.expiryDate,
                   }"
-                  placeholder="MM/YY"
+                  placeholder="YY/MM"
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.expiryDate }}
@@ -594,7 +594,6 @@ import {
   removeCartItem,
 } from '@/services/frontend/cartItemService';
 import { getCart } from '@/services/frontend/cartService';
-import { payCartItem } from '@/services/frontend/orderService';
 import { getShippingMethod } from '@/services/frontend/shippingMethodService';
 import {
   getAllCityNames,
@@ -607,13 +606,10 @@ import { useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import * as yup from 'yup';
-<<<<<<< HEAD
-=======
-import NumberFormatter from '@/components/common/NumberFormatter.vue';
+
 import { expressQuery } from '@/services/frontend/expressService';
 import { loadState, removeState, saveState } from '@/utils/Localstorage';
 const route = useRoute();
->>>>>>> a7b8c867597d5ec84ee1ec36a196d65a88d3dd52
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
