@@ -1,8 +1,18 @@
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-
+import { createHtmlPlugin } from 'vite-plugin-html'
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    createHtmlPlugin({
+      minify: true,
+      inject: {
+        data: {
+          title: '再來一抽',
+        },
+      },
+    }),
+  ],
   server: {
     proxy: {
       '/api': {

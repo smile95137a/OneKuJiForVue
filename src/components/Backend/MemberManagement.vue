@@ -3,6 +3,9 @@
     <div class="header">
       <h2 class="title">會員管理</h2>
       <div class="button-group">
+        <button class="add-member-button" @click="showAddMemberModal = true">
+          新增會員
+        </button>
         <button class="distribute-reward-button" @click="showDistributeRewardModal = true" :disabled="selectedMembers.length === 0">
           發放獎勵
         </button>
@@ -23,45 +26,41 @@
     </div>
 
     <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
-            <th>會員類型</th>
-            <th>會員編號</th>
-            <th>帳號</th>
-            <th>暱稱</th>
-            <th>電話</th>
-            <th>居住地址</th>
-            <th>金幣</th>
-            <th>銀幣</th>
-            <th>紅利點數</th>
-            <th>修改時間</th>
-            
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-  <tr v-for="member in paginatedMembers" :key="member.id">
-    <td><input type="checkbox" v-model="selectedMembers" :value="member.id" /></td>
-    <td>{{ getRoleName(member.roleId) }}</td>
-    <td>{{ member.id }}</td>
-    <td>{{ member.username }}</td> <!-- 帳號 -->
-    <td>{{ member.nickName }}</td> <!-- 暱稱 -->
-    <td>{{ member.phoneNumber }}</td>
-    <td>{{ member.address }}</td>
-    <td>{{ member.balance }}</td> <!-- 金幣 -->
-    <td>{{ member.sliverCoin }}</td> <!-- 紅利點數 -->
-    <td>{{ member.bonus }}</td> <!-- 銀幣 -->
-    <td>{{ formatDate(member.updatedAt) }}</td>
-    
-    <td>
-      <button @click="editMember(member)" class="edit-button">編輯</button>
-      <button class="delete-button" @click="handleDeleteMember(member)">刪除</button>
-    </td>
-  </tr>
-</tbody>
-      </table>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th class="checkbox-column"><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
+              <th class="role-column">會員類型</th>
+              <th class="nickname-column">暱稱</th>
+              <th class="phone-column">電話</th>
+              <th class="address-column">居住地址</th>
+              <th class="coin-column">金幣</th>
+              <th class="coin-column">銀幣</th>
+              <th class="coin-column">紅利點數</th>
+              <th class="date-column">修改時間</th>
+              <th class="action-column">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="member in paginatedMembers" :key="member.id">
+              <td><input type="checkbox" v-model="selectedMembers" :value="member.id" /></td>
+              <td>{{ getRoleName(member.roleId) }}</td>
+              <td :title="member.nickName">{{ member.nickName }}</td>
+              <td>{{ member.phoneNumber }}</td>
+              <td :title="member.address">{{ member.address }}</td>
+              <td>{{ member.balance }}</td>
+              <td>{{ member.sliverCoin }}</td>
+              <td>{{ member.bonus }}</td>
+              <td>{{ formatDate(member.updatedAt) }}</td>
+              <td>
+                <button @click="editMember(member)" class="edit-button">編輯</button>
+                <button class="delete-button" @click="handleDeleteMember(member)">刪除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="pagination">
@@ -78,6 +77,14 @@
           <div v-for="field in memberFields" :key="field.key">
             <label :for="field.key">{{ field.label }}:</label>
             <input :id="field.key" v-model="(newMember as any)[field.key]" :type="field.type" required>
+          </div>
+          <div>
+            <label for="roleId">角色:</label>
+            <select id="roleId" v-model="newMember.roleId" required>
+              <option v-for="role in roleOptions" :key="role.value" :value="role.value">
+                {{ role.label }}
+              </option>
+            </select>
           </div>
           <button type="submit">提交</button>
           <button type="button" @click="showAddMemberModal = false">取消</button>
@@ -129,7 +136,6 @@
     </div>
   </div>
 </template>
-
 <script lang="ts">
 import { User, UserReq, SliverUpdate } from '@/interfaces/user';
 import { userService } from '@/services/backend/userservice';
@@ -188,7 +194,7 @@ export default defineComponent({
     });
 
     const memberFields = [
-      { key: 'username', label: '用戶名', type: 'text' },
+      { key: 'username', label: '帳號', type: 'text' },
       { key: 'nickName', label: '暱稱', type: 'text' },
       { key: 'phoneNumber', label: '電話號碼', type: 'tel' },
       { key: 'address', label: '地址', type: 'text' },
@@ -258,7 +264,8 @@ export default defineComponent({
         displayedMembers.value = allMembers.value.filter(member =>
           member.id.toString().includes(query) ||
           member.phoneNumber.toLowerCase().includes(query)||
-          member.username.toLowerCase().includes(query) 
+          member.username.toLowerCase().includes(query) ||
+          member.nickName.toLowerCase().includes(query) 
         );
       }
       updateStats();
@@ -329,23 +336,36 @@ export default defineComponent({
     };
 
     const distributeReward = async () => {
-      try {
-        const sliverUpdate: SliverUpdate = {
-          userId: selectedMembers.value,
-          sliverCoin: silverAmount.value,
-          bonus: bonusAmount.value
-        };
-        await userService.distributeSilver(sliverUpdate);
-        await fetchMemberData();
-        showDistributeRewardModal.value = false;
-        selectedMembers.value = [];
-        selectAll.value = false;
-        silverAmount.value = 0;
-        bonusAmount.value = 0;
-      } catch (error) {
-        console.error('發放獎勵失敗:', error);
-      }
+  try {
+    // 确认对话框
+    const isConfirmed = confirm(`確定要發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員嗎？`);
+
+    if (!isConfirmed) {
+      return; // 如果用户取消，直接返回
+    }
+
+    const sliverUpdate: SliverUpdate = {
+      userId: selectedMembers.value,
+      sliverCoin: silverAmount.value,
+      bonus: bonusAmount.value
     };
+
+    await userService.distributeSilver(sliverUpdate);
+    
+    // 成功消息
+    alert(`已成功發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員。`);
+
+    await fetchMemberData();
+    showDistributeRewardModal.value = false;
+    selectedMembers.value = [];
+    selectAll.value = false;
+    silverAmount.value = 0;
+    bonusAmount.value = 0;
+  } catch (error) {
+    console.error('發放獎勵失敗:', error);
+    alert('發放獎勵失敗，請稍後再試。');
+  }
+};
 
     onMounted(() => {
       fetchMemberData();
@@ -408,40 +428,42 @@ export default defineComponent({
 
 <style scoped>
 .member-management {
-  padding: 30px;
+  padding: 20px;
   font-family: 'Arial', sans-serif;
   background-color: #f5f7fa;
   color: #333;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   background-color: #ffffff;
-  padding: 20px;
+  padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .title {
-  font-size: 28px;
+  font-size: 24px;
   color: #2c3e50;
   font-weight: 600;
 }
 
 .button-group {
   display: flex;
-  gap: 15px;
+  gap: 10px;
 }
 
 .add-member-button, .distribute-reward-button {
-  padding: 12px 20px;
-  font-size: 14px;
+  padding: 8px 12px;
+  font-size: 12px;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
@@ -460,55 +482,54 @@ export default defineComponent({
 .add-member-button:hover, .distribute-reward-button:hover {
   opacity: 0.9;
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .stats-container {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .stat-item {
   background-color: #ffffff;
-  padding: 20px;
+  padding: 15px;
   border-radius: 8px;
   text-align: center;
-  flex: 1;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
 }
 
 .stat-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .stat-content h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: 14px;
   color: #7f8c8d;
   font-weight: 500;
 }
 
 .stat-value {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: bold;
   color: #2c3e50;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .search-section {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .search-section input {
   width: 100%;
-  padding: 15px;
-  font-size: 16px;
+  padding: 10px;
+  font-size: 14px;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 4px;
   transition: all 0.3s ease;
 }
 
@@ -525,14 +546,19 @@ export default defineComponent({
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+.table-responsive {
+  overflow-x: auto;
+}
+
 table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  font-size: 14px;
 }
 
 th, td {
-  padding: 15px;
+  padding: 10px;
   text-align: left;
   border-bottom: 1px solid #ecf0f1;
 }
@@ -549,22 +575,62 @@ tr:hover {
   background-color: #f8f9fa;
 }
 
+.checkbox-column {
+  width: 30px;
+}
+
+.role-column {
+  width: 100px;
+}
+
+.nickname-column {
+  width: 100px;
+}
+
+.phone-column {
+  width: 120px;
+}
+
+.address-column {
+  width: 150px;
+}
+
+.coin-column {
+  width: 70px;
+}
+
+.date-column {
+  width: 120px;
+}
+
+.action-column {
+  width: 150px;
+}
+
+td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+}
+
 .pagination {
-  margin-top: 30px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .pagination button {
-  margin: 0 10px;
-  padding: 10px 15px;
+  margin: 0 5px;
+  padding: 8px 12px;
   background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 14px;
 }
 
 .pagination button:hover:not(:disabled) {
@@ -592,37 +658,38 @@ tr:hover {
 
 .modal-content {
   background-color: #ffffff;
-  padding: 30px;
+  padding: 20px;
   border-radius: 8px;
   width: 90%;
-  max-width: 500px;
+  max-width: 400px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .modal-content h3 {
   margin-top: 0;
   color: #2c3e50;
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 20px;
+  margin-bottom: 15px;
 }
 
 .modal-content form div {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .modal-content label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   font-weight: 600;
   color: #34495e;
+  font-size: 14px;
 }
 
 .modal-content input, .modal-content select {
   width: 100%;
-  padding: 12px;
+  padding: 8px;
   border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 4px;
+  font-size: 14px;
   transition: all 0.3s ease;
 }
 
@@ -633,12 +700,12 @@ tr:hover {
 }
 
 .modal-content button {
-  margin-right: 15px;
-  padding: 12px 20px;
-  font-size: 16px;
+  margin-right: 10px;
+  padding: 8px 15px;
+  font-size: 14px;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -656,8 +723,8 @@ tr:hover {
 }
 
 .edit-button, .delete-button {
-  padding: 8px 12px;
-  font-size: 14px;
+  padding: 6px 10px;
+  font-size: 12px;
   color: white;
   border: none;
   border-radius: 4px;
@@ -680,5 +747,11 @@ tr:hover {
 
 .delete-button:hover {
   background-color: #c0392b;
+}
+
+@media (max-width: 1280px) {
+  .table-responsive {
+    overflow-x: auto;
+  }
 }
 </style>

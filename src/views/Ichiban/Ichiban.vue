@@ -21,8 +21,8 @@ const size = ref(20);
 const allLoaded = ref(false);
 
 const buttons = [
+{ type: 'selfMade', title: '自製賞', category: 'PRIZESELF' },
   { type: 'official', title: '官方一番賞', category: 'FIGURE' },
-  { type: 'selfMade', title: '自製賞', category: 'PRIZESELF' },
   { type: '3c', title: '3C一番賞', category: 'C3' },
   { type: 'bonus', title: '紅利賞', category: 'BONUS' },
 ];
