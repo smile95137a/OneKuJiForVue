@@ -13,12 +13,6 @@
               </div>
               <div class="login__auth-btn-text">Google 帳號登入</div>
             </div>
-            <div class="login__auth-btn" @click="handleOauthLogin('facebook')">
-              <div class="login__auth-btn-icon">
-                <img :src="fbLogo" />
-              </div>
-              <div class="login__auth-btn-text">Facebook 帳號登入</div>
-            </div>
           </div>
 
           <div class="login__divider">

@@ -46,16 +46,21 @@
       <table>
         <thead>
           <tr>
-            <th class="w-30">日期</th>
+            <th class="w-30">交易時間</th>
             <th class="w-40">項目</th>
-            <th class="w-30">內容</th>
+            <th class="w-30">交易金額</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="order in records" :key="order.id">
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>
+              <DateFormatter
+                :date="order.transactionDate"
+                format="YYYY/MM/DD"
+              />
+            </td>
+            <td>{{ order.transactionType }}</td>
+            <td>{{ order.amount }}</td>
           </tr>
         </tbody>
       </table>
@@ -66,9 +71,16 @@
 <script lang="ts" setup>
 import NoData from '@/components/common/NoData.vue';
 import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
+import DateFormatter from '@/components/common/DateFormatter.vue';
+import { getTransactions } from '@/services/frontend/transactionService';
 import { useForm } from 'vee-validate';
 import { ref } from 'vue';
-const records = ref([]);
+import { useDialogStore, useLoadingStore } from '@/stores';
+
+const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
+
+const records = ref<any[]>([]);
 const { defineField, handleSubmit, errors, values } = useForm({
   initialValues: {
     startDate: '',
@@ -76,8 +88,27 @@ const { defineField, handleSubmit, errors, values } = useForm({
   },
 });
 
-const submitForm = handleSubmit((values) => {
-  console.log(values);
+const submitForm = handleSubmit(async (values) => {
+  try {
+    loadingStore.startLoading();
+    const { success, data } = await getTransactions(values);
+    loadingStore.stopLoading();
+
+    if (success) {
+      records.value = data;
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '查詢失敗',
+      });
+    }
+  } catch (error) {
+    loadingStore.stopLoading();
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message: '查詢失敗，系統出錯',
+    });
+  }
 });
 
 const [startDate] = defineField('startDate');

@@ -133,7 +133,7 @@ $root-block-name: '.login';
 
   &__auth {
     height: 158px;
-    @include flex(null, end, column);
+    @include flex(null, center, column);
     gap: 20px;
     &-btn {
       @include flex;
