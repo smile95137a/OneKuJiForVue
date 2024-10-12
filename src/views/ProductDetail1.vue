@@ -244,6 +244,44 @@
           紅利兌換
         </div>
       </div>
+
+      <div class="product-detail-one__chooseDetail">
+        <p class="product-detail-one__text product-detail-one__text--1">
+          目前剩餘
+          <span class="product-detail-one__text--red">
+            <NumberFormatter :number="remainingQuantity" />
+          </span>
+          抽
+        </p>
+        <p class="product-detail-one__text product-detail-one__text--2">
+          連續次數
+
+          <span class="product-detail-one__text--red"
+            ><NumberFormatter :number="activeTickets.length" />
+          </span>
+          抽
+        </p>
+        <p class="product-detail-one__text product-detail-one__text--3">
+          共花費
+          <span class="product-detail-one__text--red">
+            <NumberFormatter :number="activeTickets.length * ~~product.price" />
+          </span>
+          抽
+        </p>
+      </div>
+      <div class="product-detail-one__chooseDetailNum">
+        <p class="product-detail-one__chooseDetailNum-icon">
+          <img :src="btnIcon" alt="" />
+        </p>
+        <p class="product-detail-one__text product-detail-one__text--opTicket">
+          <span
+            >選中<NumberFormatter
+              :number="activeTickets.length"
+            />個獎籤：</span
+          >
+          {{ activeTickets.map((x) => x.number).join(',') }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -287,6 +325,7 @@ import MCardHeader from '@/components/common/MCardHeader.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import ProductCard2 from '@/components/frontend/ProductCard2.vue';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
 import { executeDraw, getDrawStatus } from '@/services/frontend/drawService';
 import {

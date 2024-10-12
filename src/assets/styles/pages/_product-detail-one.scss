@@ -423,19 +423,23 @@ $root-block-name: '.product-detail-one';
     bottom: 0;
     left: 0;
     z-index: 99;
-    @include w_h(100%, 261px);
+    @include w_h(100%, 340px);
     background: rgba($color: #000000, $alpha: 0.6);
 
     @include screen(md) {
-      height: 164px;
+      padding: 24px;
+      height: 400px;
     }
   }
   &__btns {
-    position: absolute;
     @include flex(null, center);
     gap: 16px;
     width: 100%;
-    padding-top: 64px;
+    padding-top: 24px;
+    @include screen(md) {
+      flex-wrap: wrap;
+      padding-top: 0;
+    }
   }
   &__btn {
     @include w_h(168px, 54px);
@@ -458,14 +462,92 @@ $root-block-name: '.product-detail-one';
     }
     &--random {
       background: #fed706;
+      @include screen(md) {
+        width: 100%;
+        max-width: none;
+      }
     }
 
     &--im {
       background: #fe4206;
       color: #fff;
+      @include screen(md) {
+        width: calc(50% - 16px);
+        max-width: none;
+      }
     }
   }
 
+  &__chooseDetail {
+    @include flex(null, center);
+
+    column-gap: 16px;
+    width: 100%;
+    padding-top: 24px;
+    @include screen(md) {
+      flex-wrap: wrap;
+      padding-top: 8px;
+    }
+    #{$p__text} {
+      font-size: 25px;
+      color: #fff;
+      @include screen(md) {
+        font-size: 20px;
+      }
+      &--red {
+        font-size: 40px;
+        color: #fe4206;
+        @include screen(md) {
+          font-size: 30px;
+        }
+      }
+
+      &--1 {
+      }
+      &--2 {
+      }
+      &--3 {
+        @include screen(md) {
+          width: 100%;
+          max-width: none;
+          text-align: center;
+        }
+      }
+    }
+  }
+  &__chooseDetailNum {
+    @include flex(center);
+    gap: 24px;
+    width: 100%;
+    max-width: 730px;
+    margin: 24px auto 0 auto;
+    padding: 0 48px;
+    min-height: 54px;
+    border-radius: 90px;
+    background: #ffe7cc;
+    word-break: break-all;
+    @include screen(md) {
+      min-height: 78px;
+    }
+
+    &-icon {
+      width: 30px;
+      height: 30px;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    #{$p__text} {
+      flex: 1;
+      &--opTicket {
+        @include screen(md) {
+          display: flex;
+          flex-direction: column;
+        }
+      }
+    }
+  }
   &__backBtns {
     @include flex(center, center);
   }
