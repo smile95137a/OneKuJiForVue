@@ -58,6 +58,7 @@ const loadMoreProducts = async () => {
     products.value = [...products.value, ...availableGachaProducts];
     page.value++;
   } catch (error) {
+    loadingStore.stopLoading();
     console.error('加載產品時發生錯誤:', error);
   } finally {
     loading.value = false;
