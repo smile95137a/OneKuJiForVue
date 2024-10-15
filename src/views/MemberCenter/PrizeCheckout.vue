@@ -794,7 +794,7 @@ const [cvv, cvvProps] = defineField('cvv');
 const [cardHolderName, cardHolderNameProps] = defineField('cardHolderName');
 const [buyerTelm, buyerTelmProps] = defineField('buyerTelm');
 const [buyerMail, buyerMailProps] = defineField('buyerMail');
-
+const [shopId] = defineField('shopId');
 const selectedShippingPrice = ref(0);
 
 watch(shippingMethod, (newMethod) => {
