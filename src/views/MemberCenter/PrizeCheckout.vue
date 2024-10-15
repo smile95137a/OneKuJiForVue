@@ -321,7 +321,7 @@
                 class="mallCheckout__form-inputs--addr"
                 v-if="['711', 'family'].includes(shippingMethod)"
               >
-                <div v-if="storename && storeid">
+                <div v-if="storename && storeid && shopId">
                   <p class="mallCheckout__text">門市名稱: {{ storename }}</p>
                 </div>
                 <div v-else>
@@ -594,6 +594,7 @@ const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 const storename = route.query.storename || '';
 const storeid = route.query.storeid || '';
+let isInitialSetup = true;
 
 const items = ref<any[]>([]);
 const billCityOptions = ref<{ value: string; label: string }[]>([]);
@@ -803,7 +804,9 @@ watch(shippingMethod, (newMethod) => {
   selectedShippingPrice.value = selectedOption
     ? selectedOption.shippingPrice
     : 0;
-  setFieldValue('shopId', '');
+  if (!isInitialSetup) {
+    setFieldValue('shopId', '');
+  }
 });
 
 const totalProductSize = computed(() => {
@@ -982,6 +985,9 @@ onMounted(async () => {
     setFieldValue('shopId', storeid);
     removeState('shippingData');
   }
+  setTimeout(() => {
+    isInitialSetup = false;
+  }, 100);
 });
 
 watch(billingCity, (newCity) => {

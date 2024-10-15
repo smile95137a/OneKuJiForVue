@@ -133,7 +133,7 @@ $root-block-name: '.productCard';
       z-index: 3;
     }
     &-balance {
-      width: 230px;
+      min-width: 230px;
       height: 42px;
       background: #eb9838;
       border-radius: 30px;
