@@ -103,8 +103,6 @@ const remainingQuantity = computed(() => {
 });
 
 const loadProductData = async () => {
-  console.log(productId.value);
-
   loadingStore.startLoading();
   try {
     const [
@@ -200,7 +198,7 @@ const goToProduct = (id: number) => {
 
 const fetchDrawStatus = async () => {
   try {
-    const { data } = await getDrawStatus(productId);
+    const { data } = await getDrawStatus(productId.value);
 
     if (data) {
       ticketList.value = data.prizeNumberList;
