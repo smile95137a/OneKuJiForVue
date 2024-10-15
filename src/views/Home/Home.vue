@@ -136,23 +136,6 @@ onMounted(() => {
 
     <Card customClass="mcard--home">
       <template #header>
-        <MCardHeader title="盲盒" />
-      </template>
-      <div v-if="blindBoxProducts.length === 0">
-        <NoData />
-      </div>
-      <div v-else class="home__products">
-        <ProductCard
-          v-for="product in blindBoxProducts"
-          :key="product.productId"
-          :product="product"
-          @click="navigateToDetail(product)"
-        />
-      </div>
-    </Card>
-
-    <Card customClass="mcard--home">
-      <template #header>
         <MCardHeader title="扭蛋" />
       </template>
       <div v-if="gachaProducts.length === 0">
