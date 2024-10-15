@@ -193,28 +193,30 @@
         <p>籤數：{{ totalQuantity }}</p>
         <button @click="openAddDetailModal">新增商品</button>
         <table v-if="productDetails.length">
-          <thead>
-            <tr>
-              <th>商品名稱</th>
-              <th>描述</th>
-              <th>規格</th>
-              <th>數量</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="detail in productDetails" :key="detail.productDetailId">
-              <td>{{ detail.productName }}</td>
-              <td>{{ detail.description }}</td>
-              <td>{{ detail.specification }}</td>
-              <td>{{ detail.quantity }}</td>
-              <td>
-                <button @click="openEditDetailModal(detail)">編輯</button>
-                <button @click="deleteProductDetail(detail.productDetailId)">刪除</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+  <thead>
+    <tr>
+      <th>商品名稱</th>
+      <th>描述</th>
+      <th>規格</th>
+      <th>數量</th>
+      <th>等級</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="detail in productDetails" :key="detail.productDetailId">
+      <td>{{ detail.productName }}</td>
+      <td>{{ detail.description }}</td>
+      <td>{{ detail.specification }}</td>
+      <td>{{ detail.quantity }}</td>
+      <td>{{ detail.grade }}</td>
+      <td>
+        <button @click="openEditDetailModal(detail)">編輯</button>
+        <button @click="deleteProductDetail(detail.productDetailId)">刪除</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
         <p v-else>暫無商品</p>
         <button @click="closeProductDetailsModal">關閉</button>
       </div>
@@ -499,10 +501,12 @@ const fetchProducts = async () => {
   try {
     const response = await productservice.getAllProducts();
     if (response.success) {
-      products.value = response.data.map(product => ({
-        ...product,
-        status: productStatusOptions[product.status as ProductStatus] || product.status
-      }));
+      products.value = response.data
+        .map(product => ({
+          ...product,
+          status: productStatusOptions[product.status as ProductStatus] || product.status
+        }))
+        .sort((a, b) => b.productId - a.productId); // 按 productId 降序排序，假設較大的 ID 表示較新的商品
       
       const categoriesResponse = await productservice.getAllCategories();
       if (categoriesResponse.success) {
