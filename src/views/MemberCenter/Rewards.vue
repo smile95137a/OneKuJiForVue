@@ -6,7 +6,7 @@
       <div class="memberCenter__rewardsConsume-title">
         <p class="memberCenter__text">消費獎勵</p>
       </div>
-      <div class="memberCenter__rewardsConsume-subTitle">儲值獎勵計算方式</div>
+      <div class="memberCenter__rewardsConsume-subTitle">消費獎勵計算方式</div>
       <div class="memberCenter__rewardsConsume-info">
         消費獎勵計算方式
         每月1號~31號期間累計消費金額(金幣)達到累計的標準即可領取獎勵！
