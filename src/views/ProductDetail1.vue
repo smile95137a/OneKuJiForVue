@@ -266,7 +266,6 @@
           <span class="product-detail-one__text--red">
             <NumberFormatter :number="activeTickets.length * ~~product.price" />
           </span>
-          抽
         </p>
       </div>
       <div class="product-detail-one__chooseDetailNum">
