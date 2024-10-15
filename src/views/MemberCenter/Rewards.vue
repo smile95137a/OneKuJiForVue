@@ -8,9 +8,9 @@
       </div>
       <div class="memberCenter__rewardsConsume-subTitle">儲值獎勵計算方式</div>
       <div class="memberCenter__rewardsConsume-info">
-        每月1號~31號期間累計儲值金額達到累計的標準即可領取獎勵！
+        消費獎勵計算方式
+        每月1號~31號期間累計消費金額(金幣)達到累計的標準即可領取獎勵！
         每月1號將重新開始計算。
-        一抽券面額50元，可以累積使用於商品免費一抽！(不限店家，效期三個月)
       </div>
     </div>
     <div class="memberCenter__rewardsAccount">
@@ -45,7 +45,7 @@
             領取
             <span class="memberCenter__text memberCenter__text--red">
               <NumberFormatter :number="reward?.sliver ?? 0" />
-              代幣</span
+              銀幣</span
             >
           </p>
         </div>

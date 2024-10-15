@@ -43,7 +43,7 @@
           </div>
           <div>
             <label for="description">描述</label>
-            <input v-model="currentMethod.description" id="description" required>
+            <input v-model="currentMethod.description" id="description" >
           </div>
           <div>
             <label for="status">狀態</label>
