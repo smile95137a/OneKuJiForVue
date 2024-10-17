@@ -89,6 +89,17 @@
           商品運送及海關檢驗時可能有盒損、原廠二次膠拆檢等狀況。若您對於盒況有相當高的要求，建議您不要購買！
           消費者購買前請「務必」確認我們的消費規範再進行購買，謝謝！
           本公司保留對平台活動、商品及相關規定條款新增、變更、修改、終止之權利。
+          <a
+            href="https://lin.ee/DjLjYXZ"
+            class="product-detail-one__lineBtn m-t-24"
+          >
+            <span class="product-detail-one__lineBtn-icon">
+              <i class="fa-brands fa-line"></i>
+            </span>
+            <span class="product-detail-one__lineBtn-text">
+              加入我們的LINE社群，獲得最新賞品資訊！
+            </span>
+          </a>
         </div>
       </div>
 

@@ -8,6 +8,27 @@ $root-block-name: '.product-detail-one';
   @include screen(md) {
     padding: 16px;
   }
+  &__lineBtn {
+    background: #4cc764;
+    color: #fff;
+    width: 100%;
+    min-height: 58px;
+    border-radius: 90px;
+    @include flex(center, center);
+    padding: 0 64px;
+    gap: 24px;
+    &-icon {
+      font-size: 40px;
+      color: #4cc764;
+      background: #fff;
+      line-height: 0;
+      border-radius: 20px;
+    }
+    &-text {
+      font-size: 20px;
+      font-weight: 900;
+    }
+  }
   &__main {
     display: grid;
     grid-template-columns: 400px 1fr;
