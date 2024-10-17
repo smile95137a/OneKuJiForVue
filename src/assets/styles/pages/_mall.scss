@@ -66,6 +66,10 @@ $root-block-name: '.mall';
     @include flex(center, end);
     gap: 24px;
     padding: 0 48px;
+    @include screen(md) {
+      gap: 8px;
+      padding: 0 20px;
+    }
     &-btn {
       font-size: 18px;
       font-weight: 700;
@@ -73,6 +77,9 @@ $root-block-name: '.mall';
       cursor: pointer;
       &.active {
         color: #ffeb82;
+      }
+      @include screen(md) {
+        font-size: 10px;
       }
     }
   }
