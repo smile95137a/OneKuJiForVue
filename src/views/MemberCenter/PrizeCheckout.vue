@@ -4,42 +4,47 @@
       <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
         商品資訊
       </div>
+      <div class="flex p-x-24 gap-x-12">
+        <div class="w-5"></div>
+        <div class="w-10"></div>
+        <div class="w-60"></div>
+        <div class="w-20">
+          <p class="mallCheckout__text mallCheckout__text--bold font-size-20">
+            可回收銀幣
+          </p>
+        </div>
+        <div class="w-15"></div>
+      </div>
       <Card
         v-for="item in items"
         :key="item.prizeCartItemId"
         custom-class="m-b-24"
       >
-        <div class="mallCheckout__product">
-          <div
-            v-if="items.length > 0"
-            class="mallCheckout__product-item mallCheckout__product-item--selected"
-          >
-            <input
-              type="checkbox"
-              v-model="item.isSelected"
-              @change="onItemSelectionChange"
-            />
+        <div class="flex p-x-24 gap-x-12 items-center">
+          <div class="w-5">
+            <div
+              v-if="items.length > 0"
+              class="mallCheckout__product-item mallCheckout__product-item--selected"
+            >
+              <input
+                type="checkbox"
+                v-model="item.isSelected"
+                @change="onItemSelectionChange"
+              />
+            </div>
           </div>
-          <div
-            class="mallCheckout__product-item mallCheckout__product-item--img"
-          >
-            <MImage :src="item.imageUrls[0]" />
-          </div>
-          <div
-            class="mallCheckout__product-item mallCheckout__product-item--name"
-          >
+          <div class="w-10"><MImage :src="item.imageUrls[0]" /></div>
+          <div class="w-60">
             <p class="mallCheckout__text">{{ item.productName }}</p>
           </div>
-          <div
-            class="mallCheckout__product-item mallCheckout__product-item--price"
-          >
+          <div class="w-20 mallCheckout__product-item--price text-center">
             <div v-if="item.sliverPrice !== 0">
               <p class="mallCheckout__text">
-                ${{ formatPrice(item.sliverPrice) }}
+                $<NumberFormatter :number="item.sliverPrice ?? 0" />
               </p>
             </div>
           </div>
-          <div class="mallCheckout__product-item">
+          <div class="w-15">
             <div
               v-if="item.sliverPrice !== 0"
               class="mallCheckout__product-item mallCheckout__product-item--delete"
@@ -570,6 +575,7 @@
 import Card from '@/components/common/Card.vue';
 import MSelect from '@/components/common/MSelect.vue';
 import MImage from '@/components/frontend/MImage.vue';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { paymentOptions, shippingOptions } from '@/data/orderOptions';
 import { expressQuery } from '@/services/frontend/expressService';
 import { payPrizeCartItem } from '@/services/frontend/orderService';

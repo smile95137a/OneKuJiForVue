@@ -451,6 +451,14 @@ $root-block-name: '.product-detail-one';
       padding: 24px;
       height: 400px;
     }
+
+    &-close {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      color: #fff;
+      cursor: pointer;
+    }
   }
   &__btns {
     @include flex(null, center);

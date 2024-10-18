@@ -197,6 +197,9 @@
       </router-link>
     </div>
     <div class="product-detail-one__option" v-if="showOption">
+      <div class="product-detail-one__option-close" @click="closeDrawOption">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
       <div class="product-detail-one__random" v-if="showOptionRandom">
         <div class="product-detail-one__random-inputs">
           <input
@@ -371,6 +374,12 @@ const countdown = ref<number>(0);
 let countdownInterval: NodeJS.Timeout | null = null;
 
 const endTimes = ref<string | null>(null);
+
+const closeDrawOption = () => {
+  showOption.value = false;
+  showOptionRandom.value = false;
+  activeTickets.value = [];
+};
 
 const startCountdown = (endTime: string) => {
   const endMoment = moment(endTime);
