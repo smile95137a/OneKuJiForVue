@@ -30,6 +30,7 @@ export default defineComponent({
       { name: '配送狀態管理', path: '/admin/vendor', icon: 'fas fa-newspaper' },
       { name: '推薦商品管理', path: '/admin/product-recommendation', icon: 'fas fa-newspaper' },
       { name: 'banner狀態管理', path: '/admin/banner-controler', icon: 'fas fa-newspaper' },
+      { name: '兌換碼管理', path: '/admin/redemptionCodeList', icon: 'fas fa-newspaper' },
 
     ]);
 

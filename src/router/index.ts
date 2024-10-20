@@ -46,6 +46,7 @@ import PrizeCheckout from '@/views/MemberCenter/PrizeCheckout.vue';
 import Banner from '@/components/backend/banner.vue';
 import ordercontrol from '@/components/backend/ordercontrol.vue';
 import ProductRecommendation from '@/components/backend/ProductRecommendation.vue';
+import RedemptionCodeList from '@/components/backend/RedemptionCodeList.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
 import Vendor from '@/components/backend/vendor.vue';
 const routes: Array<RouteRecordRaw> = [
@@ -234,6 +235,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'vendor',
         component: Vendor,
+      },
+      {
+        path: 'redemptionCodeList',
+        component: RedemptionCodeList,
       },
       {
         path: 'news-management',
