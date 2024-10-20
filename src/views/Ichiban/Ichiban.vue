@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
-import MCardHeader from '@/components/common/MCardHeader.vue';
 import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { getAllCategories } from '@/services/frontend/productCategoryService';
@@ -12,8 +11,8 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const products = ref<IProduct[]>([]);
-const activeBtn = ref('official');
-const title = ref('官方一番賞');
+const activeBtn = ref('selfMade');
+const title = ref('自製賞');
 const searchTerm = ref('');
 const loading = ref(false);
 const page = ref(0);
@@ -21,9 +20,8 @@ const size = ref(20);
 const allLoaded = ref(false);
 
 const buttons = [
-
-  { type: 'official', title: '官方一番賞', category: 'FIGURE' },
   { type: 'selfMade', title: '自製賞', category: 'PRIZESELF' },
+  { type: 'official', title: '官方一番賞', category: 'FIGURE' },
   { type: '3c', title: '3C一番賞', category: 'C3' },
   { type: 'bonus', title: '紅利賞', category: 'BONUS' },
 ];
@@ -86,6 +84,7 @@ const fetchCategories = async () => {
 const handleBtnClick = (btnType: string, btnTitle: string) => {
   activeBtn.value = btnType;
   title.value = btnTitle;
+  selectedTypes.value = [];
 };
 
 const loadMoreProducts = async () => {
@@ -204,7 +203,6 @@ watch(loading, (newValue) => {
                 type="checkbox"
                 :value="category.categoryUUid"
                 v-model="selectedTypes"
-                @change="handleTypeChange"
                 :id="String(category.categoryUUid)"
               />
               {{ category.categoryName }}
