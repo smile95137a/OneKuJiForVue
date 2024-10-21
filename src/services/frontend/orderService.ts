@@ -71,9 +71,9 @@ export const payCartItem = async (
 
 export const payPrizeCartItem = async (
   payCart: any
-): Promise<ApiResponse<boolean>> => {
+): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.post<ApiResponse<boolean>>(
+    const response = await api.post<ApiResponse<any>>(
       `${basePath}/product/pay`,
       payCart
     );
@@ -83,7 +83,6 @@ export const payPrizeCartItem = async (
     throw error;
   }
 };
-
 
 export const ecpayCheckout = async (userId: number): Promise<string> => {
   try {

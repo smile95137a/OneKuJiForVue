@@ -593,7 +593,7 @@ import {
 } from '@/services/frontend/taiwanCitiesService';
 import { getUserInfo } from '@/services/frontend/userService';
 import { useDialogStore, useLoadingStore } from '@/stores';
-import { removeState, saveState } from '@/utils/Localstorage';
+import { loadState, removeState, saveState } from '@/utils/Localstorage';
 import { useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -851,13 +851,12 @@ const onSubmit = handleSubmit(async (values: any) => {
   try {
     loadingStore.startLoading();
     const { success, data } = await payPrizeCartItem(payCart);
-    console.log(success);
 
     loadingStore.stopLoading();
     if (success) {
       router.push({
         name: 'PrizeOrderSuccess',
-        params: { orderNumber: data.toString() },
+        params: { orderNumber: data.orderNumber.toString() },
       });
     } else {
       await dialogStore.openInfoDialog({

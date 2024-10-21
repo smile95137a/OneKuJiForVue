@@ -51,7 +51,7 @@
       </div>
       <div class="grid" v-for="item in orderData.orderDetails" :key="item.id">
         <div class="col-25 p-x-12">
-          {{ item.storeProduct.productName }}
+          {{ item.storeProduct?.productName }}
         </div>
         <div class="col-25 p-x-12">
           {{ item.quantity }}
