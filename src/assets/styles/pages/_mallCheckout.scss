@@ -281,6 +281,22 @@ $root-block-name: '.mallCheckout';
       background: #fe4206;
       color: #fff;
     }
+
+    &--selectAll {
+      background: #eb9838;
+      color: #fff;
+      width: 120px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: row;
+      border-radius: 10px;
+      border: 2px solid #000;
+      font-size: 18px;
+      font-weight: 500;
+      cursor: pointer;
+    }
   }
 }
 

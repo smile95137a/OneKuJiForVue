@@ -52,3 +52,17 @@ export const getProductById = async (
     throw error;
   }
 };
+
+export const getProductByType = async (
+  type: string
+): Promise<ApiResponse<IProduct[]>> => {
+  try {
+    const response = await api.get<ApiResponse<IProduct[]>>(
+      `${basePath}/type/${type}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('獲取產品類型時發生錯誤:', error);
+    throw error;
+  }
+};

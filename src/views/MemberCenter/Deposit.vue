@@ -14,31 +14,53 @@ const loadingStore = useLoadingStore();
 const authStore = useAuthStore();
 const dialogStore = useDialogStore();
 
-// 定义表单验证规则
 const schema = yup.object({
-  cardHolderName: yup
-    .string()
-    .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
-    .matches(/^[A-Za-z\s]+$/, '持卡人姓名只能包含字母和空格')
-    .min(3, '持卡人姓名必須至少包含 3 個字符')
-    .max(50, '持卡人姓名不能超過 50 個字符'),
-  cardNo: yup
-    .string()
-    .required('請輸入您的信用卡號碼')
-    .matches(/^[0-9]+$/, '卡號只能包含數字')
-    .min(16, '卡號必須為 16 位數')
-    .max(16, '卡號必須為 16 位數'),
-  expireDate: yup
-    .string()
-    .matches(/^([0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
-    .required('請輸入有效到期日'),
-  cvv: yup
-    .string()
-    .length(3, '安全驗證碼必須為 3 位數')
-    .required('請輸入安全驗證碼'),
+  paymentMethod: yup.string().required('請選擇付款方式'),
+  cardHolderName: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) =>
+      schema
+        .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
+        .min(3, '持卡人姓名必須至少包含 3 個字符')
+        .max(50, '持卡人姓名不能超過 50 個字符'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  cardNo: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) =>
+      schema
+        .required('請輸入您的信用卡號碼')
+        .matches(/^[0-9]+$/, '卡號只能包含數字')
+        .min(16, '卡號必須為 16 位數')
+        .max(16, '卡號必須為 16 位數'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  expireDate: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) =>
+      schema
+        .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, '無效的過期日期 (MM/YY)')
+        .required('請輸入有效到期日'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  cvv: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) =>
+      schema.length(3, '安全驗證碼必須為 3 位數').required('請輸入安全驗證碼'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+
+  buyerTelm: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) => schema.required('請輸入聯絡電話'),
+    otherwise: (schema) => schema.nullable(),
+  }),
+  buyerMail: yup.string().when('paymentMethod', {
+    is: (val: string) => val !== '2',
+    then: (schema) => schema.email('無效的電子郵件').required('請輸入電子郵件'),
+    otherwise: (schema) => schema.nullable(),
+  }),
   amount: yup.string().required('請選擇儲值金額'),
-  buyerTelm: yup.string().required('請輸入聯絡電話'),
-  buyerMail: yup.string().email('無效的電子郵件').required('請輸入電子郵件'),
 });
 
 // 使用 useForm 进行表单验证
@@ -191,7 +213,7 @@ const onSubmit = handleSubmit(async (values) => {
         <div class="flex gap-x-24">
           <div class="w-75">
             <p class="mallCheckout__text mallCheckout__text--required">
-              到期日(YY/MM)
+              到期日(MMYY)
             </p>
             <input
               class="mallCheckout__form-input"
@@ -199,7 +221,7 @@ const onSubmit = handleSubmit(async (values) => {
               :class="{
                 'mallCheckout__form-input--error': errors.expireDate,
               }"
-              placeholder="YY/MM"
+              placeholder="MMYY"
             />
             <p class="mallCheckout__text mallCheckout__text--error">
               {{ errors.expireDate }}

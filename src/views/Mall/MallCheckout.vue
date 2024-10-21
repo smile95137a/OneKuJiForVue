@@ -457,7 +457,7 @@
             <div class="flex gap-x-24">
               <div class="w-75">
                 <p class="mallCheckout__text mallCheckout__text--required">
-                  到期日(YY/MM)
+                  到期日(MMYY)
                 </p>
                 <input
                   class="mallCheckout__form-input"
@@ -465,7 +465,7 @@
                   :class="{
                     'mallCheckout__form-input--error': errors.expiryDate,
                   }"
-                  placeholder="YY/MM"
+                  placeholder="MMYY"
                 />
                 <p class="mallCheckout__text mallCheckout__text--error">
                   {{ errors.expiryDate }}
@@ -716,7 +716,6 @@ const schema = yup.object({
     then: (schema) =>
       schema
         .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
-        .matches(/^[A-Za-z\s]+$/, '持卡人姓名只能包含字母和空格')
         .min(3, '持卡人姓名必須至少包含 3 個字符')
         .max(50, '持卡人姓名不能超過 50 個字符'),
     otherwise: (schema) => schema.nullable(),
@@ -735,7 +734,7 @@ const schema = yup.object({
     is: (val: string) => val !== '2',
     then: (schema) =>
       schema
-        .matches(/^([0-9]{2})\/(0[1-9]|1[0-2])$/, '無效的過期日期 (YY/MM)')
+        .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, '無效的過期日期 (MM/YY)')
         .required('請輸入有效到期日'),
     otherwise: (schema) => schema.nullable(),
   }),

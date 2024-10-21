@@ -275,11 +275,27 @@
           </span>
           抽
         </p>
-        <p class="product-detail-one__text product-detail-one__text--3">
+        <p
+          class="product-detail-one__text product-detail-one__text--3"
+          v-if="!showBouns && product?.price"
+        >
           共花費
           <span class="product-detail-one__text--red">
             <NumberFormatter :number="activeTickets.length * ~~product.price" />
           </span>
+          金幣
+        </p>
+        <p
+          class="product-detail-one__text product-detail-one__text--3"
+          v-if="!showBouns && product?.sliverPrice"
+        >
+          共花費
+          <span class="product-detail-one__text--red">
+            <NumberFormatter
+              :number="activeTickets.length * ~~product.sliverPrice"
+            />
+          </span>
+          銀幣
         </p>
       </div>
       <div class="product-detail-one__chooseDetailNum">
