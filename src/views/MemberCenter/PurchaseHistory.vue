@@ -59,8 +59,10 @@
                 format="YYYY/MM/DD"
               />
             </td>
-            <td>{{ order.transactionType }}</td>
-            <td>{{ order.amount }}</td>
+            <td>{{ mapTransactionType(order.transactionType) }}</td>
+            <td>
+              <NumberFormatter :number="order.amount ?? 0" />
+            </td>
           </tr>
         </tbody>
       </table>
@@ -72,6 +74,7 @@
 import NoData from '@/components/common/NoData.vue';
 import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCoins.vue';
 import DateFormatter from '@/components/common/DateFormatter.vue';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { getTransactions } from '@/services/frontend/transactionService';
 import { useForm } from 'vee-validate';
 import { ref } from 'vue';
@@ -79,7 +82,13 @@ import { useDialogStore, useLoadingStore } from '@/stores';
 
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
-
+const transactionTypeMapping = {
+  DEPOSIT: '儲值',
+  CONSUME: '消費',
+};
+const mapTransactionType = (type: string) => {
+  return transactionTypeMapping[type] || type;
+};
 const records = ref<any[]>([]);
 const { defineField, handleSubmit, errors, values } = useForm({
   initialValues: {
