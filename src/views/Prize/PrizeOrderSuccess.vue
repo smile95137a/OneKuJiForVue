@@ -21,7 +21,7 @@ const getShippingMethodName = (value: string) => {
 };
 
 const getPaymentMethodName = (value: string) => {
-  const option = paymentOptions.find((option) => option.value === value);
+  const option = paymentOptions.find((option) => option.value === ~~value);
   return option ? option.name : '未知付款方式';
 };
 
@@ -103,8 +103,7 @@ const continueShopping = () => {
             </div>
             <div class="col-65 mallOrderSuccess__main-cell--delivery">
               <p class="mallOrderSuccess__text">
-                {{ getShippingMethodName(orderData.shippingMethod) }}：{{
-                  orderData.shippingCity
+                {{ orderData.shippingMethod }}：{{ orderData.shippingCity
                 }}{{ orderData.shippingArea }}{{ orderData.shippingAddress }}
               </p>
               <p class="mallOrderSuccess__text m-t-24">
@@ -147,6 +146,18 @@ const continueShopping = () => {
             </div>
             <div class="col-25"></div>
           </div>
+        </div>
+
+        <div class="grid m-t-48" v-if="orderData.paymentMethod === '2'">
+          <div class="col-10 col-sm-100">
+            <p class="mallOrderSuccess__text mallOrderSuccess__text--title">
+              轉帳帳號
+            </p>
+          </div>
+          <div class="col-65">
+            {{ orderData.billNumber }}
+          </div>
+          <div class="col-25"></div>
         </div>
 
         <div class="mallOrderSuccess__main-total">
