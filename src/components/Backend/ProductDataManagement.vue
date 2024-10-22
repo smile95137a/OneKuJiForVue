@@ -265,7 +265,7 @@
                   <option v-for="size in sizeOptions" :key="size" :value="size">{{ size }}</option>
                 </select>
               </div>
-              <div v-if="currentProductType === ProductType.PRIZE">
+              <div v-if="currentProductType === ProductType.PRIZE || currentProductType === ProductType.CUSTMER_PRIZE">
                 <label :for="'detailProbability' + index">機率</label>
                 <input :id="'detailProbability' + index" type="number" v-model.number="detail.probability" step="0.01" min="0" max="1">
               </div>
@@ -322,7 +322,7 @@
                 <option v-for="size in sizeOptions" :key="size" :value="size">{{ size }}</option>
               </select>
             </div>
-            <div v-if="currentProductType === ProductType.PRIZE">
+            <div v-if="currentProductType === ProductType.PRIZE || currentProductType === ProductType.CUSTMER_PRIZE">
               <label for="detailProbability">機率</label>
               <input id="detailProbability" v-model.number="detailForm.probability" type="number" step="0.01" min="0" max="1">
             </div>
@@ -346,10 +346,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, reactive, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import { DetailReq, DetailRes, PrizeCategory, ProductReq, ProductRes, ProductStatus, ProductType, ProductCategory } from '@/interfaces/product';
+import { DetailReq, DetailRes, PrizeCategory, ProductCategory, ProductReq, ProductRes, ProductStatus, ProductType } from '@/interfaces/product';
 import { productservice } from '@/services/backend/productservice';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 // 路由相關
 const route = useRoute();
@@ -424,6 +424,7 @@ const productTypeOptions: Record<ProductType, string> = {
   [ProductType.PRIZE]: '一番賞',
   [ProductType.GACHA]: '扭蛋',
   [ProductType.BLIND_BOX]: '盲盒',
+  [ProductType.CUSTMER_PRIZE]: '客製化抽獎'
 };
 
 const productStatusOptions: Record<ProductStatus, string> = {

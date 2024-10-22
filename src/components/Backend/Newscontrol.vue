@@ -35,35 +35,49 @@
     <p v-else>暫無最新消息</p>
 
     <!-- 新增/編輯新聞模態窗 -->
-    <div v-if="showNewsModal" class="modal">
-      <div class="modal-content">
-        <h2>{{ isEditing ? '編輯消息' : '新增消息' }}</h2>
-        <form @submit.prevent="handleNewsSubmit">
-          <div class="form-group">
-            <label for="title">標題</label>
-            <input id="title" v-model="currentNews.title" required />
-          </div>
-          <div class="form-group">
-            <label for="preview">預覽</label>
-            <input id="preview" v-model="currentNews.preview" required />
-          </div>
-          <div class="form-group">
-            <label for="content">內容</label>
-            <!-- CKEditor with custom upload adapter -->
-            <ckeditor :editor="editor" v-model="currentNews.content" :config="editorConfig"></ckeditor>
-          </div>
-          <div class="form-group">
-            <label for="status">狀態</label>
-            <select id="status" v-model="currentNews.status">
-              <option :value="NewsStatus.AVAILABLE">發布</option>
-              <option :value="NewsStatus.UNAVAILABLE">不發布</option>
-            </select>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">{{ isEditing ? '更新' : '創建' }}</button>
-            <button type="button" @click="closeNewsModal" class="btn btn-secondary">取消</button>
-          </div>
-        </form>
+    <div v-if="showNewsModal" class="modal-overlay">
+      <div class="modal-container">
+        <div class="modal-header">
+          <h2 class="modal-title">{{ isEditing ? '編輯消息' : '新增消息' }}</h2>
+          <button class="close-button" @click="closeNewsModal">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <form @submit.prevent="handleNewsSubmit">
+            <div class="form-group">
+              <label class="form-label" for="title">標題</label>
+              <input id="title" v-model="currentNews.title" class="form-input" required placeholder="請輸入標題" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="preview">預覽</label>
+              <input id="preview" v-model="currentNews.preview" class="form-input" required placeholder="請輸入預覽內容" />
+            </div>
+
+            <div class="form-group editor-container">
+              <label class="form-label" for="content">內容</label>
+              <ckeditor :editor="editor" v-model="currentNews.content" :config="editorConfig" class="custom-editor">
+              </ckeditor>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="status">狀態</label>
+              <select id="status" v-model="currentNews.status" class="form-select">
+                <option :value="NewsStatus.AVAILABLE">發布</option>
+                <option :value="NewsStatus.UNAVAILABLE">不發布</option>
+              </select>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" @click="closeNewsModal" class="btn btn-secondary">
+                取消
+              </button>
+              <button type="submit" class="btn btn-primary">
+                {{ isEditing ? '更新' : '創建' }}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -72,9 +86,9 @@
 <script lang="ts" setup>
 import { News, NewsStatus } from '@/interfaces/news';
 import { NewsService } from '@/services/backend/newsservice';
-import { onMounted, reactive, ref } from 'vue';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Ckeditor } from '@ckeditor/ckeditor5-vue';
+import { onMounted, reactive, ref } from 'vue';
 
 const newsList = ref<News[]>([]);
 const showNewsModal = ref(false);
@@ -395,5 +409,164 @@ th {
 
 .pagination button {
   margin: 0 10px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: white;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.editor-container {
+  /* CKEditor 容器樣式 */
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* CKEditor 自定義樣式 */
+:deep(.ck-editor__editable) {
+  min-height: 300px;
+  max-height: 500px;
+  padding: 0 1rem;
+}
+
+:deep(.ck-toolbar) {
+  border: none !important;
+  border-bottom: 1px solid #d1d5db !important;
+}
+
+:deep(.ck-content) {
+  border: none !important;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+  background-color: #f3f4f6;
+}
+
+/* 響應式設計 */
+@media (max-width: 640px) {
+  .modal-container {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .btn {
+    width: 100%;
+  }
 }
 </style>
