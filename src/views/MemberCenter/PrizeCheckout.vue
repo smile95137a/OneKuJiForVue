@@ -915,7 +915,7 @@ const loadCartItems = async () => {
         );
         return {
           ...item,
-          isSelected: existingItem ? existingItem.isSelected : true,
+          isSelected: false,
         };
       });
     } else {
