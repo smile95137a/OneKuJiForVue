@@ -63,6 +63,14 @@
           {{ item.totalPrice }}
         </div>
       </div>
+      <div class="grid m-t-16" v-if="orderData.paymentMethod === '2'">
+        <div class="col-25">轉帳帳號</div>
+      </div>
+      <div class="grid" v-if="orderData.paymentMethod === '2'">
+        <div class="col-25 p-x-12">
+          {{ orderData.billNumber }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
