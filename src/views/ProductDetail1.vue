@@ -12,7 +12,7 @@
           </p>
         </div>
         <div class="product-detail-one__action">
-          <div class="product-detail-one__prices">
+          <div class="product-detail-one__prices" v-if="!isCustmerPrize">
             <div class="product-detail-one__price" v-if="!showBouns">
               <p class="product-detail-one__price-money">
                 <span class="product-detail-one__text">{{
@@ -59,7 +59,14 @@
               </p>
             </div>
           </div>
-
+          <div class="product-detail-one__action-code">
+            <span class="product-detail-one__action-code-text">輸入代碼</span>
+            <input
+              type="text"
+              class="product-detail-one__action-code-input"
+              v-model="inputCode"
+            />
+          </div>
           <div class="product-detail-one__action-btns">
             <div
               class="product-detail-one__action-btn"
@@ -78,7 +85,7 @@
         </div>
       </div>
 
-      <div class="product-detail-one__infos">
+      <div class="product-detail-one__infos" v-if="!isCustmerPrize">
         <div
           class="product-detail-one__info product-detail-one__info--one"
           v-html="product?.description"
@@ -233,29 +240,37 @@
         <div
           class="product-detail-one__btn product-detail-one__btn--random"
           @click="toggleShowOptionRandom"
+          v-if="!isCustmerPrize"
         >
           隨機選擇
         </div>
         <div
           class="product-detail-one__btn product-detail-one__btn--im"
           @click="handleExchange(1)"
-          v-if="!showBouns"
+          v-if="!showBouns && !isCustmerPrize"
         >
           金幣兌換
         </div>
         <div
           class="product-detail-one__btn product-detail-one__btn--im"
           @click="handleExchange(2)"
-          v-if="!showBouns"
+          v-if="!showBouns && !isCustmerPrize"
         >
           銀幣兌換
         </div>
         <div
           class="product-detail-one__btn product-detail-one__btn--im"
           @click="handleExchange(3)"
-          v-if="showBouns"
+          v-if="showBouns && !isCustmerPrize"
         >
           紅利兌換
+        </div>
+        <div
+          class="product-detail-one__btn product-detail-one__btn--im"
+          @click="handleExchange(4)"
+          v-if="isCustmerPrize"
+        >
+          代碼兌換
         </div>
       </div>
 
@@ -277,7 +292,7 @@
         </p>
         <p
           class="product-detail-one__text product-detail-one__text--3"
-          v-if="!showBouns && product?.price"
+          v-if="!showBouns && product?.price && !isCustmerPrize"
         >
           共花費
           <span class="product-detail-one__text--red">
@@ -287,7 +302,7 @@
         </p>
         <p
           class="product-detail-one__text product-detail-one__text--3"
-          v-if="!showBouns && product?.sliverPrice"
+          v-if="!showBouns && product?.sliverPrice && !isCustmerPrize"
         >
           共花費
           <span class="product-detail-one__text--red">
@@ -356,7 +371,11 @@ import MImage from '@/components/frontend/MImage.vue';
 import ProductCard2 from '@/components/frontend/ProductCard2.vue';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
-import { executeDraw, getDrawStatus } from '@/services/frontend/drawService';
+import {
+  executeDraw,
+  getDrawStatus,
+  redeemCode,
+} from '@/services/frontend/drawService';
 import {
   getProductDetailById,
   IProductDetail,
@@ -384,7 +403,9 @@ const introduceSection = ref<HTMLElement | null>(null);
 const showOption = ref(false);
 const showBouns = ref(false);
 const showOptionRandom = ref(false);
+const isCustmerPrize = ref(false);
 const customQuantity = ref(1);
+const inputCode = ref<string>('');
 
 const countdown = ref<number>(0);
 let countdownInterval: NodeJS.Timeout | null = null;
@@ -434,10 +455,13 @@ onMounted(async () => {
         getProductDetailById(productId),
         getDrawStatus(productId),
       ]);
+    console.log();
 
     if (productResponse.data) {
       product.value = productResponse.data;
       const { productType } = productResponse.data;
+
+      isCustmerPrize.value = productType === 'CUSTMER_PRIZE';
       showBouns.value = productResponse.data.prizeCategory === 'BONUS';
       const productTypeLabel = PRODUCT_TYPE_LABELS[productType];
       if (productTypeLabel) {
@@ -516,7 +540,18 @@ const handleCheckboxChange = (ticket: any) => {
       (x) => x.prizeNumberId !== ticket.prizeNumberId
     );
   } else {
-    activeTickets.value.push(ticket);
+    if (isCustmerPrize) {
+      if (activeTickets.value.length >= 1) {
+        dialogStore.openInfoDialog({
+          title: '系統消息',
+          message: '最多一個。',
+        });
+      } else {
+        activeTickets.value.push(ticket);
+      }
+    } else {
+      activeTickets.value.push(ticket);
+    }
   }
 };
 
@@ -542,11 +577,22 @@ const handleExchange = async (exchangeType: number) => {
 
     try {
       loadingStore.startLoading();
-      const { success, data } = await executeDraw(
-        productId,
-        activeTickets.value?.map((x) => x.number),
-        exchangeType
-      );
+      let res;
+      if (isCustmerPrize) {
+        res = await redeemCode({
+          productId,
+          prizeNumbers: activeTickets.value?.map((x) => x.number),
+          exchangeType,
+          code: inputCode.value,
+        });
+      } else {
+        res = await executeDraw(
+          productId,
+          activeTickets.value?.map((x) => x.number),
+          exchangeType
+        );
+      }
+      const { success, data } = res;
 
       loadingStore.stopLoading();
 
@@ -630,8 +676,20 @@ const getTicketImg = (ticket: any) => {
 };
 
 const scrollToIntroduce = (isShowOption = false) => {
-  showOption.value = isShowOption;
-  introduceSection.value?.scrollIntoView({ behavior: 'smooth' });
+  if (isCustmerPrize && isShowOption) {
+    if (!inputCode.value) {
+      dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '請輸入代碼',
+      });
+    } else {
+      showOption.value = isShowOption;
+      introduceSection.value?.scrollIntoView({ behavior: 'smooth' });
+    }
+  } else {
+    showOption.value = isShowOption;
+    introduceSection.value?.scrollIntoView({ behavior: 'smooth' });
+  }
 };
 
 const toggleShowOptionRandom = () => {

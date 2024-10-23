@@ -909,13 +909,13 @@ const loadCartItems = async () => {
       if (!data || data.length === 0) {
         router.push('/home');
       }
-      items.value = data.map((item: { prizeCartItemId: any }) => {
-        const existingItem = items.value.find(
-          (i) => i.prizeCartItemId === item.prizeCartItemId
-        );
+
+      const selectedItems: any = loadState('selectedItems');
+
+      items.value = data.map((x) => {
         return {
-          ...item,
-          isSelected: false,
+          ...x,
+          isSelected: selectedItems ? selectedItems[x.prizeCartItemId] : false,
         };
       });
     } else {
@@ -992,6 +992,7 @@ onMounted(async () => {
     setFieldValue('buyerMail', shippingData.buyerMail || '');
     setFieldValue('shopId', storeid);
     removeState('shippingData');
+    removeState('selectedItems');
   }
   setTimeout(() => {
     isInitialSetup = false;
@@ -1112,7 +1113,15 @@ const onItemSelectionChange = (item: { isSelected: boolean }) => {
 const selectStore = async () => {
   const { success, data } = await expressQuery(shippingMethod.value, 2);
   if (success) {
+    const selectedItems = items.value.reduce(
+      (acc: Record<string, boolean>, item) => {
+        acc[item.prizeCartItemId] = item.isSelected;
+        return acc;
+      },
+      {}
+    );
     saveState('shippingData', values);
+    saveState('selectedItems', selectedItems);
     location.href = data;
   } else {
     await dialogStore.openInfoDialog({

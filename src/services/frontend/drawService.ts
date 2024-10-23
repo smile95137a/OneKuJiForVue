@@ -80,3 +80,12 @@ export const executeRandomDraw = async (
     throw error;
   }
 };
+export const redeemCode = async (drawDto: any): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.post(`${basePath}/redeem`, drawDto);
+    return response.data;
+  } catch (error) {
+    console.error('Error redeeming code:', error);
+    throw error;
+  }
+};

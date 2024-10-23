@@ -3,7 +3,10 @@ import { ref, onMounted } from 'vue';
 import Card from '@/components/common/Card.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getStoreProductOrderByOrderNumber } from '@/services/frontend/orderService';
+import {
+  getStorePrizeProductOrderById,
+  getStoreProductOrderByOrderNumber,
+} from '@/services/frontend/orderService';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import { paymentOptions, shippingOptions } from '@/data/orderOptions';
@@ -15,11 +18,6 @@ const router = useRouter();
 const orderNumber = route.params.orderNumber;
 const orderData = ref<any>(null);
 
-const getShippingMethodName = (value: string) => {
-  const option = shippingOptions.find((option) => option.value === value);
-  return option ? option.name : '未知配送方式';
-};
-
 const getPaymentMethodName = (value: string) => {
   const option = paymentOptions.find((option) => option.value === ~~value);
   return option ? option.name : '未知付款方式';
@@ -27,7 +25,7 @@ const getPaymentMethodName = (value: string) => {
 
 onMounted(async () => {
   try {
-    const res = await getStoreProductOrderByOrderNumber(orderNumber as string);
+    const res = await getStorePrizeProductOrderById(orderNumber as string);
     orderData.value = res.data;
     console.log('Order Data:', orderData.value);
   } catch (error) {

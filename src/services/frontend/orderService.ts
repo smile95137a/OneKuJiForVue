@@ -35,7 +35,7 @@ export const queryDrawOrder = async (req: any): Promise<ApiResponse<any>> => {
     );
     return response.data;
   } catch (error) {
-    console.error('Error querying orders:', error);
+    console.error('Error querying draw orders:', error);
     throw error;
   }
 };
@@ -50,6 +50,20 @@ export const getStoreProductOrderByOrderNumber = async (
     return response.data;
   } catch (error) {
     console.error('Error fetching store product order data:', error);
+    throw error;
+  }
+};
+
+export const getStorePrizeProductOrderById = async (
+  orderNumber: string
+): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.get<ApiResponse<any>>(
+      `${basePath}/productDetail/${orderNumber}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching store prize product order data:', error);
     throw error;
   }
 };
@@ -79,7 +93,7 @@ export const payPrizeCartItem = async (
     );
     return response.data;
   } catch (error) {
-    console.error('Error processing payment:', error);
+    console.error('Error processing prize cart payment:', error);
     throw error;
   }
 };

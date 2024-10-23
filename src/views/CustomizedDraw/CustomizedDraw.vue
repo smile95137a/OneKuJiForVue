@@ -11,55 +11,19 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const products = ref<IProduct[]>([]);
-const title = ref('自製賞');
 const searchTerm = ref('');
 const loading = ref(false);
 const page = ref(0);
 const size = ref(20);
 const allLoaded = ref(false);
 
-const selectedTypes = ref<number[]>([]);
-const categories = ref([]);
-
-const filteredCategories = computed(() => {
-  const pcategoryUUidArr = products.value
-    .filter(
-      (product) =>
-        product.status === 'AVAILABLE' &&
-        product.prizeCategory === buttonCategory
-    )
-    .map((product) => product.categoryUUid);
-
-  return categories.value.filter((category) =>
-    pcategoryUUidArr.includes(category.categoryUUid)
-  );
-});
-
 const filteredProducts = computed(() => {
   return products.value.filter(
     (product) =>
       product.status === 'AVAILABLE' &&
-      (selectedTypes.value.length === 0 ||
-        selectedTypes.value.includes(product.categoryUUid)) &&
       product.productName.toLowerCase().includes(searchTerm.value.toLowerCase())
   );
 });
-
-const fetchCategories = async () => {
-  try {
-    loadingStore.startLoading();
-    const { success, message, data } = await getAllCategories();
-    loadingStore.stopLoading();
-    if (success) {
-      categories.value = data;
-    } else {
-      console.log(message);
-    }
-  } catch (error) {
-    loadingStore.stopLoading();
-    console.log(error);
-  }
-};
 
 const loadMoreProducts = async () => {
   if (allLoaded.value || loading.value) return;
@@ -77,6 +41,7 @@ const loadMoreProducts = async () => {
 
     products.value = [...products.value, ...newProducts];
     page.value++;
+    loading.value = false;
   } catch (error) {
     console.error('加載產品時發生錯誤:', error);
   } finally {
@@ -87,10 +52,6 @@ const loadMoreProducts = async () => {
 const navigateToDetail = (productId: number) => {
   router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });
 };
-
-onMounted(() => {
-  fetchCategories();
-});
 
 const handleScroll = () => {
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -134,48 +95,10 @@ watch(loading, (newValue) => {
 <template>
   <div class="product">
     <div class="product__title">
-      <div class="product__text" data-text="一番賞">一番賞</div>
+      <div class="product__text" data-text="客製化抽獎">客製化抽獎</div>
     </div>
     <Card customClass="mcard--ichiban">
       <div class="product__list">
-        <div class="product__list-title">
-          <div class="product__list-btns">
-            <label
-              v-for="category in filteredCategories"
-              :key="category.categoryUUid"
-              class="product__list-btn"
-              :class="{
-                'product__list-btn--active': selectedTypes.includes(
-                  category.categoryUUid
-                ),
-              }"
-              :for="String(category.categoryUUid)"
-            >
-              <input
-                type="checkbox"
-                :value="category.categoryUUid"
-                v-model="selectedTypes"
-                :id="String(category.categoryUUid)"
-              />
-              {{ category.categoryName }}
-            </label>
-          </div>
-          <div class="product__list-search">
-            <div class="product__input">
-              <div class="product__input-main">
-                <input
-                  type="text"
-                  v-model="searchTerm"
-                  placeholder="搜尋商品名稱"
-                />
-              </div>
-              <div class="product__input-icon font-size-28">
-                <i class="fa-solid fa-magnifying-glass"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div v-if="filteredProducts.length === 0" class="product__no-data">
           <NoData />
         </div>
