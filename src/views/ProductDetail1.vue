@@ -592,7 +592,7 @@ const handleExchange = async (exchangeType: number) => {
           exchangeType
         );
       }
-      const { success, data } = res;
+      const { success, data, message } = res;
 
       loadingStore.stopLoading();
 
@@ -601,24 +601,36 @@ const handleExchange = async (exchangeType: number) => {
           {},
           productType === 'PRIZE' ? 'ticket' : 'box'
         );
-
         activeTickets.value = [];
 
-        const totalAmount = data.reduce(
-          (sum: number, item: any) => sum + item.amount,
-          0
-        );
+        if (isCustmerPrize) {
+          await fetchDrawStatus();
+          await dialogStore.openInfoDialog({
+            title: '系統通知',
+            message: data,
+          });
+        } else {
+          const totalAmount = data.reduce(
+            (sum: number, item: any) => sum + item.amount,
+            0
+          );
 
-        await fetchDrawStatus();
-        await dialogStore.openConfirmDialog(
-          { customClass: '' },
-          {
-            remainingQuantity: remainingQuantity.value,
-            count: data.length,
-            total: totalAmount,
-            drawData: data,
-          }
-        );
+          await fetchDrawStatus();
+          await dialogStore.openConfirmDialog(
+            { customClass: '' },
+            {
+              remainingQuantity: remainingQuantity.value,
+              count: data.length,
+              total: totalAmount,
+              drawData: data,
+            }
+          );
+        }
+      } else {
+        await dialogStore.openInfoDialog({
+          title: '系統通知',
+          message: message,
+        });
       }
     } catch (error: any) {
       loadingStore.stopLoading();
