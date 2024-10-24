@@ -59,7 +59,7 @@
               </p>
             </div>
           </div>
-          <div class="product-detail-one__action-code">
+          <div class="product-detail-one__action-code" v-if="isCustmerPrize">
             <span class="product-detail-one__action-code-text">輸入代碼</span>
             <input
               type="text"
@@ -540,7 +540,7 @@ const handleCheckboxChange = (ticket: any) => {
       (x) => x.prizeNumberId !== ticket.prizeNumberId
     );
   } else {
-    if (isCustmerPrize) {
+    if (isCustmerPrize.value) {
       if (activeTickets.value.length >= 1) {
         dialogStore.openInfoDialog({
           title: '系統消息',
@@ -578,7 +578,7 @@ const handleExchange = async (exchangeType: number) => {
     try {
       loadingStore.startLoading();
       let res;
-      if (isCustmerPrize) {
+      if (isCustmerPrize.value) {
         res = await redeemCode({
           productId,
           prizeNumbers: activeTickets.value?.map((x) => x.number),
@@ -603,7 +603,7 @@ const handleExchange = async (exchangeType: number) => {
         );
         activeTickets.value = [];
 
-        if (isCustmerPrize) {
+        if (isCustmerPrize.value) {
           await fetchDrawStatus();
           await dialogStore.openInfoDialog({
             title: '系統通知',
@@ -688,7 +688,7 @@ const getTicketImg = (ticket: any) => {
 };
 
 const scrollToIntroduce = (isShowOption = false) => {
-  if (isCustmerPrize && isShowOption) {
+  if (isCustmerPrize.value && isShowOption) {
     if (!inputCode.value) {
       dialogStore.openInfoDialog({
         title: '系統通知',
