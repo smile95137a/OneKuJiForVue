@@ -102,17 +102,17 @@ const depositList = [
 const onSubmit = handleSubmit(async (values) => {
   try {
     loadingStore.startLoading();
-    const { success, data, code } = await topUp(values);
+    const { success, data, code, message } = await topUp(values);
     loadingStore.stopLoading();
     if (success) {
       await dialogStore.openInfoDialog({
-        title: '系統通知',
-        message: '儲值成功',
+        title: '儲值成功',
+        message: `轉帳帳號：${data.epayAccount}`,
       });
     } else {
       await dialogStore.openInfoDialog({
-        title: '系統通知',
-        message: '儲值失敗',
+        title: '儲值失敗',
+        message: message,
       });
     }
   } catch (error) {
