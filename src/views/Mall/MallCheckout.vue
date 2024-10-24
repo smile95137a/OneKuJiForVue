@@ -877,7 +877,7 @@ const onSubmit = handleSubmit(async (values: any) => {
     if (success) {
       router.push({
         name: 'MallOrderSuccess',
-        params: { orderNumber: data.toString() },
+        params: { orderNumber: data.orderNumber },
       });
     } else {
       await dialogStore.openInfoDialog({

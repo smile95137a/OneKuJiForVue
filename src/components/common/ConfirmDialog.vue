@@ -44,6 +44,9 @@
               >
                 <NumberFormatter :number="confirmDialogData?.total ?? 0" />
               </span>
+              <span v-if="confirmDialogData?.drawData[0].payType">
+                ({{ mapPayType(confirmDialogData?.drawData[0].payType) }})
+              </span>
             </p>
           </div>
         </div>
@@ -130,6 +133,25 @@ onMounted(() => {
     groupedDrawData.value = groupedData;
   }
 });
+
+const mapPayType = (payType: number | null | undefined) => {
+  if (payType === null || payType === undefined) {
+    return '未知';
+  }
+
+  switch (~~payType) {
+    case 1:
+      return '金幣';
+    case 2:
+      return '銀幣';
+    case 3:
+      return '紅利';
+    case 4:
+      return '兌換卷';
+    default:
+      return '未知';
+  }
+};
 </script>
 
 <style scoped></style>
