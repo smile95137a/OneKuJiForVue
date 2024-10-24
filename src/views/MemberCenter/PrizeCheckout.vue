@@ -4,8 +4,13 @@
       <div class="m-t-48 m-b-12 mallCheckout__text mallCheckout__text--title">
         商品資訊
       </div>
-      <div class="mallCheckout__btn--selectAll" @click="selectAllItems">
-        一鍵回收
+      <div class="flex gap-x-24">
+        <div class="mallCheckout__btn--selectAll" @click="selectAllItems">
+          全選
+        </div>
+        <div class="mallCheckout__btn--selectAll" @click="recycleItems">
+          回收
+        </div>
       </div>
 
       <div class="flex p-x-24 gap-x-12">
@@ -1135,5 +1140,26 @@ const selectAllItems = () => {
   items.value.forEach((item) => {
     item.isSelected = true;
   });
+};
+
+const recycleItems = async () => {
+  const selectedItems = items.value.filter((item) => item.isSelected);
+  for (const item of selectedItems) {
+    try {
+      loadingStore.startLoading();
+
+      const response = await removePrizeCartItem(item.prizeCartItemId);
+      loadingStore.stopLoading();
+      if (response.success) {
+        await loadCartItems();
+      } else {
+        console.error('刪除購物車項失敗:', response.message);
+      }
+    } catch (error) {
+      loadingStore.stopLoading();
+      console.error('刪除購物車項時發生錯誤:', error);
+    }
+    loadingStore.stopLoading();
+  }
 };
 </script>
