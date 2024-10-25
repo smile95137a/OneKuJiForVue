@@ -107,7 +107,10 @@ const onSubmit = handleSubmit(async (values) => {
     if (success) {
       await dialogStore.openInfoDialog({
         title: '儲值成功',
-        message: `轉帳帳號：${data.epayAccount}`,
+        message:
+          values.paymentMethod === '2'
+            ? `轉帳帳號：${data.epayAccount}`
+            : '儲值已完成，感謝您的使用！',
       });
     } else {
       await dialogStore.openInfoDialog({
