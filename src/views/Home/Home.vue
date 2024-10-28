@@ -41,16 +41,16 @@ const fetchProducts = async () => {
     if (success) {
       const availableProducts = data
         .filter((p: IProduct) => p.status === 'AVAILABLE')
-        .slice(0, 6);
+        .slice(0, 9);
       prizeProducts.value = availableProducts
         .filter((p: IProduct) => p.productType === 'PRIZE')
-        .slice(0, 6);
+        .slice(0, 9);
       blindBoxProducts.value = availableProducts
         .filter((p: IProduct) => p.productType === 'BLIND_BOX')
-        .slice(0, 6);
+        .slice(0, 9);
       gachaProducts.value = availableProducts
         .filter((p: IProduct) => p.productType === 'GACHA')
-        .slice(0, 6);
+        .slice(0, 9);
     } else {
       console.log(message);
     }
