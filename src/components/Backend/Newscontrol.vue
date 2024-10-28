@@ -196,12 +196,13 @@ class MyCustomUploadAdapter {
 
   upload() {
     return this.loader.file
-      .then((file: File) => {
+      .then(async (file: File) => {
+        const res = await NewsService.uploadImage(file);
+        const url = NewsService.getImageUrl(res);
         // 將圖片文件添加到 currentNews.imageFiles 中，稍後會一同提交
-        currentNews.imageFiles.push(file);
         // 返回圖片的預覽 URL，這樣 CKEditor 可以即時顯示圖片
         return {
-          default: URL.createObjectURL(file),
+          default:url,
         };
       });
   }

@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { News } from '@/interfaces/news';
+import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
@@ -9,6 +9,21 @@ const axiosInstance = axios.create({
 });
 
 export const NewsService = {
+    uploadImage: async (file: File): Promise<string> => {
+      const formData = new FormData();
+      formData.append('file', file);
+  
+      try {
+        const response = await axiosInstance.post<{ data: string }>('/news/img/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        console.log('uploadImage response:', response.data);
+        return response.data.data;
+      } catch (error) {
+        console.error('Error in uploadImage:', error);
+        throw error;
+      }
+    },
   // 創建新聞，接收 FormData
   createNews: async (formData: FormData): Promise<News> => {
     try {
@@ -76,4 +91,7 @@ export const NewsService = {
   getImageUrl: (imagePath: string): string => {
     return `${API_IMAGE_URL}/img${imagePath}`;
   },
+  
 };
+
+
