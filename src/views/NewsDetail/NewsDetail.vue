@@ -13,12 +13,7 @@
       />
     </p>
     <hr class="m-t-24" />
-    <div class="newsDetail__content">
-      <MImage
-        v-if="newsItem.imageUrls && newsItem.imageUrls.length > 0"
-        :src="newsItem.imageUrls[0]"
-      />
-    </div>
+    <div class="newsDetail__content"></div>
     <div v-html="newsItem.preview"></div>
     <!-- 新增：顯示新聞詳細內容 -->
     <div class="newsDetail__fullContent" v-html="newsItem.content"></div>
