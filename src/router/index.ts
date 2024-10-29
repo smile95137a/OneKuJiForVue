@@ -5,6 +5,8 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 // 导入组件
 import About from '@/views/About/About.vue';
+import ProductDetail1 from '@/views/ProductDetail1.vue';
+import ProductDetail2 from '@/views/ProductDetail2.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import Gacha from '@/views/Gacha/Gacha.vue';
 import Home from '@/views/Home/Home.vue';
@@ -204,13 +206,13 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/product-detail1/:id',
     name: 'ProductDetail1',
-    component: () => import('@/views/ProductDetail1.vue'),
+    component: ProductDetail1,
     meta: { layout: 'default' },
   },
   {
     path: '/product-detail2/:id',
     name: 'ProductDetail2',
-    component: () => import('@/views/ProductDetail2.vue'),
+    component: ProductDetail2,
     meta: { layout: 'default' },
   },
   // 后台路由

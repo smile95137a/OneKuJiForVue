@@ -455,7 +455,6 @@ onMounted(async () => {
         getProductDetailById(productId),
         getDrawStatus(productId),
       ]);
-    console.log();
 
     if (productResponse.data) {
       product.value = productResponse.data;
@@ -468,7 +467,6 @@ onMounted(async () => {
         breadcrumbItems.value.push({ name: productTypeLabel });
       }
       breadcrumbItems.value.push({ name: productResponse.data.productName });
-      console.log(breadcrumbItems.value);
     }
 
     if (productDetailResponse.data) {
