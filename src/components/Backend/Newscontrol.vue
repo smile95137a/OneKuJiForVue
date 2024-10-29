@@ -59,7 +59,16 @@
               <ckeditor :editor="editor" v-model="currentNews.content" :config="editorConfig" class="custom-editor">
               </ckeditor>
             </div>
-
+            <div class="form-group">
+              <label for="images">上傳圖片</label>
+              <input type="file" id="images" @change="handleImageUpload" multiple accept="image/*" />
+            </div>
+            <div v-if="currentNews.imageUrls && currentNews.imageUrls.length > 0" class="image-preview">
+              <div v-for="(image, index) in currentNews.imageUrls" :key="index" class="image-item">
+                <img :src="formatImageUrl(image)" alt="新聞圖片" />
+                <button type="button" @click="removeImage(index)" class="remove-image">移除</button>
+              </div>
+            </div>
             <div class="form-group">
               <label class="form-label" for="status">狀態</label>
               <select id="status" v-model="currentNews.status" class="form-select">
@@ -120,7 +129,8 @@ const currentNews = reactive<Partial<News> & { imageFiles: File[] }>({
   content: '',
   status: NewsStatus.UNAVAILABLE,
   author: '',
-  imageFiles: [], // 保存圖片檔案的地方
+  imageUrls: [], // 初始化為空陣列，避免 undefined 問題
+  imageFiles: [],
 });
 
 onMounted(async () => {
@@ -153,6 +163,16 @@ const closeNewsModal = () => {
   showNewsModal.value = false;
   resetNewsForm();
 };
+const handleImageUpload = (event: { target: { files: any; }; }) => {
+  const files = event.target.files;
+  if (files) {
+    currentNews.imageFiles = Array.from(files); // 將上傳的檔案轉為陣列存到 imageFiles 中
+  }
+};
+const removeImage = (index: number) => {
+  currentNews.imageUrls.splice(index, 1);
+};
+
 const handleNewsSubmit = async () => {
   try {
     const formData = new FormData();
@@ -164,10 +184,16 @@ const handleNewsSubmit = async () => {
       content: currentNews.content,
       status: currentNews.status,
       author: currentNews.author,
+      imageUrls: currentNews.imageUrls.filter(img => typeof img === 'string')
     };
 
     // 將 `newsReq` 作為一個 JSON 字串附加到 `FormData`
     formData.append('newsReq', JSON.stringify(newsReq));
+    // 將圖片檔案加入到 `FormData`
+    currentNews.imageFiles.forEach((file, index) => {
+      console.log(`Uploading file ${index}:`, file.name);
+      formData.append('images', file); // 確保圖片被加入 FormData
+    });
 
     // 根據是否是編輯模式來發送請求
     if (isEditing.value && currentNews.newsUid) {
@@ -202,7 +228,7 @@ class MyCustomUploadAdapter {
         // 將圖片文件添加到 currentNews.imageFiles 中，稍後會一同提交
         // 返回圖片的預覽 URL，這樣 CKEditor 可以即時顯示圖片
         return {
-          default:url,
+          default: url,
         };
       });
   }
@@ -231,7 +257,12 @@ const deleteNews = async (newsUid: string) => {
     }
   }
 };
-
+const formatImageUrl = (url: string | File): string => {
+  if (typeof url === 'string') {
+    return NewsService.getImageUrl(url);
+  }
+  return URL.createObjectURL(url);
+};
 const resetNewsForm = () => {
   Object.assign(currentNews, {
     title: '',
@@ -239,6 +270,7 @@ const resetNewsForm = () => {
     content: '',
     status: NewsStatus.UNAVAILABLE,
     author: '',
+    imageUrls: [],
     imageFiles: [],
   });
 };
@@ -561,11 +593,11 @@ th {
     width: 95%;
     margin: 1rem;
   }
-  
+
   .form-actions {
     flex-direction: column-reverse;
   }
-  
+
   .btn {
     width: 100%;
   }
