@@ -7,6 +7,9 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import About from '@/views/About/About.vue';
 import ProductDetail1 from '@/views/ProductDetail1.vue';
 import ProductDetail2 from '@/views/ProductDetail2.vue';
+import PaymentForm from '@/views/PaymentForm.vue';
+import PaymentCBO from '@/views/PaymentCBO.vue';
+import PaymentCB from '@/views/PaymentCB.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import Gacha from '@/views/Gacha/Gacha.vue';
 import Home from '@/views/Home/Home.vue';
@@ -52,6 +55,18 @@ import RedemptionCodeList from '@/components/backend/RedemptionCodeList.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
 import Vendor from '@/components/backend/vendor.vue';
 const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/paymentCBO',
+    component: PaymentCBO,
+  },
+  {
+    path: '/paymentCB',
+    component: PaymentCB,
+  },
+  {
+    path: '/paymentForm',
+    component: PaymentForm,
+  },
   {
     path: '/oauth2/redirect',
     component: OAuth2Redirect,

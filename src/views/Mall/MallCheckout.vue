@@ -433,115 +433,6 @@
             </div>
           </div>
         </div>
-
-        <div v-if="paymentMethod === 1" class="p-y-48 p-x-48">
-          <div class="mallCheckout__form">
-            <div class="flex">
-              <div class="w-100">
-                <p class="mallCheckout__text mallCheckout__text--required">
-                  信用卡號碼
-                </p>
-                <input
-                  class="mallCheckout__form-input"
-                  v-model="cardNo"
-                  :class="{
-                    'mallCheckout__form-input--error': errors.cardNo,
-                  }"
-                  placeholder="輸入信用卡號碼"
-                />
-                <p class="mallCheckout__text mallCheckout__text--error">
-                  {{ errors.cardNo }}
-                </p>
-              </div>
-            </div>
-            <div class="flex gap-x-24">
-              <div class="w-75">
-                <p class="mallCheckout__text mallCheckout__text--required">
-                  到期日(MMYY)
-                </p>
-                <input
-                  class="mallCheckout__form-input"
-                  v-model="expiryDate"
-                  :class="{
-                    'mallCheckout__form-input--error': errors.expiryDate,
-                  }"
-                  placeholder="MMYY"
-                />
-                <p class="mallCheckout__text mallCheckout__text--error">
-                  {{ errors.expiryDate }}
-                </p>
-              </div>
-              <div class="w-25">
-                <p class="mallCheckout__text mallCheckout__text--required">
-                  安全驗證碼
-                </p>
-                <input
-                  class="mallCheckout__form-input"
-                  v-model="cvv"
-                  :class="{
-                    'mallCheckout__form-input--error': errors.cvv,
-                  }"
-                  placeholder="安全驗證碼"
-                />
-                <p class="mallCheckout__text mallCheckout__text--error">
-                  {{ errors.cvv }}
-                </p>
-              </div>
-            </div>
-            <div class="flex">
-              <div class="w-100">
-                <p class="mallCheckout__text mallCheckout__text--required">
-                  持卡者名字
-                </p>
-                <input
-                  class="mallCheckout__form-input"
-                  v-model="cardHolderName"
-                  :class="{
-                    'mallCheckout__form-input--error': errors.cardHolderName,
-                  }"
-                  placeholder="輸入持卡者名字"
-                />
-                <p class="mallCheckout__text mallCheckout__text--error">
-                  {{ errors.cardHolderName }}
-                </p>
-              </div>
-            </div>
-            <div class="flex gap-x-24">
-              <div class="w-50">
-                <p class="mallCheckout__text mallCheckout__text--required">
-                  聯絡電話
-                </p>
-                <input
-                  class="mallCheckout__form-input"
-                  v-model="buyerTelm"
-                  :class="{
-                    'mallCheckout__form-input--error': errors.buyerTelm,
-                  }"
-                  placeholder="輸入聯絡電話"
-                />
-                <p class="mallCheckout__text mallCheckout__text--error">
-                  {{ errors.buyerTelm }}
-                </p>
-              </div>
-              <div class="w-50">
-                <p class="mallCheckout__text mallCheckout__text--required">
-                  電子郵件
-                </p>
-                <input
-                  class="mallCheckout__form-input"
-                  v-model="buyerMail"
-                  :class="{
-                    'mallCheckout__form-input--error': errors.buyerMail,
-                  }"
-                  placeholder="輸入電子郵件"
-                />
-                <p class="mallCheckout__text mallCheckout__text--error">
-                  {{ errors.buyerMail }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
       </Card>
       <div class="mallCheckout__total">
         <div class="mallCheckout__total-item">
@@ -709,52 +600,6 @@ const schema = yup.object({
       then: (schema) => schema.required('購買人地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
-  shippingMethod: yup.string().required('請選擇寄送方式'),
-  paymentMethod: yup.string().required('請選擇付款方式'),
-  cardHolderName: yup.string().when('paymentMethod', {
-    is: (val: string) => val !== '2',
-    then: (schema) =>
-      schema
-        .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
-        .min(3, '持卡人姓名必須至少包含 3 個字符')
-        .max(50, '持卡人姓名不能超過 50 個字符'),
-    otherwise: (schema) => schema.nullable(),
-  }),
-  cardNo: yup.string().when('paymentMethod', {
-    is: (val: string) => val !== '2',
-    then: (schema) =>
-      schema
-        .required('請輸入您的信用卡號碼')
-        .matches(/^[0-9]+$/, '卡號只能包含數字')
-        .min(16, '卡號必須為 16 位數')
-        .max(16, '卡號必須為 16 位數'),
-    otherwise: (schema) => schema.nullable(),
-  }),
-  expiryDate: yup.string().when('paymentMethod', {
-    is: (val: string) => val !== '2',
-    then: (schema) =>
-      schema
-        .matches(/^(0[1-9]|1[0-2])\/([0-9]{2})$/, '無效的過期日期 (MM/YY)')
-        .required('請輸入有效到期日'),
-    otherwise: (schema) => schema.nullable(),
-  }),
-  cvv: yup.string().when('paymentMethod', {
-    is: (val: string) => val !== '2',
-    then: (schema) =>
-      schema.length(3, '安全驗證碼必須為 3 位數').required('請輸入安全驗證碼'),
-    otherwise: (schema) => schema.nullable(),
-  }),
-
-  buyerTelm: yup.string().when('paymentMethod', {
-    is: (val: string) => val !== '2',
-    then: (schema) => schema.required('請輸入聯絡電話'),
-    otherwise: (schema) => schema.nullable(),
-  }),
-  buyerMail: yup.string().when('paymentMethod', {
-    is: (val: string) => val !== '2',
-    then: (schema) => schema.email('無效的電子郵件').required('請輸入電子郵件'),
-    otherwise: (schema) => schema.nullable(),
-  }),
 });
 
 const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
@@ -780,12 +625,6 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     vehicle: '',
     donationCode: '',
     sameAsBilling: false,
-    cardNo: '',
-    expiryDate: '',
-    cvv: '',
-    cardHolderName: '',
-    buyerTelm: '',
-    buyerMail: '',
     shopId: storeid,
   },
 });
@@ -810,14 +649,6 @@ const [invoice, invoiceProps] = defineField('invoice');
 const [vehicle, vehicleProps] = defineField('vehicle');
 const [donationCode, donationCodeProps] = defineField('donationCode');
 const [sameAsBilling, sameAsBillingProps] = defineField('sameAsBilling');
-
-const [cardNo, cardNoProps] = defineField('cardNo');
-const [expiryDate, expiryDateProps] = defineField('expiryDate');
-const [cvv, cvvProps] = defineField('cvv');
-
-const [cardHolderName, cardHolderNameProps] = defineField('cardHolderName');
-const [buyerTelm, buyerTelmProps] = defineField('buyerTelm');
-const [buyerMail, buyerMailProps] = defineField('buyerMail');
 const [shopId, shopIdProps] = defineField('shopId');
 
 const selectedShippingPrice = ref(0);
@@ -875,10 +706,34 @@ const onSubmit = handleSubmit(async (values: any) => {
     const { success, data } = await payCartItem(payCart);
     loadingStore.stopLoading();
     if (success) {
-      router.push({
-        name: 'MallOrderSuccess',
-        params: { orderNumber: data.orderNumber },
-      });
+      // router.push({
+      //   name: 'MallOrderSuccess',
+      //   params: { orderNumber: data.orderNumber },
+      // });
+
+      const form = document.createElement('form');
+      form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+      form.method = 'post';
+
+      const appendField = (name, value) => {
+        const input = document.createElement('input');
+        input.type = 'input';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
+
+      appendField('Send_Type', '0');
+      appendField('Pay_Mode_No', '2');
+      appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+      appendField('Order_No', data.orderNumber);
+      appendField('TransMode', '1');
+      appendField('Amount', finalAmount.value);
+      appendField('Installment', '0');
+      appendField('TransCode', '00');
+      appendField('Return_url', `${window.location.origin}/paymentCBO`);
+      document.body.appendChild(form);
+      form.submit();
     } else {
       await dialogStore.openInfoDialog({
         title: '系統通知',
@@ -1044,17 +899,14 @@ onMounted(async () => {
     await nextTick();
     setFieldValue('billingArea', shippingData.billingArea || '');
     setFieldValue('billingAddress', shippingData.billingAddress || '');
-    setFieldValue('shippingMethod', shippingData.shippingMethod || '');
+    setFieldValue(
+      'shippingMethod',
+      shippingData.shippingMethod || shippingMethods.value[0].code
+    );
     setFieldValue(
       'paymentMethod',
       shippingData.paymentMethod || paymentOptions[0].value
     );
-    setFieldValue('cardNo', shippingData.cardNo || '');
-    setFieldValue('expiryDate', shippingData.expiryDate || '');
-    setFieldValue('cvv', shippingData.cvv || '');
-    setFieldValue('cardHolderName', shippingData.cardHolderName || '');
-    setFieldValue('buyerTelm', shippingData.buyerTelm || '');
-    setFieldValue('buyerMail', shippingData.buyerMail || '');
     setFieldValue('shopId', storeid);
     removeState('shippingData');
   }
