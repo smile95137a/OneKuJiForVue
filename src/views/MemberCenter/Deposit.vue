@@ -48,7 +48,6 @@ const onSubmit = handleSubmit(async (values) => {
     loadingStore.stopLoading();
 
     if (success) {
-      debugger;
       if (values.paymentMethod === 1) {
         const form = document.createElement('form');
         form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;

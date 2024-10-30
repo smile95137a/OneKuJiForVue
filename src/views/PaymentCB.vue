@@ -17,9 +17,9 @@ onMounted(async () => {
 
   queryParams.value = paramsObj;
   const o = {
-    orderId: searchParams.get('e_orderno') || '',
+    orderId: searchParams.get('OrderID') || '',
     creditResult: searchParams.get('result') || '',
-    orderNumber: searchParams.get('OrderID') || '',
+    orderNumber: searchParams.get('e_orderno') || '',
   };
   try {
     const { success, message } = await creditTopOp(o);

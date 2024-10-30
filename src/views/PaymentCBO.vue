@@ -19,10 +19,11 @@ onMounted(async () => {
   });
 
   queryParams.value = paramsObj;
+
   const o = {
-    orderId: searchParams.get('e_orderno') || '',
+    orderId: searchParams.get('OrderID') || '',
     creditResult: searchParams.get('result') || '',
-    orderNumber: searchParams.get('OrderID') || '',
+    orderNumber: searchParams.get('e_orderno') || '',
   };
   try {
     if (~~paramsObj.result === 1) {
@@ -30,7 +31,7 @@ onMounted(async () => {
       if (success) {
         router.push({
           name: ~~data === 1 ? 'MallOrderSuccess' : 'PrizeOrderSuccess',
-          params: { orderNumber: paramsObj.OrderID },
+          params: { orderNumber: o.orderNumber },
         });
       } else {
         await dialogStore.openInfoDialog({

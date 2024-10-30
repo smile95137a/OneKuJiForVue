@@ -592,17 +592,6 @@ const schema = yup.object({
       then: (schema) => schema.required('購買人地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
-  shippingMethod: yup.string().required('請選擇寄送方式'),
-  paymentMethod: yup.string().required('請選擇付款方式'),
-  cardHolderName: yup.string().when('paymentMethod', {
-    is: (val: string) => val !== '2',
-    then: (schema) =>
-      schema
-        .required('請輸入信用卡面相同英文姓名,例如王大明(DAMINGWANG)')
-        .min(3, '持卡人姓名必須至少包含 3 個字符')
-        .max(50, '持卡人姓名不能超過 50 個字符'),
-    otherwise: (schema) => schema.nullable(),
-  }),
 });
 const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
   validationSchema: schema,
