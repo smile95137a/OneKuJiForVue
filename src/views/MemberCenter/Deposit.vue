@@ -31,7 +31,9 @@ const [paymentMethod] = defineField('paymentMethod');
 const [amount] = defineField('amount');
 
 const depositList = [
-  { id: 'deposit0', value: '35', num: '35' },
+  { id: 'deposit01', value: '35', num: '35' },
+  { id: 'deposit02', value: '50', num: '50' },
+  { id: 'deposit03', value: '100', num: '100' },
   { id: 'deposit1', value: '1000', num: '1000' },
   { id: 'deposit2', value: '3000', num: '3000' },
   { id: 'deposit3', value: '5000', num: '5000' },
