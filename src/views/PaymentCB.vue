@@ -22,16 +22,23 @@ onMounted(async () => {
     orderNumber: searchParams.get('e_orderno') || '',
   };
   try {
-    const { success, message } = await creditTopOp(o);
-    if (success) {
-      await dialogStore.openInfoDialog({
-        title: '系統通知',
-        message: '儲值成功',
-      });
+    if (~~paramsObj.result === 1) {
+      const { success, message } = await creditTopOp(o);
+      if (success) {
+        await dialogStore.openInfoDialog({
+          title: '系統通知',
+          message: '儲值成功',
+        });
+      } else {
+        await dialogStore.openInfoDialog({
+          title: '系統通知',
+          message: message,
+        });
+      }
     } else {
       await dialogStore.openInfoDialog({
         title: '系統通知',
-        message: message,
+        message: '付款失敗',
       });
     }
   } catch (error) {
