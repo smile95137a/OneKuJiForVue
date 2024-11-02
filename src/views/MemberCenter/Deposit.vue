@@ -4,6 +4,7 @@ import dbox from '@/assets/image/dp.png';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { paymentOptions } from '@/data/orderOptions';
 import { topUp } from '@/services/frontend/paymentService';
+import { getUserInfo } from '@/services/frontend/userService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import { useForm } from 'vee-validate';
 import { useRouter } from 'vue-router';
@@ -43,6 +44,10 @@ const depositList = [
 // 提交表單的處理邏輯
 const onSubmit = handleSubmit(async (values) => {
   try {
+    const isV = await validateForm();
+    if (!isV) {
+      return;
+    }
     loadingStore.startLoading();
     const { success, data, code, message } = await topUp(values);
     loadingStore.stopLoading();
@@ -96,6 +101,22 @@ const onSubmit = handleSubmit(async (values) => {
     });
   }
 });
+
+const validateForm = async () => {
+  const { paymentMethod } = values;
+  if (~~paymentMethod === 2) {
+    const { data: userInfo } = await getUserInfo();
+    if (!userInfo.addressName) {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '使用轉帳付款時，請先填寫收件人資訊。',
+      });
+      return false;
+    }
+  }
+
+  return true;
+};
 </script>
 
 <template>

@@ -155,7 +155,7 @@ const schema = yup.object({
   addressName: yup.string().required('收貨姓名為必填項'),
   city: yup.string().nullable(),
   area: yup.string().nullable(),
-  address: yup.string(),
+  address: yup.string().nullable(),
   lineId: yup.string().nullable(),
   phoneNumber: yup.string().required('收貨手機為必填項'),
 });
@@ -188,14 +188,14 @@ const fetchUserInfo = async () => {
   try {
     const { data: userInfo } = await getUserInfo();
 
-    setFieldValue('nickname', userInfo.nickname);
-    setFieldValue('addressName', userInfo.addressName);
-    setFieldValue('city', userInfo.city);
+    setFieldValue('nickname', userInfo.nickname || '');
+    setFieldValue('addressName', userInfo.addressName || '');
+    setFieldValue('city', userInfo.city || '');
     await nextTick();
-    setFieldValue('area', userInfo.area);
-    setFieldValue('address', userInfo.address);
-    setFieldValue('lineId', userInfo.lineId);
-    setFieldValue('phoneNumber', userInfo.phoneNumber);
+    setFieldValue('area', userInfo.area || '');
+    setFieldValue('address', userInfo.address || '');
+    setFieldValue('lineId', userInfo.lineId || '');
+    setFieldValue('phoneNumber', userInfo.phoneNumber || '');
   } catch (error) {
     console.error('获取用户信息失败:', error);
   }

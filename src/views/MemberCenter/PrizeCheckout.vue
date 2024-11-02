@@ -685,39 +685,47 @@ const onSubmit = handleSubmit(async (values: any) => {
     prizeCartItemIds: selectedItems.map((x) => x.prizeCartItemId),
   };
 
+  const isV = await validateForm();
+  if (!isV) {
+    return;
+  }
+
   try {
     loadingStore.startLoading();
     const { success, data } = await payPrizeCartItem(payCart);
 
     loadingStore.stopLoading();
     if (success) {
-      // router.push({
-      //   name: 'PrizeOrderSuccess',
-      //   params: { orderNumber: data.orderNumber.toString() },
-      // });
-      const form = document.createElement('form');
-      form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
-      form.method = 'post';
+      if (values.paymentMethod === 1) {
+        const form = document.createElement('form');
+        form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+        form.method = 'post';
 
-      const appendField = (name, value) => {
-        const input = document.createElement('input');
-        input.type = 'input';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      };
+        const appendField = (name, value) => {
+          const input = document.createElement('input');
+          input.type = 'input';
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        };
 
-      appendField('Send_Type', '0');
-      appendField('Pay_Mode_No', '2');
-      appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
-      appendField('Order_No', data.orderNumber);
-      appendField('TransMode', '1');
-      appendField('Amount', finalAmount.value);
-      appendField('Installment', '0');
-      appendField('TransCode', '00');
-      appendField('Return_url', `${window.location.origin}/paymentCBO`);
-      document.body.appendChild(form);
-      form.submit();
+        appendField('Send_Type', '0');
+        appendField('Pay_Mode_No', '2');
+        appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+        appendField('Order_No', data.orderNumber);
+        appendField('TransMode', '1');
+        appendField('Amount', finalAmount.value);
+        appendField('Installment', '0');
+        appendField('TransCode', '00');
+        appendField('Return_url', `${window.location.origin}/paymentCBO`);
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        router.push({
+          name: 'PrizeOrderSuccess',
+          params: { orderNumber: data.orderNumber },
+        });
+      }
     } else {
       await dialogStore.openInfoDialog({
         title: '系統通知',
@@ -732,6 +740,21 @@ const onSubmit = handleSubmit(async (values: any) => {
     });
   }
 });
+const validateForm = async () => {
+  const { paymentMethod } = values;
+  if (~~paymentMethod === 2) {
+    const { data: userInfo } = await getUserInfo();
+    if (!userInfo.addressName) {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '使用轉帳付款時，請先填寫收件人資訊。',
+      });
+      return false;
+    }
+  }
+
+  return true;
+};
 
 const formatPrice = (price: number) => `${price.toFixed(2)}`;
 
