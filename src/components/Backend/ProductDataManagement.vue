@@ -3,10 +3,10 @@
     <h1>產品系列管理</h1>
     <div class="filter-container">
       <button @click="openAddProductModal">新增產品系列</button>
-       <!-- 商品類別管理按鈕 -->
-    <div class="category-management">
-      <button @click="openCategoryModal">管理商品類別</button>
-    </div>
+      <!-- 商品類別管理按鈕 -->
+      <div class="category-management">
+        <button @click="openCategoryModal">管理商品類別</button>
+      </div>
       <div class="filter-form">
         <select v-model="filterProductType" @change="handleProductTypeChange">
           <option value="">全部類型</option>
@@ -21,7 +21,7 @@
       </div>
     </div>
 
-   
+
 
     <!-- 商品類別管理模態窗 -->
     <div v-if="showCategoryModal" class="modal">
@@ -193,30 +193,30 @@
         <p>籤數：{{ totalQuantity }}</p>
         <button @click="openAddDetailModal">新增商品</button>
         <table v-if="productDetails.length">
-  <thead>
-    <tr>
-      <th>商品名稱</th>
-      <th>描述</th>
-      <th>規格</th>
-      <th>數量</th>
-      <th>等級</th>
-      <th>操作</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="detail in productDetails" :key="detail.productDetailId">
-      <td>{{ detail.productName }}</td>
-      <td>{{ detail.description }}</td>
-      <td>{{ detail.specification }}</td>
-      <td>{{ detail.quantity }}</td>
-      <td>{{ detail.grade }}</td>
-      <td>
-        <button @click="openEditDetailModal(detail)">編輯</button>
-        <button @click="deleteProductDetail(detail.productDetailId)">刪除</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+          <thead>
+            <tr>
+              <th>商品名稱</th>
+              <th>描述</th>
+              <th>規格</th>
+              <th>數量</th>
+              <th>等級</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="detail in productDetails" :key="detail.productDetailId">
+              <td>{{ detail.productName }}</td>
+              <td>{{ detail.description }}</td>
+              <td>{{ detail.specification }}</td>
+              <td>{{ detail.quantity }}</td>
+              <td>{{ detail.grade }}</td>
+              <td>
+                <button @click="openEditDetailModal(detail)">編輯</button>
+                <button @click="deleteProductDetail(detail.productDetailId)">刪除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
         <p v-else>暫無商品</p>
         <button @click="closeProductDetailsModal">關閉</button>
       </div>
@@ -246,7 +246,9 @@
               <div v-if="currentProductType === ProductType.PRIZE">
                 <label :for="'detailGrade' + index">等級</label>
                 <select :id="'detailGrade' + index" v-model="detail.grade">
-                  <option v-for="grade in ['SP','LAST','A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
+                  <option
+                    v-for="grade in ['SP', 'LAST', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']"
+                    :key="grade" :value="grade">
                     {{ grade }}
                   </option>
                 </select>
@@ -267,15 +269,20 @@
               </div>
               <div v-if="currentProductType === ProductType.PRIZE || currentProductType === ProductType.CUSTMER_PRIZE">
                 <label :for="'detailProbability' + index">機率</label>
-                <input :id="'detailProbability' + index" type="number" v-model.number="detail.probability" step="0.01" min="0" max="1">
+                <input :id="'detailProbability' + index" type="number" v-model.number="detail.probability" step="0.01"
+                  min="0.01" max="0.99" @blur="checkProbability(detail)">
               </div>
+
+
               <div>
                 <label :for="'detailImage' + index">商品圖片</label>
-                <input :id="'detailImage' + index" type="file" @change="(event) => handleDetailImageUpload(event, index)" multiple accept="image/*">
+                <input :id="'detailImage' + index" type="file"
+                  @change="(event) => handleDetailImageUpload(event, index)" multiple accept="image/*">
               </div>
               <div v-if="detail.imageUrls && detail.imageUrls.length > 0">
                 <div v-for="(image, imageIndex) in detail.imageUrls" :key="imageIndex">
-                  <img v-if="isValidImageUrl(image)" :src="formatImageUrl(image)" alt="商品圖片" style="width: 100px; height: 100px;">
+                  <img v-if="isValidImageUrl(image)" :src="formatImageUrl(image)" alt="商品圖片"
+                    style="width: 100px; height: 100px;">
                   <button type="button" @click="removeDetailImage(index, imageIndex)">移除</button>
                 </div>
               </div>
@@ -303,7 +310,9 @@
             <div v-if="currentProductType === ProductType.PRIZE">
               <label for="detailGrade">等級</label>
               <select id="detailGrade" v-model="detailForm.grade">
-                <option v-for="grade in ['SP','LAST','A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']" :key="grade" :value="grade">
+                <option
+                  v-for="grade in ['SP', 'LAST', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'SP']"
+                  :key="grade" :value="grade">
                   {{ grade }}
                 </option>
               </select>
@@ -324,7 +333,8 @@
             </div>
             <div v-if="currentProductType === ProductType.PRIZE || currentProductType === ProductType.CUSTMER_PRIZE">
               <label for="detailProbability">機率</label>
-              <input id="detailProbability" v-model.number="detailForm.probability" type="number" step="0.01" min="0" max="1">
+              <input id="detailProbability" v-model.number="detailForm.probability" type="number" step="0.01" min="0.01"
+                max="0.99" @blur="checkProbability2">
             </div>
             <div>
               <label for="detailImage">商品圖片</label>
@@ -332,7 +342,8 @@
             </div>
             <div v-if="detailForm.imageUrls && detailForm.imageUrls.length > 0">
               <div v-for="(image, index) in detailForm.imageUrls" :key="index">
-                <img v-if="isValidImageUrl(image)" :src="formatImageUrl(image)" alt="商品圖片" style="width: 100px; height: 100px;">
+                <img v-if="isValidImageUrl(image)" :src="formatImageUrl(image)" alt="商品圖片"
+                  style="width: 100px; height: 100px;">
                 <button type="button" @click="removeDetailImage(index)">移除</button>
               </div>
             </div>
@@ -353,6 +364,23 @@ import { useRoute } from 'vue-router';
 
 // 路由相關
 const route = useRoute();
+
+
+const checkProbability = (detail: { probability: number; }) => {
+  if (detail.probability > 0.99) {
+    detail.probability = 0.99;
+  } else if (detail.probability < 0.01) {
+    detail.probability = 0.01;
+  }
+}
+
+const checkProbability2 = () => {
+  if (detailForm.probability > 0.99) {
+    detailForm.probability = 0.99;
+  } else if (detailForm.probability < 0.01) {
+    detailForm.probability = 0.01;
+  }
+};
 
 // 數據
 const products = ref<ProductRes[]>([]);
@@ -391,9 +419,9 @@ const filteredProducts = computed(() => {
     if (filterProductType.value && product.productType !== filterProductType.value) {
       return false;
     }
-    if (filterProductType.value === ProductType.PRIZE && 
-        filterPrizeCategory.value && 
-        product.prizeCategory !== filterPrizeCategory.value) {
+    if (filterProductType.value === ProductType.PRIZE &&
+      filterPrizeCategory.value &&
+      product.prizeCategory !== filterPrizeCategory.value) {
       return false;
     }
     return true;
@@ -508,7 +536,7 @@ const fetchProducts = async () => {
           status: productStatusOptions[product.status as ProductStatus] || product.status
         }))
         .sort((a, b) => b.productId - a.productId); // 按 productId 降序排序，假設較大的 ID 表示較新的商品
-      
+
       const categoriesResponse = await productservice.getAllCategories();
       if (categoriesResponse.success) {
         categoryNameMap.value = new Map(
@@ -711,7 +739,7 @@ const handleDetailSubmit = async () => {
         productId: currentProductId.value
       };
       response = await productservice.updateProductDetail(
-        editingDetail.value.productDetailId!, 
+        editingDetail.value.productDetailId!,
         updatedDetail
       );
     } else {
@@ -869,8 +897,8 @@ const addDetailToBatch = () => {
     // TODO: 添加用戶提示
     return;
   }
-  const newDetail = { 
-    ...detailForm, 
+  const newDetail = {
+    ...detailForm,
     productId: currentProductId.value,
     imageUrls: [],
     size: 10
@@ -989,7 +1017,8 @@ const deleteCategory = async (categoryId: number) => {
   color: #333;
 }
 
-h1, h2 {
+h1,
+h2 {
   color: #2c3e50;
   margin-bottom: 20px;
 }
@@ -1017,7 +1046,8 @@ table {
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
@@ -1127,5 +1157,4 @@ input[type="file"] {
     padding: 10px;
   }
 }
-
 </style>
