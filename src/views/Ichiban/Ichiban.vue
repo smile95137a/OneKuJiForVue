@@ -3,7 +3,11 @@ import Card from '@/components/common/Card.vue';
 import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { getAllCategories } from '@/services/frontend/productCategoryService';
-import { getAllProduct, IProduct } from '@/services/frontend/productService';
+import {
+  getAllProduct,
+  getAllProductList,
+  IProduct,
+} from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -93,7 +97,7 @@ const loadMoreProducts = async () => {
   loading.value = true;
   try {
     loadingStore.startLoading();
-    const { data } = await getAllProduct(page.value, size.value);
+    const { data } = await getAllProductList();
     loadingStore.stopLoading();
     const newProducts = data;
 
@@ -122,43 +126,8 @@ onMounted(() => {
     title.value = selectedButton.title;
   }
 
-  fetchCategories();
-});
-
-const handleScroll = () => {
-  const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  const scrollHeight = document.documentElement.scrollHeight;
-  const clientHeight = window.innerHeight;
-
-  if (scrollTop + clientHeight >= scrollHeight - 10 && !loading.value) {
-    loadMoreProducts();
-  }
-};
-
-const lockScroll = () => {
-  document.body.style.overflow = 'hidden';
-};
-
-const unlockScroll = () => {
-  document.body.style.overflow = '';
-};
-
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
   loadMoreProducts();
-});
-
-onBeforeUnmount(() => {
-  unlockScroll();
-  window.removeEventListener('scroll', handleScroll);
-});
-
-watch(loading, (newValue) => {
-  if (newValue) {
-    lockScroll();
-  } else {
-    unlockScroll();
-  }
+  fetchCategories();
 });
 </script>
 

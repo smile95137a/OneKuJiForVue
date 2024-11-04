@@ -39,6 +39,16 @@ export const getAllProduct = async (
   }
 };
 
+export const getAllProductList = async (): Promise<ApiResponse<IProduct[]>> => {
+  try {
+    const response = await api.get<ApiResponse<IProduct[]>>(`${basePath}/all`);
+    return response.data;
+  } catch (error) {
+    console.error('獲取所有產品時發生錯誤:', error);
+    throw error;
+  }
+};
+
 export const getProductById = async (
   id: number
 ): Promise<ApiResponse<IProduct>> => {
