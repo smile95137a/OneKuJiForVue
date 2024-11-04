@@ -93,7 +93,7 @@ $root-block-name: '.daliyDialog';
     }
 
     &-result {
-      margin: 24px 0 48px 0;
+      margin: 12px 0 24px 0;
       @include flex(null, center);
       #{$p__text} {
         font-size: 25px;

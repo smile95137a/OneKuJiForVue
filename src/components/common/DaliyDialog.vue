@@ -165,7 +165,7 @@ const createSVGSpinner = () => {
     text.setAttribute('x', textX.toString());
     text.setAttribute('y', textY.toString());
     text.setAttribute('fill', '#FFD700');
-    text.setAttribute('font-size', '20');
+    text.setAttribute('font-size', '16');
     text.setAttribute('text-anchor', 'middle');
     text.setAttribute('dominant-baseline', 'middle');
     svg.appendChild(text);
