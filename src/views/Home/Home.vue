@@ -133,24 +133,6 @@ onMounted(() => {
         />
       </div>
     </Card>
-
-    <Card customClass="mcard--home">
-      <template #header>
-        <MCardHeader title="扭蛋" />
-      </template>
-      <div v-if="gachaProducts.length === 0">
-        <NoData />
-      </div>
-      <div v-else class="home__products">
-        <ProductCard
-          v-for="product in gachaProducts"
-          :key="product.productId"
-          :customClass="'productCard--style2'"
-          :product="product"
-          @click="navigateToDetail(product)"
-        />
-      </div>
-    </Card>
   </div>
 </template>
 
