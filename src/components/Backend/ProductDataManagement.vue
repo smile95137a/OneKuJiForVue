@@ -101,6 +101,7 @@
             <button @click="openEditProductModal(product)">編輯</button>
             <button @click="deleteProduct(product.productId)">刪除</button>
             <button @click="openProductDetailsModal(product.productId)">查看商品</button>
+            <button @click="duplicateProduct(product.productId)">複製商品</button> <!-- 新增的複製商品按鈕 -->
           </td>
         </tr>
       </tbody>
@@ -365,6 +366,17 @@ import { useRoute } from 'vue-router';
 // 路由相關
 const route = useRoute();
 
+
+const error = ref(null); // 用於存儲錯誤信息
+
+const duplicateProduct = async (productId: any) => {
+  try {
+    const response = await productservice.copyProduct(productId);
+    // 這裡可以添加代碼來刷新商品列表，例如重新獲取產品數據
+  } catch (err) {
+    alert(error.value); // 顯示錯誤信息
+  }
+};
 
 const checkProbability = (detail: { probability: number; }) => {
   if (detail.probability > 0.99) {
@@ -1007,6 +1019,7 @@ const deleteCategory = async (categoryId: number) => {
 };
 
 // 導出需要在模板中使用的方法和響應式數據
+
 </script>
 <style scoped>
 .product-management {
