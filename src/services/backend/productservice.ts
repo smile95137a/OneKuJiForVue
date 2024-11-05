@@ -1,6 +1,6 @@
 // src/services/backend/productservice.ts
 
-import { ApiResponse, DetailApiResponse, DetailListApiResponse, DetailReq, PrizeCategory, ProductApiResponse, ProductListApiResponse, ProductReq, ProductType, ProductCategory, ProductCategoryApiResponse, ProductCategoryListApiResponse } from '@/interfaces/product';
+import { ApiResponse, DetailApiResponse, DetailListApiResponse, DetailReq, PrizeCategory, ProductApiResponse, ProductCategory, ProductCategoryApiResponse, ProductCategoryListApiResponse, ProductListApiResponse, ProductReq, ProductType } from '@/interfaces/product';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
@@ -314,6 +314,20 @@ export const productservice = {
       throw error;
     }
   },
+
+  copyProduct :async (productId: any) => {
+    try {
+      const response = await axiosInstance.post<ApiResponse<void>>(`/product/${productId}/duplicate`);
+      return response.data;
+    } catch (error) {
+      console.error("Error copying product:", error);
+      throw error;
+    }
+  },
+
+  
 };
+
+
 
 export default productservice;
