@@ -371,7 +371,8 @@ $root-block-name: '.product-detail-one';
     padding: 24px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
+    gap: 32px;
+    column-gap: 16px;
     @include screen(lg) {
       grid-template-columns: 1fr 1fr;
     }
@@ -711,6 +712,6 @@ $root-block-name: '.product-detail-one';
 
 .product-detail-one__products--card {
   .productCard2__detail {
-    max-height: 96px;
+    max-height: 110px;
   }
 }
