@@ -474,8 +474,8 @@
 <script lang="ts" setup>
 import Card from '@/components/common/Card.vue';
 import MSelect from '@/components/common/MSelect.vue';
-import MImage from '@/components/frontend/MImage.vue';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import MImage from '@/components/frontend/MImage.vue';
 import { paymentOptions, shippingOptions } from '@/data/orderOptions';
 import { expressQuery } from '@/services/frontend/expressService';
 import { payPrizeCartItem } from '@/services/frontend/orderService';
@@ -717,6 +717,7 @@ const onSubmit = handleSubmit(async (values: any) => {
         appendField('Amount', finalAmount.value);
         appendField('Installment', '0');
         appendField('TransCode', '00');
+        appendField('Buyer_Memo' , '賞品運費');
         appendField('Return_url', `${window.location.origin}/paymentCBO`);
         document.body.appendChild(form);
         form.submit();

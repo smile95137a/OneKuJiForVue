@@ -12,7 +12,8 @@
           <img :src="getBannerImageUrl(banner)" :alt="banner.bannerUid" class="banner-image" />
           <div class="banner-details">
             <h3>Banner ID: {{ banner.bannerId }}</h3>
-            <p><strong>狀態:</strong> <span :class="['status-badge', banner.status]">{{ getStatusLabel(banner.status) }}</span></p>
+            <p><strong>狀態:</strong> <span :class="['status-badge', banner.status]">{{ getStatusLabel(banner.status)
+                }}</span></p>
             <p><strong>產品類型:</strong> {{ getProductTypeLabel(banner.productType) }}</p>
             <p><strong>產品 ID:</strong> {{ banner.productId }}</p>
           </div>
@@ -54,7 +55,7 @@
             </select>
           </div>
           <div v-if="selectedProduct" class="form-group">
-            <img :src="getBannerImageUrl(selectedProduct)" alt="產品圖片" class="product-image-preview" />
+            <img :src="getBannerImageUrl2(selectedProduct)" alt="產品圖片" class="product-image-preview" />
           </div>
           <div class="form-group">
             <label for="status">狀態:</label>
@@ -77,11 +78,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, computed } from 'vue';
+import { Banner, BannerFormData, BannerReq, BannerStatus } from '@/interfaces/banner';
+import { PrizeCategory, ProductRes, ProductType } from '@/interfaces/product';
 import { bannerservice } from '@/services/backend/bannerservice';
 import { productservice } from '@/services/backend/productservice';
-import { Banner, BannerReq, BannerStatus, BannerFormData } from '@/interfaces/banner';
-import { ProductType, PrizeCategory, ProductRes } from '@/interfaces/product';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 
 export default defineComponent({
   name: 'BannerComponent',
@@ -153,17 +154,34 @@ export default defineComponent({
     };
 
     const onPrizeCategoryChange = async () => {
-      if (bannerForm.value.productType === ProductType.PRIZE) {
-        try {
-          const response = await productservice.getOneKuJiType(selectedPrizeCategory.value);
-          availableProducts.value = response.data;
-          bannerForm.value.productId = 0;
-        } catch (err) {
-          console.error('加載獎品失敗:', err);
-          error.value = '加載獎品失敗';
-        }
+  if (bannerForm.value.productType === ProductType.PRIZE) {
+    try {
+      const response = await productservice.getOneKuJiType(selectedPrizeCategory.value);
+
+      // 过滤掉 bannerImageUrl 为空的产品
+      const filteredProducts = response.data.filter((product: ProductRes) => product.bannerImageUrl && product.bannerImageUrl.length > 0);
+
+      // 如果过滤后没有数据，设置 availableProducts 为一个空数组
+      if (filteredProducts.length === 0) {
+        availableProducts.value = [];
+      } else {
+        availableProducts.value = filteredProducts;
       }
-    };
+
+      bannerForm.value.productId = 0;
+    } catch (err) {
+      console.error('加載獎品失敗:', err);
+      // 不在没有数据时触发错误
+      if (availableProducts.value.length === 0) {
+        error.value = null; // 清空错误信息，避免提示“加載獎品失敗”
+      } else {
+        error.value = '加載獎品失敗'; // 有其他错误时显示错误信息
+      }
+    }
+  }
+};
+
+
 
     const onProductChange = () => {
       // 產品改變時的額外邏輯（如果需要）
@@ -226,6 +244,13 @@ export default defineComponent({
         : '';
     };
 
+    const getBannerImageUrl2 = (banner: ProductRes) => {
+      return banner.bannerImageUrl && banner.bannerImageUrl.length > 0
+        ? bannerservice.getImageUrl(banner.bannerImageUrl[0])
+        : '';
+    };
+
+
     onMounted(() => {
       fetchBanners();
       fetchAvailableProducts();
@@ -255,6 +280,7 @@ export default defineComponent({
       getProductTypeLabel,
       getStatusLabel,
       getBannerImageUrl,
+      getBannerImageUrl2,
     };
   },
 });
@@ -290,8 +316,13 @@ export default defineComponent({
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {
@@ -316,7 +347,7 @@ export default defineComponent({
 }
 
 .banner-item:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .banner-image {
@@ -418,7 +449,8 @@ export default defineComponent({
   font-weight: bold;
 }
 
-.form-group select, .form-group input {
+.form-group select,
+.form-group input {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
@@ -453,7 +485,7 @@ export default defineComponent({
   .banner-list {
     grid-template-columns: 1fr;
   }
-  
+
   .banner-form {
     width: 95%;
   }

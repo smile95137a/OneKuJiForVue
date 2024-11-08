@@ -32,7 +32,7 @@
       <div class="footer__infos">
         <div class="footer__info">
           <div class="footer__info-text">公司信箱：</div>
-          <div class="footer__info-text">easonandjenny@gmail.com.com</div>
+          <div class="footer__info-text">easonandjenny@gmail.com</div>
         </div>
         <div class="footer__info">
           <div class="footer__info-text">公司統編：</div>

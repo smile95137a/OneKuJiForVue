@@ -5,9 +5,8 @@ import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { paymentOptions } from '@/data/orderOptions';
 import { topUp } from '@/services/frontend/paymentService';
 import { getUserInfo } from '@/services/frontend/userService';
-import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
+import { useDialogStore, useLoadingStore } from '@/stores';
 import { useForm } from 'vee-validate';
-import { useRouter } from 'vue-router';
 import * as yup from 'yup';
 
 const loadingStore = useLoadingStore();
@@ -79,6 +78,7 @@ const onSubmit = handleSubmit(async (values) => {
         appendField('Amount', values.amount);
         appendField('Installment', '0');
         appendField('TransCode', '00');
+        appendField('Buyer_Memo' , '儲值代幣');
         appendField('Return_url', `${window.location.origin}/paymentCB`);
 
         // Append the form to the body and submit it

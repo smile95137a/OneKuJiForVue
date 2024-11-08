@@ -1,12 +1,14 @@
 <template>
   <div class="product-management">
     <h1>產品系列管理</h1>
+
+    <!-- Filter Section -->
     <div class="filter-container">
       <button @click="openAddProductModal">新增產品系列</button>
-      <!-- 商品類別管理按鈕 -->
       <div class="category-management">
         <button @click="openCategoryModal">管理商品類別</button>
       </div>
+
       <div class="filter-form">
         <select v-model="filterProductType" @change="handleProductTypeChange">
           <option value="">全部類型</option>
@@ -21,18 +23,18 @@
       </div>
     </div>
 
-
-
-    <!-- 商品類別管理模態窗 -->
+    <!-- Category Management Modal -->
     <div v-if="showCategoryModal" class="modal">
       <div class="modal-content">
         <h2>商品類別管理</h2>
         <button @click="openAddCategoryModal">新增商品類別</button>
+
         <table v-if="categories.length">
           <thead>
             <tr>
               <th>類別名稱</th>
               <th>操作</th>
+              <th>排序號碼</th>
             </tr>
           </thead>
           <tbody>
@@ -42,6 +44,7 @@
                 <button @click="openEditCategoryModal(category)">編輯</button>
                 <button @click="deleteCategory(category.categoryId)">刪除</button>
               </td>
+              <td>{{ category.productSort }}</td>
             </tr>
           </tbody>
         </table>
@@ -50,21 +53,7 @@
       </div>
     </div>
 
-    <!-- 新增/編輯商品類別模態窗 -->
-    <div v-if="showCategoryEditModal" class="modal">
-      <div class="modal-content">
-        <h2>{{ editingCategory ? '編輯商品類別' : '新增商品類別' }}</h2>
-        <form @submit.prevent="handleCategorySubmit">
-          <div>
-            <label for="categoryName">類別名稱</label>
-            <input id="categoryName" v-model="categoryForm.categoryName" required />
-          </div>
-          <button type="submit">{{ editingCategory ? '更新' : '新增' }}</button>
-          <button type="button" @click="closeCategoryEditModal">取消</button>
-        </form>
-      </div>
-    </div>
-
+    <!-- Product Table -->
     <table v-if="filteredProducts.length">
       <thead>
         <tr>
@@ -107,6 +96,36 @@
       </tbody>
     </table>
     <p v-else>暫無產品系列</p>
+
+    <!-- 新增/編輯商品類別模態窗 -->
+    <div v-if="showCategoryEditModal" class="modal">
+      <div class="modal-content">
+        <h2>{{ editingCategory ? '编辑商品类别' : '新增商品类别' }}</h2>
+        <form @submit.prevent="handleCategorySubmit">
+          <div>
+            <label for="categoryName">类别名称</label>
+            <input id="categoryName" v-model="categoryForm.categoryName" required />
+          </div>
+          <div>
+            <label for="productSort">排序</label>
+            <!-- 新增时使用 maxProductSort + 1，编辑时使用现有值 -->
+            <input id="productSort" type="number" v-model.number="categoryForm.productSort"
+              :placeholder="editingCategory ? categoryForm.productSort : maxProductSort + 1" required />
+          </div>
+          <button type="submit">{{ editingCategory ? '更新' : '新增' }}</button>
+          <button type="button" @click="closeCategoryEditModal">取消</button>
+        </form>
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
 
     <!-- 新增/編輯產品系列模態窗 -->
     <div v-if="showProductModal" class="modal">
@@ -170,6 +189,27 @@
           <div v-if="selectedCategoryId === 'new'">
             <label for="newCategory">新類別名稱</label>
             <input id="newCategory" v-model="newCategoryName" required>
+          </div>
+          <div>
+            <label for="hasBanner">選擇是否需要 Banner 圖片</label>
+            <select id="hasBanner" v-model="hasBanner">
+              <option :value="true">是</option>
+              <option :value="false">否</option>
+            </select>
+          </div>
+
+          <div v-if="hasBanner">
+            <div>
+              <label for="bannerImage">橫幅圖片</label>
+              <input id="bannerImage" type="file" @change="handleImagebannerUpload" accept="image/*">
+            </div>
+
+            <div v-if="productForm.bannerImageUrl">
+              <div v-for="(images, index) in productForm.bannerImageUrl" :key="index">
+                <img :src="formatImageUrl(images)" alt="橫幅圖片" style="width: 100px; height: 100px;">
+                <button type="button" @click="removebImage(index)">移除</button>
+              </div>
+            </div>
           </div>
           <div>
             <label for="productImage">產品圖片</label>
@@ -337,6 +377,8 @@
               <input id="detailProbability" v-model.number="detailForm.probability" type="number" step="0.01" min="0.01"
                 max="0.99" @blur="checkProbability2">
             </div>
+
+
             <div>
               <label for="detailImage">商品圖片</label>
               <input id="detailImage" type="file" @change="handleDetailImageUpload" multiple accept="image/*">
@@ -358,20 +400,22 @@
 </template>
 
 <script lang="ts" setup>
-import { DetailReq, DetailRes, PrizeCategory, ProductCategory, ProductReq, ProductRes, ProductStatus, ProductType } from '@/interfaces/product';
+import { DetailReq, DetailRes, PrizeCategory, ProductCategory, ProductCategoryResponse, ProductReq, ProductRes, ProductStatus, ProductType } from '@/interfaces/product';
 import { productservice } from '@/services/backend/productservice';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 // 路由相關
 const route = useRoute();
-
+const hasBanner = ref(false); // 只用來控制是否需要 banner 圖片
 
 const error = ref(null); // 用於存儲錯誤信息
+
 
 const duplicateProduct = async (productId: any) => {
   try {
     const response = await productservice.copyProduct(productId);
+    await fetchProducts();
     // 這裡可以添加代碼來刷新商品列表，例如重新獲取產品數據
   } catch (err) {
     alert(error.value); // 顯示錯誤信息
@@ -411,8 +455,9 @@ const categoryNameMap = ref(new Map<number, string>());
 const showCategoryModal = ref(false);
 const showCategoryEditModal = ref(false);
 const editingCategory = ref<ProductCategory | null>(null);
-const categoryForm = reactive<{ categoryName: string }>({
+const categoryForm = reactive({
   categoryName: '',
+  productSort: 0,
 });
 
 // 篩選和類別相關
@@ -458,6 +503,7 @@ const productForm = reactive<ProductReq>({
   status: ProductStatus.NOT_AVAILABLE_YET,
   specification: '',
   categoryId: null,
+  bannerImageUrl: [],
 });
 
 const productTypeOptions: Record<ProductType, string> = {
@@ -551,9 +597,12 @@ const fetchProducts = async () => {
 
       const categoriesResponse = await productservice.getAllCategories();
       if (categoriesResponse.success) {
+        // 使用 categoriesResponse.data.categories 获取类别数据
         categoryNameMap.value = new Map(
-          categoriesResponse.data.map(category => [category.categoryId, category.categoryName])
+          categoriesResponse.data.categories.map(category => [category.categoryId, category.categoryName])
         );
+      } else {
+        console.error('獲取類別列表失敗:', categoriesResponse.message);
       }
     } else {
       console.error('獲取產品列表失敗:', response.message);
@@ -563,18 +612,32 @@ const fetchProducts = async () => {
   }
 };
 
+
+const maxProductSort = ref(0);
 const fetchCategories = async () => {
   try {
+    // 调用后端服务，获取类别数据
     const response = await productservice.getAllCategories();
+
+    // 确保返回的 response.data 符合 ProductCategoryResponse 结构
+    const data = response.data as ProductCategoryResponse;
+
     if (response.success) {
-      categories.value = response.data;
+      categories.value = data.categories;  // 存储类别列表
+      maxProductSort.value = data.maxProductSort;  // 存储最大排序值
     } else {
-      console.error('獲取類別列表失敗:', response.message);
+      console.error('获取类别列表失败:', response.message);
     }
   } catch (error) {
-    console.error('獲取類別列表時發生錯誤:', error);
+    console.error('获取类别列表时发生错误:', error);
   }
 };
+
+
+
+
+
+
 
 const fetchProductDetails = async (productId: number) => {
   try {
@@ -679,6 +742,8 @@ const closeDetailModal = () => {
   batchDetails.value = [];
 };
 
+
+
 const handleCategoryChange = (event: Event) => {
   const target = event.target as HTMLSelectElement;
   if (target.value === 'new') {
@@ -712,6 +777,7 @@ const handleProductSubmit = async () => {
 
     let response;
     if (editingProduct.value) {
+
       response = await productservice.updateProduct(editingProduct.value.productId, productForm);
     } else {
       response = await productservice.createProduct(productForm);
@@ -727,6 +793,7 @@ const handleProductSubmit = async () => {
     console.error('提交產品時發生錯誤:', error);
   }
 };
+
 
 const cleanImageUrls = (detail: DetailReq) => ({
   ...detail,
@@ -815,6 +882,16 @@ const handleImageUpload = (event: Event) => {
   }
 };
 
+const handleImagebannerUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files) {
+    const files = Array.from(target.files).filter(file => file.size > 0);
+    productForm.bannerImageUrl = [...productForm.bannerImageUrl, ...files];
+  }
+};
+
+
+
 const handleDetailImageUpload = (event: Event, detailIndex?: number) => {
   const target = event.target as HTMLInputElement;
   if (target.files) {
@@ -831,6 +908,11 @@ const handleDetailImageUpload = (event: Event, detailIndex?: number) => {
 
 const removeImage = (index: number) => {
   productForm.imageUrls.splice(index, 1);
+};
+
+
+const removebImage = (index: number) => {
+  productForm.bannerImageUrl.splice(index, 1);
 };
 
 const removeDetailImage = (detailIndex: number, imageIndex?: number) => {
@@ -857,6 +939,7 @@ const resetProductForm = () => {
     status: ProductStatus.NOT_AVAILABLE_YET,
     specification: '',
     categoryId: null,
+    bannerImageUrl: []
   });
   selectedCategoryId.value = '';
   newCategoryName.value = '';
@@ -881,9 +964,12 @@ const resetDetailForm = () => {
 };
 
 const formatImageUrl = (url: string | File): string => {
+
   if (typeof url === 'string') {
     return url.trim() !== '' ? productservice.getImageUrl(url) : '';
   }
+  console.log(url);
+
   return URL.createObjectURL(url);
 };
 
@@ -960,32 +1046,39 @@ const closeCategoryModal = () => {
 };
 
 const openAddCategoryModal = () => {
-  editingCategory.value = null;
-  categoryForm.categoryName = '';
-  showCategoryEditModal.value = true;
+  editingCategory.value = null;  // 清除正在编辑的类别
+  categoryForm.categoryName = '';  // 清空类别名称
+  categoryForm.productSort = maxProductSort.value + 1;  // 使用最大排序值+1
+  showCategoryEditModal.value = true;  // 显示模态框
 };
+
 
 const openEditCategoryModal = (category: ProductCategory) => {
   editingCategory.value = category;
   categoryForm.categoryName = category.categoryName;
+  categoryForm.productSort = category.productSort;  // 使用现有的排序值
   showCategoryEditModal.value = true;
 };
+
 
 const closeCategoryEditModal = () => {
   showCategoryEditModal.value = false;
   categoryForm.categoryName = '';
 };
 
+
 const handleCategorySubmit = async () => {
   try {
     let response;
+    const categoryPayload = {
+      categoryName: categoryForm.categoryName,
+      productSort: categoryForm.productSort,
+    };
+
     if (editingCategory.value) {
-      response = await productservice.updateCategory(editingCategory.value.categoryId, {
-        categoryId: editingCategory.value.categoryId,
-        categoryName: categoryForm.categoryName,
-      });
+      response = await productservice.updateCategory(editingCategory.value.categoryId, categoryPayload);
     } else {
-      response = await productservice.createCategory({ categoryName: categoryForm.categoryName });
+      response = await productservice.createCategory(categoryPayload);
     }
 
     if (response.success) {
@@ -1000,6 +1093,7 @@ const handleCategorySubmit = async () => {
     alert('操作失敗：伺服器錯誤，請稍後再試');
   }
 };
+
 
 const deleteCategory = async (categoryId: number) => {
   if (confirm('確定要刪除這個類別嗎？')) {
@@ -1019,6 +1113,8 @@ const deleteCategory = async (categoryId: number) => {
 };
 
 // 導出需要在模板中使用的方法和響應式數據
+
+
 
 </script>
 <style scoped>

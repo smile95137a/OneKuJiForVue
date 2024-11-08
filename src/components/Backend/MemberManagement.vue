@@ -6,7 +6,8 @@
         <button class="add-member-button" @click="showAddMemberModal = true">
           新增會員
         </button>
-        <button class="distribute-reward-button" @click="showDistributeRewardModal = true" :disabled="selectedMembers.length === 0">
+        <button class="distribute-reward-button" @click="showDistributeRewardModal = true"
+          :disabled="selectedMembers.length === 0">
           發放獎勵
         </button>
       </div>
@@ -137,7 +138,7 @@
   </div>
 </template>
 <script lang="ts">
-import { User, UserReq, SliverUpdate } from '@/interfaces/user';
+import { SliverUpdate, User, UserReq } from '@/interfaces/user';
 import { userService } from '@/services/backend/userservice';
 import { debounce } from 'lodash';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
@@ -151,13 +152,13 @@ export default defineComponent({
     const itemsPerPage = 10;
     const showAddMemberModal = ref(false);
     const showUpdateMemberModal = ref(false);
-    const showDistributeRewardModal = ref(false);
+    const showDistributeRewardModal = ref(true);
     const searchInput = ref('');
     const selectedMembers = ref<number[]>([]);
     const selectAll = ref(false);
     const silverAmount = ref(0);
     const bonusAmount = ref(0);
-  
+
     const roleOptions = [
       { value: 1, label: '權限控管管理者' },
       { value: 2, label: '一般管理者' },
@@ -179,7 +180,7 @@ export default defineComponent({
       id: 0,
       username: '',
       password: '',
-      nickName: '', 
+      nickName: '',
       phoneNumber: '',
       address: '',
       createdAt: '',
@@ -207,9 +208,9 @@ export default defineComponent({
       { title: '當月新增', value: 0 }
     ]);
     const getRoleName = (roleId: number) => {
-  const role = roleOptions.find(option => option.value === roleId);
-  return role ? role.label : '未知角色';
-};
+      const role = roleOptions.find(option => option.value === roleId);
+      return role ? role.label : '未知角色';
+    };
     const fetchMemberData = async () => {
       try {
         const response = await userService.getAllUsers();
@@ -263,9 +264,9 @@ export default defineComponent({
       } else {
         displayedMembers.value = allMembers.value.filter(member =>
           member.id.toString().includes(query) ||
-          member.phoneNumber.toLowerCase().includes(query)||
+          member.phoneNumber.toLowerCase().includes(query) ||
           member.username.toLowerCase().includes(query) ||
-          member.nickName.toLowerCase().includes(query) 
+          member.nickName.toLowerCase().includes(query)
         );
       }
       updateStats();
@@ -311,21 +312,21 @@ export default defineComponent({
     };
 
     const formatDate = (dateArray: number[]) => {
-  if (!dateArray || dateArray.length < 6) {
-    return 'Invalid Date';
-  }
-  const [year, month, day, hour, minute, second] = dateArray;
-  const date = new Date(year, month - 1, day, hour, minute, second);
-  return date.toLocaleString('zh-TW', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  });
-};
+      if (!dateArray || dateArray.length < 6) {
+        return 'Invalid Date';
+      }
+      const [year, month, day, hour, minute, second] = dateArray;
+      const date = new Date(year, month - 1, day, hour, minute, second);
+      return date.toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    };
 
     const toggleSelectAll = () => {
       if (selectAll.value) {
@@ -336,36 +337,36 @@ export default defineComponent({
     };
 
     const distributeReward = async () => {
-  try {
-    // 确认对话框
-    const isConfirmed = confirm(`確定要發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員嗎？`);
+      try {
+        // 确认对话框
+        const isConfirmed = confirm(`確定要發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員嗎？`);
 
-    if (!isConfirmed) {
-      return; // 如果用户取消，直接返回
-    }
+        if (!isConfirmed) {
+          return; // 如果用户取消，直接返回
+        }
 
-    const sliverUpdate: SliverUpdate = {
-      userId: selectedMembers.value,
-      sliverCoin: silverAmount.value,
-      bonus: bonusAmount.value
+        const sliverUpdate: SliverUpdate = {
+          userId: selectedMembers.value,
+          sliverCoin: silverAmount.value,
+          bonus: bonusAmount.value
+        };
+
+        await userService.distributeSilver(sliverUpdate);
+
+        // 成功消息
+        alert(`已成功發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員。`);
+
+        await fetchMemberData();
+        showDistributeRewardModal.value = false;
+        selectedMembers.value = [];
+        selectAll.value = false;
+        silverAmount.value = 0;
+        bonusAmount.value = 0;
+      } catch (error) {
+        console.error('發放獎勵失敗:', error);
+        alert('發放獎勵失敗，請稍後再試。');
+      }
     };
-
-    await userService.distributeSilver(sliverUpdate);
-    
-    // 成功消息
-    alert(`已成功發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員。`);
-
-    await fetchMemberData();
-    showDistributeRewardModal.value = false;
-    selectedMembers.value = [];
-    selectAll.value = false;
-    silverAmount.value = 0;
-    bonusAmount.value = 0;
-  } catch (error) {
-    console.error('發放獎勵失敗:', error);
-    alert('發放獎勵失敗，請稍後再試。');
-  }
-};
 
     onMounted(() => {
       fetchMemberData();
@@ -444,7 +445,7 @@ export default defineComponent({
   background-color: #ffffff;
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .title {
@@ -458,7 +459,8 @@ export default defineComponent({
   gap: 10px;
 }
 
-.add-member-button, .distribute-reward-button {
+.add-member-button,
+.distribute-reward-button {
   padding: 8px 12px;
   font-size: 12px;
   color: white;
@@ -479,10 +481,11 @@ export default defineComponent({
   background-color: #3498db;
 }
 
-.add-member-button:hover, .distribute-reward-button:hover {
+.add-member-button:hover,
+.distribute-reward-button:hover {
   opacity: 0.9;
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stats-container {
@@ -497,13 +500,13 @@ export default defineComponent({
   padding: 15px;
   border-radius: 8px;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .stat-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .stat-content h3 {
@@ -543,7 +546,7 @@ export default defineComponent({
   background-color: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .table-responsive {
@@ -557,7 +560,8 @@ table {
   font-size: 14px;
 }
 
-th, td {
+th,
+td {
   padding: 10px;
   text-align: left;
   border-bottom: 1px solid #ecf0f1;
@@ -650,7 +654,7 @@ td {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -662,7 +666,7 @@ td {
   border-radius: 8px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .modal-content h3 {
@@ -684,7 +688,8 @@ td {
   font-size: 14px;
 }
 
-.modal-content input, .modal-content select {
+.modal-content input,
+.modal-content select {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;
@@ -693,7 +698,8 @@ td {
   transition: all 0.3s ease;
 }
 
-.modal-content input:focus, .modal-content select:focus {
+.modal-content input:focus,
+.modal-content select:focus {
   outline: none;
   border-color: #3498db;
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
@@ -722,7 +728,8 @@ td {
   opacity: 0.9;
 }
 
-.edit-button, .delete-button {
+.edit-button,
+.delete-button {
   padding: 6px 10px;
   font-size: 12px;
   color: white;

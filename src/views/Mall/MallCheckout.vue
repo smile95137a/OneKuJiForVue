@@ -499,8 +499,8 @@ import { useRoute, useRouter } from 'vue-router';
 import * as yup from 'yup';
 
 import { expressQuery } from '@/services/frontend/expressService';
-import { loadState, removeState, saveState } from '@/utils/Localstorage';
 import { payCartItem } from '@/services/frontend/orderService';
+import { loadState, removeState, saveState } from '@/utils/Localstorage';
 const route = useRoute();
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -732,6 +732,7 @@ const onSubmit = handleSubmit(async (values: any) => {
         appendField('Amount', finalAmount.value);
         appendField('Installment', '0');
         appendField('TransCode', '00');
+        appendField('Buyer_Memo' , '商品購買');
         appendField('Return_url', `${window.location.origin}/paymentCBO`);
         document.body.appendChild(form);
         form.submit();

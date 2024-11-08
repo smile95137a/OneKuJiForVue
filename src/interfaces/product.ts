@@ -26,7 +26,15 @@ export interface ProductCategory {
   categoryId: number;
   categoryName: string;
   categoryUUid?: string;
+  productSort: number; // 类别的排序字段
 }
+
+// 新增一个接口来定义返回的数据结构
+export interface ProductCategoryResponse {
+  categories: ProductCategory[];
+  maxProductSort: number;
+}
+
 
 export interface ProductReq {
   productId?: number;
@@ -35,14 +43,16 @@ export interface ProductReq {
   price: number;
   sliverPrice: number;
   stockQuantity: number;
-  imageUrls: (string | File)[];
+  imageUrls: (string | File)[];  // 允许传递图片 URL 或文件
   productType: ProductType;
   prizeCategory: PrizeCategory;
   status: ProductStatus;
   bonusPrice: number;
   specification: string;
   categoryId: number | null;
+  bannerImageUrl: (string | File)[]; // bannerImageUrl 如果有的话会传递
 }
+
 
 export interface ProductRes {
   productId: number;
@@ -59,6 +69,7 @@ export interface ProductRes {
   specification: string;
   category: ProductCategory | null;
   categoryId: number | null;
+  bannerImageUrl: string[];
 }
 
 export interface DetailReq {
@@ -100,6 +111,7 @@ export interface DetailRes {
 }
 
 export interface ApiResponse<T> {
+  maxProductSort: number;
   code: number;
   message: string;
   success: boolean;
@@ -111,4 +123,7 @@ export type ProductListApiResponse = ApiResponse<ProductRes[]>;
 export type DetailApiResponse = ApiResponse<DetailRes>;
 export type DetailListApiResponse = ApiResponse<DetailRes[]>;
 export type ProductCategoryApiResponse = ApiResponse<ProductCategory>;
-export type ProductCategoryListApiResponse = ApiResponse<ProductCategory[]>;
+export type ProductCategoryListApiResponse = ApiResponse<{
+  categories: ProductCategory[];
+  maxProductSort: number;
+}>;
