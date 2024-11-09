@@ -67,21 +67,25 @@ export const productservice = {
     const imageFiles: File[] = [];
     const bannerImage: File[] = []; // 假设 banner 图片是一个文件
 
-    // 处理产品的图片
-    productReqCopy.imageUrls.forEach((url, index) => {
-      if (url instanceof File) {
-        imageFiles.push(url);
-        productReqCopy.imageUrls[index] = ''; // 为了后台处理，替换为占位符
-      }
-    });
+    // 处理产品的图片，如果 imageUrls 存在且是数组
+    if (Array.isArray(productReqCopy.imageUrls)) {
+      productReqCopy.imageUrls.forEach((url, index) => {
+        if (url instanceof File) {
+          imageFiles.push(url);
+          productReqCopy.imageUrls[index] = ''; // 为了后台处理，替换为占位符
+        }
+      });
+    }
 
-    productReqCopy.bannerImageUrl.forEach((url, index) => {
-      if (url instanceof File) {
-        bannerImage.push(url);
-        productReqCopy.bannerImageUrl[index] = ''; // 为了后台处理，替换为占位符
-      }
-    });
-
+    // 处理 banner 图片，如果 bannerImageUrl 存在且是数组
+    if (Array.isArray(productReqCopy.bannerImageUrl)) {
+      productReqCopy.bannerImageUrl.forEach((url, index) => {
+        if (url instanceof File) {
+          bannerImage.push(url);
+          productReqCopy.bannerImageUrl[index] = ''; // 为了后台处理，替换为占位符
+        }
+      });
+    }
 
     // 将产品请求对象转为字符串并添加到 formData
     formData.append('productReq', JSON.stringify(productReqCopy));
@@ -108,25 +112,32 @@ export const productservice = {
   },
 
 
+
   updateProduct: async (id: number, productReq: ProductReq): Promise<ProductApiResponse> => {
     const formData = new FormData();
     const productReqCopy = { ...productReq };
     const imageFiles: File[] = [];
     const banner: File[] = [];
 
-    productReqCopy.imageUrls.forEach((url, index) => {
-      if (url instanceof File) {
-        imageFiles.push(url);
-        productReqCopy.imageUrls[index] = ''; // Placeholder for backend to replace
-      }
-    });
+    // 检查 imageUrls 是否非空，并且是数组
+    if (Array.isArray(productReqCopy.imageUrls)) {
+      productReqCopy.imageUrls.forEach((url, index) => {
+        if (url instanceof File) {
+          imageFiles.push(url);
+          productReqCopy.imageUrls[index] = ''; // Placeholder for backend to replace
+        }
+      });
+    }
 
-    productReqCopy.bannerImageUrl.forEach((url, index) => {
-      if (url instanceof File) {
-        banner.push(url);
-        productReqCopy.bannerImageUrl[index] = ''; // Placeholder for backend to replace
-      }
-    });
+    // 检查 bannerImageUrl 是否非空，并且是数组
+    if (Array.isArray(productReqCopy.bannerImageUrl)) {
+      productReqCopy.bannerImageUrl.forEach((url, index) => {
+        if (url instanceof File) {
+          banner.push(url);
+          productReqCopy.bannerImageUrl[index] = ''; // Placeholder for backend to replace
+        }
+      });
+    }
 
     formData.append('productReq', JSON.stringify(productReqCopy));
     imageFiles.forEach((file) => {
@@ -146,6 +157,7 @@ export const productservice = {
       throw error;
     }
   },
+
 
   deleteProduct: async (id: number): Promise<ApiResponse<void>> => {
     try {
