@@ -774,7 +774,6 @@ const handleProductSubmit = async () => {
     } else if (typeof selectedCategoryId.value === 'number') {
       productForm.categoryId = selectedCategoryId.value;
     }
-debugger
     let response;
     if (editingProduct.value) {
 
