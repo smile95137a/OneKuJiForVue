@@ -732,7 +732,7 @@ const onSubmit = handleSubmit(async (values: any) => {
         appendField('Amount', finalAmount.value);
         appendField('Installment', '0');
         appendField('TransCode', '00');
-        appendField('Buyer_Memo' , '商品購買');
+        appendField('Buyer_Memo', '商品購買');
         appendField('Return_url', `${window.location.origin}/paymentCBO`);
         document.body.appendChild(form);
         form.submit();
@@ -891,7 +891,7 @@ const deleteProduct = async (item: any) => {
 };
 
 onMounted(async () => {
-  fetchShippingMethod();
+  await fetchShippingMethod();
   await loadCartItems();
   const cityNames = getAllCityNames();
   billCityOptions.value = [
@@ -1019,17 +1019,10 @@ watch(sameAsBilling, async (newValue) => {
 });
 
 const fetchShippingMethod = async () => {
-  if (totalProductSize.value === 0) {
-    return;
-  }
-
   try {
     const size = totalProductSize.value;
     const response = await getShippingMethod(size);
     shippingMethods.value = response.data;
-    if (shippingMethods.value.length > 0) {
-      shippingMethod.value = shippingMethods.value[0].code;
-    }
   } catch (error) {
     console.error('Error fetching shipping methods:', error);
   }

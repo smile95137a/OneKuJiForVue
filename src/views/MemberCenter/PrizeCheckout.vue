@@ -476,7 +476,7 @@ import Card from '@/components/common/Card.vue';
 import MSelect from '@/components/common/MSelect.vue';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import MImage from '@/components/frontend/MImage.vue';
-import { paymentOptions, shippingOptions } from '@/data/orderOptions';
+import { paymentOptions } from '@/data/orderOptions';
 import { expressQuery } from '@/services/frontend/expressService';
 import { payPrizeCartItem } from '@/services/frontend/orderService';
 import { removePrizeCartItem } from '@/services/frontend/prizeCartItemService';
@@ -610,7 +610,7 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     billingCity: '',
     billingArea: '',
     billingAddress: '',
-    shippingMethod: shippingOptions[0].value,
+    shippingMethod: '',
     paymentMethod: paymentOptions[0].value,
     invoice: invoiceInfoOptions.value[0].value,
     vehicle: '',
@@ -642,11 +642,11 @@ const [donationCode, donationCodeProps] = defineField('donationCode');
 const [sameAsBilling, sameAsBillingProps] = defineField('sameAsBilling');
 const [shopId] = defineField('shopId');
 const selectedShippingPrice = ref(0);
-
 watch(shippingMethod, (newMethod) => {
   const selectedOption = shippingMethods.value.find(
     (option) => option.code === newMethod
   );
+
   selectedShippingPrice.value = selectedOption
     ? selectedOption.shippingPrice
     : 0;
@@ -654,7 +654,6 @@ watch(shippingMethod, (newMethod) => {
     setFieldValue('shopId', '');
   }
 });
-
 const totalProductSize = computed(() => {
   return items.value
     .filter((item) => item.isSelected)
@@ -717,7 +716,7 @@ const onSubmit = handleSubmit(async (values: any) => {
         appendField('Amount', finalAmount.value);
         appendField('Installment', '0');
         appendField('TransCode', '00');
-        appendField('Buyer_Memo' , '賞品運費');
+        appendField('Buyer_Memo', '賞品運費');
         appendField('Return_url', `${window.location.origin}/paymentCBO`);
         document.body.appendChild(form);
         form.submit();
@@ -831,7 +830,7 @@ const deleteProduct = async (item: any) => {
 };
 
 onMounted(async () => {
-  fetchShippingMethod();
+  await fetchShippingMethod();
   await loadCartItems();
   const cityNames = getAllCityNames();
   billCityOptions.value = [
@@ -935,18 +934,11 @@ watch(billingArea, (newArea) => {
 });
 
 const fetchShippingMethod = async () => {
-  if (totalProductSize.value === 0) {
-    return;
-  }
-
   try {
     // 通过总重量调用 API 获取店家和运费信息
     const size = totalProductSize.value;
     const response = await getShippingMethod(size);
     shippingMethods.value = response.data;
-    if (shippingMethods.value.length > 0) {
-      shippingMethod.value = shippingMethods.value[0].code;
-    }
   } catch (error) {
     console.error('Error fetching shipping methods:', error);
   }

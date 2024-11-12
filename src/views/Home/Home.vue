@@ -5,7 +5,11 @@ import NoData from '@/components/common/NoData.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { Banner, getAllBanners } from '@/services/frontend/bannerService'; // 引入 getAllBanners
-import { getAllProduct, IProduct } from '@/services/frontend/productService';
+import {
+  getAllProduct,
+  getAllProductList,
+  IProduct,
+} from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import { Navigation } from 'swiper/modules';
 import 'swiper/scss';
@@ -15,7 +19,7 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
+const prizeSelfProducts = ref<IProduct[]>([]);
 const prizeProducts = ref<IProduct[]>([]);
 const blindBoxProducts = ref<IProduct[]>([]);
 const gachaProducts = ref<IProduct[]>([]);
@@ -36,14 +40,24 @@ const goToProductDetail = (banner: Banner) => {
 const fetchProducts = async () => {
   try {
     loadingStore.startLoading();
-    const { success, message, data } = await getAllProduct(0, 50);
+    const { success, message, data } = await getAllProductList();
     loadingStore.stopLoading();
     if (success) {
-      const availableProducts = data
-        .filter((p: IProduct) => p.status === 'AVAILABLE')
-        .slice(0, 9);
+      const availableProducts = data.filter(
+        (p: IProduct) => p.status === 'AVAILABLE'
+      );
       prizeProducts.value = availableProducts
-        .filter((p: IProduct) => p.productType === 'PRIZE')
+        .filter(
+          (p: IProduct) =>
+            p.productType === 'PRIZE' && p.prizeCategory === 'FIGURE'
+        )
+        .slice(0, 9);
+
+      prizeSelfProducts.value = availableProducts
+        .filter(
+          (p: IProduct) =>
+            p.productType === 'PRIZE' && p.prizeCategory === 'PRIZESELF'
+        )
         .slice(0, 9);
       blindBoxProducts.value = availableProducts
         .filter((p: IProduct) => p.productType === 'BLIND_BOX')
@@ -127,6 +141,23 @@ onMounted(() => {
       <div v-else class="home__products">
         <ProductCard
           v-for="product in prizeProducts"
+          :key="product.productId"
+          :product="product"
+          @click="navigateToDetail(product)"
+        />
+      </div>
+    </Card>
+
+    <Card customClass="mcard--home">
+      <template #header>
+        <MCardHeader title="自製賞" />
+      </template>
+      <div v-if="prizeSelfProducts.length === 0">
+        <NoData />
+      </div>
+      <div v-else class="home__products">
+        <ProductCard
+          v-for="product in prizeSelfProducts"
           :key="product.productId"
           :product="product"
           @click="navigateToDetail(product)"
