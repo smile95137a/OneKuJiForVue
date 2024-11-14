@@ -379,7 +379,8 @@ const handleAddToCart = async (redirectToCheckout = false) => {
       quantity: quantity.value,
     };
     const isCanAddCart = await checkQuantity(cartItem);
-    if (isCanAddCart) {
+
+    if (isCanAddCart.success) {
       try {
         loadingStore.startLoading();
         const response = await addCartItem(cartItem);

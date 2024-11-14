@@ -30,9 +30,6 @@ const [paymentMethod] = defineField('paymentMethod');
 const [amount] = defineField('amount');
 
 const depositList = [
-  { id: 'deposit01', value: '35', num: '35' },
-  { id: 'deposit02', value: '50', num: '50' },
-  { id: 'deposit03', value: '100', num: '100' },
   { id: 'deposit1', value: '1000', num: '1000' },
   { id: 'deposit2', value: '3000', num: '3000' },
   { id: 'deposit3', value: '5000', num: '5000' },
@@ -78,7 +75,7 @@ const onSubmit = handleSubmit(async (values) => {
         appendField('Amount', values.amount);
         appendField('Installment', '0');
         appendField('TransCode', '00');
-        appendField('Buyer_Memo' , '儲值代幣');
+        appendField('Buyer_Memo', '儲值代幣');
         appendField('Return_url', `${window.location.origin}/paymentCB`);
 
         // Append the form to the body and submit it
