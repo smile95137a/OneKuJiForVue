@@ -6,8 +6,11 @@
         <button class="add-member-button" @click="showAddMemberModal = true">
           新增會員
         </button>
-        <button class="distribute-reward-button" @click="showDistributeRewardModal = true"
-          :disabled="selectedMembers.length === 0">
+        <button
+          class="distribute-reward-button"
+          @click="showDistributeRewardModal = true"
+          :disabled="selectedMembers.length === 0"
+        >
           發放獎勵
         </button>
       </div>
@@ -23,7 +26,11 @@
     </div>
 
     <div class="search-section">
-      <input v-model="searchInput" placeholder="輸入會員編號、電話或電子郵件搜索會員" @input="debounceSearch" />
+      <input
+        v-model="searchInput"
+        placeholder="輸入會員編號、電話或電子郵件搜索會員"
+        @input="debounceSearch"
+      />
     </div>
 
     <div class="table-container">
@@ -31,7 +38,13 @@
         <table>
           <thead>
             <tr>
-              <th class="checkbox-column"><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
+              <th class="checkbox-column">
+                <input
+                  type="checkbox"
+                  v-model="selectAll"
+                  @change="toggleSelectAll"
+                />
+              </th>
               <th class="role-column">會員類型</th>
               <th class="usernmae-column">信箱</th>
               <th class="nickname-column">暱稱</th>
@@ -48,7 +61,13 @@
           </thead>
           <tbody>
             <tr v-for="member in paginatedMembers" :key="member.id">
-              <td><input type="checkbox" v-model="selectedMembers" :value="member.id" /></td>
+              <td>
+                <input
+                  type="checkbox"
+                  v-model="selectedMembers"
+                  :value="member.id"
+                />
+              </td>
               <td>{{ getRoleName(member.roleId) }}</td>
               <td>{{ member.username }}</td>
               <td :title="member.nickName">{{ member.nickName }}</td>
@@ -61,8 +80,15 @@
               <td>{{ formatDate(member.createdAt) }}</td>
               <td>{{ formatDate(member.updatedAt) }}</td>
               <td>
-                <button @click="editMember(member)" class="edit-button">編輯</button>
-                <button class="delete-button" @click="handleDeleteMember(member)">刪除</button>
+                <button @click="editMember(member)" class="edit-button">
+                  編輯
+                </button>
+                <button
+                  class="delete-button"
+                  @click="handleDeleteMember(member)"
+                >
+                  刪除
+                </button>
               </td>
             </tr>
           </tbody>
@@ -71,9 +97,13 @@
     </div>
 
     <div class="pagination">
-      <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
+      <button @click="previousPage" :disabled="currentPage === 1">
+        上一頁
+      </button>
       <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
+      <button @click="nextPage" :disabled="currentPage === totalPages">
+        下一頁
+      </button>
     </div>
 
     <!-- Add Member Modal -->
@@ -83,18 +113,29 @@
         <form @submit.prevent="addMember">
           <div v-for="field in memberFields" :key="field.key">
             <label :for="field.key">{{ field.label }}:</label>
-            <input :id="field.key" v-model="(newMember as any)[field.key]" :type="field.type" required>
+            <input
+              :id="field.key"
+              v-model="(newMember as any)[field.key]"
+              :type="field.type"
+              required
+            />
           </div>
           <div>
             <label for="roleId">角色:</label>
             <select id="roleId" v-model="newMember.roleId" required>
-              <option v-for="role in roleOptions" :key="role.value" :value="role.value">
+              <option
+                v-for="role in roleOptions"
+                :key="role.value"
+                :value="role.value"
+              >
                 {{ role.label }}
               </option>
             </select>
           </div>
           <button type="submit">提交</button>
-          <button type="button" @click="showAddMemberModal = false">取消</button>
+          <button type="button" @click="showAddMemberModal = false">
+            取消
+          </button>
         </form>
       </div>
     </div>
@@ -106,18 +147,29 @@
         <form @submit.prevent="updateMember">
           <div v-for="field in memberFields" :key="field.key">
             <label :for="'edit-' + field.key">{{ field.label }}:</label>
-            <input :id="'edit-' + field.key" v-model="(editingMember as any)[field.key]" :type="field.type" required>
+            <input
+              :id="'edit-' + field.key"
+              v-model="(editingMember as any)[field.key]"
+              :type="field.type"
+              required
+            />
           </div>
           <div>
             <label for="edit-roleId">角色:</label>
             <select id="edit-roleId" v-model="editingMember.roleId" required>
-              <option v-for="role in roleOptions" :key="role.value" :value="role.value">
+              <option
+                v-for="role in roleOptions"
+                :key="role.value"
+                :value="role.value"
+              >
                 {{ role.label }}
               </option>
             </select>
           </div>
           <button type="submit">更新</button>
-          <button type="button" @click="showUpdateMemberModal = false">取消</button>
+          <button type="button" @click="showUpdateMemberModal = false">
+            取消
+          </button>
         </form>
       </div>
     </div>
@@ -130,14 +182,28 @@
         <form @submit.prevent="distributeReward">
           <div>
             <label for="silverAmount">銀幣數量：</label>
-            <input id="silverAmount" v-model.number="silverAmount" type="number" required min="0" />
+            <input
+              id="silverAmount"
+              v-model.number="silverAmount"
+              type="number"
+              required
+              min="0"
+            />
           </div>
           <div>
             <label for="bonusAmount">紅利數量：</label>
-            <input id="bonusAmount" v-model.number="bonusAmount" type="number" required min="0" />
+            <input
+              id="bonusAmount"
+              v-model.number="bonusAmount"
+              type="number"
+              required
+              min="0"
+            />
           </div>
           <button type="submit">確認發放</button>
-          <button type="button" @click="showDistributeRewardModal = false">取消</button>
+          <button type="button" @click="showDistributeRewardModal = false">
+            取消
+          </button>
         </form>
       </div>
     </div>
@@ -170,7 +236,7 @@ export default defineComponent({
       { value: 2, label: '一般管理者' },
       { value: 3, label: '驗證會員' },
       { value: 4, label: '未驗證會員' },
-      { value: 5, label: '黑名單會員' }
+      { value: 5, label: '黑名單會員' },
     ];
 
     const newMember = reactive<UserReq>({
@@ -179,7 +245,7 @@ export default defineComponent({
       nickName: '',
       phoneNumber: '',
       address: '',
-      roleId: 4
+      roleId: 4,
     });
 
     const editingMember = reactive<User>({
@@ -197,7 +263,7 @@ export default defineComponent({
       bonus: 0,
       sliverCoin: 0,
       provider: '',
-      roles: []
+      roles: [],
     });
 
     const memberFields = [
@@ -211,10 +277,10 @@ export default defineComponent({
       { title: '會員總數', value: 0 },
       { title: '正式會員', value: 0 },
       { title: '體驗會員', value: 0 },
-      { title: '當月新增', value: 0 }
+      { title: '當月新增', value: 0 },
     ]);
     const getRoleName = (roleId: number) => {
-      const role = roleOptions.find(option => option.value === roleId);
+      const role = roleOptions.find((option) => option.value === roleId);
       return role ? role.label : '未知角色';
     };
     const fetchMemberData = async () => {
@@ -232,12 +298,19 @@ export default defineComponent({
 
     const updateStats = () => {
       const totalMembers = displayedMembers.value.length;
-      const regularMembers = displayedMembers.value.filter(member => member.roleId === 3).length;
-      const trialMembers = displayedMembers.value.filter(member => member.roleId === 4).length;
-      const newMembersThisMonth = displayedMembers.value.filter(member => {
+      const regularMembers = displayedMembers.value.filter(
+        (member) => member.roleId === 3
+      ).length;
+      const trialMembers = displayedMembers.value.filter(
+        (member) => member.roleId === 4
+      ).length;
+      const newMembersThisMonth = displayedMembers.value.filter((member) => {
         const createdDate = new Date(member.createdAt);
         const now = new Date();
-        return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear();
+        return (
+          createdDate.getMonth() === now.getMonth() &&
+          createdDate.getFullYear() === now.getFullYear()
+        );
       }).length;
 
       statItems.value = [
@@ -253,7 +326,7 @@ export default defineComponent({
         if (response.code === 201 && response.data) {
           await fetchMemberData();
           showAddMemberModal.value = false;
-          Object.keys(newMember).forEach(key => {
+          Object.keys(newMember).forEach((key) => {
             (newMember as any)[key] = '';
           });
         }
@@ -271,10 +344,12 @@ export default defineComponent({
       } else {
         // 提取過濾邏輯為一個單獨的函數
         const filterMembers = (member: User) => {
-          return member.id.toString().includes(query) ||
+          return (
+            member.id.toString().includes(query) ||
             member.phoneNumber.toLowerCase().includes(query) ||
             member.username.toLowerCase().includes(query) ||
-            member.nickName.toLowerCase().includes(query);
+            member.nickName.toLowerCase().includes(query)
+          );
         };
 
         displayedMembers.value = allMembers.value.filter(filterMembers);
@@ -288,9 +363,8 @@ export default defineComponent({
       searchMembers();
     }, 300);
 
-
     const editMember = (member: User) => {
-      Object.keys(editingMember).forEach(key => {
+      Object.keys(editingMember).forEach((key) => {
         if (key in member) {
           (editingMember as any)[key] = (member as any)[key];
         }
@@ -300,7 +374,10 @@ export default defineComponent({
 
     const updateMember = async () => {
       try {
-        const response = await userService.updateUser(editingMember.id, editingMember as UserReq);
+        const response = await userService.updateUser(
+          editingMember.id,
+          editingMember as UserReq
+        );
         if (response.code === 200) {
           await fetchMemberData();
           showUpdateMemberModal.value = false;
@@ -328,7 +405,7 @@ export default defineComponent({
         return '無日期';
       }
 
-      const date = new Date(timestamp);  // 直接根据时间戳创建 Date 对象
+      const date = new Date(timestamp); // 直接根据时间戳创建 Date 对象
       return date.toLocaleString('zh-TW', {
         year: 'numeric',
         month: '2-digit',
@@ -336,14 +413,15 @@ export default defineComponent({
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false
+        hour12: false,
       });
     };
 
-
     const toggleSelectAll = () => {
       if (selectAll.value) {
-        selectedMembers.value = paginatedMembers.value.map(member => member.id);
+        selectedMembers.value = paginatedMembers.value.map(
+          (member) => member.id
+        );
       } else {
         selectedMembers.value = [];
       }
@@ -352,7 +430,9 @@ export default defineComponent({
     const distributeReward = async () => {
       try {
         // 确认对话框
-        const isConfirmed = confirm(`確定要發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員嗎？`);
+        const isConfirmed = confirm(
+          `確定要發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員嗎？`
+        );
 
         if (!isConfirmed) {
           return; // 如果用户取消，直接返回
@@ -361,13 +441,15 @@ export default defineComponent({
         const sliverUpdate: SliverUpdate = {
           userId: selectedMembers.value,
           sliverCoin: silverAmount.value,
-          bonus: bonusAmount.value
+          bonus: bonusAmount.value,
         };
 
         await userService.distributeSilver(sliverUpdate);
 
         // 成功消息
-        alert(`已成功發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員。`);
+        alert(
+          `已成功發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員。`
+        );
 
         await fetchMemberData();
         showDistributeRewardModal.value = false;
@@ -385,7 +467,9 @@ export default defineComponent({
       fetchMemberData();
     });
 
-    const totalPages = computed(() => Math.ceil(displayedMembers.value.length / itemsPerPage));
+    const totalPages = computed(() =>
+      Math.ceil(displayedMembers.value.length / itemsPerPage)
+    );
     const paginatedMembers = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage;
       const end = start + itemsPerPage;
@@ -433,12 +517,11 @@ export default defineComponent({
       silverAmount,
       bonusAmount,
       distributeReward,
-      getRoleName
+      getRoleName,
     };
-  } // 關閉 setup 函數
+  }, // 關閉 setup 函數
 }); // 關閉 defineComponent
 </script>
-
 
 <style scoped>
 .member-management {
@@ -487,7 +570,7 @@ export default defineComponent({
 }
 
 .add-member-button {
-  background-color: #4CAF50;
+  background-color: #4caf50;
 }
 
 .distribute-reward-button {
@@ -571,6 +654,7 @@ table {
   border-collapse: separate;
   border-spacing: 0;
   font-size: 14px;
+  table-layout: auto;
 }
 
 th,
@@ -592,51 +676,8 @@ tr:hover {
   background-color: #f8f9fa;
 }
 
-.checkbox-column {
-  width: 30px;
-}
-
-.role-column {
-  width: 80px;
-}
-
-.usernmae-column {
-  width: 150px;
-}
-
-.nickname-column {
-  width: 80px;
-}
-
-.phone-column {
-  width: 80px;
-}
-
-.address-column {
-  width: 200px;
-}
-
-.address-name-column {
-  width: 80px;
-}
-
-.coin-column {
-  width: 70px;
-}
-
-.date-column {
-  width: 120px;
-}
-
-.action-column {
-  width: 90px;
-}
-
 td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 0;
+  min-width: 120px;
 }
 
 .pagination {
@@ -737,11 +778,11 @@ td {
   transition: all 0.3s ease;
 }
 
-.modal-content button[type="submit"] {
-  background-color: #4CAF50;
+.modal-content button[type='submit'] {
+  background-color: #4caf50;
 }
 
-.modal-content button[type="button"] {
+.modal-content button[type='button'] {
   background-color: #e74c3c;
 }
 

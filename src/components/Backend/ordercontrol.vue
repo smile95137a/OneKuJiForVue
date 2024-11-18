@@ -4,12 +4,16 @@
 
     <!-- 新增篩選按鈕 -->
     <div class="filter-buttons">
-      <button @click="filterOrders('SHIPPED')" class="filter-btn">已發貨</button>
-      <button @click="filterOrders('PREPARING_SHIPMENT')" class="filter-btn">未發貨</button>
+      <button @click="filterOrders('SHIPPED')" class="filter-btn">
+        已發貨
+      </button>
+      <button @click="filterOrders('PREPARING_SHIPMENT')" class="filter-btn">
+        未發貨
+      </button>
       <button @click="filterOrders('')" class="filter-btn">全部訂單</button>
-      <button @click="filterOrders('NO_PAY')" class="filter-btn">未付款</button> <!-- 改成未付款 -->
+      <button @click="filterOrders('NO_PAY')" class="filter-btn">未付款</button>
+      <!-- 改成未付款 -->
     </div>
-
 
     <div class="order-table-container">
       <table class="order-table">
@@ -38,22 +42,44 @@
             <td>{{ order.orderCount }} 個</td>
             <td>{{ formatDate(order.createdAt) }}</td>
             <td>
-              <select v-model="order.resultStatus" @change="updateOrderStatus(order)" class="status-select">
-                <option v-for="status in availableStatuses(order.resultStatus)" :key="status.value"
-                  :value="status.value">
+              <select
+                v-model="order.resultStatus"
+                @change="updateOrderStatus(order)"
+                class="status-select"
+              >
+                <option
+                  v-for="status in availableStatuses(order.resultStatus)"
+                  :key="status.value"
+                  :value="status.value"
+                >
                   {{ status.label }}
                 </option>
               </select>
             </td>
 
             <td>
-              <button @click="viewOrderDetails(order.id)" class="view-details-btn">查看訂單明細</button>
+              <button
+                @click="viewOrderDetails(order.id)"
+                class="view-details-btn"
+              >
+                查看訂單明細
+              </button>
             </td>
             <td>
-              <button @click="viewShippingInfo(order.id)" class="view-details-btn">出貨單 </button>
+              <button
+                @click="viewShippingInfo(order.id)"
+                class="view-details-btn"
+              >
+                出貨單
+              </button>
             </td>
             <td>
-              <button @click="openModal(order.orderNumber)" class="view-details-btn">建立物流訂單</button>
+              <button
+                @click="openModal(order.orderNumber)"
+                class="view-details-btn"
+              >
+                建立物流訂單
+              </button>
             </td>
           </tr>
         </tbody>
@@ -64,7 +90,9 @@
     <!-- 寄送資訊模態 -->
     <div v-if="showShippingInfoModal" class="modal">
       <div class="shipping-note">
-        <span class="close-button" @click="closeShippingInfoModal">&times;</span>
+        <span class="close-button" @click="closeShippingInfoModal"
+          >&times;</span
+        >
         <div class="header">
           <h1>出貨單</h1>
         </div>
@@ -74,8 +102,15 @@
             <p><strong>Email:</strong> {{ orderShippingInfo.shippingEmail }}</p>
             <p><strong>姓名:</strong> {{ orderShippingInfo.shippingName }}</p>
             <p><strong>電話:</strong> {{ orderShippingInfo.shippingPhone }}</p>
-            <p><strong>物流方式:</strong> {{ orderShippingInfo.shippingMethod }}</p>
-            <p v-if="orderShippingInfo.shippingMethod === '711' || orderShippingInfo.shippingMethod === '全家'">
+            <p>
+              <strong>物流方式:</strong> {{ orderShippingInfo.shippingMethod }}
+            </p>
+            <p
+              v-if="
+                orderShippingInfo.shippingMethod === '711' ||
+                orderShippingInfo.shippingMethod === '全家'
+              "
+            >
               <strong>門市代號:</strong> {{ orderShippingInfo.storeCode }}<br />
               <strong>門市名稱:</strong> {{ orderShippingInfo.storeName }}<br />
               <strong>門市地址:</strong> {{ orderShippingInfo.storeAddress }}
@@ -85,15 +120,30 @@
             </p>
             <p>
               <strong>物流單號:</strong>
-              <span v-if="!isEditing">{{ orderShippingInfo.trackingNumber || '無' }}</span>
-              <input v-else v-model="orderShippingInfo.trackingNumber" type="text" placeholder="輸入物流單號"
-                class="tracking-input" />
+              <span v-if="!isEditing">{{
+                orderShippingInfo.trackingNumber || '無'
+              }}</span>
+              <input
+                v-else
+                v-model="orderShippingInfo.trackingNumber"
+                type="text"
+                placeholder="輸入物流單號"
+                class="tracking-input"
+              />
             </p>
             <div class="button-group">
-              <button v-if="!isEditing" @click="toggleEdit" class="edit-btn highlight-btn">
+              <button
+                v-if="!isEditing"
+                @click="toggleEdit"
+                class="edit-btn highlight-btn"
+              >
                 編輯
               </button>
-              <button v-else @click="saveTrackingNumber" class="save-btn highlight-btn">
+              <button
+                v-else
+                @click="saveTrackingNumber"
+                class="save-btn highlight-btn"
+              >
                 保存
               </button>
             </div>
@@ -101,7 +151,9 @@
           <div class="right-section">
             <h3>訂單資訊</h3>
             <p><strong>訂單編號:</strong> {{ orderInfo.orderNumber }}</p>
-            <p><strong>訂單日期:</strong> {{ formatDate(orderInfo.createdAt) }}</p>
+            <p>
+              <strong>訂單日期:</strong> {{ formatDate(orderInfo.createdAt) }}
+            </p>
             <p><strong>訂單總額:</strong> {{ orderInfo.totalAmount }} 元</p>
             <p><strong>運費總額:</strong> {{ orderInfo.shippingCost }} 元</p>
             <p><strong>商品總數:</strong> {{ orderDetails.length }} 件</p>
@@ -120,11 +172,18 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="detail in orderDetails" :key="detail.productDetailRes.productDetailId">
+              <tr
+                v-for="detail in orderDetails"
+                :key="detail.productDetailRes.productDetailId"
+              >
                 <td>{{ detail.productName }}</td>
                 <td>{{ detail.productDetailRes.productName || '無' }}</td>
                 <td>
-                  <img :src="formatImageUrl(detail.imageUrls[0])" alt="商品圖片" style="width: 100px; height: 100px;" />
+                  <img
+                    :src="formatImageUrl(detail.imageUrls[0])"
+                    alt="商品圖片"
+                    style="width: 100px; height: 100px"
+                  />
                 </td>
                 <td>{{ detail.grade }}</td>
                 <td>{{ detail.quantity }}</td>
@@ -135,14 +194,14 @@
       </div>
     </div>
 
-
-
-
     <div v-if="showOrderDetailsModal" class="modal">
       <div class="modal-content">
         <span class="close-button" @click="closeModal">&times;</span>
         <h2>訂單明細 - 訂單號: {{ selectedOrderId }}</h2>
-        <table v-if="orderDetails && orderDetails.length" class="order-details-table">
+        <table
+          v-if="orderDetails && orderDetails.length"
+          class="order-details-table"
+        >
           <thead>
             <tr>
               <th>產品 ID</th>
@@ -156,17 +215,27 @@
           </thead>
           <tbody>
             <tr v-for="detail in orderDetails" :key="detail.orderDetailId">
-              <td>{{ detail.storeProduct?.storeProductId ?? detail.productDetailRes?.productDetailId ?? 'N/A' }}</td>
+              <td>
+                {{
+                  detail.storeProduct?.storeProductId ??
+                  detail.productDetailRes?.productDetailId ??
+                  'N/A'
+                }}
+              </td>
               <td>
                 {{ detail.pname }}
               </td>
               <td>
                 <!-- 判断 storeProduct 或 productDetailRes 是否为 null，显示相应信息 -->
                 <div v-if="detail.storeProduct">
-                  <p><strong>{{ detail.storeProduct.productName }}</strong></p>
+                  <p>
+                    <strong>{{ detail.storeProduct.productName }}</strong>
+                  </p>
                 </div>
                 <div v-else-if="detail.productDetailRes">
-                  <p><strong>{{ detail.productDetailRes.productName }}</strong></p>
+                  <p>
+                    <strong>{{ detail.productDetailRes.productName }}</strong>
+                  </p>
                 </div>
 
                 <div v-else>
@@ -175,34 +244,45 @@
               </td>
 
               <td>
-                <div v-if="detail.storeProduct && detail.storeProduct.imageUrls">
-                  <img :src="formatImageUrl(detail.storeProduct.imageUrls[0])" alt="Product Image"
-                    style="width: 100px; height: 100px;" />
+                <div
+                  v-if="detail.storeProduct && detail.storeProduct.imageUrls"
+                >
+                  <img
+                    :src="formatImageUrl(detail.storeProduct.imageUrls[0])"
+                    alt="Product Image"
+                    style="width: 100px; height: 100px"
+                  />
                 </div>
-                <div v-else-if="detail.productDetailRes && detail.productDetailRes.imageUrls">
-                  <img :src="formatImageUrl(detail.productDetailRes.imageUrls[0])" alt="Product Image"
-                    style="width: 100px; height: 100px;" />
+                <div
+                  v-else-if="
+                    detail.productDetailRes && detail.productDetailRes.imageUrls
+                  "
+                >
+                  <img
+                    :src="formatImageUrl(detail.productDetailRes.imageUrls[0])"
+                    alt="Product Image"
+                    style="width: 100px; height: 100px"
+                  />
                 </div>
               </td>
               <td>{{ detail.quantity }}</td>
               <td>{{ detail.unitPrice }}元</td>
               <td>
                 <div v-if="detail.productDetailRes.productDetailId">
-                  <p><strong>{{ detail.productDetailRes.grade }}賞</strong></p>
+                  <p>
+                    <strong>{{ detail.productDetailRes.grade }}賞</strong>
+                  </p>
                 </div>
                 <div v-else>
                   <p><strong>商城商品</strong></p>
                 </div>
-
               </td>
             </tr>
-
           </tbody>
         </table>
         <p v-else class="no-data">無訂單詳情資料</p>
       </div>
     </div>
-
 
     <div v-if="showModal" class="modal">
       <div class="modal-content">
@@ -211,7 +291,11 @@
           <!-- 客戶訂單編號 -->
           <div>
             <label for="vendorOrder">客戶訂單編號：</label>
-            <input type="text" v-model="logisticsRequest.vendorOrder" readonly />
+            <input
+              type="text"
+              v-model="logisticsRequest.vendorOrder"
+              readonly
+            />
           </div>
 
           <!-- 物流方式選擇 -->
@@ -257,7 +341,10 @@
             </div>
             <div>
               <label for="receiverMobilePhone">取貨人手機電話：</label>
-              <input type="text" v-model="logisticsRequest.receiverMobilePhone" />
+              <input
+                type="text"
+                v-model="logisticsRequest.receiverMobilePhone"
+              />
             </div>
             <div>
               <label for="shipmentDate">出貨日期：</label>
@@ -272,13 +359,18 @@
         </form>
       </div>
     </div>
-
   </div>
 </template>
 
 <script lang="ts" setup>
 import { Order, OrderDetail } from '@/interfaces/order';
-import { convenience, getAllOrder, getAllVendor, saveTrackingNumberAPI, xxx } from '@/services/backend/orderservice';
+import {
+  convenience,
+  getAllOrder,
+  getAllVendor,
+  saveTrackingNumberAPI,
+  xxx,
+} from '@/services/backend/orderservice';
 import { productservice } from '@/services/backend/productservice';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
@@ -287,8 +379,8 @@ const orders = ref<Order[]>([]);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 const currentFilter = ref<string>(''); // 訂單狀態篩選
-const showShippingInfoModal = ref(false);  // 控制寄送信息弹出视窗的显示
-const orderShippingInfo = ref(null);        // 存储寄送信息
+const showShippingInfoModal = ref(false); // 控制寄送信息弹出视窗的显示
+const orderShippingInfo = ref(null); // 存储寄送信息
 const orderInfo = ref(null);
 const toggleEdit = () => {
   isEditing.value = !isEditing.value;
@@ -315,14 +407,16 @@ const viewShippingInfo = async (orderId: number | null) => {
     // 設置寄送資訊
     orderShippingInfo.value = {
       shippingEmail: order.shippingEmail, // 若無 email，顯示 N/A
-      nickname: order.nickname || "無暱稱",
-      shippingName: order.shippingName || "無收件人",
-      shippingPhone: order.shippingPhone || "無電話",
-      shippingMethod: order.shippingMethod || "無物流方式",
-      shippingAddress: `${order.shippingCity || ""} ${order.shippingArea || ""} ${order.shippingAddress || ""}`,
-      storeCode: order.shopId || "無",
-      storeName: order.shopName || "無",
-      storeAddress: order.shopAddress || "無",
+      nickname: order.nickname || '無暱稱',
+      shippingName: order.shippingName || '無收件人',
+      shippingPhone: order.shippingPhone || '無電話',
+      shippingMethod: order.shippingMethod || '無物流方式',
+      shippingAddress: `${order.shippingCity || ''} ${
+        order.shippingArea || ''
+      } ${order.shippingAddress || ''}`,
+      storeCode: order.shopId || '無',
+      storeName: order.shopName || '無',
+      storeAddress: order.shopAddress || '無',
       trackingNumber: null, // 若無物流單號
     };
     if (vendor?.data?.orderNo) {
@@ -330,12 +424,12 @@ const viewShippingInfo = async (orderId: number | null) => {
     }
     // 設置訂單資訊
     orderInfo.value = {
-      orderNumber: order.orderNumber || "未知訂單號",
+      orderNumber: order.orderNumber || '未知訂單號',
       createdAt: order.createdAt || [],
       totalAmount: order.totalAmount || 0,
       shippingCost: order.shippingCost || 0,
       orderDetails: order.orderDetails || [],
-      opmode: order.opmode || "無",
+      opmode: order.opmode || '無',
     };
 
     // 合併訂單商品明細
@@ -352,12 +446,12 @@ const viewShippingInfo = async (orderId: number | null) => {
         // 判断是 `productDetail` 还是 `storeProduct`
         const isProductDetail = !!detail.productDetailRes?.productDetailId; // 是否存在 productDetailId
         const grade = isProductDetail
-          ? `${detail.productDetailRes?.grade || "N/A"}賞` // `productDetail` 情况
-          : "商城商品"; // `storeProduct` 情况
+          ? `${detail.productDetailRes?.grade || 'N/A'}賞` // `productDetail` 情况
+          : '商城商品'; // `storeProduct` 情况
 
         // 新增新的商品明細
         mergedOrderDetails.push({
-          productName: detail.productName || "無名稱",
+          productName: detail.productName || '無名稱',
           productDetailRes: detail.productDetailRes || {},
           imageUrls: detail.imageUrls || [],
           grade: grade,
@@ -372,14 +466,10 @@ const viewShippingInfo = async (orderId: number | null) => {
   }
 };
 
-
-
-
 const closeShippingInfoModal = () => {
   showShippingInfoModal.value = false;
   orderShippingInfo.value = null; // 清除寄送信息
 };
-
 
 onMounted(() => {
   loadOrders();
@@ -400,15 +490,17 @@ const filterOrders = (status: string) => {
 
   if (status === 'NO_PAY') {
     // 篩選出未付款的訂單
-    filteredOrders.value = orders.value.filter(order => order.resultStatus === 'NO_PAY');
+    filteredOrders.value = orders.value.filter(
+      (order) => order.resultStatus === 'NO_PAY'
+    );
   } else if (status) {
-    filteredOrders.value = orders.value.filter(order => order.resultStatus === status);
+    filteredOrders.value = orders.value.filter(
+      (order) => order.resultStatus === status
+    );
   } else {
     filteredOrders.value = orders.value; // 顯示所有訂單
   }
 };
-
-
 
 const _paginatedOrders = computed(() => {
   const startIndex = (currentPage.value - 1) * itemsPerPage;
@@ -416,15 +508,20 @@ const _paginatedOrders = computed(() => {
   return filteredOrders.value.slice(startIndex, endIndex);
 });
 
-const totalPages = computed(() => Math.ceil(filteredOrders.value.length / itemsPerPage));
+const totalPages = computed(() =>
+  Math.ceil(filteredOrders.value.length / itemsPerPage)
+);
 
 function formatDate(dateArray: [any, any, any, any, any, any]) {
   const [year, month, day, hour, minute, second] = dateArray;
   const date = new Date(year, month - 1, day, hour, minute, second);
 
-  const pad = (num: { toString: () => string; }) => num.toString().padStart(2, '0');
+  const pad = (num: { toString: () => string }) =>
+    num.toString().padStart(2, '0');
 
-  return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(minute)} 分 ${pad(second)} 秒`;
+  return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(
+    minute
+  )} 分 ${pad(second)} 秒`;
 }
 const previousPage = () => {
   if (currentPage.value > 1) {
@@ -437,8 +534,6 @@ const nextPage = () => {
     currentPage.value++;
   }
 };
-
-
 
 const showModal = ref(false);
 const logisticsRequest = ref({
@@ -455,10 +550,10 @@ const logisticsRequest = ref({
   senderName: '', // 寄件人姓名
   sendMobilePhone: '', // 寄件人手機
   shipmentDate: '', // 出貨日期
-  orderAmount: '',//商品價值
-  recipientAddress: '',//取貨人地址
-  senderZipCode: '',//寄件人郵碼
-  senderAddress: '',// 寄件人地址
+  orderAmount: '', //商品價值
+  recipientAddress: '', //取貨人地址
+  senderZipCode: '', //寄件人郵碼
+  senderAddress: '', // 寄件人地址
   deliveryDate: '', // 希望配達日期 (yyyy-MM-dd)
   senderMobile: '', //黑貓寄件人手機
   recipientName: '', //黑貓取貨人姓名
@@ -468,7 +563,9 @@ const logisticsRequest = ref({
 
 // 開啟對話框並設置訂單編號
 const openModal = (orderNumber: any) => {
-  const filteredOrder = orders.value.find(order => order.orderNumber === orderNumber);
+  const filteredOrder = orders.value.find(
+    (order) => order.orderNumber === orderNumber
+  );
   if (filteredOrder) {
     logisticsRequest.value.vendorOrder = filteredOrder.orderNumber; // 設置訂單號
     logisticsRequest.value.storeId = filteredOrder.shopId;
@@ -479,7 +576,6 @@ const openModal = (orderNumber: any) => {
     showModal.value = true;
   }
 };
-
 
 // 關閉對話框
 const closeModal2 = () => {
@@ -497,14 +593,14 @@ const submitLogistics = async () => {
   }
 };
 
-
-
-
 const fetchPostNumber = async () => {
   try {
     console.log('Sender Address:', logisticsRequest.value.senderAddress);
     const address = { address: logisticsRequest.value.senderAddress };
-    const response = await axios.post('http://localhost:8080/api/express/getAddress', address);
+    const response = await axios.post(
+      'http://localhost:8080/api/express/getAddress',
+      address
+    );
     const result = response.data;
 
     // 從返回的字符串中提取 PostNumber
@@ -531,7 +627,6 @@ const extractPostNumber = (responseString: string) => {
 };
 
 const formatImageUrl = (url: string | File): string => {
-
   if (typeof url === 'string') {
     return url.trim() !== '' ? productservice.getImageUrl(url) : '';
   }
@@ -548,11 +643,9 @@ const orderDetails = ref<OrderDetail[]>([]);
 // 過濾訂單，這裡你可以應用自己的過濾邏輯
 const filteredOrders = ref(orders.value);
 
-
 // 更新訂單狀態
 const updateOrderStatus = async (order) => {
   try {
-
     const response = await xxx(order.id, order.resultStatus);
     if (response.ok) {
       const updatedOrder = await response.json();
@@ -584,20 +677,18 @@ const availableStatuses = (currentStatus: string) => {
   ];
   // 如果是 NO_PAY 或 FAILED_PAYMENT，不顯示其他選項
   if (currentStatus === 'NO_PAY' || currentStatus === 'FAILED_PAYMENT') {
-    return allStatuses.filter(status => status.value === currentStatus);
+    return allStatuses.filter((status) => status.value === currentStatus);
   }
   // 僅允許更改為準備發貨或已發貨
-  return allStatuses.filter(status =>
+  return allStatuses.filter((status) =>
     ['PREPARING_SHIPMENT', 'SHIPPED'].includes(status.value)
   );
 };
-
 
 // 關閉訂單詳情模態框
 const closeModal = () => {
   showOrderDetailsModal.value = false;
 };
-
 </script>
 
 <style scoped>
@@ -622,7 +713,7 @@ const closeModal = () => {
 .filter-btn {
   padding: 10px 20px;
   margin: 5px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -672,7 +763,7 @@ const closeModal = () => {
 }
 
 .view-details-btn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
 }
@@ -687,7 +778,7 @@ const closeModal = () => {
 .pagination-btn {
   margin: 0 10px;
   padding: 8px 16px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -762,7 +853,6 @@ const closeModal = () => {
   z-index: 1000;
 }
 
-
 .modal h3 {
   margin-bottom: 15px;
   font-size: 1.5em;
@@ -791,8 +881,8 @@ const closeModal = () => {
   box-sizing: border-box;
 }
 
-.modal input[type="date"],
-.modal input[type="number"] {
+.modal input[type='date'],
+.modal input[type='number'] {
   max-width: 100%;
 }
 
@@ -805,13 +895,13 @@ const closeModal = () => {
   font-size: 1em;
 }
 
-.modal button[type="submit"] {
-  background-color: #4CAF50;
+.modal button[type='submit'] {
+  background-color: #4caf50;
   color: white;
   margin-right: 10px;
 }
 
-.modal button[type="button"] {
+.modal button[type='button'] {
   background-color: #f44336;
   color: white;
 }
@@ -1082,5 +1172,32 @@ button:focus {
   .highlight-btn {
     display: none;
   }
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  table-layout: auto;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tr:hover {
+}
+
+td {
+  min-width: 160px;
 }
 </style>
