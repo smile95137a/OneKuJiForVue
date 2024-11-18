@@ -468,7 +468,7 @@ const selectedCategoryId = ref<number | string>('');
 const newCategoryName = ref('');
 
 // 尺寸選項
-const sizeOptions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
+const sizeOptions = ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '110', '120', '130', '140', '150', '160', '170', '180', '190', '200'];
 
 // 計算屬性
 const filteredProducts = computed(() => {
@@ -1024,16 +1024,30 @@ const isValidImageUrl = (url: string | File): boolean => {
 
 const updateDimensions = (detail: DetailReq & { size?: number }) => {
   if (detail.size !== undefined) {
-    const dimension = Math.floor((detail.size - 2) / 2);
+    // 保證當 size 小於 10 時，不會計算出 0，維持最小尺寸
+    const dimension = Math.max(1, (detail.size - 10) / 2);  // 最小尺寸為 1，避免長度寬度為 0
     detail.length = dimension;
     detail.width = dimension;
-    detail.height = 2;
+    detail.height = 2;  // 高度固定
   }
 };
 
+
 const calculateSize = (length: number, width: number): number => {
-  return Math.min(200, Math.max(10, (length + width) * 2 + 2));
+  const calculatedSize = (length + width) + 10;  // 计算长度和宽度的总和并加上10
+  
+  // 如果计算出的size小于20，直接返回10
+  if (calculatedSize < 20) {
+    return 10;
+  }
+  
+  // 否则返回正常的size，并且限制在10到200之间
+  return Math.min(200, Math.max(10, calculatedSize));
 };
+
+
+
+
 
 // 類別管理相關方法
 const openCategoryModal = () => {

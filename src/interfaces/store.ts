@@ -23,6 +23,7 @@ export interface StoreProductReq {
   shippingPrice: number;
   size: number;
   details: string; // 商品詳情
+ 
 }
 
 export interface StoreProductRes {
@@ -45,6 +46,7 @@ export interface StoreProductRes {
   createdAt: string;
   updatedAt: string;
   details: string; // 商品詳情
+  soldQuantity:number;
 }
 export interface StoreCategory {
   categoryId: number;

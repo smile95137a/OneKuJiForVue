@@ -33,12 +33,15 @@
             <tr>
               <th class="checkbox-column"><input type="checkbox" v-model="selectAll" @change="toggleSelectAll" /></th>
               <th class="role-column">會員類型</th>
+              <th class="usernmae-column">信箱</th>
               <th class="nickname-column">暱稱</th>
               <th class="phone-column">電話</th>
               <th class="address-column">居住地址</th>
+              <th class="address-name-column">居住人姓名</th>
               <th class="coin-column">金幣</th>
               <th class="coin-column">銀幣</th>
               <th class="coin-column">紅利點數</th>
+              <th class="coin-column">創建時間</th>
               <th class="date-column">修改時間</th>
               <th class="action-column">操作</th>
             </tr>
@@ -47,12 +50,15 @@
             <tr v-for="member in paginatedMembers" :key="member.id">
               <td><input type="checkbox" v-model="selectedMembers" :value="member.id" /></td>
               <td>{{ getRoleName(member.roleId) }}</td>
+              <td>{{ member.username }}</td>
               <td :title="member.nickName">{{ member.nickName }}</td>
               <td>{{ member.phoneNumber }}</td>
               <td :title="member.address">{{ member.address }}</td>
+              <td :title="member.address">{{ member.addressName }}</td>
               <td>{{ member.balance }}</td>
               <td>{{ member.sliverCoin }}</td>
               <td>{{ member.bonus }}</td>
+              <td>{{ formatDate(member.createdAt) }}</td>
               <td>{{ formatDate(member.updatedAt) }}</td>
               <td>
                 <button @click="editMember(member)" class="edit-button">編輯</button>
@@ -152,7 +158,7 @@ export default defineComponent({
     const itemsPerPage = 10;
     const showAddMemberModal = ref(false);
     const showUpdateMemberModal = ref(false);
-    const showDistributeRewardModal = ref(true);
+    const showDistributeRewardModal = ref(false);
     const searchInput = ref('');
     const selectedMembers = ref<number[]>([]);
     const selectAll = ref(false);
@@ -226,8 +232,8 @@ export default defineComponent({
 
     const updateStats = () => {
       const totalMembers = displayedMembers.value.length;
-      const regularMembers = displayedMembers.value.filter(member => member.roleId === 2).length;
-      const trialMembers = displayedMembers.value.filter(member => member.roleId === 3).length;
+      const regularMembers = displayedMembers.value.filter(member => member.roleId === 3).length;
+      const trialMembers = displayedMembers.value.filter(member => member.roleId === 4).length;
       const newMembersThisMonth = displayedMembers.value.filter(member => {
         const createdDate = new Date(member.createdAt);
         const now = new Date();
@@ -236,9 +242,8 @@ export default defineComponent({
 
       statItems.value = [
         { title: '會員總數', value: totalMembers },
-        { title: '正式會員', value: regularMembers },
-        { title: '體驗會員', value: trialMembers },
-        { title: '當月新增', value: newMembersThisMonth }
+        { title: '驗證會員', value: regularMembers },
+        { title: '未驗證會員', value: trialMembers },
       ];
     };
 
@@ -259,23 +264,30 @@ export default defineComponent({
 
     const searchMembers = () => {
       const query = searchInput.value.trim().toLowerCase();
+
+      // 避免重複計算的過濾邏輯，提前將查詢字符串小寫
       if (!query) {
         displayedMembers.value = allMembers.value;
       } else {
-        displayedMembers.value = allMembers.value.filter(member =>
-          member.id.toString().includes(query) ||
-          member.phoneNumber.toLowerCase().includes(query) ||
-          member.username.toLowerCase().includes(query) ||
-          member.nickName.toLowerCase().includes(query)
-        );
+        // 提取過濾邏輯為一個單獨的函數
+        const filterMembers = (member: User) => {
+          return member.id.toString().includes(query) ||
+            member.phoneNumber.toLowerCase().includes(query) ||
+            member.username.toLowerCase().includes(query) ||
+            member.nickName.toLowerCase().includes(query);
+        };
+
+        displayedMembers.value = allMembers.value.filter(filterMembers);
       }
+
       updateStats();
-      currentPage.value = 1;
+      // 保持當前頁碼或自動調整
     };
 
     const debounceSearch = debounce(() => {
       searchMembers();
     }, 300);
+
 
     const editMember = (member: User) => {
       Object.keys(editingMember).forEach(key => {
@@ -311,12 +323,12 @@ export default defineComponent({
       }
     };
 
-    const formatDate = (dateArray: number[]) => {
-      if (!dateArray || dateArray.length < 6) {
-        return 'Invalid Date';
+    const formatDate = (timestamp: number) => {
+      if (!timestamp) {
+        return '無日期';
       }
-      const [year, month, day, hour, minute, second] = dateArray;
-      const date = new Date(year, month - 1, day, hour, minute, second);
+
+      const date = new Date(timestamp);  // 直接根据时间戳创建 Date 对象
       return date.toLocaleString('zh-TW', {
         year: 'numeric',
         month: '2-digit',
@@ -327,6 +339,7 @@ export default defineComponent({
         hour12: false
       });
     };
+
 
     const toggleSelectAll = () => {
       if (selectAll.value) {
@@ -433,7 +446,7 @@ export default defineComponent({
   font-family: 'Arial', sans-serif;
   background-color: #f5f7fa;
   color: #333;
-  max-width: 1280px;
+  max-width: 1800px;
   margin: 0 auto;
 }
 
@@ -584,19 +597,27 @@ tr:hover {
 }
 
 .role-column {
-  width: 100px;
+  width: 80px;
+}
+
+.usernmae-column {
+  width: 150px;
 }
 
 .nickname-column {
-  width: 100px;
+  width: 80px;
 }
 
 .phone-column {
-  width: 120px;
+  width: 80px;
 }
 
 .address-column {
-  width: 150px;
+  width: 200px;
+}
+
+.address-name-column {
+  width: 80px;
 }
 
 .coin-column {
@@ -608,7 +629,7 @@ tr:hover {
 }
 
 .action-column {
-  width: 150px;
+  width: 90px;
 }
 
 td {

@@ -107,7 +107,8 @@
           <th>名稱</th>
           <th>描述</th>
           <th>價格</th>
-          <th>數量</th>
+          <th>售出數量</th>
+          <th>庫存</th>
           <th>尺寸 (寬x高x深)</th>
           <th>類別</th>
           <th>操作</th>
@@ -122,6 +123,7 @@
           <td>{{ product.productName }}</td>
           <td>{{ product.description }}</td>
           <td>{{ product.price }}</td>
+          <td>{{ product.soldQuantity }}</td>
           <td>{{ product.stockQuantity }}</td>
           <td>{{ formatDimensions(product) }}</td>
           <td>{{ getCategoryName(product.categoryId) }}</td>
@@ -143,8 +145,7 @@
 </template>
 
 <script lang="ts">
-import { StoreCategory, StoreProductReq, StoreProductRes } from '@/interfaces/store';
-import { StoreProductStatus } from '@/interfaces/store';
+import { StoreCategory, StoreProductReq, StoreProductRes, StoreProductStatus } from '@/interfaces/store';
 import { storeServices } from '@/services/backend/storeservice';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 

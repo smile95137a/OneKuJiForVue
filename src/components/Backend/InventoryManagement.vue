@@ -336,7 +336,10 @@ const handleFileUploadnew = (event) => {
 
 <style scoped>
 .member-management {
-  padding: 20px;
+  flex: 1;         /* 使 .member-management 占据剩余空间 */
+  padding: 40px;   /* 设置 40px 的内边距 */
+  background-color: #f1f1f1; /* 背景色保持一致 */
+  overflow: auto;  /* 同样支持溢出处理 */
 }
 
 .header {

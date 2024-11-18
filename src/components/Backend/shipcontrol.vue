@@ -70,9 +70,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import { ShipService } from '@/services/backend/shipservice';
 import { ShippingMethod, ShippingMethodReq } from '@/interfaces/ship';
+import { ShipService } from '@/services/backend/shipservice';
+import { onMounted, ref } from 'vue';
 
 const shippingMethods = ref<ShippingMethod[]>([]);
 const showModal = ref(false);
@@ -161,6 +161,26 @@ const deleteShippingMethod = async (id: number) => {
   padding: 20px;
 }
 
+h2 {
+  margin-bottom: 20px;
+}
+
+button {
+  margin: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -169,7 +189,7 @@ table {
 
 th, td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px;
   text-align: left;
 }
 
@@ -177,10 +197,8 @@ th {
   background-color: #f2f2f2;
 }
 
-button {
-  margin: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
+td {
+  font-size: 14px;
 }
 
 .modal {
@@ -193,25 +211,65 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
   background-color: white;
   padding: 20px;
   border-radius: 5px;
+  width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 form div {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 label {
   display: inline-block;
-  width: 100px;
+  width: 120px;
+  font-size: 14px;
 }
 
 input {
-  width: 200px;
-  padding: 5px;
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 5px;
 }
+
+input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+}
+
+button[type="submit"]:hover {
+  background-color: #218838;
+}
+
+button[type="button"] {
+  background-color: #dc3545;
+  color: white;
+}
+
+button[type="button"]:hover {
+  background-color: #c82333;
+}
+
+button:focus {
+  outline: none;
+}
+
 </style>

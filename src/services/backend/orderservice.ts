@@ -51,3 +51,9 @@ export const xxx = async (orderId: number, resultStatus: string): Promise<any> =
     return response.data;
 };
 
+export const getAllVendor = async (orderId: string): Promise<any> => {
+    const response = await axios.get(`${API_URL}/vendorOrder/${orderId}`);
+    return response.data;
+};
+
+

@@ -59,7 +59,7 @@ export const getStorePrizeProductOrderById = async (
 ): Promise<ApiResponse<any>> => {
   try {
     const response = await api.get<ApiResponse<any>>(
-      `${basePath}/productDetail/${orderNumber}`
+      `${basePath}/storeProduct/${orderNumber}`
     );
     return response.data;
   } catch (error) {
