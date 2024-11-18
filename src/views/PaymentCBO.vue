@@ -42,7 +42,7 @@ onMounted(async () => {
     } else {
       await dialogStore.openInfoDialog({
         title: '系統通知',
-        message: '付款失敗',
+        message: `付款失敗:${searchParams.get('ret_msg')}`,
       });
     }
   } catch (error) {

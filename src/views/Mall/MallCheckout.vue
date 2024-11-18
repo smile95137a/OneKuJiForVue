@@ -510,6 +510,7 @@ const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 const storename = route.query.storename || '';
 const storeid = route.query.storeid || '';
+const storeaddress = route.query.storeaddress || '';
 let isInitialSetup = true;
 
 const breadcrumbItems = [{ name: '首頁' }, { name: '結帳' }];
@@ -630,6 +631,8 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     donationCode: '',
     sameAsBilling: false,
     shopId: storeid,
+    shopName: storename,
+    shopAddress: storeaddress,
   },
 });
 
