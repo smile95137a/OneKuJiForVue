@@ -2,7 +2,7 @@
 
 <script lang="ts" setup>
 import { creditMP, creditTopOp } from '@/services/frontend/paymentService';
-import { useDialogStore } from '@/stores';
+import { useDialogStore, useLoadingStore } from '@/stores';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 const loadingStore = useLoadingStore();

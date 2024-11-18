@@ -152,13 +152,16 @@
               </div>
               <div
                 class="mallCheckout__form-inputs--addr"
-                v-if="shippingMethod === 'home'"
+                v-if="!['711', 'family'].includes(shippingMethod)"
               >
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
-                      'mallCheckout__text--required': shippingMethod === 'home',
+                      'mallCheckout__text--required': ![
+                        '711',
+                        'family',
+                      ].includes(shippingMethod),
                     }"
                   >
                     購買人地址
@@ -264,13 +267,16 @@
               </div>
               <div
                 class="mallCheckout__form-inputs--addr"
-                v-if="shippingMethod === 'home'"
+                v-if="!['711', 'family'].includes(shippingMethod)"
               >
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
-                      'mallCheckout__text--required': shippingMethod === 'home',
+                      'mallCheckout__text--required': ![
+                        '711',
+                        'family',
+                      ].includes(shippingMethod),
                     }"
                   >
                     收貨人城市
@@ -289,7 +295,10 @@
                   <p
                     class="mallCheckout__text"
                     :class="{
-                      'mallCheckout__text--required': shippingMethod === 'home',
+                      'mallCheckout__text--required': ![
+                        '711',
+                        'family',
+                      ].includes(shippingMethod),
                     }"
                   >
                     收貨人區域
@@ -308,7 +317,10 @@
                   <p
                     class="mallCheckout__text"
                     :class="{
-                      'mallCheckout__text--required': shippingMethod === 'home',
+                      'mallCheckout__text--required': ![
+                        '711',
+                        'family',
+                      ].includes(shippingMethod),
                     }"
                   >
                     收貨人地址
@@ -538,7 +550,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'home',
+      is: (val: string) => !['711', 'family'].includes(val),
       then: (schema) => schema.required('郵政編碼為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -546,7 +558,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'home',
+      is: (val: string) => !['711', 'family'].includes(val),
       then: (schema) => schema.required('城市為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -554,7 +566,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'home',
+      is: (val: string) => !['711', 'family'].includes(val),
       then: (schema) => schema.required('區域為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -562,7 +574,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'home',
+      is: (val: string) => !['711', 'family'].includes(val),
       then: (schema) => schema.required('詳細地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -576,7 +588,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'home',
+      is: (val: string) => !['711', 'family'].includes(val),
       then: (schema) => schema.required('購買人郵政編碼為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -584,7 +596,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'home',
+      is: (val: string) => !['711', 'family'].includes(val),
       then: (schema) => schema.required('購買人縣市為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -592,7 +604,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'home',
+      is: (val: string) => !['711', 'family'].includes(val),
       then: (schema) => schema.required('購買人區域為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -600,7 +612,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => val === 'home',
+      is: (val: string) => !['711', 'family'].includes(val),
       then: (schema) => schema.required('購買人地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
