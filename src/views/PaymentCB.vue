@@ -2,8 +2,9 @@
 
 <script lang="ts" setup>
 import { creditTopOp } from '@/services/frontend/paymentService';
-import { useDialogStore } from '@/stores';
+import { useDialogStore, useLoadingStore } from '@/stores';
 import { ref, onMounted } from 'vue';
+const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 const queryParams = ref<{ [key: string]: string }>({});
 
@@ -23,7 +24,9 @@ onMounted(async () => {
   };
   try {
     if (~~paramsObj.result === 1) {
+      loadingStore.startLoading();
       const { success, message } = await creditTopOp(o);
+      loadingStore.stopLoading();
       if (success) {
         await dialogStore.openInfoDialog({
           title: '系統通知',
@@ -38,10 +41,11 @@ onMounted(async () => {
     } else {
       await dialogStore.openInfoDialog({
         title: '系統通知',
-        message: '付款失敗',
+        message: `付款失敗:${searchParams.get('ret_msg')}`,
       });
     }
   } catch (error) {
+    loadingStore.stopLoading();
     console.error('Error processing credit top-up:', error);
     await dialogStore.openInfoDialog({
       title: '系統通知',
