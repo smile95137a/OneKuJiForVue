@@ -56,4 +56,8 @@ export const getAllVendor = async (orderId: string): Promise<any> => {
     return response.data;
 };
 
+export const saveTrackingNumberAPI = (data: { orderId: string; trackingNumber: string }) => {
+    return axios.post(`${API_URL}/vendorOrder/updateTrackingNumber`, data);
+  };
+
 

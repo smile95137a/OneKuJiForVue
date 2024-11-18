@@ -83,7 +83,20 @@
             <p v-else>
               <strong>寄送地址:</strong> {{ orderShippingInfo.shippingAddress }}
             </p>
-            <p><strong>物流單號:</strong> {{ orderShippingInfo.trackingNumber || '無' }}</p>
+            <p>
+              <strong>物流單號:</strong>
+              <span v-if="!isEditing">{{ orderShippingInfo.trackingNumber || '無' }}</span>
+              <input v-else v-model="orderShippingInfo.trackingNumber" type="text" placeholder="輸入物流單號"
+                class="tracking-input" />
+            </p>
+            <div class="button-group">
+              <button v-if="!isEditing" @click="toggleEdit" class="edit-btn highlight-btn">
+                編輯
+              </button>
+              <button v-else @click="saveTrackingNumber" class="save-btn highlight-btn">
+                保存
+              </button>
+            </div>
           </div>
           <div class="right-section">
             <h3>訂單資訊</h3>
@@ -113,7 +126,7 @@
                 <td>
                   <img :src="formatImageUrl(detail.imageUrls[0])" alt="商品圖片" style="width: 100px; height: 100px;" />
                 </td>
-                <td>{{ detail.grade }}賞</td>
+                <td>{{ detail.grade }}</td>
                 <td>{{ detail.quantity }}</td>
               </tr>
             </tbody>
@@ -172,11 +185,15 @@
                 </div>
               </td>
               <td>{{ detail.quantity }}</td>
-              <td>{{ detail.unitPrice }}</td>
+              <td>{{ detail.unitPrice }}元</td>
               <td>
-                <div v-if="detail.productDetailRes">
-                  <p><strong>{{ detail.productDetailRes.grade }} 賞</strong></p>
+                <div v-if="detail.productDetailRes.productDetailId">
+                  <p><strong>{{ detail.productDetailRes.grade }}賞</strong></p>
                 </div>
+                <div v-else>
+                  <p><strong>商城商品</strong></p>
+                </div>
+
               </td>
             </tr>
 
@@ -261,10 +278,11 @@
 
 <script lang="ts" setup>
 import { Order, OrderDetail } from '@/interfaces/order';
-import { convenience, getAllOrder, getAllVendor, xxx } from '@/services/backend/orderservice';
+import { convenience, getAllOrder, getAllVendor, saveTrackingNumberAPI, xxx } from '@/services/backend/orderservice';
 import { productservice } from '@/services/backend/productservice';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+const isEditing = ref(false);
 const orders = ref<Order[]>([]);
 const currentPage = ref(1);
 const itemsPerPage = 10;
@@ -272,6 +290,24 @@ const currentFilter = ref<string>(''); // 訂單狀態篩選
 const showShippingInfoModal = ref(false);  // 控制寄送信息弹出视窗的显示
 const orderShippingInfo = ref(null);        // 存储寄送信息
 const orderInfo = ref(null);
+const toggleEdit = () => {
+  isEditing.value = !isEditing.value;
+};
+
+const saveTrackingNumber = async () => {
+  isEditing.value = false;
+  console.log('保存物流單號:', orderShippingInfo.value.trackingNumber);
+  try {
+    // 調用後端 API 保存物流單號
+    const response = await saveTrackingNumberAPI({
+      orderId: selectedOrderId.value,
+      trackingNumber: orderShippingInfo.value.trackingNumber,
+    });
+    console.log('物流單號保存成功:', response.data);
+  } catch (error) {
+    console.error('保存物流單號時出錯:', error);
+  }
+};
 const viewShippingInfo = async (orderId: number | null) => {
   const order = orders.value.find((o) => o.id === orderId); // 根據訂單 ID 查找訂單
   const vendor = await getAllVendor(order?.orderNumber);
@@ -313,12 +349,18 @@ const viewShippingInfo = async (orderId: number | null) => {
         // 如果相同的商品已存在，累加數量
         existingDetail.quantity += detail.quantity;
       } else {
+        // 判断是 `productDetail` 还是 `storeProduct`
+        const isProductDetail = !!detail.productDetailRes?.productDetailId; // 是否存在 productDetailId
+        const grade = isProductDetail
+          ? `${detail.productDetailRes?.grade || "N/A"}賞` // `productDetail` 情况
+          : "商城商品"; // `storeProduct` 情况
+
         // 新增新的商品明細
         mergedOrderDetails.push({
           productName: detail.productName || "無名稱",
           productDetailRes: detail.productDetailRes || {},
           imageUrls: detail.imageUrls || [],
-          grade: detail.productDetailRes?.grade || "N/A",
+          grade: grade,
           quantity: detail.quantity || 0,
         });
       }
@@ -454,6 +496,8 @@ const submitLogistics = async () => {
     alert('建立訂單失敗：' + error.response.data.message);
   }
 };
+
+
 
 
 const fetchPostNumber = async () => {
@@ -983,5 +1027,60 @@ h2 {
 .product-list img {
   border: 1px solid #ddd;
   border-radius: 4px;
+}
+
+/* 按鈕樣式 */
+.button-group {
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+.edit-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.save-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* 高亮樣式 */
+.highlight-btn {
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 輸入框樣式 */
+.tracking-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 隱藏按鈕於列印或導出 PDF */
+@media print {
+  .button-group,
+  .highlight-btn {
+    display: none;
+  }
 }
 </style>
