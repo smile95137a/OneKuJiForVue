@@ -373,6 +373,9 @@
                   customClass="mallCheckout__invoice-select"
                 />
               </div>
+              <p class="mallCheckout__text mallCheckout__text--error">
+                {{ errors.invoice }}
+              </p>
             </div>
             <div class="col-100"></div>
             <div class="col-50 mallCheckout__form">
@@ -592,6 +595,7 @@ const schema = yup.object({
       then: (schema) => schema.required('購買人地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
+  invoice: yup.string().required('發票資訊為必填'),
 });
 const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
   validationSchema: schema,
