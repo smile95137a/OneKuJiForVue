@@ -16,8 +16,8 @@
       <tbody>
         <tr v-for="recommand in mappings" :key="recommand.id">
           <td>
-            <img v-if="recommand.imageUrl" 
-                 :src="getImageUrl(recommand.imageUrl)" 
+            <img v-if="recommand.imageUrls" 
+                 :src="getImageUrl(recommand.imageUrls)" 
                  :alt="recommand.productName"
                  class="product-thumbnail" />
           </td>
@@ -71,11 +71,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue';
-import { ProductRecommendationMapping, StoreProductRecommendation, StoreProductRes, ProductRes, ProductType, ApiResponse } from '@/interfaces/recommand';
+import { ApiResponse, ProductRecommendationMapping, ProductRes, ProductType, StoreProductRecommendation, StoreProductRes } from '@/interfaces/recommand';
+import { productservice } from '@/services/backend/productservice';
 import { createMapping as createMappingAPI, deleteMapping as deleteMappingAPI, getAllMappings, getAllRecommendations, updateMapping as updateMappingAPI } from '@/services/backend/recommand';
 import { storeServices } from '@/services/backend/storeservice';
-import { productservice } from '@/services/backend/productservice';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const mappings = ref<ProductRecommendationMapping[]>([]);
 const currentMapping = ref<ProductRecommendationMapping>({ storeProductId: 0, storeProductRecommendationId: 0 });

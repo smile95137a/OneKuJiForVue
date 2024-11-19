@@ -1,6 +1,6 @@
 // recommand.ts
 
-import { PrizeCategory, ProductStatus, ProductCategory } from '@/interfaces/product';
+import { PrizeCategory, ProductCategory, ProductStatus } from '@/interfaces/product';
 
 export enum ProductType {
     PRIZE = 'PRIZE',
@@ -18,7 +18,7 @@ export interface ProductRecommendationMapping {
     updateUser?: string | null;
     productName?: string | null;
     recommendationName?: string | null;
-    imageUrl?: string; // 添加這個字段來處理圖片URL
+    imageUrls?: string; // 添加這個字段來處理圖片URL
 }
 
 export interface ApiResponse<T> {
