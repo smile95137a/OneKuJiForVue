@@ -528,9 +528,13 @@ let isInitialSetup = true;
 const breadcrumbItems = [{ name: '首頁' }, { name: '結帳' }];
 const items = ref<any[]>([]);
 const billCityOptions = ref<{ value: string; label: string }[]>([]);
-const billAreaOptions = ref<{ value: string; label: string }[]>([]);
+const billAreaOptions = ref<{ value: string; label: string }[]>([
+  { value: '', label: '行政區' },
+]);
 const shippingCityOptions = ref<{ value: string; label: string }[]>([]);
-const shippingAreaOptions = ref<{ value: string; label: string }[]>([]);
+const shippingAreaOptions = ref<{ value: string; label: string }[]>([
+  { value: '', label: '行政區' },
+]);
 
 const invoiceInfoOptions = ref<{ value: string; label: string }[]>([
   { value: '', label: '請選擇發票資訊' },
@@ -921,8 +925,6 @@ onMounted(async () => {
     { value: '', label: '縣市' },
     ...cityNames.map((city) => ({ value: city, label: city })),
   ];
-  billAreaOptions.value = [{ value: '', label: '行政區' }];
-  shippingAreaOptions.value = [{ value: '', label: '行政區' }];
   const shippingData: any = loadState('shippingData');
 
   if (shippingData) {
@@ -959,9 +961,13 @@ onMounted(async () => {
 });
 
 watch(billingCity, (newCity) => {
+  console.log(newCity);
+
   if (newCity) {
     setFieldValue('billingArea', '');
     const areas = getAreaListByCityName(newCity);
+    console.log(areas);
+
     billAreaOptions.value = [
       { value: '', label: '行政區' },
       ...areas.map((area) => ({
@@ -969,6 +975,7 @@ watch(billingCity, (newCity) => {
         label: area.areaName,
       })),
     ];
+    console.log(billAreaOptions.value);
   } else {
     billAreaOptions.value = [{ value: '', label: '行政區' }];
   }

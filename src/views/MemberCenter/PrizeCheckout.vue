@@ -520,9 +520,14 @@ let isInitialSetup = true;
 
 const items = ref<any[]>([]);
 const billCityOptions = ref<{ value: string; label: string }[]>([]);
-const billAreaOptions = ref<{ value: string; label: string }[]>([]);
+const billAreaOptions = ref<{ value: string; label: string }[]>([
+  { value: '', label: '行政區' },
+]);
 const shippingCityOptions = ref<{ value: string; label: string }[]>([]);
-const shippingAreaOptions = ref<{ value: string; label: string }[]>([]);
+const shippingAreaOptions = ref<{ value: string; label: string }[]>([
+  { value: '', label: '行政區' },
+]);
+
 const shippingMethods = ref<any[]>([]);
 
 const invoiceInfoOptions = ref<{ value: string; label: string }[]>([
@@ -860,8 +865,6 @@ onMounted(async () => {
     { value: '', label: '縣市' },
     ...cityNames.map((city) => ({ value: city, label: city })),
   ];
-  billAreaOptions.value = [{ value: '', label: '行政區' }];
-  shippingAreaOptions.value = [{ value: '', label: '行政區' }];
   const shippingData: any = loadState('shippingData');
 
   if (shippingData) {
