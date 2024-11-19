@@ -95,281 +95,269 @@
         下一頁
       </button>
     </div>
-
-    <!-- 寄送信息弹出视窗 -->
-    <!-- 寄送資訊模態 -->
-    <div v-if="showShippingInfoModal" class="modal">
-      <div class="shipping-note">
-        <span class="close-button" @click="closeShippingInfoModal"
-          >&times;</span
-        >
-        <div class="header">
-          <h1>出貨單</h1>
-        </div>
-        <div class="info-section">
-          <div class="left-section">
-            <h3>寄送資訊</h3>
-            <p><strong>Email:</strong> {{ orderShippingInfo.shippingEmail }}</p>
-            <p><strong>姓名:</strong> {{ orderShippingInfo.shippingName }}</p>
-            <p><strong>電話:</strong> {{ orderShippingInfo.shippingPhone }}</p>
-            <p>
-              <strong>物流方式:</strong> {{ orderShippingInfo.shippingMethod }}
-            </p>
-            <p
-              v-if="
-                orderShippingInfo.shippingMethod === '711' ||
-                orderShippingInfo.shippingMethod === '全家'
-              "
-            >
-              <strong>門市代號:</strong> {{ orderShippingInfo.storeCode }}<br />
-              <strong>門市名稱:</strong> {{ orderShippingInfo.storeName }}<br />
-              <strong>門市地址:</strong> {{ orderShippingInfo.storeAddress }}
-            </p>
-            <p v-else>
-              <strong>寄送地址:</strong> {{ orderShippingInfo.shippingAddress }}
-            </p>
-            <p>
-              <strong>物流單號:</strong>
-              <span v-if="!isEditing">{{
-                orderShippingInfo.trackingNumber || '無'
-              }}</span>
-              <input
-                v-else
-                v-model="orderShippingInfo.trackingNumber"
-                type="text"
-                placeholder="輸入物流單號"
-                class="tracking-input"
-              />
-            </p>
-            <div class="button-group">
-              <button
-                v-if="!isEditing"
-                @click="toggleEdit"
-                class="edit-btn highlight-btn"
-              >
-                編輯
-              </button>
-              <button
-                v-else
-                @click="saveTrackingNumber"
-                class="save-btn highlight-btn"
-              >
-                保存
-              </button>
-            </div>
-          </div>
-          <div class="right-section">
-            <h3>訂單資訊</h3>
-            <p><strong>訂單編號:</strong> {{ orderInfo.orderNumber }}</p>
-            <p>
-              <strong>訂單日期:</strong> {{ formatDate(orderInfo.createdAt) }}
-            </p>
-            <p><strong>訂單總額:</strong> {{ orderInfo.totalAmount }} 元</p>
-            <p><strong>運費總額:</strong> {{ orderInfo.shippingCost }} 元</p>
-            <p><strong>商品總數:</strong> {{ orderDetails.length }} 件</p>
-          </div>
-        </div>
-        <div class="product-list">
-          <h3>商品列表</h3>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>商品名稱</th>
-                  <th>獎品名稱</th>
-                  <th>商品圖片</th>
-                  <th>類型</th>
-                  <th>數量</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="detail in orderDetails"
-                  :key="detail.productDetailRes.productDetailId"
-                >
-                  <td>{{ detail.productName }}</td>
-                  <td>{{ detail.productDetailRes.productName || '無' }}</td>
-                  <td>
-                    <img
-                      :src="formatImageUrl(detail.imageUrls[0])"
-                      alt="商品圖片"
-                      style="width: 100%; max-width: 100px; height: auto"
-                    />
-                  </td>
-                  <td>{{ detail.grade }}</td>
-                  <td>{{ detail.quantity }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+  </div>
+  <!-- 寄送信息弹出视窗 -->
+  <!-- 寄送資訊模態 -->
+  <div v-if="showShippingInfoModal">
+    <div class="shipping-note">
+      <span class="close-button" @click="closeShippingInfoModal">&times;</span>
+      <div class="header">
+        <h1>出貨單</h1>
       </div>
-    </div>
-
-    <div v-if="showOrderDetailsModal" class="modal">
-      <div class="modal-content">
-        <span class="close-button" @click="closeModal">&times;</span>
-        <h2>訂單明細 - 訂單號: {{ selectedOrderId }}</h2>
-        <table
-          v-if="orderDetails && orderDetails.length"
-          class="order-details-table"
-        >
-          <thead>
-            <tr>
-              <th>產品 ID</th>
-              <th>商品名稱</th>
-              <th>產品名稱</th>
-              <th>產品圖片</th>
-              <th>數量</th>
-              <th>單價</th>
-              <th>類型</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="detail in orderDetails" :key="detail.orderDetailId">
-              <td>
-                {{
-                  detail.storeProduct?.storeProductId ??
-                  detail.productDetailRes?.productDetailId ??
-                  'N/A'
-                }}
-              </td>
-              <td>
-                {{ detail.pname }}
-              </td>
-              <td>
-                <!-- 判断 storeProduct 或 productDetailRes 是否为 null，显示相应信息 -->
-                <div v-if="detail.storeProduct">
-                  <p>
-                    <strong>{{ detail.storeProduct.productName }}</strong>
-                  </p>
-                </div>
-                <div v-else-if="detail.productDetailRes">
-                  <p>
-                    <strong>{{ detail.productDetailRes.productName }}</strong>
-                  </p>
-                </div>
-
-                <div v-else>
-                  <p>無產品</p>
-                </div>
-              </td>
-
-              <td>
-                <div
-                  v-if="detail.storeProduct && detail.storeProduct.imageUrls"
-                >
-                  <img
-                    :src="formatImageUrl(detail.storeProduct.imageUrls[0])"
-                    alt="Product Image"
-                    style="width: 100px; height: 100px"
-                  />
-                </div>
-                <div
-                  v-else-if="
-                    detail.productDetailRes && detail.productDetailRes.imageUrls
-                  "
-                >
-                  <img
-                    :src="formatImageUrl(detail.productDetailRes.imageUrls[0])"
-                    alt="Product Image"
-                    style="width: 100px; height: 100px"
-                  />
-                </div>
-              </td>
-              <td>{{ detail.quantity }}</td>
-              <td>{{ detail.unitPrice === null ? 0 : 0 }}元</td>
-              <td>
-                <div v-if="detail.productDetailRes.productDetailId">
-                  <p>
-                    <strong>{{ detail.productDetailRes.grade }}賞</strong>
-                  </p>
-                </div>
-                <div v-else>
-                  <p><strong>商城商品</strong></p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-else class="no-data">無訂單詳情資料</p>
-      </div>
-    </div>
-
-    <div v-if="showModal" class="modal">
-      <div class="modal-content">
-        <h3>建立物流訂單</h3>
-        <form @submit.prevent="submitLogistics">
-          <!-- 客戶訂單編號 -->
-          <div>
-            <label for="vendorOrder">客戶訂單編號：</label>
+      <div class="info-section">
+        <div class="left-section">
+          <h3>寄送資訊</h3>
+          <p><strong>Email:</strong> {{ orderShippingInfo.shippingEmail }}</p>
+          <p><strong>姓名:</strong> {{ orderShippingInfo.shippingName }}</p>
+          <p><strong>電話:</strong> {{ orderShippingInfo.shippingPhone }}</p>
+          <p>
+            <strong>物流方式:</strong> {{ orderShippingInfo.shippingMethod }}
+          </p>
+          <p
+            v-if="
+              orderShippingInfo.shippingMethod === '711' ||
+              orderShippingInfo.shippingMethod === '全家'
+            "
+          >
+            <strong>門市代號:</strong> {{ orderShippingInfo.storeCode }}<br />
+            <strong>門市名稱:</strong> {{ orderShippingInfo.storeName }}<br />
+            <strong>門市地址:</strong> {{ orderShippingInfo.storeAddress }}
+          </p>
+          <p v-else>
+            <strong>寄送地址:</strong> {{ orderShippingInfo.shippingAddress }}
+          </p>
+          <p>
+            <strong>物流單號:</strong>
+            <span v-if="!isEditing">{{
+              orderShippingInfo.trackingNumber || '無'
+            }}</span>
             <input
+              v-else
+              v-model="orderShippingInfo.trackingNumber"
               type="text"
-              v-model="logisticsRequest.vendorOrder"
-              readonly
+              placeholder="輸入物流單號"
+              class="tracking-input"
             />
+          </p>
+          <div class="button-group">
+            <button
+              v-if="!isEditing"
+              @click="toggleEdit"
+              class="edit-btn highlight-btn"
+            >
+              編輯
+            </button>
+            <button
+              v-else
+              @click="saveTrackingNumber"
+              class="save-btn highlight-btn"
+            >
+              保存
+            </button>
           </div>
+        </div>
+        <div class="right-section">
+          <h3>訂單資訊</h3>
+          <p><strong>訂單編號:</strong> {{ orderInfo.orderNumber }}</p>
+          <p>
+            <strong>訂單日期:</strong> {{ formatDate(orderInfo.createdAt) }}
+          </p>
+          <p><strong>訂單總額:</strong> {{ orderInfo.totalAmount }} 元</p>
+          <p><strong>運費總額:</strong> {{ orderInfo.shippingCost }} 元</p>
+          <p><strong>商品總數:</strong> {{ orderDetails.length }} 件</p>
+        </div>
+      </div>
+      <div class="product-list">
+        <h3>商品列表</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>商品名稱</th>
+                <th>獎品名稱</th>
+                <th>商品圖片</th>
+                <th>類型</th>
+                <th>數量</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="detail in orderDetails"
+                :key="detail.productDetailRes.productDetailId"
+              >
+                <td>{{ detail.productName }}</td>
+                <td>{{ detail.productDetailRes.productName || '無' }}</td>
+                <td>
+                  <img
+                    :src="formatImageUrl(detail.imageUrls[0])"
+                    alt="商品圖片"
+                    style="width: 100%; max-width: 100px; height: auto"
+                  />
+                </td>
+                <td>{{ detail.grade }}</td>
+                <td>{{ detail.quantity }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <!-- 物流方式選擇 -->
+  <div v-if="showOrderDetailsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" @click="closeModal">&times;</span>
+      <h2>訂單明細 - 訂單號: {{ selectedOrderId }}</h2>
+      <table
+        v-if="orderDetails && orderDetails.length"
+        class="order-details-table"
+      >
+        <thead>
+          <tr>
+            <th>產品 ID</th>
+            <th>商品名稱</th>
+            <th>產品名稱</th>
+            <th>產品圖片</th>
+            <th>數量</th>
+            <th>單價</th>
+            <th>類型</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="detail in orderDetails" :key="detail.orderDetailId">
+            <td>
+              {{
+                detail.storeProduct?.storeProductId ??
+                detail.productDetailRes?.productDetailId ??
+                'N/A'
+              }}
+            </td>
+            <td>
+              {{ detail.pname }}
+            </td>
+            <td>
+              <!-- 判断 storeProduct 或 productDetailRes 是否为 null，显示相应信息 -->
+              <div v-if="detail.storeProduct">
+                <p>
+                  <strong>{{ detail.storeProduct.productName }}</strong>
+                </p>
+              </div>
+              <div v-else-if="detail.productDetailRes">
+                <p>
+                  <strong>{{ detail.productDetailRes.productName }}</strong>
+                </p>
+              </div>
+
+              <div v-else>
+                <p>無產品</p>
+              </div>
+            </td>
+
+            <td>
+              <div v-if="detail.storeProduct && detail.storeProduct.imageUrls">
+                <img
+                  :src="formatImageUrl(detail.storeProduct.imageUrls[0])"
+                  alt="Product Image"
+                  style="width: 100px; height: 100px"
+                />
+              </div>
+              <div
+                v-else-if="
+                  detail.productDetailRes && detail.productDetailRes.imageUrls
+                "
+              >
+                <img
+                  :src="formatImageUrl(detail.productDetailRes.imageUrls[0])"
+                  alt="Product Image"
+                  style="width: 100px; height: 100px"
+                />
+              </div>
+            </td>
+            <td>{{ detail.quantity }}</td>
+            <td>{{ detail.unitPrice === null ? 0 : 0 }}元</td>
+            <td>
+              <div v-if="detail.productDetailRes.productDetailId">
+                <p>
+                  <strong>{{ detail.productDetailRes.grade }}賞</strong>
+                </p>
+              </div>
+              <div v-else>
+                <p><strong>商城商品</strong></p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="no-data">無訂單詳情資料</p>
+    </div>
+  </div>
+
+  <div v-if="showModal" class="modal">
+    <div class="modal-content">
+      <h3>建立物流訂單</h3>
+      <form @submit.prevent="submitLogistics">
+        <!-- 客戶訂單編號 -->
+        <div>
+          <label for="vendorOrder">客戶訂單編號：</label>
+          <input type="text" v-model="logisticsRequest.vendorOrder" readonly />
+        </div>
+
+        <!-- 物流方式選擇 -->
+        <div>
+          <label for="logisticsMode">物流方式：</label>
+          <select v-model="logisticsRequest.logisticsMode">
+            <option value="store">便利商店配送</option>
+          </select>
+        </div>
+
+        <!-- 便利商店配送 -->
+        <div v-if="logisticsRequest.logisticsMode === 'store'">
           <div>
-            <label for="logisticsMode">物流方式：</label>
-            <select v-model="logisticsRequest.logisticsMode">
-              <option value="store">便利商店配送</option>
+            <label for="storeId">門市代號：</label>
+            <input type="text" v-model="logisticsRequest.storeId" />
+          </div>
+          <div>
+            <label for="opMode">通路代號：</label>
+            <select v-model="logisticsRequest.opMode">
+              <option value="1">全家</option>
+              <option value="3">統一超商</option>
             </select>
           </div>
-
-          <!-- 便利商店配送 -->
-          <div v-if="logisticsRequest.logisticsMode === 'store'">
-            <div>
-              <label for="storeId">門市代號：</label>
-              <input type="text" v-model="logisticsRequest.storeId" />
-            </div>
-            <div>
-              <label for="opMode">通路代號：</label>
-              <select v-model="logisticsRequest.opMode">
-                <option value="1">全家</option>
-                <option value="3">統一超商</option>
-              </select>
-            </div>
-            <div>
-              <label for="amount">交易金額：</label>
-              <input type="number" v-model="logisticsRequest.amount" />
-            </div>
-            <div>
-              <label for="senderName">商品價值:</label>
-              <input type="text" v-model="logisticsRequest.orderAmount" />
-            </div>
-            <div>
-              <label for="senderName">寄件人姓名：</label>
-              <input type="text" v-model="logisticsRequest.senderName" />
-            </div>
-            <div>
-              <label for="sendMobilePhone">寄件人手機電話：</label>
-              <input type="text" v-model="logisticsRequest.sendMobilePhone" />
-            </div>
-            <div>
-              <label for="receiverName">取貨人姓名：</label>
-              <input type="text" v-model="logisticsRequest.receiverName" />
-            </div>
-            <div>
-              <label for="receiverMobilePhone">取貨人手機電話：</label>
-              <input
-                type="text"
-                v-model="logisticsRequest.receiverMobilePhone"
-              />
-            </div>
-            <div>
-              <label for="shipmentDate">出貨日期：</label>
-              <input type="date" v-model="logisticsRequest.shipmentDate" />
-            </div>
-          </div>
-          <!-- 提交和取消按鈕 -->
           <div>
-            <button type="submit">提交訂單</button>
-            <button type="button" @click="closeModal2">取消</button>
+            <label for="amount">交易金額：</label>
+            <input type="number" v-model="logisticsRequest.amount" />
           </div>
-        </form>
-      </div>
+          <div>
+            <label for="senderName">商品價值:</label>
+            <input type="text" v-model="logisticsRequest.orderAmount" />
+          </div>
+          <div>
+            <label for="senderName">寄件人姓名：</label>
+            <input type="text" v-model="logisticsRequest.senderName" />
+          </div>
+          <div>
+            <label for="sendMobilePhone">寄件人手機電話：</label>
+            <input type="text" v-model="logisticsRequest.sendMobilePhone" />
+          </div>
+          <div>
+            <label for="receiverName">取貨人姓名：</label>
+            <input type="text" v-model="logisticsRequest.receiverName" />
+          </div>
+          <div>
+            <label for="receiverMobilePhone">取貨人手機電話：</label>
+            <input type="text" v-model="logisticsRequest.receiverMobilePhone" />
+          </div>
+          <div>
+            <label for="shipmentDate">出貨日期：</label>
+            <input type="date" v-model="logisticsRequest.shipmentDate" />
+          </div>
+        </div>
+        <!-- 提交和取消按鈕 -->
+        <div>
+          <button type="submit">提交訂單</button>
+          <button type="button" @click="closeModal2">取消</button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
@@ -412,9 +400,14 @@ const saveTrackingNumber = async () => {
     console.error('保存物流單號時出錯:', error);
   }
 };
+const toggleOrderManagementVisibility = (isHidden: boolean) => {
+  const orderManagementElement = document.querySelector('.order-management');
+  if (orderManagementElement) {
+    orderManagementElement.style.display = isHidden ? 'none' : 'block';
+  }
+};
 const viewShippingInfo = async (orderId: number | null) => {
-  document.body.classList.add('no-scroll');
-  document.documentElement.style.overflow = 'hidden';
+  toggleOrderManagementVisibility(true);
   const order = orders.value.find((o) => o.id === orderId); // 根據訂單 ID 查找訂單
   const vendor = await getAllVendor(order?.orderNumber);
   if (order) {
@@ -492,8 +485,7 @@ const viewShippingInfo = async (orderId: number | null) => {
 const closeShippingInfoModal = () => {
   showShippingInfoModal.value = false;
   orderShippingInfo.value = null; // 清除寄送信息
-  document.body.classList.remove('no-scroll');
-  document.documentElement.style.overflow = '';
+  toggleOrderManagementVisibility(false);
 };
 
 onMounted(() => {
@@ -1057,13 +1049,16 @@ h2 {
 }
 
 .shipping-note {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: fit-content;
   background: white;
   border-radius: 8px;
   padding: 20px;
-  width: 100%;
-  max-width: 1000px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: relative;
   animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -1185,38 +1180,6 @@ button:focus {
 
 /* 隱藏按鈕於列印或導出 PDF */
 @media print {
-  html,
-  body {
-    width: 210mm; /* A4 宽度 */
-    height: 297mm; /* A4 高度 */
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* 禁止滚动条 */
-  }
-
-  .shipping-note {
-    width: 100%;
-    max-width: 190mm; /* 确保内容宽度小于 A4 */
-    height: auto;
-    max-height: calc(297mm - 20mm); /* A4 高度减去边距 */
-    margin: 0 auto;
-    padding: 10mm;
-    box-shadow: none;
-    position: relative;
-    background: white;
-    overflow: hidden; /* 防止内容溢出 */
-  }
-
-  .product-list {
-    width: 100%;
-    max-width: 190mm; /* 限制表格最大宽度为 A4 可打印范围 */
-    margin: 0 auto;
-    border-collapse: collapse; /* 表格紧凑排列 */
-    page-break-inside: avoid; /* 防止表格分页断裂 */
-    overflow: hidden; /* 防止滚动条 */
-    table-layout: fixed; /* 固定列宽 */
-  }
-
   .product-list table {
     width: 100%; /* 确保表格宽度适应父容器 */
     table-layout: fixed; /* 强制表格列宽固定 */
