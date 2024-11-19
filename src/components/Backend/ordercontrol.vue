@@ -42,26 +42,42 @@
             <td>{{ order.orderCount }} 個</td>
             <td>{{ formatDate(order.createdAt) }}</td>
             <td>
-              <select v-model="order.resultStatus" @change="updateOrderStatus(order)" class="status-select">
-                <option v-for="status in availableStatuses(order.resultStatus)" :key="status.value"
-                  :value="status.value">
+              <select
+                v-model="order.resultStatus"
+                @change="updateOrderStatus(order)"
+                class="status-select"
+              >
+                <option
+                  v-for="status in availableStatuses(order.resultStatus)"
+                  :key="status.value"
+                  :value="status.value"
+                >
                   {{ status.label }}
                 </option>
               </select>
             </td>
 
             <td>
-              <button @click="viewOrderDetails(order.id)" class="view-details-btn">
+              <button
+                @click="viewOrderDetails(order.id)"
+                class="view-details-btn"
+              >
                 查看訂單明細
               </button>
             </td>
             <td>
-              <button @click="viewShippingInfo(order.id)" class="view-details-btn">
+              <button
+                @click="viewShippingInfo(order.id)"
+                class="view-details-btn"
+              >
                 出貨單
               </button>
             </td>
             <td>
-              <button @click="openModal(order.orderNumber)" class="view-details-btn">
+              <button
+                @click="openModal(order.orderNumber)"
+                class="view-details-btn"
+              >
                 建立物流訂單
               </button>
             </td>
@@ -84,7 +100,9 @@
     <!-- 寄送資訊模態 -->
     <div v-if="showShippingInfoModal" class="modal">
       <div class="shipping-note">
-        <span class="close-button" @click="closeShippingInfoModal">&times;</span>
+        <span class="close-button" @click="closeShippingInfoModal"
+          >&times;</span
+        >
         <div class="header">
           <h1>出貨單</h1>
         </div>
@@ -97,10 +115,12 @@
             <p>
               <strong>物流方式:</strong> {{ orderShippingInfo.shippingMethod }}
             </p>
-            <p v-if="
-              orderShippingInfo.shippingMethod === '711' ||
-              orderShippingInfo.shippingMethod === '全家'
-            ">
+            <p
+              v-if="
+                orderShippingInfo.shippingMethod === '711' ||
+                orderShippingInfo.shippingMethod === '全家'
+              "
+            >
               <strong>門市代號:</strong> {{ orderShippingInfo.storeCode }}<br />
               <strong>門市名稱:</strong> {{ orderShippingInfo.storeName }}<br />
               <strong>門市地址:</strong> {{ orderShippingInfo.storeAddress }}
@@ -113,14 +133,27 @@
               <span v-if="!isEditing">{{
                 orderShippingInfo.trackingNumber || '無'
               }}</span>
-              <input v-else v-model="orderShippingInfo.trackingNumber" type="text" placeholder="輸入物流單號"
-                class="tracking-input" />
+              <input
+                v-else
+                v-model="orderShippingInfo.trackingNumber"
+                type="text"
+                placeholder="輸入物流單號"
+                class="tracking-input"
+              />
             </p>
             <div class="button-group">
-              <button v-if="!isEditing" @click="toggleEdit" class="edit-btn highlight-btn">
+              <button
+                v-if="!isEditing"
+                @click="toggleEdit"
+                class="edit-btn highlight-btn"
+              >
                 編輯
               </button>
-              <button v-else @click="saveTrackingNumber" class="save-btn highlight-btn">
+              <button
+                v-else
+                @click="saveTrackingNumber"
+                class="save-btn highlight-btn"
+              >
                 保存
               </button>
             </div>
@@ -150,12 +183,18 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="detail in orderDetails" :key="detail.productDetailRes.productDetailId">
+                <tr
+                  v-for="detail in orderDetails"
+                  :key="detail.productDetailRes.productDetailId"
+                >
                   <td>{{ detail.productName }}</td>
                   <td>{{ detail.productDetailRes.productName || '無' }}</td>
                   <td>
-                    <img :src="formatImageUrl(detail.imageUrls[0])" alt="商品圖片"
-                      style="width: 100%; max-width: 100px; height: auto;" />
+                    <img
+                      :src="formatImageUrl(detail.imageUrls[0])"
+                      alt="商品圖片"
+                      style="width: 100%; max-width: 100px; height: auto"
+                    />
                   </td>
                   <td>{{ detail.grade }}</td>
                   <td>{{ detail.quantity }}</td>
@@ -164,7 +203,6 @@
             </table>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -172,7 +210,10 @@
       <div class="modal-content">
         <span class="close-button" @click="closeModal">&times;</span>
         <h2>訂單明細 - 訂單號: {{ selectedOrderId }}</h2>
-        <table v-if="orderDetails && orderDetails.length" class="order-details-table">
+        <table
+          v-if="orderDetails && orderDetails.length"
+          class="order-details-table"
+        >
           <thead>
             <tr>
               <th>產品 ID</th>
@@ -215,15 +256,25 @@
               </td>
 
               <td>
-                <div v-if="detail.storeProduct && detail.storeProduct.imageUrls">
-                  <img :src="formatImageUrl(detail.storeProduct.imageUrls[0])" alt="Product Image"
-                    style="width: 100px; height: 100px" />
+                <div
+                  v-if="detail.storeProduct && detail.storeProduct.imageUrls"
+                >
+                  <img
+                    :src="formatImageUrl(detail.storeProduct.imageUrls[0])"
+                    alt="Product Image"
+                    style="width: 100px; height: 100px"
+                  />
                 </div>
-                <div v-else-if="
-                  detail.productDetailRes && detail.productDetailRes.imageUrls
-                ">
-                  <img :src="formatImageUrl(detail.productDetailRes.imageUrls[0])" alt="Product Image"
-                    style="width: 100px; height: 100px" />
+                <div
+                  v-else-if="
+                    detail.productDetailRes && detail.productDetailRes.imageUrls
+                  "
+                >
+                  <img
+                    :src="formatImageUrl(detail.productDetailRes.imageUrls[0])"
+                    alt="Product Image"
+                    style="width: 100px; height: 100px"
+                  />
                 </div>
               </td>
               <td>{{ detail.quantity }}</td>
@@ -252,7 +303,11 @@
           <!-- 客戶訂單編號 -->
           <div>
             <label for="vendorOrder">客戶訂單編號：</label>
-            <input type="text" v-model="logisticsRequest.vendorOrder" readonly />
+            <input
+              type="text"
+              v-model="logisticsRequest.vendorOrder"
+              readonly
+            />
           </div>
 
           <!-- 物流方式選擇 -->
@@ -298,7 +353,10 @@
             </div>
             <div>
               <label for="receiverMobilePhone">取貨人手機電話：</label>
-              <input type="text" v-model="logisticsRequest.receiverMobilePhone" />
+              <input
+                type="text"
+                v-model="logisticsRequest.receiverMobilePhone"
+              />
             </div>
             <div>
               <label for="shipmentDate">出貨日期：</label>
@@ -355,6 +413,8 @@ const saveTrackingNumber = async () => {
   }
 };
 const viewShippingInfo = async (orderId: number | null) => {
+  document.body.classList.add('no-scroll');
+  document.documentElement.style.overflow = 'hidden';
   const order = orders.value.find((o) => o.id === orderId); // 根據訂單 ID 查找訂單
   const vendor = await getAllVendor(order?.orderNumber);
   if (order) {
@@ -365,8 +425,9 @@ const viewShippingInfo = async (orderId: number | null) => {
       shippingName: order.shippingName || '無收件人',
       shippingPhone: order.shippingPhone || '無電話',
       shippingMethod: order.shippingMethod || '無物流方式',
-      shippingAddress: `${order.shippingCity || ''} ${order.shippingArea || ''
-        } ${order.shippingAddress || ''}`,
+      shippingAddress: `${order.shippingCity || ''} ${
+        order.shippingArea || ''
+      } ${order.shippingAddress || ''}`,
       storeCode: order.shopId || '無',
       storeName: order.shopName || '無',
       storeAddress: order.shopAddress || '無',
@@ -375,7 +436,10 @@ const viewShippingInfo = async (orderId: number | null) => {
     if (vendor?.data?.orderNo) {
       if (order.shippingMethod === '711') {
         // 當 shippingMethod 是 '711' 時，顯示訂單編號的前 8 個字元
-        orderShippingInfo.value.trackingNumber = vendor.data.orderNo.slice(0, 8);
+        orderShippingInfo.value.trackingNumber = vendor.data.orderNo.slice(
+          0,
+          8
+        );
       } else {
         // 否則顯示完整訂單編號
         orderShippingInfo.value.trackingNumber = vendor.data.orderNo;
@@ -428,6 +492,8 @@ const viewShippingInfo = async (orderId: number | null) => {
 const closeShippingInfoModal = () => {
   showShippingInfoModal.value = false;
   orderShippingInfo.value = null; // 清除寄送信息
+  document.body.classList.remove('no-scroll');
+  document.documentElement.style.overflow = '';
 };
 
 onMounted(() => {
@@ -440,7 +506,7 @@ const loadOrders = async () => {
     orders.value = await getAllOrder();
 
     // 修改訂單的 shippingMethod 欄位，將 "family" 改為 "全家"
-    orders.value.forEach(order => {
+    orders.value.forEach((order) => {
       if (order.shippingMethod === 'family') {
         order.shippingMethod = '全家';
       }
@@ -452,7 +518,6 @@ const loadOrders = async () => {
     console.error('Error loading orders:', error);
   }
 };
-
 
 // 根據篩選條件過濾訂單
 const filterOrders = (status: string) => {
@@ -1180,9 +1245,6 @@ button:focus {
     padding: 0; /* 页面内边距 */
   }
 }
-
-
-
 
 table {
   width: 100%;

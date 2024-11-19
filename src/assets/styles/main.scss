@@ -657,3 +657,8 @@ $letter-spacing-nums: 100;
     opacity: 0;
   }
 }
+
+.no-scroll {
+  overflow: hidden;
+  height: 90vh;
+}
