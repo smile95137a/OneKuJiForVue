@@ -36,18 +36,15 @@ interface IProductCard2Props {
 }
 const props = defineProps<IProductCard2Props>();
 
-const ProductGrade = {
-  A: 'A賞',
-  B: 'B賞',
-  C: 'C賞',
-  D: 'D賞',
-  E: 'E賞',
-  F: 'F賞',
-  G: 'G賞',
-  H: 'H賞',
-  SP: 'SP賞',
-  LAST: '最後賞',
-};
+const ProductGrade = Object.fromEntries(
+  [...Array(26)].map((_, i) => [
+    String.fromCharCode(65 + i),
+    `${String.fromCharCode(65 + i)}賞`,
+  ])
+);
+
+ProductGrade.SP = 'SP賞';
+ProductGrade.LAST = '最後賞';
 
 const gradeDescription = computed(() => ProductGrade[props.product.grade]);
 </script>
