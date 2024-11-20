@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import logoImg from '@/assets/image/logo1.png';
+import { getAllMarquees } from '@/services/frontend/marqueeService';
 import { useAuthStore, useDialogStore, useSlidebarStore } from '@/stores';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import moment from 'moment';
 const API_URL = import.meta.env.VITE_BASE_API_URL;
 
 const slidebarStore = useSlidebarStore();
@@ -26,16 +28,7 @@ const connectWebSocket = () => {
       console.log('Connected to WebSocket');
       stompClient?.subscribe('/topic/lottery', (message) => {
         if (message.body) {
-          const data = JSON.parse(message.body);
-          marqueeMessage.value = `玩家 ${data.nickName} 獲得了 ${data.name}`;
-
-          if (messageTimeout) {
-            clearTimeout(messageTimeout);
-          }
-
-          messageTimeout = setTimeout(() => {
-            marqueeMessage.value = null;
-          }, 20000);
+          processMarqueeData();
         }
       });
     },
@@ -48,10 +41,65 @@ const connectWebSocket = () => {
   stompClient.activate();
 };
 
-// 在組件掛載時連接 WebSocket
-onMounted(() => {
+onMounted(async () => {
   connectWebSocket();
+  await processMarqueeData(); // 調用主邏輯函式
 });
+
+const processMarqueeData = async () => {
+  try {
+    const { success, data } = await getAllMarquees();
+    if (success) {
+      const currentTime = moment();
+
+      // 處理公告資料
+      const result = Object.keys(data).map((key) => {
+        const processedGroup = data[key].map((marquee) => {
+          const createDate = moment(marquee.createDate);
+          const updatedDate = createDate.add(20, 'seconds');
+          const shouldDisplay = updatedDate.isAfter(currentTime);
+          return {
+            ...marquee,
+            shouldDisplay,
+          };
+        });
+
+        return processedGroup; // 不過濾，直接返回
+      });
+
+      console.log(result); // 檢查 result 結構
+
+      // 過濾符合條件的分組
+      const filteredGroup = result
+        .filter((x) => x.length > 0 && x[0].shouldDisplay) // 確保分組有效
+        .map((group) => {
+          const { username } = group[0];
+          const prizes = group.map(({ grade, name }) => `${grade}賞 ${name}`);
+          return `${username}中獎 ${prizes.join(' 、 ')}`;
+        });
+
+      // 若沒有符合條件的，取最後一筆
+      const lastGroup = result[result.length - 1];
+      const fallbackMessage = lastGroup
+        ? (() => {
+            const { username } = lastGroup[0]; // 確保取到 username
+            const prizes = lastGroup.map(
+              ({ grade, name }) => `${grade}賞 ${name}`
+            );
+            return `${username}中獎 ${prizes.join(' 、 ')}`;
+          })()
+        : '';
+
+      // 更新公告訊息
+      marqueeMessage.value =
+        filteredGroup.length > 0 ? filteredGroup.join(' 、 ') : fallbackMessage;
+    } else {
+      console.error('無法獲取公告或請求失敗');
+    }
+  } catch (error) {
+    console.error('連接失敗:', error);
+  }
+};
 
 // 組件卸載時關閉 WebSocket 連接
 onBeforeUnmount(() => {
