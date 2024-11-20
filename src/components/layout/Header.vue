@@ -63,7 +63,6 @@ onMounted(async () => {
     processMarqueeData();
   }, 20000);
 });
-
 onUnmounted(() => {
   clearInterval(marqueeInterval);
 });
@@ -78,7 +77,7 @@ const processMarqueeData = async () => {
       const result = Object.keys(data).map((key) => {
         const processedGroup = data[key].map((marquee) => {
           const createDate = moment(marquee.createDate);
-          const updatedDate = moment(createDate).add(20, 'seconds');
+          const updatedDate = moment(createDate).add(60, 'seconds');
           const shouldDisplay = updatedDate.isAfter(currentTime);
           return {
             ...marquee,
