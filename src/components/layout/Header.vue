@@ -4,16 +4,31 @@ import { getAllMarquees } from '@/services/frontend/marqueeService';
 import { useAuthStore, useDialogStore, useSlidebarStore } from '@/stores';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import moment from 'moment';
 const API_URL = import.meta.env.VITE_BASE_API_URL;
 
+const handleScroll = () => {
+  const threshold = 100;
+  isSticky.value = window.scrollY >= threshold;
+};
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
+
+const isSticky = ref(false);
 const slidebarStore = useSlidebarStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const dialogStore = useDialogStore();
 const marqueeMessage = ref<string | null>(null);
+let marqueeInterval = null;
 
 // WebSocket 客戶端
 let stompClient: Client | null = null;
@@ -44,6 +59,13 @@ const connectWebSocket = () => {
 onMounted(async () => {
   connectWebSocket();
   await processMarqueeData(); // 調用主邏輯函式
+  marqueeInterval = setInterval(() => {
+    processMarqueeData();
+  }, 20000);
+});
+
+onUnmounted(() => {
+  clearInterval(marqueeInterval);
 });
 
 const processMarqueeData = async () => {
@@ -56,7 +78,7 @@ const processMarqueeData = async () => {
       const result = Object.keys(data).map((key) => {
         const processedGroup = data[key].map((marquee) => {
           const createDate = moment(marquee.createDate);
-          const updatedDate = createDate.add(20, 'seconds');
+          const updatedDate = moment(createDate).add(20, 'seconds');
           const shouldDisplay = updatedDate.isAfter(currentTime);
           return {
             ...marquee,
@@ -224,7 +246,11 @@ const handleDailySignIn = async () => {
         </template>
       </div>
     </div>
-    <div class="header__marquee" v-if="marqueeMessage">
+    <div
+      class="header__marquee"
+      v-if="marqueeMessage"
+      :class="{ 'header__marquee--sticky': isSticky }"
+    >
       <p class="header__text">
         {{ marqueeMessage }}
       </p>

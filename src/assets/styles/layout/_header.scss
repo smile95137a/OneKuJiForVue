@@ -49,6 +49,13 @@ $root-block-name: '.header';
       width: max-content;
       animation: marquee 20s linear infinite;
     }
+
+    &--sticky {
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+      width: 100%;
+    }
   }
 
   &__menu {
