@@ -67,8 +67,6 @@ const processMarqueeData = async () => {
         return processedGroup; // 不過濾，直接返回
       });
 
-      console.log(result); // 檢查 result 結構
-
       // 過濾符合條件的分組
       const filteredGroup = result
         .filter((x) => x.length > 0 && x[0].shouldDisplay) // 確保分組有效
