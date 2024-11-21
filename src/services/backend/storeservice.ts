@@ -1,7 +1,7 @@
+import { ApiResponse } from '@/interfaces/admin';
 import { StoreCategory, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreProductApiResponse, StoreProductListApiResponse } from '@/interfaces/store';
 import { getAuthToken } from '@/services/backend/adminservices';
 import axios from 'axios';
-import { ApiResponse } from '@/interfaces/admin';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
@@ -117,4 +117,22 @@ export const storeServices = {
     const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
     return `${API_IMAGE_URL}/${cleanPath}`;
   },
+
+
+  fetchReportData: async (reportType: any, startDate: any, endDate: any, groupType: any): Promise<ApiResponse<void>> => {
+    try {
+       const response = await axiosInstance.get('/reports', {
+            params: {
+                reportType: reportType,
+                startDate: startDate,
+                endDate: endDate,
+                groupType: groupType,
+            },
+        });
+        return response.data;
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
+  }
 };

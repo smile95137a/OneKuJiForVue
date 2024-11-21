@@ -21,26 +21,21 @@
           <tr>
             <th>訂單編號</th>
             <th>收件人姓名</th>
+            <th>訂單狀態</th>
+            <th>訂單明細</th>
+            <th>出貨單</th>
+            <th>建立物流訂單</th>
             <th>總金額</th>
             <th>運送方式</th>
             <th>運費</th>
             <th>出貨總數</th>
             <th>創建時間</th>
-            <th>訂單狀態</th>
-            <th>訂單明細</th>
-            <th>出貨單</th>
-            <th>建立物流訂單</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="order in paginatedOrders" :key="order.id">
             <td>{{ order.orderNumber }}</td>
             <td>{{ order.billingName }}</td>
-            <td>{{ order.totalAmount }} 元</td>
-            <td>{{ order.shippingMethod }}</td>
-            <td>{{ order.shippingCost }} 元</td>
-            <td>{{ order.orderCount }} 個</td>
-            <td>{{ formatDate(order.createdAt) }}</td>
             <td>
               <select
                 v-model="order.resultStatus"
@@ -56,7 +51,6 @@
                 </option>
               </select>
             </td>
-
             <td>
               <button
                 @click="viewOrderDetails(order.id)"
@@ -81,6 +75,13 @@
                 建立物流訂單
               </button>
             </td>
+            <td>{{ order.totalAmount }} 元</td>
+            <td>{{ order.shippingMethod }}</td>
+            <td>{{ order.shippingCost }} 元</td>
+            <td>{{ order.orderCount }} 個</td>
+            <td>{{ formatDate(order.createdAt) }}</td>
+            
+
           </tr>
         </tbody>
       </table>
@@ -448,11 +449,11 @@ const viewShippingInfo = async (orderId: number | null) => {
       opmode: order.opmode || '無',
     };
 
-    // 合併訂單商品明細
+    // 合併相同商品 ID 的數量
     const mergedOrderDetails: any[] = [];
-    order.orderDetails.forEach((detail) => {
+    order.orderDetails.forEach((detail: { productDetailRes: { productDetailId: any; grade: any; }; quantity: any; productName: any; imageUrls: any; }) => {
       const existingDetail = mergedOrderDetails.find(
-        (d) => d.productDetailId === detail.productDetailRes?.productDetailId
+        (d) => d.productDetailRes?.productDetailId === detail.productDetailRes?.productDetailId
       );
 
       if (existingDetail) {
@@ -481,6 +482,7 @@ const viewShippingInfo = async (orderId: number | null) => {
     showShippingInfoModal.value = true; // 顯示寄送資訊彈窗
   }
 };
+
 
 const closeShippingInfoModal = () => {
   showShippingInfoModal.value = false;
@@ -1180,6 +1182,9 @@ button:focus {
 
 /* 隱藏按鈕於列印或導出 PDF */
 @media print {
+  .edit-btn {
+    display: none; /* 隱藏按鈕 */
+  }
   .product-list table {
     width: 100%; /* 确保表格宽度适应父容器 */
     table-layout: fixed; /* 强制表格列宽固定 */
