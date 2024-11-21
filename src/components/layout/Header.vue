@@ -27,7 +27,7 @@ const slidebarStore = useSlidebarStore();
 const authStore = useAuthStore();
 const router = useRouter();
 const dialogStore = useDialogStore();
-const marqueeMessage = ref<string | null>(null);
+const marqueeMessageData = ref([]);
 let marqueeInterval = null;
 
 // WebSocket 客戶端
@@ -88,30 +88,25 @@ const processMarqueeData = async () => {
         return processedGroup; // 不過濾，直接返回
       });
 
+      const transformedData = result.map((group) => {
+        const title = group[0]?.username;
+        return {
+          title,
+          list: group,
+        };
+      });
       // 過濾符合條件的分組
-      const filteredGroup = result
-        .filter((x) => x.length > 0 && x[0].shouldDisplay) // 確保分組有效
-        .map((group) => {
-          const { username } = group[0];
-          const prizes = group.map(({ grade, name }) => `${grade}賞 ${name}`);
-          return `${username}中獎 ${prizes.join(' 、 ')}`;
-        });
+      const filteredGroup = transformedData.filter(
+        (x) => x.list.length > 0 && x.list[0].shouldDisplay
+      ); // 確保分組有效
 
       // 若沒有符合條件的，取最後一筆
-      const lastGroup = result[result.length - 1];
-      const fallbackMessage = lastGroup
-        ? (() => {
-            const { username } = lastGroup[0]; // 確保取到 username
-            const prizes = lastGroup.map(
-              ({ grade, name }) => `${grade}賞 ${name}`
-            );
-            return `${username}中獎 ${prizes.join(' 、 ')}`;
-          })()
-        : '';
+      const lastData =
+        filteredGroup.length === 0
+          ? [transformedData[transformedData.length - 1]]
+          : filteredGroup;
 
-      // 更新公告訊息
-      marqueeMessage.value =
-        filteredGroup.length > 0 ? filteredGroup.join(' 、 ') : fallbackMessage;
+      marqueeMessageData.value = lastData;
     } else {
       console.error('無法獲取公告或請求失敗');
     }
@@ -138,6 +133,16 @@ const handleLogout = () => {
 
 const handleDailySignIn = async () => {
   dialogStore.openDaliyDialog({});
+};
+
+const getMarqueeMsg = (list: []) => {
+  const strArr = list.map(({ grade, name }) => `${grade}賞 ${name}`);
+  return strArr.join(' 和 ');
+};
+
+const getColor = (index) => {
+  const colors = ['#5889ff', '#ff7b58'];
+  return colors[index % colors.length];
 };
 </script>
 
@@ -247,11 +252,21 @@ const handleDailySignIn = async () => {
     </div>
     <div
       class="header__marquee"
-      v-if="marqueeMessage"
+      v-if="marqueeMessageData.length > 0"
       :class="{ 'header__marquee--sticky': isSticky }"
     >
       <p class="header__text">
-        {{ marqueeMessage }}
+        <span v-for="(item, index) in marqueeMessageData" :key="index">
+          🎉恭喜🎉
+          <span :style="{ color: getColor(0), fontWeight: 'bold' }">{{
+            item.title
+          }}</span>
+          中獎 中獎的獎項為
+          <span :style="{ color: getColor(1), fontWeight: 'bold' }">{{
+            getMarqueeMsg(item.list)
+          }}</span>
+          請大家一起恭喜他 ~
+        </span>
       </p>
     </div>
   </div>
