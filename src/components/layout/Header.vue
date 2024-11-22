@@ -3,10 +3,10 @@ import logoImg from '@/assets/image/logo1.png';
 import { getAllMarquees } from '@/services/frontend/marqueeService';
 import { useAuthStore, useDialogStore, useSlidebarStore } from '@/stores';
 import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
-import { onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import moment from 'moment';
+import SockJS from 'sockjs-client';
+import { computed, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 const API_URL = import.meta.env.VITE_BASE_API_URL;
 
 const handleScroll = () => {
@@ -144,6 +144,19 @@ const getColor = (index) => {
   const colors = ['#5889ff', '#ff7b58'];
   return colors[index % colors.length];
 };
+
+const calculateAnimationDuration = computed(() => {
+  return () => {
+    const data = marqueeMessageData.value;
+
+    const aa = data.map(x=> getMarqueeMsg(x.list))
+    
+    const baseDuration = 1; // 基础时间（秒）
+    const lengthFactor = .5; // 每个字符的增量时间（秒）
+    const textLength = aa.join('').length; // 计算文本长度
+    return `${baseDuration + textLength * lengthFactor}s`; // 返回计算后的时间
+  };
+});
 </script>
 
 <template>
@@ -255,8 +268,8 @@ const getColor = (index) => {
       v-if="marqueeMessageData.length > 0"
       :class="{ 'header__marquee--sticky': isSticky }"
     >
-      <p class="header__text">
-        <span v-for="(item, index) in marqueeMessageData" :key="index">
+      <p class="header__text" :style="{ animationDuration: calculateAnimationDuration() }">
+        <span v-for="(item, index) in marqueeMessageData" :key="index" >
           🎉恭喜🎉
           <span :style="{ color: getColor(0), fontWeight: 'bold' }">{{
             item.title

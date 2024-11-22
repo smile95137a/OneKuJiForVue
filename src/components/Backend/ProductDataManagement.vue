@@ -310,9 +310,10 @@
               </div>
               <div v-if="currentProductType === ProductType.PRIZE || currentProductType === ProductType.CUSTMER_PRIZE">
                 <label :for="'detailProbability' + index">機率</label>
-                <input :id="'detailProbability' + index" type="number" v-model.number="detail.probability" step="0.01"
-                  min="0.01" max="0.99" @blur="checkProbability(detail)">
+                <input :id="'detailProbability' + index" type="number" v-model.number="detail.probability" step="0.0001"
+                  min="0.0001" max="0.9999" @blur="checkProbability(detail)">
               </div>
+
 
 
               <div>
@@ -326,6 +327,11 @@
                     style="width: 100px; height: 100px;">
                   <button type="button" @click="removeDetailImage(index, imageIndex)">移除</button>
                 </div>
+              </div>
+              <div v-for="(detail, index) in batchDetails" :key="index" class="form-group">
+                <label :for="'isPrize' + index" class="form-label">是否為大獎</label>
+                <input :id="'isPrize' + index" type="checkbox" class="form-checkbox" v-model="detail.isPrize"
+                  :checked="detail.isPrize === 'true'" :disabled="detail.isPrize === 'true'" />
               </div>
               <button type="button" @click="removeDetailFromBatch(index)">移除</button>
             </div>
@@ -374,8 +380,8 @@
             </div>
             <div v-if="currentProductType === ProductType.PRIZE || currentProductType === ProductType.CUSTMER_PRIZE">
               <label for="detailProbability">機率</label>
-              <input id="detailProbability" v-model.number="detailForm.probability" type="number" step="0.01" min="0.01"
-                max="0.99" @blur="checkProbability2">
+              <input id="detailProbability" v-model.number="detailForm.probability" type="number" step="0.0001"
+                min="0.0001" max="0.9999" @blur="checkProbability2">
             </div>
 
 
@@ -390,6 +396,14 @@
                 <button type="button" @click="removeDetailImage(index)">移除</button>
               </div>
             </div>
+            <div class="form-group">
+              <label for="isPrize" class="form-label">是否為大獎</label>
+              <input id="isPrize" type="checkbox" class="form-checkbox" v-model="detailForm.isPrize"
+                :checked="detailForm.isPrize === 'true'"
+                @change="console.log('isPrize changed:', detailForm.isPrize)" />
+
+            </div>
+
           </div>
           <button type="submit">{{ editingDetail ? '更新' : '新增' }}</button>
           <button type="button" @click="closeDetailModal">取消</button>
@@ -422,21 +436,23 @@ const duplicateProduct = async (productId: any) => {
   }
 };
 
-const checkProbability = (detail: { probability: number; }) => {
-  if (detail.probability > 0.99) {
-    detail.probability = 0.99;
-  } else if (detail.probability < 0.01) {
-    detail.probability = 0.01;
-  }
-}
-
-const checkProbability2 = () => {
-  if (detailForm.probability > 0.99) {
-    detailForm.probability = 0.99;
-  } else if (detailForm.probability < 0.01) {
-    detailForm.probability = 0.01;
+const checkProbability = (detail) => {
+  if (detail.probability > 0.9999) {
+    detail.probability = 0.9999;
+  } else if (detail.probability < 0.0001) {
+    detail.probability = 0.0001;
   }
 };
+
+
+const checkProbability2 = () => {
+  if (detailForm.probability > 0.9999) {
+    detailForm.probability = 0.9999;
+  } else if (detailForm.probability < 0.0001) {
+    detailForm.probability = 0.0001;
+  }
+};
+
 
 // 數據
 const products = ref<ProductRes[]>([]);
@@ -503,7 +519,7 @@ const productForm = reactive<ProductReq>({
   status: ProductStatus.NOT_AVAILABLE_YET,
   specification: '',
   categoryId: null,
-  bannerImageUrl: [],
+  bannerImageUrl: []
 });
 
 const productTypeOptions: Record<ProductType, string> = {
@@ -537,7 +553,8 @@ const detailForm = reactive<DetailReq & { size?: number }>({
   height: 2,
   specification: '',
   probability: 0.0,
-  size: 10
+  size: 10,
+  isPrize: 'false',
 });
 
 // 生命週期鉤子
@@ -958,7 +975,8 @@ const resetDetailForm = () => {
     height: 2,
     specification: '',
     probability: 0.0,
-    size: 10
+    size: 10,
+    isPrize: 'false'
   });
 };
 
@@ -1035,12 +1053,12 @@ const updateDimensions = (detail: DetailReq & { size?: number }) => {
 
 const calculateSize = (length: number, width: number): number => {
   const calculatedSize = (length + width) + 10;  // 计算长度和宽度的总和并加上10
-  
+
   // 如果计算出的size小于20，直接返回10
   if (calculatedSize < 20) {
     return 10;
   }
-  
+
   // 否则返回正常的size，并且限制在10到200之间
   return Math.min(200, Math.max(10, calculatedSize));
 };
@@ -1278,5 +1296,36 @@ input[type="file"] {
   .batch-item {
     padding: 10px;
   }
+}
+
+/* 通用表單組樣式 */
+.form-group {
+  display: flex;
+  align-items: center;
+  /* 垂直置中 */
+  gap: 10px;
+  /* 元素間距 */
+  margin-bottom: 15px;
+  /* 底部間距 */
+}
+
+/* 標籤樣式 */
+.form-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-right: 10px;
+  /* 與勾選框間距 */
+  white-space: nowrap;
+  /* 避免標籤換行 */
+}
+
+/* 勾選框樣式 */
+.form-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #007bff;
+  /* 改變勾選框顏色（支持的瀏覽器） */
 }
 </style>

@@ -47,7 +47,10 @@ $root-block-name: '.header';
       word-break: keep-all;
       position: absolute;
       width: max-content;
-      animation: marquee 20s linear infinite;
+      animation-name: marquee;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      
     }
 
     &--sticky {
@@ -197,9 +200,9 @@ $root-block-name: '.header';
 
 @keyframes marquee {
   from {
-    transform: translateX(150%);
+    transform: translateX(50%);
   }
   to {
-    transform: translateX(-150%);
+    transform: translateX(-200%);
   }
 }

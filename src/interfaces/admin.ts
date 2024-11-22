@@ -16,6 +16,7 @@ export interface JWTAuthResponse {
 }
 
 export interface ApiResponse<T> {
+  map(arg0: (item: any) => any): Record<string, any>[];
   code: number;
   message: string | null;
   data: T | null;
