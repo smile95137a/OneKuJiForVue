@@ -6,12 +6,12 @@
       <select id="reportType" v-model="selectedReport" @change="resetDateAndFetchData">
         <option value="DRAW_AMOUNT">開獎金額報表</option>
         <option value="TOTAL_CONSUMPTION">消費總額報表</option>
-        <option value="TOTAL_DEPOSIT">存款總額報表</option>
-        <option value="USER_UPDATE_LOG">用戶更新日誌</option>
+        <option value="TOTAL_DEPOSIT">儲值總額報表</option>
+        <option value="USER_UPDATE_LOG">發放銀幣紅利報表</option>
         <option value="DAILY_SIGN_IN">每日簽到報表</option>
         <option value="SLIVER_COIN_RECYCLE">銀幣回收報表</option>
         <option value="PRIZE_RECYCLE_REPORT">獎品回收報表</option>
-        <option value="DRAW_RESULT_SUMMARY">開獎結果摘要</option>
+        <option value="DRAW_RESULT_SUMMARY">開獎結果報表</option>
       </select>
 
       <label for="groupType">分組類型：</label>
@@ -155,16 +155,15 @@ const fetchReportData = async (): Promise<void> => {
     reportData.value = [];
   }
 };
-
 const reportNameMap: { [key: string]: string } = {
   DRAW_AMOUNT: '開獎金額報表',
   TOTAL_CONSUMPTION: '消費總額報表',
-  TOTAL_DEPOSIT: '存款總額報表',
-  USER_UPDATE_LOG: '用戶更新日誌',
+  TOTAL_DEPOSIT: '儲值總額報表',
+  USER_UPDATE_LOG: '發放銀幣紅利報表',
   DAILY_SIGN_IN: '每日簽到報表',
   SLIVER_COIN_RECYCLE: '銀幣回收報表',
   PRIZE_RECYCLE_REPORT: '獎品回收報表',
-  DRAW_RESULT_SUMMARY: '開獎結果摘要',
+  DRAW_RESULT_SUMMARY: '開獎結果報表',
 };
 
 const exportToExcel = async (): Promise<void> => {
