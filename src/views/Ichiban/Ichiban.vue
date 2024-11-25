@@ -60,12 +60,15 @@ const filteredProducts = computed(() => {
 
   return products.value.filter(
     (product) =>
-      product.status === 'AVAILABLE' &&
-      product.productType === 'PRIZE' &&
-      product.prizeCategory === buttonCategory &&
-      (selectedTypes.value.length === 0 ||
-        selectedTypes.value.includes(product.categoryUUid)) &&
-      product.productName.toLowerCase().includes(searchTerm.value.toLowerCase())
+      product.status === 'AVAILABLE' ||
+      (product.status === 'NOT_AVAILABLE_YET' &&
+        product.productType === 'PRIZE' &&
+        product.prizeCategory === buttonCategory &&
+        (selectedTypes.value.length === 0 ||
+          selectedTypes.value.includes(product.categoryUUid)) &&
+        product.productName
+          .toLowerCase()
+          .includes(searchTerm.value.toLowerCase()))
   );
 });
 

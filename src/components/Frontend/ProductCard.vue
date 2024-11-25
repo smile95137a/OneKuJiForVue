@@ -2,7 +2,7 @@
   <div :class="['productCard', customClass]">
     <div
       class="productCard__soldoutImg"
-      v-if="product.productType === 'NOT_AVAILABLE_YET'"
+      v-if="product.status === 'NOT_AVAILABLE_YET'"
     >
       <img :src="soldoutImg" />
     </div>
