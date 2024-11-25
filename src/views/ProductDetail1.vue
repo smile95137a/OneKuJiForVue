@@ -577,12 +577,21 @@ const handleExchange = async (exchangeType: number) => {
       loadingStore.startLoading();
       let res;
       if (isCustmerPrize.value) {
-        res = await redeemCode({
-          productId,
-          prizeNumbers: activeTickets.value?.map((x) => x.number),
-          exchangeType,
-          code: inputCode.value,
-        });
+        if (!inputCode.value) {
+          dialogStore.openInfoDialog({
+            title: '系統通知',
+            message: '請輸入代碼',
+          });
+          loadingStore.stopLoading();
+          return;
+        } else {
+          res = await redeemCode({
+            productId,
+            prizeNumbers: activeTickets.value?.map((x) => x.number),
+            exchangeType,
+            code: inputCode.value,
+          });
+        }
       } else {
         res = await executeDraw(
           productId,
