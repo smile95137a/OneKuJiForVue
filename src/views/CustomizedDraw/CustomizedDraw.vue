@@ -2,7 +2,6 @@
 import Card from '@/components/common/Card.vue';
 import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
-import { getAllCategories } from '@/services/frontend/productCategoryService';
 import { getProductByType, IProduct } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
