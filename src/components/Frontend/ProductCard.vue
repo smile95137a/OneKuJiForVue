@@ -1,5 +1,11 @@
 <template>
   <div :class="['productCard', customClass]">
+    <div
+      class="productCard__soldoutImg"
+      v-if="product.productType === 'NOT_AVAILABLE_YET'"
+    >
+      <img :src="soldoutImg" />
+    </div>
     <div class="productCard__img">
       <MImage :src="product.imageUrls[0]" />
       <ProductContentMain
@@ -31,6 +37,7 @@ import { defineProps } from 'vue';
 import ProductContentMain from '@/components/frontend/ProductContentMain.vue';
 import ProductContentMall from '@/components/frontend/ProductContentMall.vue';
 import MImage from '@/components/frontend/MImage.vue';
+import soldoutImg from '@/assets/image/soldout.png';
 
 interface IproductCardProps {
   index?: number;

@@ -6,7 +6,10 @@
         剩餘 <NumberFormatter :number="product.detailQuantity || 0" />抽
       </p>
     </div>
-    <div class="productCard__img-detail">
+    <div
+      class="productCard__img-detail"
+      v-if="product.productType !== 'CUSTMER_PRIZE'"
+    >
       <div
         class="productCard__img-price"
         v-if="product.prizeCategory !== 'BONUS'"

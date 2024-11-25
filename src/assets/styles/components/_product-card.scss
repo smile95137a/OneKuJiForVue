@@ -17,6 +17,7 @@ $root-block-name: '.productCard';
 
   border-radius: 30px;
   overflow: hidden;
+  position: relative;
 
   &--style2 {
     border-radius: 60px;
@@ -51,6 +52,12 @@ $root-block-name: '.productCard';
       background-color: #ffe7cc;
       @include line-clamp(2);
     }
+  }
+
+  &__soldoutImg {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
   }
   &__rank {
     width: 68px;
