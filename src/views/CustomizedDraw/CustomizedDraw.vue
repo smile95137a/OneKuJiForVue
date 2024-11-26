@@ -19,7 +19,8 @@ const allLoaded = ref(false);
 const filteredProducts = computed(() => {
   return products.value.filter(
     (product) =>
-      product.status === 'AVAILABLE' &&
+      (product.status === 'AVAILABLE' ||
+        product.status === 'NOT_AVAILABLE_YET') &&
       product.productName.toLowerCase().includes(searchTerm.value.toLowerCase())
   );
 });
