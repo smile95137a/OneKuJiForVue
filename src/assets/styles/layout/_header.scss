@@ -28,12 +28,10 @@ $root-block-name: '.header';
 
   &__marquee {
     @include w_h(100%, 81px);
-    @include flex(center, center);
-    background: #ffce58;
+    @include flex(center);
     overflow: hidden;
-    padding: 0 38px;
-
-    position: relative;
+    white-space: nowrap;
+    background: #ffce58;
 
     @include screen(md) {
       padding: 0 4%;
@@ -44,13 +42,12 @@ $root-block-name: '.header';
     #{$p__text} {
       font-size: 18px;
       font-weight: 400;
-      word-break: keep-all;
       position: absolute;
+      left: 100vw;
       width: max-content;
       animation-name: marquee;
       animation-timing-function: linear;
       animation-iteration-count: infinite;
-      
     }
 
     &--sticky {
@@ -200,9 +197,9 @@ $root-block-name: '.header';
 
 @keyframes marquee {
   from {
-    transform: translateX(50%);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translateX(-200%);
+    transform: translate3d(calc(-100% - 100vw), 0, 0);
   }
 }
