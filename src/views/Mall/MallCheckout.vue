@@ -803,7 +803,7 @@ const loadCartItems = async () => {
       getUserInfo(),
       getCart(),
     ]);
-
+    loadingStore.stopLoading();
     const { data: userInfo } = userInfoResponse;
     const {
       phoneNumber,

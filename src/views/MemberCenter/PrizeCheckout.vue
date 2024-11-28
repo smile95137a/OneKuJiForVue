@@ -789,7 +789,7 @@ const loadCartItems = async () => {
       getUserInfo(),
       getPrizeCart(),
     ]);
-
+    loadingStore.stopLoading();
     const { data: userInfo } = userInfoResponse;
     const {
       phoneNumber,
@@ -816,7 +816,7 @@ const loadCartItems = async () => {
       if (!data || data.length === 0) {
         await dialogStore.openInfoDialog({
           title: '系統通知',
-          message: '系統錯誤',
+          message: '賞品盒無賞品，跳轉至首頁',
         });
         router.push('/home');
       }
