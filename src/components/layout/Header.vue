@@ -149,12 +149,15 @@ const calculateAnimationDuration = computed(() => {
   return () => {
     const data = marqueeMessageData.value;
 
-    const aa = data.map(x=> getMarqueeMsg(x.list))
-    
-    const baseDuration = 1; // 基础时间（秒）
-    const lengthFactor = .5; // 每个字符的增量时间（秒）
-    const textLength = aa.join('').length; // 计算文本长度
-    return `${baseDuration + textLength * lengthFactor}s`; // 返回计算后的时间
+    const textList = data.map((x) => getMarqueeMsg(x.list));
+    const concatenatedText = textList.join('');
+    const textLength = concatenatedText.length;
+
+    const baseDuration = 1;
+    const targetSpeed = 20;
+
+    const duration = textLength / targetSpeed;
+    return `${Math.max(duration, baseDuration)}s`;
   };
 });
 </script>
@@ -268,8 +271,11 @@ const calculateAnimationDuration = computed(() => {
       v-if="marqueeMessageData.length > 0"
       :class="{ 'header__marquee--sticky': isSticky }"
     >
-      <p class="header__text" :style="{ animationDuration: calculateAnimationDuration() }">
-        <span v-for="(item, index) in marqueeMessageData" :key="index" >
+      <p
+        class="header__text"
+        :style="{ animationDuration: calculateAnimationDuration() }"
+      >
+        <span v-for="(item, index) in marqueeMessageData" :key="index">
           🎉恭喜🎉
           <span :style="{ color: getColor(0), fontWeight: 'bold' }">{{
             item.title
