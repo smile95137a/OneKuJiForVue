@@ -830,6 +830,10 @@ const loadCartItems = async () => {
 
     if (success) {
       if (!data || data.length === 0) {
+        await dialogStore.openInfoDialog({
+          title: '系統通知',
+          message: '購物車無商品，跳轉至首頁',
+        });
         router.push('/home');
       } else {
         items.value = data.map((item) => {

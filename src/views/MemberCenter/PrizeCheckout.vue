@@ -814,6 +814,10 @@ const loadCartItems = async () => {
     setFieldValue('billingArea', area || '');
     if (success) {
       if (!data || data.length === 0) {
+        await dialogStore.openInfoDialog({
+          title: '系統通知',
+          message: '系統錯誤',
+        });
         router.push('/home');
       }
 
