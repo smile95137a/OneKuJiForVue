@@ -153,11 +153,13 @@ const calculateAnimationDuration = computed(() => {
     const concatenatedText = textList.join('');
     const textLength = concatenatedText.length;
 
-    const baseDuration = 1;
-    const targetSpeed = 20;
+    const targetSpeed = 100;
+    const containerWidth = window.innerWidth;
 
-    const duration = textLength / targetSpeed;
-    return `${Math.max(duration, baseDuration)}s`;
+    const totalDistance = Math.max(containerWidth, textLength * 10);
+    const duration = totalDistance / targetSpeed;
+
+    return `${duration}s`;
   };
 });
 </script>
