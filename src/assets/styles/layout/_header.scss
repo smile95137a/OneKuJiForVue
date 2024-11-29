@@ -32,6 +32,7 @@ $root-block-name: '.header';
     overflow: hidden;
     white-space: nowrap;
     background: #ffce58;
+    position: relative;
 
     @include screen(md) {
       padding: 0 4%;
