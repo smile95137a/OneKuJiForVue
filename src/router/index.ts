@@ -25,6 +25,7 @@ import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
 import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
 import Promo from '@/views/Promo/Promo.vue';
+import RestPwd from '@/views/RestPwd/RestPwd.vue';
 
 import PurchaseHistory from '@/views/MemberCenter/PurchaseHistory.vue';
 import Rewards from '@/views/MemberCenter/Rewards.vue';
@@ -55,6 +56,10 @@ import RedemptionCodeList from '@/components/backend/RedemptionCodeList.vue';
 import Shipcontrol from '@/components/backend/shipcontrol.vue';
 import Vendor from '@/components/backend/vendor.vue';
 const routes: Array<RouteRecordRaw> = [
+  {
+    path: '/restPwd/:token',
+    component: RestPwd,
+  },
   {
     path: '/paymentCBO',
     component: PaymentCBO,

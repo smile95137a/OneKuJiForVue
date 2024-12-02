@@ -1,0 +1,181 @@
+$root-block-name: '.restPwdDialog';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+
+  @include w_h(100%, 100%);
+  @include flex(null, null, column);
+
+  &__form {
+    width: 100%;
+    &-inputs {
+    }
+    #{$p__text} {
+      color: #212121;
+      &--error {
+        color: #fe4206;
+      }
+    }
+
+    &-input {
+      @include w_h(100%, 50px);
+      padding: 14px 20px;
+      border-radius: 8px;
+      border: 1px solid #d4d4d4;
+      &--error {
+        border: 1px solid #fe4206;
+      }
+    }
+  }
+  &__header {
+    @include w_h(100%, 72px);
+    background: #fed706;
+    position: relative;
+    border-radius: 18px 18px 0 0;
+    &::after {
+      content: '';
+      display: flex;
+      position: absolute;
+      width: 320px;
+      height: 98px;
+      border-radius: 40px;
+      bottom: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fed706;
+    }
+  }
+
+  &__logo {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9;
+    &-img {
+      @include w_h(255px, 255px);
+    }
+  }
+
+  &__close {
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    z-index: 9;
+    transform: translateY(-50%);
+    &-img {
+      @include w_h(255px, 255px);
+    }
+  }
+
+  &__main {
+    flex: 1;
+    background: #ffe7cc;
+    border-radius: 0 0 18px 18px;
+    padding: 48px 24px 24px 24px;
+    @include flex(null, null, column);
+
+    &-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    &-product {
+      margin-top: 40px;
+      height: 300px;
+      overflow: auto;
+
+      @include screen(lg) {
+        height: 200px;
+      }
+
+      &-divider {
+        width: 100%;
+        height: 1px;
+        background: #cf8046;
+        position: relative;
+        #{$p__text} {
+          position: absolute;
+          @include abs-center;
+          background: #ffe7cc;
+          color: #cf8046;
+          font-size: 24px;
+          padding: 0 24px;
+        }
+      }
+    }
+
+    &-btns {
+      @include flex(center, center);
+      gap: 24px;
+    }
+
+    &-btn {
+      width: 168px;
+      height: 54px;
+      border-radius: 50px;
+      border: 2px solid #000;
+      opacity: 0px;
+      @include flex(center, center);
+
+      font-size: 25px;
+      font-weight: 400;
+
+      &--cancel {
+        background: #fed706;
+      }
+      &--confirm {
+        color: #fff;
+        background: #fe4206;
+      }
+    }
+
+    &-balance {
+      @include flex(center, center);
+      padding-bottom: 20px;
+      @include screen(lg) {
+        padding-bottom: 12px;
+        border-bottom: 1px solid #cf8046;
+      }
+    }
+
+    &-count {
+      @include flex(center, center);
+      padding-bottom: 20px;
+      @include screen(lg) {
+        padding-bottom: 12px;
+        border-bottom: 1px solid #cf8046;
+      }
+    }
+    &-total {
+      @include flex(center, center);
+      padding-bottom: 20px;
+      @include screen(lg) {
+        padding-bottom: 12px;
+        grid-column: 1/-1;
+      }
+    }
+  }
+
+  &__text {
+    font-size: 20px;
+    font-weight: 400;
+    &--red {
+      font-size: 64px;
+      font-weight: 400;
+      color: #fe4206;
+    }
+
+    &--num {
+      font-size: 20px;
+      font-weight: 400;
+      color: #cf8046;
+    }
+
+    &--bold {
+      font-weight: 800;
+    }
+  }
+}

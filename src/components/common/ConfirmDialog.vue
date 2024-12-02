@@ -1,7 +1,7 @@
 <template>
   <Dialog
     :isOpen="isOpen"
-    :customClass="['dialog--confirmDialog', customClass]"
+    :customClass="['dialog--confirmDialog', customClass].join(' ')"
     @close="handleClose"
   >
     <div class="confirmDialog">

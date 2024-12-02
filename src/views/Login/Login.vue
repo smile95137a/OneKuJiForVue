@@ -46,7 +46,12 @@
           </div>
 
           <div class="login__forgot">
-            <p class="login__text login__text--forgot">忘記密碼?</p>
+            <p
+              class="login__text login__text--forgot"
+              @click="handleForgotPassword"
+            >
+              忘記密碼?
+            </p>
           </div>
 
           <div class="login__btns">
@@ -152,6 +157,10 @@ const forwardRegistration = () => {
 
 const handleOauthLogin = (provider: string) => {
   location.href = getLoginUrl(provider);
+};
+
+const handleForgotPassword = async () => {
+  await dialogStore.openRestPwdDialog({ customClass: '' });
 };
 </script>
 
