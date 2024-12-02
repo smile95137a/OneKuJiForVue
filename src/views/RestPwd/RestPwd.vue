@@ -1,6 +1,6 @@
 <template>
   <div>
-    <RestPwdForm />
+    <RestPwdForm v-if="isActiveUrl" />
   </div>
 </template>
 
@@ -8,7 +8,6 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import RestPwdForm from '@/components/frontend/rest-pwd/RestPwdForm.vue';
-import RestPwdUnauth from '@/components/frontend/rest-pwd/RestPwdUnauth.vue';
 import { verifyPasswordToken } from '@/services/frontend/passwordResetService';
 import { useDialogStore } from '@/stores';
 

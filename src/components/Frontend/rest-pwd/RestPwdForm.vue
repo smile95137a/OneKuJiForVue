@@ -1,42 +1,56 @@
 <template>
-  <div class="restPwdForm">
-    <div class="restPwdForm__header">
-      <h1>重置密碼</h1>
-      <p>請輸入新密碼以完成重置。</p>
+  <Card customClass="mcard--login">
+    <template #header>
+      <MCardHeader title="重置密碼" />
+    </template>
+    <div class="login__container">
+      <div class="login__main">
+        <form class="login__form" @submit.prevent="onSubmit">
+          <div class="login__form-inputs">
+            <p class="login__text">新密碼</p>
+
+            <input
+              id="password"
+              type="password"
+              v-model="password"
+              class="login__form-input"
+              :class="{ 'login__form-input--error': errors.password }"
+              placeholder="輸入新密碼"
+            />
+
+            <p class="login__text login__text--error">
+              {{ errors.password }}
+            </p>
+          </div>
+          <div class="login__form-inputs">
+            <p class="login__text">確認密碼</p>
+
+            <input
+              id="confirmPassword"
+              type="password"
+              v-model="confirmPassword"
+              class="login__form-input"
+              :class="{ 'restPwdForm__input--error': errors.confirmPassword }"
+              placeholder="再次輸入新密碼"
+            />
+
+            <p class="login__text login__text--error">
+              {{ errors.confirmPassword }}
+            </p>
+          </div>
+
+          <div class="login__btns">
+            <button type="submit" class="login__btn">登入</button>
+          </div>
+        </form>
+      </div>
     </div>
-    <form @submit.prevent="onSubmit" class="restPwdForm__form">
-      <div class="restPwdForm__field">
-        <label for="password" class="restPwdForm__label">新密碼</label>
-        <input
-          id="password"
-          type="password"
-          v-model="password"
-          class="restPwdForm__input"
-          :class="{ 'restPwdForm__input--error': errors.password }"
-          placeholder="輸入新密碼"
-        />
-        <p class="restPwdForm__error">{{ errors.password }}</p>
-      </div>
-      <div class="restPwdForm__field">
-        <label for="confirmPassword" class="restPwdForm__label">確認密碼</label>
-        <input
-          id="confirmPassword"
-          type="password"
-          v-model="confirmPassword"
-          class="restPwdForm__input"
-          :class="{ 'restPwdForm__input--error': errors.confirmPassword }"
-          placeholder="再次輸入新密碼"
-        />
-        <p class="restPwdForm__error">{{ errors.confirmPassword }}</p>
-      </div>
-      <div class="restPwdForm__actions">
-        <button type="submit" class="restPwdForm__btn">提交</button>
-      </div>
-    </form>
-  </div>
+  </Card>
 </template>
 
 <script lang="ts" setup>
+import Card from '@/components/common/Card.vue';
+import MCardHeader from '@/components/common/MCardHeader.vue';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDialogStore } from '@/stores';
@@ -107,86 +121,3 @@ const onSubmit = async () => {
   }
 };
 </script>
-
-<style scoped>
-.restPwdForm {
-  max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.restPwdForm__header {
-  margin-bottom: 20px;
-}
-
-.restPwdForm__header h1 {
-  font-size: 24px;
-  color: #333;
-}
-
-.restPwdForm__header p {
-  font-size: 16px;
-  color: #666;
-}
-
-.restPwdForm__form {
-  display: flex;
-  flex-direction: column;
-}
-
-.restPwdForm__field {
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.restPwdForm__label {
-  display: block;
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 8px;
-}
-
-.restPwdForm__input {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.restPwdForm__input--error {
-  border-color: red;
-}
-
-.restPwdForm__error {
-  font-size: 12px;
-  color: red;
-  margin-top: 4px;
-}
-
-.restPwdForm__actions {
-  margin-top: 20px;
-}
-
-.restPwdForm__btn {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.restPwdForm__btn:hover {
-  background-color: #0056b3;
-}
-</style>
