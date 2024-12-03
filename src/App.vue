@@ -10,6 +10,7 @@
     <Footer v-if="route.meta.layout !== 'admin'" />
   </div>
   <ConfirmDialog v-if="dialogStore.isConfirmDialogOpen" />
+  <YesOrNoDialog v-if="dialogStore.isYesNoDialogOpen" />
   <RestPwdDialog v-if="dialogStore.isRestPwdDialogOpen" />
   <OneKuJiDialog />
   <InfoDialog />
@@ -21,6 +22,7 @@
 import Footer from '@/components/layout/Footer.vue';
 import Header from '@/components/layout/Header.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import YesOrNoDialog from '@/components/common/YesOrNoDialog.vue';
 import RestPwdDialog from '@/components/common/RestPwdDialog.vue';
 import { useRoute } from 'vue-router';
 import OneKuJiDialog from './components/common/OneKuJiDialog.vue';

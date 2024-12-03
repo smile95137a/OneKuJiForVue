@@ -839,22 +839,28 @@ const loadCartItems = async () => {
 };
 
 const deleteProduct = async (item: any) => {
-  try {
-    loadingStore.startLoading();
+  const result = await dialogStore.openYesNoDialog({
+    title: '系統通知',
+    message: '是否確認進行賞品回收？',
+  });
+  if (result) {
+    try {
+      loadingStore.startLoading();
 
-    const response = await removePrizeCartItem(item.prizeCartItemId);
-    loadingStore.stopLoading();
-    if (response.success) {
-      // 重新加載購物車項以更新UI
-      await loadCartItems();
-    } else {
-      console.error('刪除購物車項失敗:', response.message);
+      const response = await removePrizeCartItem(item.prizeCartItemId);
+      loadingStore.stopLoading();
+      if (response.success) {
+        // 重新加載購物車項以更新UI
+        await loadCartItems();
+      } else {
+        console.error('刪除購物車項失敗:', response.message);
+      }
+    } catch (error) {
+      loadingStore.stopLoading();
+      console.error('刪除購物車項時發生錯誤:', error);
     }
-  } catch (error) {
     loadingStore.stopLoading();
-    console.error('刪除購物車項時發生錯誤:', error);
   }
-  loadingStore.stopLoading();
 };
 
 onMounted(async () => {
@@ -1034,23 +1040,29 @@ const selectAllItems = () => {
 };
 
 const recycleItems = async () => {
-  const selectedItems = items.value.filter((item) => item.isSelected);
-  for (const item of selectedItems) {
-    try {
-      loadingStore.startLoading();
+  const result = await dialogStore.openYesNoDialog({
+    title: '系統通知',
+    message: '是否確認進行賞品回收？',
+  });
+  if (result) {
+    const selectedItems = items.value.filter((item) => item.isSelected);
+    for (const item of selectedItems) {
+      try {
+        loadingStore.startLoading();
 
-      const response = await removePrizeCartItem(item.prizeCartItemId);
-      loadingStore.stopLoading();
-      if (response.success) {
-        await loadCartItems();
-      } else {
-        console.error('刪除購物車項失敗:', response.message);
+        const response = await removePrizeCartItem(item.prizeCartItemId);
+        loadingStore.stopLoading();
+        if (response.success) {
+          await loadCartItems();
+        } else {
+          console.error('刪除購物車項失敗:', response.message);
+        }
+      } catch (error) {
+        loadingStore.stopLoading();
+        console.error('刪除購物車項時發生錯誤:', error);
       }
-    } catch (error) {
       loadingStore.stopLoading();
-      console.error('刪除購物車項時發生錯誤:', error);
     }
-    loadingStore.stopLoading();
   }
 };
 </script>
