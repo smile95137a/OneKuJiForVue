@@ -764,7 +764,7 @@ const onSubmit = handleSubmit(async (values: any) => {
         appendField('Pay_Mode_No', '2');
         appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
         appendField('Order_No', data.orderNumber);
-        appendField('Amount', values.amount);
+        appendField('Amount', finalAmount.value);
         appendField('Buyer_Name', userInfo.nickname);
         appendField('Buyer_Telm', userInfo.phoneNumber);
         appendField('Buyer_Mail', userInfo.email);
