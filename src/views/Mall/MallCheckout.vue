@@ -732,6 +732,7 @@ const onSubmit = handleSubmit(async (values: any) => {
   try {
     loadingStore.startLoading();
     const { success, data } = await payCartItem(payCart);
+    const { data: userInfo } = await getUserInfo();
     loadingStore.stopLoading();
     if (success) {
       if (values.paymentMethod === 1) {
@@ -759,6 +760,37 @@ const onSubmit = handleSubmit(async (values: any) => {
         appendField('Return_url', `${window.location.origin}/paymentCBO`);
         document.body.appendChild(form);
         form.submit();
+      } else if (values.paymentMethod === 2) {
+        const form = document.createElement('form');
+        form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+        form.method = 'post';
+
+        // Helper to create and append form fields
+        const appendField = (name, value) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        };
+
+        // Set form fields
+        appendField('Send_Type', '4');
+        appendField('Pay_Mode_No', '2');
+        appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+        appendField('Order_No', data.orderNumber);
+        appendField('Amount', values.amount);
+        appendField('Buyer_Name', userInfo.nickname);
+        appendField('Buyer_Telm', userInfo.phoneNumber);
+        appendField('Buyer_Mail', userInfo.email);
+        appendField('Buyer_Memo', '儲值代幣');
+        appendField(
+          'Callback_Url',
+          'https://api.onemorelottery.tw:8081/payment/paymentCallback'
+        );
+        // Append the form to the body and submit it
+        document.body.appendChild(form);
+        form.submit();
       } else {
         router.push({
           name: 'MallOrderSuccess',
@@ -782,12 +814,38 @@ const onSubmit = handleSubmit(async (values: any) => {
 
 const validateForm = async () => {
   const { paymentMethod } = values;
+
   if (~~paymentMethod === 2) {
     const { data: userInfo } = await getUserInfo();
+
     if (!userInfo.addressName) {
       await dialogStore.openInfoDialog({
         title: '系統通知',
-        message: '使用轉帳付款時，請先填寫收件人資訊。',
+        message: '您選擇使用轉帳付款。請先至個人資料中填寫完整的收件地址。',
+      });
+      return false;
+    }
+
+    if (!userInfo.nickname) {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '您選擇使用轉帳付款。請先至個人資料中填寫收件人姓名。',
+      });
+      return false;
+    }
+
+    if (!userInfo.phoneNumber) {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '您選擇使用轉帳付款。請先至個人資料中填寫聯絡電話。',
+      });
+      return false;
+    }
+
+    if (!userInfo.email) {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '您選擇使用轉帳付款。請先至個人資料中填寫電子郵件地址。',
       });
       return false;
     }
