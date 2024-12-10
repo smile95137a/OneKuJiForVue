@@ -89,7 +89,7 @@ export interface DetailReq {
   height: number;
   specification: string;
   probability: number;
-  isPrize:string;
+  isPrize:boolean;
 }
 
 export interface DetailRes {

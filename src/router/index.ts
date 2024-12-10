@@ -5,11 +5,6 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 // 导入组件
 import About from '@/views/About/About.vue';
-import ProductDetail1 from '@/views/ProductDetail1.vue';
-import ProductDetail2 from '@/views/ProductDetail2.vue';
-import PaymentForm from '@/views/PaymentForm.vue';
-import PaymentCBO from '@/views/PaymentCBO.vue';
-import PaymentCB from '@/views/PaymentCB.vue';
 import CustomizedDraw from '@/views/CustomizedDraw/CustomizedDraw.vue';
 import Gacha from '@/views/Gacha/Gacha.vue';
 import Home from '@/views/Home/Home.vue';
@@ -24,6 +19,11 @@ import DrawHistory from '@/views/MemberCenter/DrawHistory.vue';
 import MemberCenter from '@/views/MemberCenter/MemberCenter.vue';
 import OrderHistory from '@/views/MemberCenter/OrderHistory.vue';
 import ProfileEdit from '@/views/MemberCenter/ProfileEdit.vue';
+import PaymentCB from '@/views/PaymentCB.vue';
+import PaymentCBO from '@/views/PaymentCBO.vue';
+import PaymentForm from '@/views/PaymentForm.vue';
+import ProductDetail1 from '@/views/ProductDetail1.vue';
+import ProductDetail2 from '@/views/ProductDetail2.vue';
 import Promo from '@/views/Promo/Promo.vue';
 import RestPwd from '@/views/RestPwd/RestPwd.vue';
 

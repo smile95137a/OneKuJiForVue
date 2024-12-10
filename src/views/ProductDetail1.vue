@@ -366,10 +366,10 @@ import ticketImgSP from '@/assets/image/ticket_SP.png';
 import ticketImgBlank from '@/assets/image/ticket_blank.png';
 import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
+import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import ProductCard2 from '@/components/frontend/ProductCard2.vue';
-import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import { PRODUCT_TYPE_LABELS } from '@/data/productTypeData';
 import {
   executeDraw,
@@ -382,9 +382,9 @@ import {
 } from '@/services/frontend/productDetailService';
 import { getProductById, IProduct } from '@/services/frontend/productService';
 import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue';
-import { useRoute } from 'vue-router';
 import moment from 'moment';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
@@ -610,14 +610,8 @@ const handleExchange = async (exchangeType: number) => {
         );
         activeTickets.value = [];
 
-        if (isCustmerPrize.value) {
-          await fetchDrawStatus();
-          await dialogStore.openInfoDialog({
-            title: '系統通知',
-            message: data,
-          });
-        } else {
-          const totalAmount = data.reduce(
+        
+          const totalAmount = isCustmerPrize.value? 0: data.reduce(
             (sum: number, item: any) => sum + item.amount,
             0
           );
@@ -632,7 +626,6 @@ const handleExchange = async (exchangeType: number) => {
               drawData: data,
             }
           );
-        }
       } else {
         await dialogStore.openInfoDialog({
           title: '系統通知',

@@ -2,186 +2,370 @@
   <div>
     <h1>兌換碼列表</h1>
 
-    <!-- 按鈕：生成新兌換碼 -->
-    <button @click="generateCode">生成新的兌換碼</button>
+    <!-- 按鈕：打開彈窗 -->
+    <button class="btn-primary" @click="openModal">生成新的兌換碼</button>
 
     <!-- 顯示新生成的兌換碼 -->
     <div v-if="newCode" class="alert alert-success">
       生成的兌換碼: <strong>{{ newCode }}</strong>
     </div>
 
+    <!-- 篩選按鈕 -->
+    <div class="filter-buttons">
+      <button class="btn-filter" :class="{ active: filter === 'all' }" @click="filter = 'all'">
+        全部
+      </button>
+      <button class="btn-filter" :class="{ active: filter === 'redeemed' }" @click="filter = 'redeemed'">
+        已兌換
+      </button>
+      <button class="btn-filter" :class="{ active: filter === 'notRedeemed' }" @click="filter = 'notRedeemed'">
+        未兌換
+      </button>
+    </div>
+
+    <!-- 篩選商品 -->
+    <div class="filter-dropdown">
+      <label for="productFilter">篩選產品：</label>
+      <select v-model="selectedFilterProductId" id="productFilter" class="dropdown" @change="filterRedemptionCodes">
+        <option value="">全部</option>
+        <option v-for="product in products" :key="product.productId" :value="product.productId">
+          {{ product.productName }}
+        </option>
+      </select>
+    </div>
+
     <!-- 顯示兌換碼列表 -->
-    <ul v-if="redemptionCodes.length > 0">
-      <li v-for="code in redemptionCodes" :key="code.id">
-        兌換碼: {{ code.code }} - 已兌換: {{ code.isRedeemed ? '是' : '否' }}
-        - 兌換時間: {{ code.redeemedAt ? formatDate(code.redeemedAt) : '尚未兌換' }}
-        - 用戶ID: {{ code.userId ? code.userId : '未指定' }}
+    <ul v-if="filteredRedemptionCodes.length > 0" class="code-list">
+      <li v-for="code in filteredRedemptionCodes" :key="code.id" class="code-item">
+        <span>兌換碼: <strong>{{ code.code }}</strong></span>
+        <span>已兌換: {{ code.isRedeemed ? '是' : '否' }}</span>
+        <span>兌換時間: {{ code.redeemedAt ? formatDate(code.redeemedAt) : '尚未兌換' }}</span>
+        <span>用戶ID: {{ code.userId ? code.userId : '未指定' }}</span>
+        <span>指定產品: {{ code.productName ? code.productName : '未指定' }}</span>
       </li>
     </ul>
-
     <div v-else>
       <p>目前沒有可顯示的兌換碼。</p>
+    </div>
+
+    <!-- 彈出式視窗 -->
+    <div v-if="isModalOpen" class="modal-backdrop">
+      <div class="modal">
+        <h2>選擇產品生成兌換碼</h2>
+        <select v-model="selectedProductId" class="dropdown">
+          <option value="" disabled>請選擇產品</option>
+          <option v-for="product in filteredProducts" :key="product.productId" :value="product.productId">
+            {{ product.productName }}
+          </option>
+        </select>
+        <div class="code-generator-container">
+          <div class="form-group">
+            <label for="codeCount" class="form-label">生成數量：</label>
+            <input type="number" v-model="codeCount" id="codeCount" min="1" class="form-input" />
+          </div>
+        </div>
+        <br />
+        <div class="modal-actions">
+          <button class="btn-primary" @click="generateCode">確認生成</button>
+          <button class="btn-secondary" @click="closeModal">取消</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { generateRedemptionCode, getAllRedemptionCodes } from '@/services/backend/redemptionCodeList'; // 引入 API 函数
+import {
+  fetchProducts,
+  generateRedemptionCode,
+  getAllRedemptionCodes
+} from "@/services/backend/redemptionCodeList";
+
 export default {
   data() {
     return {
-      redemptionCodes: [], // 儲存兌換碼列表
-      newCode: '',         // 新生成的兌換碼
+      redemptionCodes: [], // 全部兌換碼列表
+      products: [], // 商品列表
+      selectedFilterProductId: "", // 選中的商品ID
+      filter: "all", // 篩選條件
+      newCode: "", // 新生成的兌換碼
+      isModalOpen: false, // 控制彈窗
+      selectedProductId: "", // 彈窗中選中的商品ID
+      codeCount: 1, // 生成數量
+      filteredProducts: [],
     };
   },
+  computed: {
+    filteredRedemptionCodes() {
+      let codes = [...this.redemptionCodes];
+      if (this.selectedFilterProductId) {
+        codes = codes.filter((code) => code.productId === Number(this.selectedFilterProductId));
+      }
+      if (this.filter === "redeemed") {
+        codes = codes.filter((code) => code.isRedeemed);
+      } else if (this.filter === "notRedeemed") {
+        codes = codes.filter((code) => !code.isRedeemed);
+      }
+      return codes;
+    },
+  },
   created() {
-    // 當組件加載時，獲取所有兌換碼
+    this.fetchProducts();
     this.fetchRedemptionCodes();
+    this.fetchProductsF();
   },
   methods: {
+    async fetchProducts() {
+      try {
+        const response = await fetchProducts();
+        this.products = response.data.filter(
+          (product) => product.status === "AVAILABLE" || product.status === "NOT_AVAILABLE_YET"
+        );
+      } catch (error) {
+        console.error("獲取商品列表失敗：", error);
+      }
+    },
+    async fetchProductsF() {
+      try {
+        const response = await fetchProducts();
+        this.filteredProducts = response.data.filter(
+          (product) => product.status === "AVAILABLE" || product.status === "NOT_AVAILABLE_YET"
+        );
+      } catch (error) {
+        console.error("獲取產品列表失敗:", error);
+      }
+    },
     async fetchRedemptionCodes() {
       try {
-        // 从 API 获取兑换码列表
         const response = await getAllRedemptionCodes();
-        console.log(response);
-
-        console.log('获取的兌換碼資料:', response); // 打印响应数据
-        this.redemptionCodes = response.data; // 确保将数据赋值给 redemptionCodes
+        this.redemptionCodes = response.data;
       } catch (error) {
-        console.error('獲取兌換碼失敗:', error);
+        console.error("獲取兌換碼失敗：", error);
       }
     },
     async generateCode() {
+      if (!this.selectedProductId) {
+        alert("請選擇一個產品！");
+        return;
+      }
+      if (this.codeCount < 1) {
+        alert("生成數量無效！");
+        return;
+      }
       try {
-        // 從 API 獲取新生成的兌換碼
-        this.newCode = await generateRedemptionCode();
-        // 重新加載兌換碼列表
+        const response = await generateRedemptionCode(this.selectedProductId, this.codeCount);
+        this.newCode = response.data; // 假設API返回生成的代碼
         this.fetchRedemptionCodes();
+        this.closeModal();
       } catch (error) {
-        console.error('生成兌換碼失敗:', error);
+        console.error("生成失敗：", error);
+        alert("生成失敗！");
       }
     },
     formatDate(timestamp) {
-      // 檢查 timestamp 是否有效
-      if (!timestamp || isNaN(Number(timestamp))) {
-        return '無效的日期'; // 如果是無效的時間戳，返回這個錯誤提示
-      }
-
-      const dateObj = new Date(Number(timestamp)); // 將時間戳轉換為 Date 對象
-
-      const year = dateObj.getFullYear();
-      const month = dateObj.getMonth() + 1; // getMonth() 是從 0 開始的
-      const day = dateObj.getDate();
-      const hour = dateObj.getHours();
-      const minute = dateObj.getMinutes();
-      const second = dateObj.getSeconds();
-
-      const pad = (num) => num.toString().padStart(2, '0'); // 保證是兩位數
-
-      return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(minute)} 分 ${pad(second)} 秒`;
-    }
-  }
+      const date = new Date(Number(timestamp));
+      const pad = (n) => n.toString().padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(
+        date.getHours()
+      )}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    },
+    openModal() {
+      this.isModalOpen = true;
+    },
+    closeModal() {
+      this.isModalOpen = false;
+      this.selectedProductId = "";
+    },
+  },
 };
-
 </script>
 
+
 <style scoped>
-/* 整体布局样式 */
-div {
-  max-width: 600px;
-  margin: 20px auto;
+/* 基本页面样式 */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  margin: 0;
   padding: 20px;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
 }
 
-div:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-}
-
-/* 标题样式 */
 h1 {
-  color: #444;
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 1px;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+p {
+  font-size: 16px;
 }
 
 /* 按钮样式 */
 button {
-  background: linear-gradient(90deg, #007bff, #0056b3);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 12px 20px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
-  font-size: 16px;
-  font-weight: 600;
-  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+  font-size: 14px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
-button:hover {
-  background: linear-gradient(90deg, #0056b3, #007bff);
-  transform: scale(1.05);
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
 }
 
-/* Alert 消息样式 */
-.alert {
-  margin: 15px 0;
-  padding: 15px;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  border-radius: 8px;
-  color: #155724;
-  font-weight: bold;
-  position: relative;
-  transition: all 0.3s;
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
 }
 
 /* 列表样式 */
-ul {
+.code-list {
   list-style-type: none;
   padding: 0;
 }
 
-li {
-  background-color: #f8f9fa;
-  padding: 15px;
-  margin: 10px 0;
-  border: 1px solid #e0e0e0;
+.code-item {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.code-item span {
+  flex: 1;
+  font-size: 14px;
+}
+
+/* 弹窗背景 */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 弹窗样式 */
+.modal {
+  background: #fff;
   border-radius: 10px;
+  padding: 20px;
+  width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modal .dropdown {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.modal-actions {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  transition: background-color 0.3s, transform 0.2s;
+  margin-top: 20px;
 }
 
-li:hover {
-  background-color: #e9ecef;
-  transform: translateY(-2px);
+/* 整體容器樣式 */
+.code-generator-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px;
+  background-color: #f9f9f9;
+  /* 背景色 */
+  border: 1px solid #ddd;
+  /* 邊框 */
+  border-radius: 8px;
+  /* 圓角 */
+  max-width: 400px;
+  /* 最大寬度 */
+  margin: 0 auto;
+  /* 居中 */
 }
 
-/* 特殊状态文本样式 */
-.status {
-  font-style: italic;
-  color: #6c757d;
+/* 表單組樣式 */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
 }
 
-/* 兌換碼與用戶ID的樣式 */
-.code {
-  font-weight: bold;
-  font-size: 1.1rem;
+/* 標籤樣式 */
+.form-label {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
 }
 
-.userId {
-  color: #007bff;
-  font-weight: bold;
+/* 輸入框樣式 */
+.form-input {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #007BFF;
+  /* 聚焦時的邊框顏色 */
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
+}
+
+.filter-buttons {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.btn-filter {
+  padding: 10px 20px;
+  border: none;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-filter.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.filter-dropdown {
+  margin-bottom: 20px;
+}
+.dropdown {
+  padding: 8px;
+  font-size: 14px;
 }
 </style>

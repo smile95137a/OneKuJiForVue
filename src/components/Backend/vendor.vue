@@ -14,6 +14,7 @@
         <option value="DRAW_RESULT_SUMMARY">開獎結果報表</option>
       </select>
 
+
       <label for="groupType">分組類型：</label>
       <select id="groupType" v-model="groupType" @change="resetDateAndFetchData">
         <option value="day">日</option>
@@ -22,7 +23,6 @@
         <option value="year">年</option>
       </select>
 
-      <!-- 日期範圍選擇 -->
       <div v-if="requiresDateRange(selectedReport)">
         <label for="startDate">開始日期：</label>
         <input id="startDate" type="date" v-model="startDate" @change="fetchReportData" />
@@ -30,7 +30,6 @@
         <input id="endDate" type="date" v-model="endDate" @change="fetchReportData" />
       </div>
 
-      <!-- 查詢和匯出按鈕 -->
       <div class="action-buttons">
         <button @click="fetchReportData">查詢報表</button>
         <button @click="exportToExcel" class="export-button">匯出 Excel</button>
@@ -39,14 +38,14 @@
 
     <!-- 報表結果 -->
     <div class="report-results">
-      <table v-if="reportData.length">
+      <table v-if="pagedData.length">
         <thead>
           <tr>
-            <th v-for="key in Object.keys(reportData[0])" :key="key">{{ key }}</th>
+            <th v-for="key in Object.keys(pagedData[0])" :key="key">{{ key }}</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, index) in reportData" :key="index">
+          <tr v-for="(row, index) in pagedData" :key="index">
             <td v-for="(value, key) in row" :key="key">
               <img v-if="isImage(value)" :src="getFormattedImageUrl(value)" alt="圖片" class="product-image" />
               <span v-else>{{ value }}</span>
@@ -56,8 +55,18 @@
       </table>
       <p v-else>暫無數據</p>
     </div>
+
+    <!-- 分頁控制 -->
+    <div class="pagination" v-if="totalPages > 0">
+      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一頁</button>
+      <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">下一頁</button>
+    </div>
+
   </div>
 </template>
+
+
 
 <script lang="ts" setup>
 import { storeServices } from '@/services/backend/storeservice';
@@ -72,7 +81,10 @@ const groupType = ref<string>('month');
 const startDate = ref<string>('');
 const endDate = ref<string>('');
 const reportData = ref<Array<Record<string, any>>>([]);
-
+const PAGE_SIZE = 20; // 每頁顯示筆數
+const currentPage = ref(1); // 当前页
+const totalPages = ref(0); // 总页数
+const pagedData = ref([]); // 存储当前页的报表数据
 const requiresDateRange = (reportName: string): boolean => {
   const reportsWithDateRange: string[] = [
     'DRAW_AMOUNT',
@@ -85,6 +97,13 @@ const requiresDateRange = (reportName: string): boolean => {
     'DRAW_RESULT_SUMMARY',
   ];
   return reportsWithDateRange.includes(reportName);
+};
+
+const changePage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    fetchReportData();
+  }
 };
 
 const isImage = (value: string | string[]): boolean => {
@@ -109,6 +128,7 @@ const resetDateAndFetchData = (): void => {
     startDate.value = '';
     endDate.value = '';
   }
+  currentPage.value = 1;
   fetchReportData();
 };
 
@@ -128,6 +148,7 @@ const fetchReportData = async (): Promise<void> => {
       params.groupType
     );
 
+    // 处理返回的数据
     reportData.value = response.map((item: any) => {
       switch (item.日期分組) {
         case 'day':
@@ -146,15 +167,32 @@ const fetchReportData = async (): Promise<void> => {
       return item;
     });
 
+    // 排序数据
     reportData.value.sort((a, b) => {
       const order = ['日報', '週報', '月報', '年報'];
       return order.indexOf(a.日期分組) - order.indexOf(b.日期分組);
     });
+
+    // 计算总页数
+    totalPages.value = Math.ceil(reportData.value.length / PAGE_SIZE);
+
+    // 获取当前页的数据
+    const startIndex = (currentPage.value - 1) * PAGE_SIZE;
+    const endIndex = currentPage.value * PAGE_SIZE;
+    pagedData.value = reportData.value.slice(startIndex, endIndex);  // 当前页数据
+
   } catch (error) {
     console.error('查詢報表失敗:', error);
     reportData.value = [];
+    totalPages.value = 0;
+    currentPage.value = 1;
   }
 };
+
+
+
+
+
 const reportNameMap: { [key: string]: string } = {
   DRAW_AMOUNT: '開獎金額報表',
   TOTAL_CONSUMPTION: '消費總額報表',
@@ -308,5 +346,38 @@ p {
   font-size: 16px;
   color: #777;
 }
-</style>
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  margin: 0 5px;
+  border: 1px solid #ddd;
+  background-color: #f8f8f8;
+  color: #333;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.pagination button:hover {
+  background-color: #e7e7e7;
+}
+
+.pagination span {
+  margin: 0 10px;
+  font-size: 14px;
+  color: #333;
+}
+</style>

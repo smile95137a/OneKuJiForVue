@@ -78,7 +78,6 @@
 </template>
 
 <script setup lang="ts">
-import fbLogo from '@/assets/image/fb.svg';
 import googleLogo from '@/assets/image/google.svg';
 import p1 from '@/assets/image/login.png';
 import Card from '@/components/common/Card.vue';
@@ -121,22 +120,13 @@ const [password, passwordProps] = defineField('password');
 const onSubmit = handleSubmit(async (values) => {
   try {
     loadingStore.startLoading();
-    const { success, data, code } = await login(values);
+    const { success, data, code , message} = await login(values);
     loadingStore.stopLoading();
     if (success) {
       authStore.setToken(data.accessToken);
       authStore.setUser(data.user);
       router.push('/home');
     } else {
-      let message = '登入失敗，系統問題請聯繫管理員。';
-      if (code === '998') {
-        message =
-          '登入失敗，尚未認證，請至信箱收信，如未收到驗證信，請聯繫客服。';
-      } else if (code === '999') {
-        message = '登入失敗，請檢查您的帳號和密碼，然後再試一次。';
-      } else if (code === '997') {
-        message = '登入失敗，黑名單。';
-      }
       await dialogStore.openInfoDialog({
         title: '系統通知',
         message,

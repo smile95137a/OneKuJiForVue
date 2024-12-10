@@ -37,13 +37,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import NoData from '@/components/common/NoData.vue';
 import DateFormatter from '@/components/common/DateFormatter.vue';
+import NoData from '@/components/common/NoData.vue';
+import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import { getAllNews, News } from '@/services/frontend/newsService';
-import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const breadcrumbItems = [{ name: '首頁' }, { name: '最新消息' }];
 const newsList = ref<News[]>([]); // 定义为News类型数组

@@ -39,10 +39,6 @@
           <div class="footer__info-text">47075614</div>
         </div>
         <div class="footer__info">
-          <div class="footer__info-text">公司電話：</div>
-          <div class="footer__info-text">091234567</div>
-        </div>
-        <div class="footer__info">
           <div class="footer__info-text">公司名稱：</div>
           <div class="footer__info-text">再來一抽娛樂有限公司</div>
         </div>

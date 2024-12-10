@@ -1,6 +1,6 @@
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
-import { createHtmlPlugin } from 'vite-plugin-html'
+import { createHtmlPlugin } from 'vite-plugin-html';
 export default defineConfig({
   plugins: [
     vue(),
@@ -8,7 +8,7 @@ export default defineConfig({
       minify: true,
       inject: {
         data: {
-          title: '再來一抽',
+          title: '再來一抽線上一番賞-一番賞-萬代公仔-GK公仔-3C抽獎',
         },
       },
     }),

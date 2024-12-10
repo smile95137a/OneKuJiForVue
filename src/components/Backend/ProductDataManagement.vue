@@ -154,11 +154,11 @@
               </option>
             </select>
           </div>
-          <div v-if="productForm.prizeCategory !== PrizeCategory.BONUS">
+          <div v-if="productForm.prizeCategory !== PrizeCategory.BONUS && productForm.productType !== ProductType.CUSTMER_PRIZE">
             <label for="price">金幣價格</label>
             <input id="price" type="number" v-model.number="productForm.price" required>
           </div>
-          <div v-if="productForm.prizeCategory !== PrizeCategory.BONUS">
+          <div v-if="productForm.prizeCategory !== PrizeCategory.BONUS  && productForm.productType !== ProductType.CUSTMER_PRIZE">
             <label for="sliverPrice">銀幣價格</label>
             <input id="sliverPrice" type="number" v-model.number="productForm.sliverPrice" step="0.01" required>
           </div>
@@ -284,7 +284,7 @@
                 <label :for="'detailQuantity' + index">數量</label>
                 <input :id="'detailQuantity' + index" type="number" v-model.number="detail.quantity" required>
               </div>
-              <div v-if="currentProductType === ProductType.PRIZE">
+              <div v-if="currentProductType === ProductType.PRIZE || currentProductType === ProductType.CUSTMER_PRIZE">
                 <label :for="'detailGrade' + index">等級</label>
                 <select :id="'detailGrade' + index" v-model="detail.grade">
                   <option
@@ -328,10 +328,9 @@
                   <button type="button" @click="removeDetailImage(index, imageIndex)">移除</button>
                 </div>
               </div>
-              <div v-for="(detail, index) in batchDetails" :key="index" class="form-group">
+              <div class="form-group">
                 <label :for="'isPrize' + index" class="form-label">是否為大獎</label>
-                <input :id="'isPrize' + index" type="checkbox" class="form-checkbox" v-model="detail.isPrize"
-                  :checked="detail.isPrize === 'true'" :disabled="detail.isPrize === 'true'" />
+                <input :id="'isPrize' + index" type="checkbox" class="form-checkbox" v-model="detail.isPrize"/>
               </div>
               <button type="button" @click="removeDetailFromBatch(index)">移除</button>
             </div>
@@ -354,7 +353,7 @@
               <label for="detailQuantity">數量</label>
               <input id="detailQuantity" type="number" v-model.number="detailForm.quantity" required>
             </div>
-            <div v-if="currentProductType === ProductType.PRIZE">
+            <div v-if="currentProductType === ProductType.PRIZE || currentProductType === ProductType.CUSTMER_PRIZE">
               <label for="detailGrade">等級</label>
               <select id="detailGrade" v-model="detailForm.grade">
                 <option
@@ -430,7 +429,7 @@ const duplicateProduct = async (productId: any) => {
   try {
     const response = await productservice.copyProduct(productId);
     await fetchProducts();
-    // 這裡可以添加代碼來刷新商品列表，例如重新獲取產品數據
+    // 這裡可以添fetchProduct加代碼來刷新商品列表，例如重新獲取產品數據
   } catch (err) {
     alert(error.value); // 顯示錯誤信息
   }
@@ -532,7 +531,7 @@ const productTypeOptions: Record<ProductType, string> = {
 const productStatusOptions: Record<ProductStatus, string> = {
   [ProductStatus.AVAILABLE]: '上架',
   [ProductStatus.UNAVAILABLE]: '下架',
-  [ProductStatus.NOT_AVAILABLE_YET]: '未上架',
+  [ProductStatus.NOT_AVAILABLE_YET]: '上架大賞已售完',
   [ProductStatus.SOLD_OUT]: '上架已售完'
 };
 
@@ -609,9 +608,7 @@ const fetchProducts = async () => {
         .map(product => ({
           ...product,
           status: productStatusOptions[product.status as ProductStatus] || product.status
-        }))
-        .sort((a, b) => b.productId - a.productId); // 按 productId 降序排序，假設較大的 ID 表示較新的商品
-
+        }));
       const categoriesResponse = await productservice.getAllCategories();
       if (categoriesResponse.success) {
         // 使用 categoriesResponse.data.categories 获取类别数据
@@ -737,7 +734,8 @@ const openAddDetailModal = () => {
   batchDetails.value = [{
     ...detailForm,
     productId: currentProductId.value,
-    imageUrls: []
+    imageUrls: [],
+    isPrize: false,
   }];
   if (currentProductType.value === ProductType.GACHA || currentProductType.value === ProductType.BLIND_BOX) {
     batchDetails.value[0].probability = 1;
