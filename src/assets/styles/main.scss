@@ -664,3 +664,57 @@ $letter-spacing-nums: 100;
   overflow: hidden;
   height: 90vh;
 }
+/* 分頁容器 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-family: Arial, sans-serif;
+}
+
+/* 分頁按鈕的通用樣式 */
+.pagination button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* 當前頁碼的樣式 */
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+  cursor: default;
+}
+
+/* 禁用按鈕樣式 */
+.pagination button:disabled {
+  background-color: #e9ecef;
+  color: #aaa;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+/* 按鈕的 hover 效果 */
+.pagination button:not(.active):hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* 小型視窗自適應 */
+@media (max-width: 576px) {
+  .pagination {
+    gap: 0.25rem;
+  }
+
+  .pagination button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+  }
+}
