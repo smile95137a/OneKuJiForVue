@@ -2,16 +2,16 @@
   <div class="store-management">
     <h2 class="title">商店管理</h2>
 
-<!-- 類別篩選器 -->
-<div class="filter-category">
-  <label for="filterCategory" class="filter-label">篩選類別：</label>
-  <select id="filterCategory" v-model="selectedCategory" @change="filterProducts" class="filter-select">
-    <option value="">全部</option>
-    <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId.toString()">
-      {{ category.categoryName }}
-    </option>
-  </select>
-</div>
+    <!-- 類別篩選器 -->
+    <div class="filter-category">
+      <label for="filterCategory" class="filter-label">篩選類別：</label>
+      <select id="filterCategory" v-model="selectedCategory" @change="filterProducts" class="filter-select">
+        <option value="">全部</option>
+        <option v-for="category in categories" :key="category.categoryId" :value="category.categoryId.toString()">
+          {{ category.categoryName }}
+        </option>
+      </select>
+    </div>
 
     <button @click="showAddForm = true" class="btn btn-primary">新增商品</button>
 
@@ -33,7 +33,8 @@
           </div>
           <div class="form-group">
             <label for="stockQuantity">數量</label>
-            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1" required />
+            <input id="stockQuantity" type="number" v-model.number="productForm.stockQuantity" min="0" step="1"
+              required />
           </div>
           <div class="form-group">
             <label for="width">寬度</label>
@@ -117,7 +118,8 @@
       <tbody>
         <tr v-for="product in filteredProducts" :key="product.storeProductId">
           <td>
-            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片" class="product-image" />
+            <img v-if="product.imageUrl && product.imageUrl.length" :src="formatImage(product.imageUrl[0])" alt="商品圖片"
+              class="product-image" />
             <span v-else>無圖片</span>
           </td>
           <td>{{ product.productName }}</td>
@@ -139,7 +141,8 @@
     <div v-if="totalPages > 1" class="pagination">
       <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="btn btn-small">上一頁</button>
       <span>{{ currentPage }} / {{ totalPages }}</span>
-      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn btn-small">下一頁</button>
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages"
+        class="btn btn-small">下一頁</button>
     </div>
   </div>
 </template>
@@ -147,7 +150,7 @@
 <script lang="ts">
 import { StoreCategory, StoreProductReq, StoreProductRes, StoreProductStatus } from '@/interfaces/store';
 import { storeServices } from '@/services/backend/storeservice';
-import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
 
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 
@@ -163,6 +166,10 @@ export default defineComponent({
     const newCategoryName = ref('');
     const editingProduct = ref<StoreProductRes | null>(null);
     const cancelEdit = () => { resetForm(); };
+    const pageSize = 10; // 每頁顯示的商品數量
+    const currentPage = ref(1); // 當前頁碼
+    const totalPages = ref(0); // 總頁數
+    const paginatedProducts = ref([]); // 當前頁面顯示的商品
 
     const productForm = reactive<StoreProductReq & { newImages: File[], originalImages: string[] }>({
       productName: '',
@@ -185,31 +192,49 @@ export default defineComponent({
       details: '',
     });
 
-    const currentPage = ref(1);
-    const itemsPerPage = 15;
-
-    const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage));
-
-    const paginatedProducts = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return filteredProducts.value.slice(start, end);
-    });
-
     const fetchProducts = async () => {
       try {
         const response = await storeServices.getAllStoreProduct();
         if (response.success && Array.isArray(response.data)) {
-          products.value = response.data;
-          filterProducts();
+          products.value = response.data; // 全部商品數據
+          currentPage.value = 1; // 初始化頁碼
+          calculateTotalPages(); // 計算總頁數
+          updatePaginatedProducts(); // 更新分頁顯示
         } else {
           products.value = [];
+          totalPages.value = 0; // 重置總頁數
+          paginatedProducts.value = [];
         }
       } catch (error) {
         console.error('Error fetching products:', error);
         products.value = [];
+        totalPages.value = 0;
+        paginatedProducts.value = [];
       }
     };
+
+    // 計算總頁數
+    const calculateTotalPages = () => {
+      totalPages.value = Math.ceil(products.value.length / pageSize);
+    };
+
+    // 更新當前頁面的商品數據
+    const updatePaginatedProducts = () => {
+      const startIndex = (currentPage.value - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      paginatedProducts.value = products.value.slice(startIndex, endIndex);
+      console.log(paginatedProducts.value  , 1312312131);
+      
+    };
+
+    // 切換頁碼
+    const changePage = (page: number) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+        updatePaginatedProducts();
+      }
+    };
+
 
     const fetchCategories = async () => {
       try {
@@ -385,11 +410,6 @@ export default defineComponent({
       }
     };
 
-    const changePage = (page: number) => {
-      if (page >= 1 && page <= totalPages.value) {
-        currentPage.value = page;
-      }
-    };
 
     const getCategoryName = (categoryId: string) => {
       const category = categories.value.find(c => c.categoryId.toString() === categoryId);
@@ -410,7 +430,7 @@ export default defineComponent({
 
     const filterProducts = () => {
       if (selectedCategory.value === '') {
-        filteredProducts.value = products.value;
+        filteredProducts.value = paginatedProducts.value;
       } else {
         filteredProducts.value = products.value.filter(product => product.categoryId.toString() === selectedCategory.value);
       }
@@ -733,6 +753,7 @@ export default defineComponent({
   border: 1px solid #ddd;
   border-radius: 4px;
 }
+
 .filter-category {
   display: flex;
   align-items: center;
@@ -760,5 +781,4 @@ export default defineComponent({
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
   outline: none;
 }
-
 </style>
