@@ -85,11 +85,18 @@ const onSubmit = handleSubmit(async (values) => {
       });
       router.push('/home');
     } else {
-      console.log(message);
+      await dialogStore.openInfoDialog({
+        title: '系統消息',
+        message,
+      });
     }
   } catch (error) {
     loadingStore.stopLoading();
     console.log(error);
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: '註冊失敗。',
+    });
   }
 });
 
