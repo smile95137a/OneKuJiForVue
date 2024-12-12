@@ -11,20 +11,27 @@
 import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import { useDialogStore } from '@/stores';
 
 const authStore = useAuthStore();
 const router = useRouter();
 const route = useRoute();
+const dialogStore = useDialogStore();
 
 const redirectTo = ref<string | null>(null);
 
-onMounted(() => {
+onMounted(async () => {
   const accessToken = extractUrlParameter('token');
   if (accessToken) {
     authStore.setToken(accessToken);
     redirectTo.value = '/home';
     router.push(redirectTo.value);
   } else {
+    const errorMsg = extractUrlParameter('errorMsg');
+    await dialogStore.openInfoDialog({
+      title: '系統消息',
+      message: errorMsg?.toString(),
+    });
     redirectTo.value = '/login';
     router.push(redirectTo.value);
   }
