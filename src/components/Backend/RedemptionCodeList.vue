@@ -12,13 +12,25 @@
 
     <!-- 篩選按鈕 -->
     <div class="filter-buttons">
-      <button class="btn-filter" :class="{ active: filter === 'all' }" @click="filter = 'all'">
+      <button
+        class="btn-filter"
+        :class="{ active: filter === 'all' }"
+        @click="filter = 'all'"
+      >
         全部
       </button>
-      <button class="btn-filter" :class="{ active: filter === 'redeemed' }" @click="filter = 'redeemed'">
+      <button
+        class="btn-filter"
+        :class="{ active: filter === 'redeemed' }"
+        @click="filter = 'redeemed'"
+      >
         已兌換
       </button>
-      <button class="btn-filter" :class="{ active: filter === 'notRedeemed' }" @click="filter = 'notRedeemed'">
+      <button
+        class="btn-filter"
+        :class="{ active: filter === 'notRedeemed' }"
+        @click="filter = 'notRedeemed'"
+      >
         未兌換
       </button>
     </div>
@@ -26,9 +38,18 @@
     <!-- 篩選商品 -->
     <div class="filter-dropdown">
       <label for="productFilter">篩選產品：</label>
-      <select v-model="selectedFilterProductId" id="productFilter" class="dropdown" @change="filterRedemptionCodes">
+      <select
+        v-model="selectedFilterProductId"
+        id="productFilter"
+        class="dropdown"
+        @change="filterRedemptionCodes"
+      >
         <option value="">全部</option>
-        <option v-for="product in products" :key="product.productId" :value="product.productId">
+        <option
+          v-for="product in products"
+          :key="product.productId"
+          :value="product.productId"
+        >
           {{ product.productName }}
         </option>
       </select>
@@ -36,32 +57,76 @@
 
     <!-- 顯示兌換碼列表 -->
     <ul v-if="filteredRedemptionCodes.length > 0" class="code-list">
-      <li v-for="code in filteredRedemptionCodes" :key="code.id" class="code-item">
-        <span>兌換碼: <strong>{{ code.code }}</strong></span>
+      <li
+        v-for="code in pagination.currentPageItems.value"
+        :key="code.id"
+        class="code-item"
+      >
+        <span
+          >兌換碼: <strong>{{ code.code }}</strong></span
+        >
         <span>已兌換: {{ code.isRedeemed ? '是' : '否' }}</span>
-        <span>兌換時間: {{ code.redeemedAt ? formatDate(code.redeemedAt) : '尚未兌換' }}</span>
+        <span
+          >兌換時間:
+          {{ code.redeemedAt ? formatDate(code.redeemedAt) : '尚未兌換' }}</span
+        >
         <span>用戶ID: {{ code.userId ? code.userId : '未指定' }}</span>
-        <span>指定產品: {{ code.productName ? code.productName : '未指定' }}</span>
+        <span
+          >指定產品: {{ code.productName ? code.productName : '未指定' }}</span
+        >
       </li>
     </ul>
     <div v-else>
       <p>目前沒有可顯示的兌換碼。</p>
     </div>
+    <div class="pagination" v-if="pagination.totalPages.value > 1">
+      <button
+        @click="pagination.previousPage"
+        :disabled="pagination.currentPage.value === 1"
+      >
+        上一頁
+      </button>
 
+      <button
+        v-for="pageNum in pagination.renderPaginationNums.value"
+        :key="pageNum"
+        @click="pagination.goToPage(pageNum)"
+        :class="{ active: pageNum === pagination.currentPage.value }"
+      >
+        {{ pageNum }}
+      </button>
+
+      <button
+        @click="pagination.nextPage"
+        :disabled="pagination.currentPage.value === pagination.totalPages.value"
+      >
+        下一頁
+      </button>
+    </div>
     <!-- 彈出式視窗 -->
     <div v-if="isModalOpen" class="modal-backdrop">
       <div class="modal">
         <h2>選擇產品生成兌換碼</h2>
         <select v-model="selectedProductId" class="dropdown">
           <option value="" disabled>請選擇產品</option>
-          <option v-for="product in filteredProducts" :key="product.productId" :value="product.productId">
+          <option
+            v-for="product in filteredProducts"
+            :key="product.productId"
+            :value="product.productId"
+          >
             {{ product.productName }}
           </option>
         </select>
         <div class="code-generator-container">
           <div class="form-group">
             <label for="codeCount" class="form-label">生成數量：</label>
-            <input type="number" v-model="codeCount" id="codeCount" min="1" class="form-input" />
+            <input
+              type="number"
+              v-model="codeCount"
+              id="codeCount"
+              min="1"
+              class="form-input"
+            />
           </div>
         </div>
         <br />
@@ -74,112 +139,120 @@
   </div>
 </template>
 
-<script>
+<script lang="ts" setup>
+import { ref, computed, onMounted } from 'vue';
 import {
   fetchProducts,
   generateRedemptionCode,
-  getAllRedemptionCodes
-} from "@/services/backend/redemptionCodeList";
+  getAllRedemptionCodes,
+} from '@/services/backend/redemptionCodeList';
+import { usePagination } from '@/hook/usePagination';
 
-export default {
-  data() {
-    return {
-      redemptionCodes: [], // 全部兌換碼列表
-      products: [], // 商品列表
-      selectedFilterProductId: "", // 選中的商品ID
-      filter: "all", // 篩選條件
-      newCode: "", // 新生成的兌換碼
-      isModalOpen: false, // 控制彈窗
-      selectedProductId: "", // 彈窗中選中的商品ID
-      codeCount: 1, // 生成數量
-      filteredProducts: [],
-    };
-  },
-  computed: {
-    filteredRedemptionCodes() {
-      let codes = [...this.redemptionCodes];
-      if (this.selectedFilterProductId) {
-        codes = codes.filter((code) => code.productId === Number(this.selectedFilterProductId));
-      }
-      if (this.filter === "redeemed") {
-        codes = codes.filter((code) => code.isRedeemed);
-      } else if (this.filter === "notRedeemed") {
-        codes = codes.filter((code) => !code.isRedeemed);
-      }
-      return codes;
-    },
-  },
-  created() {
-    this.fetchProducts();
-    this.fetchRedemptionCodes();
-    this.fetchProductsF();
-  },
-  methods: {
-    async fetchProducts() {
-      try {
-        const response = await fetchProducts();
-        this.products = response.data.filter(
-          (product) => product.status === "AVAILABLE" || product.status === "NOT_AVAILABLE_YET"
-        );
-      } catch (error) {
-        console.error("獲取商品列表失敗：", error);
-      }
-    },
-    async fetchProductsF() {
-      try {
-        const response = await fetchProducts();
-        this.filteredProducts = response.data.filter(
-          (product) => product.status === "AVAILABLE" || product.status === "NOT_AVAILABLE_YET"
-        );
-      } catch (error) {
-        console.error("獲取產品列表失敗:", error);
-      }
-    },
-    async fetchRedemptionCodes() {
-      try {
-        const response = await getAllRedemptionCodes();
-        this.redemptionCodes = response.data;
-      } catch (error) {
-        console.error("獲取兌換碼失敗：", error);
-      }
-    },
-    async generateCode() {
-      if (!this.selectedProductId) {
-        alert("請選擇一個產品！");
-        return;
-      }
-      if (this.codeCount < 1) {
-        alert("生成數量無效！");
-        return;
-      }
-      try {
-        const response = await generateRedemptionCode(this.selectedProductId, this.codeCount);
-        this.newCode = response.data; // 假設API返回生成的代碼
-        this.fetchRedemptionCodes();
-        this.closeModal();
-      } catch (error) {
-        console.error("生成失敗：", error);
-        alert("生成失敗！");
-      }
-    },
-    formatDate(timestamp) {
-      const date = new Date(Number(timestamp));
-      const pad = (n) => n.toString().padStart(2, "0");
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(
-        date.getHours()
-      )}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-    },
-    openModal() {
-      this.isModalOpen = true;
-    },
-    closeModal() {
-      this.isModalOpen = false;
-      this.selectedProductId = "";
-    },
-  },
+const redemptionCodes = ref([]); // 全部兌換碼列表
+const products = ref([]); // 商品列表
+const selectedFilterProductId = ref(''); // 選中的商品ID
+const filter = ref('all'); // 篩選條件
+const newCode = ref(''); // 新生成的兌換碼
+const isModalOpen = ref(false); // 控制彈窗
+const selectedProductId = ref(''); // 彈窗中選中的商品ID
+const codeCount = ref(1); // 生成數量
+const filteredProducts = ref([]);
+
+const filteredRedemptionCodes = computed(() => {
+  let codes = [...redemptionCodes.value];
+  if (selectedFilterProductId.value) {
+    codes = codes.filter(
+      (code) => code.productId === Number(selectedFilterProductId.value)
+    );
+  }
+  if (filter.value === 'redeemed') {
+    codes = codes.filter((code) => code.isRedeemed);
+  } else if (filter.value === 'notRedeemed') {
+    codes = codes.filter((code) => !code.isRedeemed);
+  }
+  return codes;
+});
+
+// 分頁邏輯
+const itemsPerPage = 10;
+const pagination = usePagination(filteredRedemptionCodes, itemsPerPage);
+
+onMounted(() => {
+  fetchProductList();
+  fetchRedemptionCodes();
+});
+
+// 獲取商品列表
+const fetchProductList = async () => {
+  try {
+    const response = await fetchProducts();
+    products.value = response.data.filter(
+      (product) =>
+        product.status === 'AVAILABLE' || product.status === 'NOT_AVAILABLE_YET'
+    );
+    filteredProducts.value = [...products.value];
+  } catch (error) {
+    console.error('獲取商品列表失敗：', error);
+  }
+};
+
+// 獲取兌換碼列表
+const fetchRedemptionCodes = async () => {
+  try {
+    const response = await getAllRedemptionCodes();
+    redemptionCodes.value = response.data;
+    pagination.updateItems(filteredRedemptionCodes.value); // 初始化分頁
+  } catch (error) {
+    console.error('獲取兌換碼失敗：', error);
+  }
+};
+
+// 生成兌換碼
+const generateCode = async () => {
+  if (!selectedProductId.value) {
+    alert('請選擇一個產品！');
+    return;
+  }
+  if (codeCount.value < 1) {
+    alert('生成數量無效！');
+    return;
+  }
+  try {
+    const response = await generateRedemptionCode(
+      selectedProductId.value,
+      codeCount.value
+    );
+    newCode.value = response.data; // 假設API返回生成的代碼
+    fetchRedemptionCodes();
+    closeModal();
+  } catch (error) {
+    console.error('生成失敗：', error);
+    alert('生成失敗！');
+  }
+};
+
+// 日期格式化
+const formatDate = (timestamp: string | number) => {
+  const date = new Date(Number(timestamp));
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+    date.getSeconds()
+  )}`;
+};
+
+// 打開彈窗
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+// 關閉彈窗
+const closeModal = () => {
+  isModalOpen.value = false;
+  selectedProductId.value = '';
 };
 </script>
-
 
 <style scoped>
 /* 基本页面样式 */
@@ -337,7 +410,7 @@ button {
 }
 
 .form-input:focus {
-  border-color: #007BFF;
+  border-color: #007bff;
   /* 聚焦時的邊框顏色 */
   box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
 }

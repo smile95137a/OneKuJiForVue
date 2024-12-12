@@ -37,41 +37,25 @@
             <td>{{ order.orderNumber }}</td>
             <td>{{ order.billingName }}</td>
             <td>
-              <select
-                v-model="order.resultStatus"
-                @change="updateOrderStatus(order)"
-                class="status-select"
-              >
-                <option
-                  v-for="status in availableStatuses(order.resultStatus)"
-                  :key="status.value"
-                  :value="status.value"
-                >
+              <select v-model="order.resultStatus" @change="updateOrderStatus(order)" class="status-select">
+                <option v-for="status in availableStatuses(order.resultStatus)" :key="status.value"
+                  :value="status.value">
                   {{ status.label }}
                 </option>
               </select>
             </td>
             <td>
-              <button
-                @click="viewOrderDetails(order.id)"
-                class="view-details-btn"
-              >
+              <button @click="viewOrderDetails(order.id)" class="view-details-btn">
                 查看訂單明細
               </button>
             </td>
             <td>
-              <button
-                @click="viewShippingInfo(order.id)"
-                class="view-details-btn"
-              >
+              <button @click="viewShippingInfo(order.id)" class="view-details-btn">
                 出貨單
               </button>
             </td>
             <td>
-              <button
-                @click="openModal(order.orderNumber)"
-                class="view-details-btn"
-              >
+              <button @click="openModal(order.orderNumber)" class="view-details-btn">
                 建立物流訂單
               </button>
             </td>
@@ -80,7 +64,7 @@
             <td>{{ order.shippingCost }} 元</td>
             <td>{{ order.orderCount }} 個</td>
             <td>{{ formatDate(order.createdAt) }}</td>
-            
+
 
           </tr>
         </tbody>
@@ -114,12 +98,10 @@
           <p>
             <strong>物流方式:</strong> {{ orderShippingInfo.shippingMethod }}
           </p>
-          <p
-            v-if="
-              orderShippingInfo.shippingMethod === '711' ||
-              orderShippingInfo.shippingMethod === '全家'
-            "
-          >
+          <p v-if="
+            orderShippingInfo.shippingMethod === '711' ||
+            orderShippingInfo.shippingMethod === '全家'
+          ">
             <strong>門市代號:</strong> {{ orderShippingInfo.storeCode }}<br />
             <strong>門市名稱:</strong> {{ orderShippingInfo.storeName }}<br />
             <strong>門市地址:</strong> {{ orderShippingInfo.storeAddress }}
@@ -132,27 +114,14 @@
             <span v-if="!isEditing">{{
               orderShippingInfo.trackingNumber || '無'
             }}</span>
-            <input
-              v-else
-              v-model="orderShippingInfo.trackingNumber"
-              type="text"
-              placeholder="輸入物流單號"
-              class="tracking-input"
-            />
+            <input v-else v-model="orderShippingInfo.trackingNumber" type="text" placeholder="輸入物流單號"
+              class="tracking-input" />
           </p>
           <div class="button-group">
-            <button
-              v-if="!isEditing"
-              @click="toggleEdit"
-              class="edit-btn highlight-btn"
-            >
+            <button v-if="!isEditing" @click="toggleEdit" class="edit-btn highlight-btn">
               編輯
             </button>
-            <button
-              v-else
-              @click="saveTrackingNumber"
-              class="save-btn highlight-btn"
-            >
+            <button v-else @click="saveTrackingNumber" class="save-btn highlight-btn">
               保存
             </button>
           </div>
@@ -182,18 +151,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="detail in orderDetails"
-                :key="detail.productDetailRes.productDetailId"
-              >
-                <td>{{ detail.productName }}</td>
+              <tr v-for="detail in orderDetails" :key="detail.productDetailRes.productDetailId">
+                <td>
+                  {{ detail.productDetailRes.pname }}
+              </td>
                 <td>{{ detail.productDetailRes.productName || '無' }}</td>
                 <td>
-                  <img
-                    :src="formatImageUrl(detail.imageUrls[0])"
-                    alt="商品圖片"
-                    style="width: 100%; max-width: 100px; height: auto"
-                  />
+                  <img :src="formatImageUrl(detail.imageUrls[0])" alt="商品圖片"
+                    style="width: 100%; max-width: 100px; height: auto" />
                 </td>
                 <td>{{ detail.grade }}</td>
                 <td>{{ detail.quantity }}</td>
@@ -209,10 +174,7 @@
     <div class="modal-content">
       <span class="close-button" @click="closeModal">&times;</span>
       <h2>訂單明細 - 訂單號: {{ selectedOrderId }}</h2>
-      <table
-        v-if="orderDetails && orderDetails.length"
-        class="order-details-table"
-      >
+      <table v-if="orderDetails && orderDetails.length" class="order-details-table">
         <thead>
           <tr>
             <th>產品 ID</th>
@@ -234,7 +196,11 @@
               }}
             </td>
             <td>
-              {{ detail.pname }}
+              {{
+                detail.productDetailRes?.pname ??
+                detail.storeProduct?.productName ??
+                'N/A'
+              }}
             </td>
             <td>
               <!-- 判断 storeProduct 或 productDetailRes 是否为 null，显示相应信息 -->
@@ -256,28 +222,20 @@
 
             <td>
               <div v-if="detail.storeProduct && detail.storeProduct.imageUrls">
-                <img
-                  :src="formatImageUrl(detail.storeProduct.imageUrls[0])"
-                  alt="Product Image"
-                  style="width: 100px; height: 100px"
-                />
+                <img :src="formatImageUrl(detail.storeProduct.imageUrls[0])" alt="Product Image"
+                  style="width: 100px; height: 100px" />
               </div>
-              <div
-                v-else-if="
-                  detail.productDetailRes && detail.productDetailRes.imageUrls
-                "
-              >
-                <img
-                  :src="formatImageUrl(detail.productDetailRes.imageUrls[0])"
-                  alt="Product Image"
-                  style="width: 100px; height: 100px"
-                />
+              <div v-else-if="
+                detail.productDetailRes && detail.productDetailRes.imageUrls
+              ">
+                <img :src="formatImageUrl(detail.productDetailRes.imageUrls[0])" alt="Product Image"
+                  style="width: 100px; height: 100px" />
               </div>
             </td>
             <td>{{ detail.quantity }}</td>
             <td>{{ detail.unitPrice === null ? 0 : 0 }}元</td>
             <td>
-              <div v-if="detail.productDetailRes.productDetailId">
+              <div v-if="detail.productDetailRes?.productDetailId">
                 <p>
                   <strong>{{ detail.productDetailRes.grade }}賞</strong>
                 </p>
@@ -419,9 +377,8 @@ const viewShippingInfo = async (orderId: number | null) => {
       shippingName: order.shippingName || '無收件人',
       shippingPhone: order.shippingPhone || '無電話',
       shippingMethod: order.shippingMethod || '無物流方式',
-      shippingAddress: `${order.shippingCity || ''} ${
-        order.shippingArea || ''
-      } ${order.shippingAddress || ''}`,
+      shippingAddress: `${order.shippingCity || ''} ${order.shippingArea || ''
+        } ${order.shippingAddress || ''}`,
       storeCode: order.shopId || '無',
       storeName: order.shopName || '無',
       storeAddress: order.shopAddress || '無',
@@ -656,13 +613,26 @@ const extractPostNumber = (responseString: string) => {
 };
 
 const formatImageUrl = (url: string | File): string => {
+  // 如果是字符串 URL，檢查並返回處理後的 URL
   if (typeof url === 'string') {
     return url.trim() !== '' ? productservice.getImageUrl(url) : '';
   }
-  console.log(url);
 
-  return URL.createObjectURL(url);
+  // 如果是 Blob 或 File，返回 Object URL
+  if (url instanceof File || url instanceof Blob) {
+    try {
+      return URL.createObjectURL(url);
+    } catch (error) {
+      console.error('Error creating Object URL:', error);
+      return '';
+    }
+  }
+
+  // 如果類型不匹配，打印警告並返回空字符串
+  console.warn('Invalid URL type:', url);
+  return '';
 };
+
 
 // 當前選中的訂單 ID
 const selectedOrderId = ref<number | null>(null);
@@ -1183,24 +1153,34 @@ button:focus {
 /* 隱藏按鈕於列印或導出 PDF */
 @media print {
   .edit-btn {
-    display: none; /* 隱藏按鈕 */
+    display: none;
+    /* 隱藏按鈕 */
   }
+
   .product-list table {
-    width: 100%; /* 确保表格宽度适应父容器 */
-    table-layout: fixed; /* 强制表格列宽固定 */
+    width: 100%;
+    /* 确保表格宽度适应父容器 */
+    table-layout: fixed;
+    /* 强制表格列宽固定 */
   }
 
   .product-list th,
   .product-list td {
-    word-wrap: break-word; /* 自动换行 */
-    overflow: hidden; /* 禁止内容溢出 */
-    padding: 5px; /* 给表格单元格添加内边距 */
-    font-size: 10px; /* 减小字体以适应更多内容 */
-    text-align: left; /* 左对齐文本 */
+    word-wrap: break-word;
+    /* 自动换行 */
+    overflow: hidden;
+    /* 禁止内容溢出 */
+    padding: 5px;
+    /* 给表格单元格添加内边距 */
+    font-size: 10px;
+    /* 减小字体以适应更多内容 */
+    text-align: left;
+    /* 左对齐文本 */
   }
 
   .product-list img {
-    max-width: 50px; /* 限制图片大小 */
+    max-width: 50px;
+    /* 限制图片大小 */
     max-height: 50px;
     width: auto;
     height: auto;
@@ -1208,9 +1188,12 @@ button:focus {
 
   /* 确保无分页 */
   @page {
-    size: A4; /* 强制纸张大小为 A4 */
-    margin: 10mm; /* 页面边距 */
-    padding: 0; /* 页面内边距 */
+    size: A4;
+    /* 强制纸张大小为 A4 */
+    margin: 10mm;
+    /* 页面边距 */
+    padding: 0;
+    /* 页面内边距 */
   }
 }
 
