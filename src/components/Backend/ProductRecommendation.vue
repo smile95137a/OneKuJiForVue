@@ -16,10 +16,12 @@
       <tbody>
         <tr v-for="recommand in mappings" :key="recommand.id">
           <td>
-            <img v-if="recommand.imageUrls" 
-                 :src="getImageUrl(recommand.imageUrls)" 
-                 :alt="recommand.productName"
-                 class="product-thumbnail" />
+            <img
+              v-if="recommand.imageUrls"
+              :src="getImageUrl(recommand.imageUrls)"
+              :alt="recommand.productName"
+              class="product-thumbnail"
+            />
           </td>
           <td>{{ recommand.productName }}</td>
           <td>{{ recommand.recommendationName || '未設置類別' }}</td>
@@ -35,33 +37,56 @@
 
     <div v-if="showModal" class="modal">
       <div class="modal-content">
-        <form @submit.prevent="isEditing ? updateMapping(currentMapping) : createMapping()">
+        <form
+          @submit.prevent="
+            isEditing ? updateMapping(currentMapping) : createMapping()
+          "
+        >
           <div>
             <label for="categorySelection">選擇類別</label>
-            <select id="categorySelection" v-model="currentMapping.storeProductRecommendationId" @change="onCategoryChange" required>
-              <option v-for="recommendation in commandCategory" :key="recommendation.id" :value="recommendation.id">
+            <select
+              id="categorySelection"
+              v-model="currentMapping.storeProductRecommendationId"
+              @change="onCategoryChange"
+              required
+            >
+              <option
+                v-for="recommendation in commandCategory"
+                :key="recommendation.id"
+                :value="recommendation.id"
+              >
                 {{ recommendation.recommendationName }}
               </option>
             </select>
           </div>
           <div>
             <label for="productSelection">選擇商品</label>
-            <select id="productSelection" v-model="currentMapping.storeProductId" required>
-              <option v-for="product in products" :key="isGachaCategory ? product.productId : (product as StoreProductRes).storeProductId" :value="isGachaCategory ? product.productId : (product as StoreProductRes).storeProductId">
+            <select
+              id="productSelection"
+              v-model="currentMapping.storeProductId"
+              required
+            >
+              <option
+                v-for="product in products"
+                :key="isGachaCategory ? product.productId : (product as StoreProductRes).storeProductId"
+                :value="isGachaCategory ? product.productId : (product as StoreProductRes).storeProductId"
+              >
                 {{ product.productName }}
               </option>
             </select>
           </div>
           <div v-if="selectedProduct">
-            <img v-if="getSelectedProductImage(selectedProduct)" 
-                 :src="getImageUrl(getSelectedProductImage(selectedProduct))" 
-                 :alt="selectedProduct.productName"
-                 class="selected-product-image" />
+            <img
+              v-if="getSelectedProductImage(selectedProduct)"
+              :src="getImageUrl(getSelectedProductImage(selectedProduct))"
+              :alt="selectedProduct.productName"
+              class="selected-product-image"
+            />
             <p>商品名稱: {{ selectedProduct.productName }}</p>
             <p>價格: {{ selectedProduct.price }}</p>
             <p>庫存: {{ selectedProduct.stockQuantity }}</p>
           </div>
-          
+
           <button type="submit">{{ isEditing ? '更新' : '新增' }}</button>
           <button type="button" @click="closeModal">取消</button>
         </form>
@@ -71,14 +96,30 @@
 </template>
 
 <script setup lang="ts">
-import { ApiResponse, ProductRecommendationMapping, ProductRes, ProductType, StoreProductRecommendation, StoreProductRes } from '@/interfaces/recommand';
+import {
+  ApiResponse,
+  ProductRecommendationMapping,
+  ProductRes,
+  ProductType,
+  StoreProductRecommendation,
+  StoreProductRes,
+} from '@/interfaces/recommand';
 import { productservice } from '@/services/backend/productservice';
-import { createMapping as createMappingAPI, deleteMapping as deleteMappingAPI, getAllMappings, getAllRecommendations, updateMapping as updateMappingAPI } from '@/services/backend/recommand';
+import {
+  createMapping as createMappingAPI,
+  deleteMapping as deleteMappingAPI,
+  getAllMappings,
+  getAllRecommendations,
+  updateMapping as updateMappingAPI,
+} from '@/services/backend/recommand';
 import { storeServices } from '@/services/backend/storeservice';
 import { computed, onMounted, ref, watch } from 'vue';
 
 const mappings = ref<ProductRecommendationMapping[]>([]);
-const currentMapping = ref<ProductRecommendationMapping>({ storeProductId: 0, storeProductRecommendationId: 0 });
+const currentMapping = ref<ProductRecommendationMapping>({
+  storeProductId: 0,
+  storeProductRecommendationId: 0,
+});
 const showModal = ref(false);
 const isEditing = ref(false);
 const products = ref<(StoreProductRes | ProductRes)[]>([]);
@@ -87,8 +128,12 @@ const selectedCategoryName = ref<string>('');
 const isGachaCategory = ref(false);
 
 const selectedProduct = computed(() => {
-  return products.value.find(p => 
-    (isGachaCategory.value ? (p as ProductRes).productId : (p as StoreProductRes).storeProductId) === currentMapping.value.storeProductId
+  return products.value.find(
+    (p) =>
+      (isGachaCategory.value
+        ? (p as ProductRes).productId
+        : (p as StoreProductRes).storeProductId) ===
+      currentMapping.value.storeProductId
   );
 });
 
@@ -111,8 +156,10 @@ const fetchAllMappings = async () => {
     const response = await getAllMappings();
     mappings.value = response.data || [];
     console.log('獲取到的映射:', mappings.value);
-    mappings.value.forEach(mapping => {
-      console.log(`Mapping ID: ${mapping.id}, RecommendationName: ${mapping.recommendationName}`);
+    mappings.value.forEach((mapping) => {
+      console.log(
+        `Mapping ID: ${mapping.id}, RecommendationName: ${mapping.recommendationName}`
+      );
     });
   } catch (error) {
     console.error('獲取映射失敗:', error);
@@ -122,10 +169,15 @@ const fetchAllMappings = async () => {
 const fetchProducts = async (isGacha: boolean) => {
   try {
     if (isGacha) {
-      const response: ApiResponse<ProductRes[]> = await productservice.getAllProducts();
-      products.value = response.data?.filter(product => product.productType === ProductType.GACHA) || [];
+      const response: ApiResponse<ProductRes[]> =
+        await productservice.getAllProducts();
+      products.value =
+        response.data?.filter(
+          (product) => product.productType === ProductType.GACHA
+        ) || [];
     } else {
-      const response: ApiResponse<StoreProductRes[]> = await storeServices.getAllStoreProduct();
+      const response: ApiResponse<StoreProductRes[]> =
+        await storeServices.getAllStoreProduct();
       products.value = response.data || [];
     }
     console.log('獲取到的產品:', products.value);
@@ -146,10 +198,12 @@ const fetchRecommendations = async () => {
 
 const createMapping = async () => {
   try {
-    const selectedRecommendation = commandCategory.value.find(cat => cat.id === currentMapping.value.storeProductRecommendationId);
+    const selectedRecommendation = commandCategory.value.find(
+      (cat) => cat.id === currentMapping.value.storeProductRecommendationId
+    );
     const newMapping = {
       ...currentMapping.value,
-      recommendationName: selectedRecommendation?.recommendationName
+      recommendationName: selectedRecommendation?.recommendationName,
     };
     console.log('Creating new mapping:', newMapping);
     await createMappingAPI(newMapping);
@@ -163,10 +217,12 @@ const createMapping = async () => {
 const updateMapping = async (mapping: ProductRecommendationMapping) => {
   try {
     if (mapping.id !== undefined) {
-      const selectedRecommendation = commandCategory.value.find(cat => cat.id === currentMapping.value.storeProductRecommendationId);
+      const selectedRecommendation = commandCategory.value.find(
+        (cat) => cat.id === currentMapping.value.storeProductRecommendationId
+      );
       const updatedMapping = {
         ...currentMapping.value,
-        recommendationName: selectedRecommendation?.recommendationName
+        recommendationName: selectedRecommendation?.recommendationName,
       };
       console.log('Updating mapping:', updatedMapping);
       await updateMappingAPI(mapping.id, updatedMapping);
@@ -214,15 +270,26 @@ const clearForm = () => {
 };
 
 const onCategoryChange = async () => {
-  const selectedRecommendation = commandCategory.value.find(cat => cat.id === currentMapping.value.storeProductRecommendationId);
+  const selectedRecommendation = commandCategory.value.find(
+    (cat) => cat.id === currentMapping.value.storeProductRecommendationId
+  );
   selectedCategoryName.value = selectedRecommendation?.recommendationName || '';
   isGachaCategory.value = selectedCategoryName.value === '扭蛋推薦';
   await fetchProducts(isGachaCategory.value);
-  currentMapping.value.storeProductId = 0; // 重置產品選擇
-  console.log('類別變更，當前選擇:', selectedCategoryName.value, '是否為扭蛋類別:', isGachaCategory.value);
+  if (!isEditing.value) {
+    currentMapping.value.storeProductId = 0;
+  }
+  console.log(
+    '類別變更，當前選擇:',
+    selectedCategoryName.value,
+    '是否為扭蛋類別:',
+    isGachaCategory.value
+  );
 };
 
-function formatDateArrayToChinese(dateArray: number[] | null | undefined): string {
+function formatDateArrayToChinese(
+  dateArray: number[] | null | undefined
+): string {
   if (!dateArray || dateArray.length < 6) {
     return '時間格式不正確';
   }
@@ -236,7 +303,9 @@ function formatDateArrayToChinese(dateArray: number[] | null | undefined): strin
     dateArray[5]
   );
 
-  return `西元${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日${date.getHours()}點${date.getMinutes()}分`;
+  return `西元${date.getFullYear()}年${
+    date.getMonth() + 1
+  }月${date.getDate()}日${date.getHours()}點${date.getMinutes()}分`;
 }
 
 onMounted(() => {
@@ -285,7 +354,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
@@ -303,7 +373,7 @@ th {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;

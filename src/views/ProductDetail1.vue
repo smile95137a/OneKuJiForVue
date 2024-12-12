@@ -455,7 +455,7 @@ onMounted(async () => {
         getProductDetailById(productId),
         getDrawStatus(productId),
       ]);
-
+    loadingStore.stopLoading();
     if (productResponse.data) {
       product.value = productResponse.data;
       const { productType } = productResponse.data;
@@ -485,13 +485,13 @@ onMounted(async () => {
       }
     }
   } catch (error: any) {
+    loadingStore.stopLoading();
     const { message } = error.response.data;
     await dialogStore.openInfoDialog({
       title: '系統通知',
       message,
     });
   }
-  loadingStore.stopLoading();
 });
 
 onBeforeUnmount(() => {
@@ -610,22 +610,20 @@ const handleExchange = async (exchangeType: number) => {
         );
         activeTickets.value = [];
 
-        
-          const totalAmount = isCustmerPrize.value? 0: data.reduce(
-            (sum: number, item: any) => sum + item.amount,
-            0
-          );
+        const totalAmount = isCustmerPrize.value
+          ? 0
+          : data.reduce((sum: number, item: any) => sum + item.amount, 0);
 
-          await fetchDrawStatus();
-          await dialogStore.openConfirmDialog(
-            { customClass: '' },
-            {
-              remainingQuantity: remainingQuantity.value,
-              count: data.length,
-              total: totalAmount,
-              drawData: data,
-            }
-          );
+        await fetchDrawStatus();
+        await dialogStore.openConfirmDialog(
+          { customClass: '' },
+          {
+            remainingQuantity: remainingQuantity.value,
+            count: data.length,
+            total: totalAmount,
+            drawData: data,
+          }
+        );
       } else {
         await dialogStore.openInfoDialog({
           title: '系統通知',
