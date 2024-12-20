@@ -6,8 +6,11 @@
         <button class="add-member-button" @click="showAddMemberModal = true">
           新增會員
         </button>
-        <button class="distribute-reward-button" @click="showDistributeRewardModal = true"
-          :disabled="selectedMembers.length === 0">
+        <button
+          class="distribute-reward-button"
+          @click="showDistributeRewardModal = true"
+          :disabled="selectedMembers.length === 0"
+        >
           發放獎勵
         </button>
       </div>
@@ -23,7 +26,11 @@
     </div>
 
     <div class="search-section">
-      <input v-model="searchInput" placeholder="輸入會員編號、電話或電子郵件搜索會員" @input="debounceSearch" />
+      <input
+        v-model="searchInput"
+        placeholder="輸入會員編號、電話或電子郵件搜索會員"
+        @input="debounceSearch"
+      />
     </div>
 
     <div class="table-container">
@@ -32,7 +39,11 @@
           <thead>
             <tr>
               <th class="checkbox-column">
-                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" />
+                <input
+                  type="checkbox"
+                  v-model="selectAll"
+                  @change="toggleSelectAll"
+                />
               </th>
               <th class="role-column">會員類型</th>
               <th class="usernmae-column">信箱</th>
@@ -51,7 +62,11 @@
           <tbody>
             <tr v-for="member in paginatedMembers" :key="member.id">
               <td>
-                <input type="checkbox" v-model="selectedMembers" :value="member.id" />
+                <input
+                  type="checkbox"
+                  v-model="selectedMembers"
+                  :value="member.id"
+                />
               </td>
               <td>{{ getRoleName(member.roleId) }}</td>
               <td>{{ member.username }}</td>
@@ -68,7 +83,10 @@
                 <button @click="editMember(member)" class="edit-button">
                   編輯
                 </button>
-                <button class="delete-button" @click="handleDeleteMember(member)">
+                <button
+                  class="delete-button"
+                  @click="handleDeleteMember(member)"
+                >
                   刪除
                 </button>
               </td>
@@ -95,12 +113,21 @@
         <form @submit.prevent="addMember">
           <div v-for="field in memberFields" :key="field.key">
             <label :for="field.key">{{ field.label }}:</label>
-            <input :id="field.key" v-model="(newMember as any)[field.key]" :type="field.type" required />
+            <input
+              :id="field.key"
+              v-model="(newMember as any)[field.key]"
+              :type="field.type"
+              required
+            />
           </div>
           <div>
             <label for="roleId">角色:</label>
             <select id="roleId" v-model="newMember.roleId" required>
-              <option v-for="role in roleOptions" :key="role.value" :value="role.value">
+              <option
+                v-for="role in roleOptions"
+                :key="role.value"
+                :value="role.value"
+              >
                 {{ role.label }}
               </option>
             </select>
@@ -120,12 +147,21 @@
         <form @submit.prevent="updateMember">
           <div v-for="field in memberFields" :key="field.key">
             <label :for="'edit-' + field.key">{{ field.label }}:</label>
-            <input :id="'edit-' + field.key" v-model="(editingMember as any)[field.key]" :type="field.type" required />
+            <input
+              :id="'edit-' + field.key"
+              v-model="(editingMember as any)[field.key]"
+              :type="field.type"
+              required
+            />
           </div>
           <div>
             <label for="edit-roleId">角色:</label>
             <select id="edit-roleId" v-model="editingMember.roleId" required>
-              <option v-for="role in roleOptions" :key="role.value" :value="role.value">
+              <option
+                v-for="role in roleOptions"
+                :key="role.value"
+                :value="role.value"
+              >
                 {{ role.label }}
               </option>
             </select>
@@ -146,11 +182,23 @@
         <form @submit.prevent="distributeReward">
           <div>
             <label for="silverAmount">銀幣數量：</label>
-            <input id="silverAmount" v-model.number="silverAmount" type="number" required min="0" />
+            <input
+              id="silverAmount"
+              v-model.number="silverAmount"
+              type="number"
+              required
+              min="0"
+            />
           </div>
           <div>
             <label for="bonusAmount">紅利數量：</label>
-            <input id="bonusAmount" v-model.number="bonusAmount" type="number" required min="0" />
+            <input
+              id="bonusAmount"
+              v-model.number="bonusAmount"
+              type="number"
+              required
+              min="0"
+            />
           </div>
           <button type="submit">確認發放</button>
           <button type="button" @click="showDistributeRewardModal = false">
@@ -162,6 +210,7 @@
   </div>
 </template>
 <script lang="ts">
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import { SliverUpdate, User, UserReq } from '@/interfaces/user';
 import { userService } from '@/services/backend/userservice';
 import { debounce } from 'lodash';
@@ -170,6 +219,7 @@ import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 export default defineComponent({
   name: 'MemberManagement',
   setup() {
+    useRoleGuard(['1']);
     const allMembers = ref<User[]>([]);
     const displayedMembers = ref<User[]>([]);
     const currentPage = ref(1);
@@ -368,7 +418,6 @@ export default defineComponent({
 
       return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
     };
-
 
     const toggleSelectAll = () => {
       if (selectAll.value) {

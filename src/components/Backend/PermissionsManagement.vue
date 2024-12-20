@@ -26,14 +26,19 @@
       </table>
     </div>
     <div class="pagination">
-      <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
+      <button @click="previousPage" :disabled="currentPage === 1">
+        上一頁
+      </button>
       <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
+      <button @click="nextPage" :disabled="currentPage === totalPages">
+        下一頁
+      </button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import { defineComponent, ref, computed } from 'vue';
 
 interface Permission {
@@ -45,13 +50,16 @@ interface Permission {
 export default defineComponent({
   name: 'PermissionsManagement',
   setup() {
+    useRoleGuard(['1']);
     const permissions = ref<Permission[]>([
       { name: '管理權限', role: '管理組-管理組長-值班管理員', status: '有效' },
       // 加入更多資料
     ]);
     const currentPage = ref(1);
     const itemsPerPage = 10;
-    const totalPages = computed(() => Math.ceil(permissions.value.length / itemsPerPage));
+    const totalPages = computed(() =>
+      Math.ceil(permissions.value.length / itemsPerPage)
+    );
 
     const paginatedData = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage;
@@ -83,7 +91,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import "@/assets/styles/admin.scss";
+@import '@/assets/styles/admin.scss';
 
 .permissions-management {
   padding: 20px;
@@ -122,7 +130,8 @@ table {
   border-radius: 8px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 10px;
   text-align: left;

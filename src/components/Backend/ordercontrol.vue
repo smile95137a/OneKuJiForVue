@@ -64,8 +64,6 @@
             <td>{{ order.shippingCost }} 元</td>
             <td>{{ order.orderCount }} 個</td>
             <td>{{ formatDate(order.createdAt) }}</td>
-
-
           </tr>
         </tbody>
       </table>
@@ -322,6 +320,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import { Order, OrderDetail } from '@/interfaces/order';
 import {
   convenience,
@@ -333,6 +332,7 @@ import {
 import { productservice } from '@/services/backend/productservice';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+useRoleGuard(['1']);
 const isEditing = ref(false);
 const orders = ref<Order[]>([]);
 const currentPage = ref(1);
@@ -408,38 +408,46 @@ const viewShippingInfo = async (orderId: number | null) => {
 
     // 合併相同商品 ID 的數量
     const mergedOrderDetails: any[] = [];
-    order.orderDetails.forEach((detail: { productDetailRes: { productDetailId: any; grade: any; }; quantity: any; productName: any; imageUrls: any; }) => {
-      const existingDetail = mergedOrderDetails.find(
-        (d) => d.productDetailRes?.productDetailId === detail.productDetailRes?.productDetailId
-      );
+    order.orderDetails.forEach(
+      (detail: {
+        productDetailRes: { productDetailId: any; grade: any };
+        quantity: any;
+        productName: any;
+        imageUrls: any;
+      }) => {
+        const existingDetail = mergedOrderDetails.find(
+          (d) =>
+            d.productDetailRes?.productDetailId ===
+            detail.productDetailRes?.productDetailId
+        );
 
-      if (existingDetail) {
-        // 如果相同的商品已存在，累加數量
-        existingDetail.quantity += detail.quantity;
-      } else {
-        // 判断是 `productDetail` 还是 `storeProduct`
-        const isProductDetail = !!detail.productDetailRes?.productDetailId; // 是否存在 productDetailId
-        const grade = isProductDetail
-          ? `${detail.productDetailRes?.grade || 'N/A'}賞` // `productDetail` 情况
-          : '商城商品'; // `storeProduct` 情况
+        if (existingDetail) {
+          // 如果相同的商品已存在，累加數量
+          existingDetail.quantity += detail.quantity;
+        } else {
+          // 判断是 `productDetail` 还是 `storeProduct`
+          const isProductDetail = !!detail.productDetailRes?.productDetailId; // 是否存在 productDetailId
+          const grade = isProductDetail
+            ? `${detail.productDetailRes?.grade || 'N/A'}賞` // `productDetail` 情况
+            : '商城商品'; // `storeProduct` 情况
 
-        // 新增新的商品明細
-        mergedOrderDetails.push({
-          productName: detail.productName || '無名稱',
-          productDetailRes: detail.productDetailRes || {},
-          imageUrls: detail.imageUrls || [],
-          grade: grade,
-          quantity: detail.quantity || 0,
-        });
+          // 新增新的商品明細
+          mergedOrderDetails.push({
+            productName: detail.productName || '無名稱',
+            productDetailRes: detail.productDetailRes || {},
+            imageUrls: detail.imageUrls || [],
+            grade: grade,
+            quantity: detail.quantity || 0,
+          });
+        }
       }
-    });
+    );
 
     orderDetails.value = mergedOrderDetails; // 更新商品明細
     selectedOrderId.value = orderId; // 設置選中的訂單 ID
     showShippingInfoModal.value = true; // 顯示寄送資訊彈窗
   }
 };
-
 
 const closeShippingInfoModal = () => {
   showShippingInfoModal.value = false;

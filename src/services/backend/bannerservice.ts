@@ -1,11 +1,28 @@
 import axios from 'axios';
-import { Banner, BannerReq, BannerApiResponse, BannerListApiResponse } from '@/interfaces/banner';
+import {
+  Banner,
+  BannerReq,
+  BannerApiResponse,
+  BannerListApiResponse,
+} from '@/interfaces/banner';
+import { getAuthToken } from './adminservices';
 
 const API_URL = `${import.meta.env.VITE_BASE_API_URL2}/banner`;
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export const bannerservice = {
@@ -25,9 +42,13 @@ export const bannerservice = {
       const formData = new FormData();
       formData.append('bannerReq', JSON.stringify(bannerData));
 
-      const response = await axiosInstance.post<BannerApiResponse>('', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const response = await axiosInstance.post<BannerApiResponse>(
+        '',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       console.log('createBanner 響應:', response.data);
       return response.data;
     } catch (error) {
@@ -36,14 +57,21 @@ export const bannerservice = {
     }
   },
 
-  updateBanner: async (bannerUid: string, bannerData: BannerReq): Promise<BannerApiResponse> => {
+  updateBanner: async (
+    bannerUid: string,
+    bannerData: BannerReq
+  ): Promise<BannerApiResponse> => {
     try {
       const formData = new FormData();
       formData.append('bannerReq', JSON.stringify(bannerData));
 
-      const response = await axiosInstance.put<BannerApiResponse>(`/${bannerUid}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const response = await axiosInstance.put<BannerApiResponse>(
+        `/${bannerUid}`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       console.log('updateBanner 響應:', response.data);
       return response.data;
     } catch (error) {

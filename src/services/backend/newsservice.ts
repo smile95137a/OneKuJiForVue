@@ -1,35 +1,55 @@
 import { News } from '@/interfaces/news';
 import axios from 'axios';
+import { getAuthToken } from './adminservices';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export const NewsService = {
-    uploadImage: async (file: File): Promise<string> => {
-      const formData = new FormData();
-      formData.append('file', file);
-  
-      try {
-        const response = await axiosInstance.post<{ data: string }>('/news/img/upload', formData, {
+  uploadImage: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axiosInstance.post<{ data: string }>(
+        '/news/img/upload',
+        formData,
+        {
           headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        console.log('uploadImage response:', response.data);
-        return response.data.data;
-      } catch (error) {
-        console.error('Error in uploadImage:', error);
-        throw error;
-      }
-    },
+        }
+      );
+      console.log('uploadImage response:', response.data);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error in uploadImage:', error);
+      throw error;
+    }
+  },
   // 創建新聞，接收 FormData
   createNews: async (formData: FormData): Promise<News> => {
     try {
-      const response = await axiosInstance.post<{ data: News }>('/news', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.post<{ data: News }>(
+        '/news',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       console.log('createNews response:', response.data);
       return response.data.data;
     } catch (error) {
@@ -41,9 +61,13 @@ export const NewsService = {
   // 更新新聞，接收 FormData
   updateNews: async (newsUid: string, formData: FormData): Promise<News> => {
     try {
-      const response = await axiosInstance.put<{ data: News }>(`/news/${newsUid}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.put<{ data: News }>(
+        `/news/${newsUid}`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       console.log('updateNews response:', response.data);
       return response.data.data;
     } catch (error) {
@@ -67,7 +91,9 @@ export const NewsService = {
   // 根據 ID 獲取單條新聞
   getNewsById: async (newsUid: string): Promise<News> => {
     try {
-      const response = await axiosInstance.get<{ data: News }>(`/news/${newsUid}`);
+      const response = await axiosInstance.get<{ data: News }>(
+        `/news/${newsUid}`
+      );
       console.log('getNewsById response:', response.data);
       return response.data.data;
     } catch (error) {
@@ -91,7 +117,4 @@ export const NewsService = {
   getImageUrl: (imagePath: string): string => {
     return `${API_IMAGE_URL}/img${imagePath}`;
   },
-  
 };
-
-

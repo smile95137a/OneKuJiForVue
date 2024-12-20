@@ -1,67 +1,128 @@
 import { ApiResponse } from '@/interfaces/product';
-import { ProductRecommendationMapping, StoreProductRecommendation } from '@/interfaces/recommand';
+import {
+  ProductRecommendationMapping,
+  StoreProductRecommendation,
+} from '@/interfaces/recommand';
 import axios from 'axios';
+import { getAuthToken } from './adminservices';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
-const API_BASE_URL = `${API_URL}/recommendation-mapping`;
-const API_BASE_URL2 = `${API_URL}/recommendation`;
+const API_MAPPING_URL = `${API_URL}/recommendation-mapping`;
+const API_RECOMMENDATION_URL = `${API_URL}/recommendation`;
 
-export const getAllMappings = async (): Promise<ApiResponse<ProductRecommendationMapping[]>> => {
-    try {
-        const response = await axios.get<ApiResponse<ProductRecommendationMapping[]>>(`${API_BASE_URL}/all`);
-        return response.data;
-    } catch (error: any) {
-        console.error('獲取所有映射失敗:', error);
-        throw new Error(error.response?.data?.message || '無法獲取推薦關聯');
-    }
+const axiosInstance = axios.create({
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Fetch all mappings
+export const getAllMappings = async (): Promise<
+  ApiResponse<ProductRecommendationMapping[]>
+> => {
+  try {
+    const response = await axiosInstance.get<
+      ApiResponse<ProductRecommendationMapping[]>
+    >(`${API_MAPPING_URL}/all`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to fetch all mappings:', error);
+    throw new Error(
+      error.response?.data?.message ||
+        'Unable to fetch recommendation mappings.'
+    );
+  }
 };
 
-export const getMappingById = async (id: number): Promise<ApiResponse<ProductRecommendationMapping>> => {
-    try {
-        const response = await axios.get<ApiResponse<ProductRecommendationMapping>>(`${API_BASE_URL}/${id}`);
-        return response.data;
-    } catch (error: any) {
-        console.error('獲取映射失敗:', error);
-        throw new Error(error.response?.data?.message || '推薦關聯未找到');
-    }
+// Fetch a mapping by ID
+export const getMappingById = async (
+  id: number
+): Promise<ApiResponse<ProductRecommendationMapping>> => {
+  try {
+    const response = await axiosInstance.get<
+      ApiResponse<ProductRecommendationMapping>
+    >(`${API_MAPPING_URL}/${id}`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to fetch mapping by ID:', error);
+    throw new Error(error.response?.data?.message || 'Mapping not found.');
+  }
 };
 
-export const createMapping = async (mapping: Omit<ProductRecommendationMapping, 'id'>): Promise<ApiResponse<ProductRecommendationMapping>> => {
-    try {
-        const response = await axios.post<ApiResponse<ProductRecommendationMapping>>(API_BASE_URL, mapping);
-        return response.data;
-    } catch (error: any) {
-        console.error('創建映射失敗:', error);
-        throw new Error(error.response?.data?.message || '創建推薦關聯失敗');
-    }
+// Create a new mapping
+export const createMapping = async (
+  mapping: Omit<ProductRecommendationMapping, 'id'>
+): Promise<ApiResponse<ProductRecommendationMapping>> => {
+  try {
+    const response = await axiosInstance.post<
+      ApiResponse<ProductRecommendationMapping>
+    >(API_MAPPING_URL, mapping);
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to create mapping:', error);
+    throw new Error(
+      error.response?.data?.message ||
+        'Failed to create recommendation mapping.'
+    );
+  }
 };
 
-export const updateMapping = async (id: number, mapping: Partial<ProductRecommendationMapping>): Promise<ApiResponse<ProductRecommendationMapping>> => {
-    try {
-        const response = await axios.put<ApiResponse<ProductRecommendationMapping>>(`${API_BASE_URL}/${id}`, mapping);
-        return response.data;
-    } catch (error: any) {
-        console.error('更新映射失敗:', error);
-        throw new Error(error.response?.data?.message || '更新推薦關聯失敗');
-    }
+// Update a mapping
+export const updateMapping = async (
+  id: number,
+  mapping: Partial<ProductRecommendationMapping>
+): Promise<ApiResponse<ProductRecommendationMapping>> => {
+  try {
+    const response = await axiosInstance.put<
+      ApiResponse<ProductRecommendationMapping>
+    >(`${API_MAPPING_URL}/${id}`, mapping);
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to update mapping:', error);
+    throw new Error(
+      error.response?.data?.message ||
+        'Failed to update recommendation mapping.'
+    );
+  }
 };
 
+// Delete a mapping
 export const deleteMapping = async (id: number): Promise<ApiResponse<void>> => {
-    try {
-        const response = await axios.delete<ApiResponse<void>>(`${API_BASE_URL}/${id}`);
-        return response.data;
-    } catch (error: any) {
-        console.error('刪除映射失敗:', error);
-        throw new Error(error.response?.data?.message || '刪除推薦關聯失敗');
-    }
+  try {
+    const response = await axiosInstance.delete<ApiResponse<void>>(
+      `${API_MAPPING_URL}/${id}`
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to delete mapping:', error);
+    throw new Error(
+      error.response?.data?.message ||
+        'Failed to delete recommendation mapping.'
+    );
+  }
 };
 
-export const getAllRecommendations = async (): Promise<ApiResponse<StoreProductRecommendation[]>> => {
-    try {
-        const response = await axios.get<ApiResponse<StoreProductRecommendation[]>>(`${API_BASE_URL2}/all`);
-        return response.data;
-    } catch (error: any) {
-        console.error('獲取所有推薦失敗:', error);
-        throw new Error(error.response?.data?.message || '無法獲取推薦');
-    }
+// Fetch all recommendations
+export const getAllRecommendations = async (): Promise<
+  ApiResponse<StoreProductRecommendation[]>
+> => {
+  try {
+    const response = await axiosInstance.get<
+      ApiResponse<StoreProductRecommendation[]>
+    >(`${API_RECOMMENDATION_URL}/all`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to fetch all recommendations:', error);
+    throw new Error(
+      error.response?.data?.message || 'Unable to fetch recommendations.'
+    );
+  }
 };

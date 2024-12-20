@@ -7,7 +7,7 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  // 添加其他需要的用户属性
+  roleId: string;
 }
 
 export interface JWTAuthResponse {

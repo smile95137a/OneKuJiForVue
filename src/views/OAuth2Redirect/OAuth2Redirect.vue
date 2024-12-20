@@ -1,6 +1,5 @@
 <template>
   <div>
-    <p>Hello World</p>
     <div v-if="redirectTo">
       <p>Redirecting to the specified route...</p>
     </div>
@@ -8,10 +7,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import { useAuthStore } from '@/stores/authStore';
 import { useDialogStore } from '@/stores';
+import { useAuthStore } from '@/stores/authStore';
+import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();

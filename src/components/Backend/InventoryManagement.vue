@@ -1,6 +1,8 @@
 <template>
   <div class="inventory-management">
-    <button class="add-member-button" @click="showCreateDetail = true">新增進貨</button>
+    <button class="add-member-button" @click="showCreateDetail = true">
+      新增進貨
+    </button>
     <h2>進銷存管理</h2>
     <table border="1">
       <thead>
@@ -13,64 +15,86 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(productDetail, index) in paginatedproductDetail" :key="index">
+        <tr
+          v-for="(productDetail, index) in paginatedproductDetail"
+          :key="index"
+        >
           <td>{{ productDetail.productName }}</td>
           <td>{{ productDetail.quantity }}</td>
           <td>{{ productDetail.grade }}</td>
           <td>{{ formatDate(productDetail.createDate) }}</td>
           <td>
-            <img :src="productDetail.image" alt="Product Image" v-if="productDetail.image" width="100" />
+            <img
+              :src="productDetail.image"
+              alt="Product Image"
+              v-if="productDetail.image"
+              width="100"
+            />
           </td>
           <td>
             <button @click="editMember(productDetail)">編輯</button>
-            <button class="delete-button" @click="handleDetail(productDetail)">刪除</button>
+            <button class="delete-button" @click="handleDetail(productDetail)">
+              刪除
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
-   <div class="pagination">
-      <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
-      <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">下一頁</button>
-    </div>
+  <div class="pagination">
+    <button @click="previousPage" :disabled="currentPage === 1">上一頁</button>
+    <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
+    <button @click="nextPage" :disabled="currentPage === totalPages">
+      下一頁
+    </button>
+  </div>
 
   <!-- 新增進貨 -->
   <div v-if="showCreateDetail" class="modal">
     <div class="modal-content">
-      <span class="close-button" @click="showCreateDetail = false">&times;</span>
+      <span class="close-button" @click="showCreateDetail = false"
+        >&times;</span
+      >
       <h2>新增會員</h2>
       <form @submit.prevent="addDetail">
         <div>
           <label for="productId">選擇主產品名稱:</label>
           <select id="productId" v-model="newgMember.productId" required>
-            <option v-for="product in products" :key="product.productId" :value="product.productId">
+            <option
+              v-for="product in products"
+              :key="product.productId"
+              :value="product.productId"
+            >
               {{ product.productName }}
             </option>
           </select>
         </div>
         <div>
           <label for="productName">產品名稱:</label>
-          <input id="productName" v-model="newgMember.productName" required>
+          <input id="productName" v-model="newgMember.productName" required />
         </div>
         <div>
           <label for="description">描述:</label>
-          <input id="description" v-model="newgMember.description" required>
+          <input id="description" v-model="newgMember.description" required />
         </div>
         <div>
           <label for="quantity">總數量:</label>
-          <input id="quantity" v-model="newgMember.quantity" required>
+          <input id="quantity" v-model="newgMember.quantity" required />
         </div>
         <div>
           <label for="grade">等級:</label>
-          <input id="grade" v-model="newgMember.grade" required>
+          <input id="grade" v-model="newgMember.grade" required />
         </div>
         <div>
           <label for="image">圖片:</label>
           <div v-if="newgMember.image">
-            <img :src="newgMember.image" alt="Current Image" style="max-width: 200px;" />
+            <img
+              :src="newgMember.image"
+              alt="Current Image"
+              style="max-width: 200px"
+            />
           </div>
-          <input id="image" type="file" @change="handleFileUploadnew">
+          <input id="image" type="file" @change="handleFileUploadnew" />
         </div>
         <button type="submit">提交</button>
       </form>
@@ -79,32 +103,46 @@
 
   <div v-if="showUpdateDetailModal" class="modal">
     <div class="modal-content">
-      <span class="close-button" @click="showUpdateDetailModal = false">&times;</span>
+      <span class="close-button" @click="showUpdateDetailModal = false"
+        >&times;</span
+      >
       <h2>編輯商品</h2>
       <form @submit.prevent="updateMember">
-        <input type="hidden" v-model="editingMember.productId">
+        <input type="hidden" v-model="editingMember.productId" />
         <div>
           <label for="edit-username">產品名稱:</label>
-          <input id="edit-username" v-model="editingMember.productName" required>
+          <input
+            id="edit-username"
+            v-model="editingMember.productName"
+            required
+          />
         </div>
         <div>
           <label for="edit-nickname">描述:</label>
-          <input id="edit-nickname" v-model="editingMember.description" required>
+          <input
+            id="edit-nickname"
+            v-model="editingMember.description"
+            required
+          />
         </div>
         <div>
           <label for="edit-email">總數量:</label>
-          <input id="edit-email" v-model="editingMember.quantity" required>
+          <input id="edit-email" v-model="editingMember.quantity" required />
         </div>
         <div>
           <label for="edit-phoneNumber">等級:</label>
-          <input id="edit-phoneNumber" v-model="editingMember.grade" required>
+          <input id="edit-phoneNumber" v-model="editingMember.grade" required />
         </div>
         <div>
           <label for="image">圖片:</label>
           <div v-if="editingMember.image">
-            <img :src="editingMember.image" alt="Current Image" style="max-width: 200px;" />
+            <img
+              :src="editingMember.image"
+              alt="Current Image"
+              style="max-width: 200px"
+            />
           </div>
-          <input id="image" type="file" @change="handleFileUpload">
+          <input id="image" type="file" @change="handleFileUpload" />
         </div>
         <button type="submit">更新</button>
       </form>
@@ -112,12 +150,12 @@
   </div>
 </template>
 
-
 <script lang="ts" setup>
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import { deleteDetail, getDetail, getProducts } from '@/services/backend/api';
 import axios from 'axios';
 import { computed, onMounted, reactive, ref } from 'vue';
-
+useRoleGuard(['1']);
 const apiClient = axios.create({
   // baseURL: 'http://localhost:8080/api', // 根据实际情况修改
   baseURL: import.meta.env.VITE_BASE_API_URL2, // 根据实际情况修改
@@ -131,14 +169,14 @@ const detail = ref<any[]>([]);
 const itemsPerPage = 10;
 const showCreateDetail = ref(false);
 const newgMember = ref({
-      productId: '',
-      productName: '',
-      description: '',
-      quantity: '',
-      grade: '',
-      image: '', // 保存图片的 URL
-      imageFile: null // 用于保存用户上传的图片文件
-    });
+  productId: '',
+  productName: '',
+  description: '',
+  quantity: '',
+  grade: '',
+  image: '', // 保存图片的 URL
+  imageFile: null, // 用于保存用户上传的图片文件
+});
 
 const fetchDetailData = async () => {
   try {
@@ -166,16 +204,10 @@ const formatDate = (dateArray: number[]) => {
   // 格式化输出
   return `${date.getFullYear()}年${(date.getMonth() + 1)
     .toString()
-    .padStart(2, '0')}月${date
-    .getDate()
-    .toString()
-    .padStart(2, '0')}日${date
+    .padStart(2, '0')}月${date.getDate().toString().padStart(2, '0')}日${date
     .getHours()
     .toString()
-    .padStart(2, '0')}時${date
-    .getMinutes()
-    .toString()
-    .padStart(2, '0')}分${date
+    .padStart(2, '0')}時${date.getMinutes().toString().padStart(2, '0')}分${date
     .getSeconds()
     .toString()
     .padStart(2, '0')}秒`;
@@ -192,7 +224,9 @@ const editingMember = reactive<any>({
   imageFile: null as File | null, // 用于保存用户上传的图片文件
 });
 
-const totalPages = computed(() => Math.ceil(detail.value.length / itemsPerPage));
+const totalPages = computed(() =>
+  Math.ceil(detail.value.length / itemsPerPage)
+);
 
 const paginatedproductDetail = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
@@ -200,26 +234,28 @@ const paginatedproductDetail = computed(() => {
   return detail.value.slice(start, end);
 });
 
-
 const editMember = (member: any) => {
-      Object.assign(editingMember, member);
-      showUpdateDetailModal.value = true;
-    };
+  Object.assign(editingMember, member);
+  showUpdateDetailModal.value = true;
+};
 
 const updateMember = async () => {
   const formData = new FormData();
-  console.log('123123' , editingMember);
-  
+  console.log('123123', editingMember);
+
   // 將 productDetailReq 作為 JSON 字符串添加到 formData 中
-  formData.append('productDetailReq', JSON.stringify({
-    productId: editingMember.productId, // 確保這裡包含了 productId
-    productDetailId: editingMember.productDetailId, // 如果需要的話
-    productName: editingMember.productName,
-    description: editingMember.description,
-    quantity: editingMember.quantity,
-    grade: editingMember.grade,
-    image: editingMember.image, // 保留原始 imageUrl
-  }));
+  formData.append(
+    'productDetailReq',
+    JSON.stringify({
+      productId: editingMember.productId, // 確保這裡包含了 productId
+      productDetailId: editingMember.productDetailId, // 如果需要的話
+      productName: editingMember.productName,
+      description: editingMember.description,
+      quantity: editingMember.quantity,
+      grade: editingMember.grade,
+      image: editingMember.image, // 保留原始 imageUrl
+    })
+  );
 
   // 如果有圖片，添加到 formData 中
   if (editingMember.imageFile) {
@@ -228,11 +264,15 @@ const updateMember = async () => {
 
   try {
     // 更新數據
-    await apiClient.put(`/productDetail/${editingMember.productDetailId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    await apiClient.put(
+      `/productDetail/${editingMember.productDetailId}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
     // 重新獲取數據
     await fetchDetailData();
     // 關閉模態框
@@ -304,7 +344,7 @@ const addDetail = async () => {
       quantity: '',
       grade: '',
       image: '',
-      imageFile: null
+      imageFile: null,
     };
 
     // 更新 UI 或获取新数据
@@ -323,23 +363,20 @@ const handleFileUpload = (event: Event) => {
 };
 
 const handleFileUploadnew = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        newgMember.value.imageFile = file; // 保存文件对象
-        newgMember.value.image = URL.createObjectURL(file); // 显示预览
-      }
-    };
-
-
+  const file = event.target.files[0];
+  if (file) {
+    newgMember.value.imageFile = file; // 保存文件对象
+    newgMember.value.image = URL.createObjectURL(file); // 显示预览
+  }
+};
 </script>
-
 
 <style scoped>
 .member-management {
-  flex: 1;         /* 使 .member-management 占据剩余空间 */
-  padding: 40px;   /* 设置 40px 的内边距 */
+  flex: 1; /* 使 .member-management 占据剩余空间 */
+  padding: 40px; /* 设置 40px 的内边距 */
   background-color: #f1f1f1; /* 背景色保持一致 */
-  overflow: auto;  /* 同样支持溢出处理 */
+  overflow: auto; /* 同样支持溢出处理 */
 }
 
 .header {
@@ -356,7 +393,7 @@ const handleFileUploadnew = (event) => {
 
 .add-member-button {
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -395,7 +432,7 @@ const handleFileUploadnew = (event) => {
   font-size: 24px;
   font-weight: bold;
   margin: 10px 0 0;
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .search-section {
@@ -440,7 +477,7 @@ th {
 .pagination button {
   margin: 0 10px;
   padding: 5px 10px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -508,7 +545,7 @@ form input {
 form button {
   margin-top: 10px;
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;

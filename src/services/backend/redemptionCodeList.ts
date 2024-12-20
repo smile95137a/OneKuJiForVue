@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getAuthToken } from './adminservices';
 
 // 使用環境變數中的 API URL
 const API_URL = `${import.meta.env.VITE_BASE_API_URL2}`;
@@ -11,10 +12,27 @@ interface RedemptionCode {
   userId: number | null;
 }
 
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // 獲取所有兌換碼
 export const getAllRedemptionCodes = async (): Promise<RedemptionCode[]> => {
   try {
-    const response = await axios.post<RedemptionCode[]>(`${API_URL}/redemption/redeem`);
+    const response = await axiosInstance.post<RedemptionCode[]>(
+      '/redemption/redeem'
+    );
     return response.data; // 返回 API 響應的兌換碼數據
   } catch (error) {
     console.error('無法取得兌換碼資料', error);
@@ -22,11 +40,14 @@ export const getAllRedemptionCodes = async (): Promise<RedemptionCode[]> => {
   }
 };
 
-export const generateRedemptionCode = async (productId: number, count: number): Promise<string> => {
+// 生成兌換碼
+export const generateRedemptionCode = async (
+  productId: number,
+  count: number
+): Promise<string> => {
   try {
-    // 将 productId 和 count 作为请求的一部分
-    const response = await axios.post<string>(
-      `${API_URL}/redemption/generate/${productId}`,
+    const response = await axiosInstance.post<string>(
+      `/redemption/generate/${productId}`,
       null, // 如果请求体为空，可以使用 null
       {
         params: { count }, // 使用 params 传递 count 参数
@@ -39,31 +60,30 @@ export const generateRedemptionCode = async (productId: number, count: number): 
   }
 };
 
-
-
+// 獲取產品列表
 export const fetchProducts = async (): Promise<string> => {
   try {
-    // 添加请求体，传递 type 为 4
-    const response = await axios.post<string>(`${API_URL}/product/type`, { type: "CUSTMER_PRIZE" });
-    return response.data; // 返回后端的响应数据
+    const response = await axiosInstance.post<string>('/product/type', {
+      type: 'CUSTMER_PRIZE',
+    });
+    return response.data; // 返回後端的響應數據
   } catch (error) {
     console.error('無法獲取產品列表', error);
     throw error;
   }
 };
 
-
-export const redeemCode = async (productId: number): Promise<ApiResponse<any>> => {
+// 兌換商品
+export const redeemCode = async (
+  productId: number
+): Promise<ApiResponse<any>> => {
   try {
-    // 调用后端 API，将 productId 动态附加到 URL
-    const response = await axios.post<ApiResponse<any>>(`${API_URL}/redemption/redeem/${productId}`);
-    return response.data; // 返回后端 API 的响应数据
+    const response = await axiosInstance.post<ApiResponse<any>>(
+      `/redemption/redeem/${productId}`
+    );
+    return response.data; // 返回後端 API 的響應數據
   } catch (error) {
     console.error('兌換商品失敗:', error);
     throw error;
   }
 };
-
-
-
-
