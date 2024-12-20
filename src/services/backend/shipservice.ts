@@ -25,9 +25,7 @@ axiosInstance.interceptors.request.use((config) => {
 export const ShipService = {
   getAllShippingMethods: async (): Promise<ApiResponse<ShippingMethod[]>> => {
     try {
-      const response = await axiosInstance.get<ApiResponse<ShippingMethod[]>>(
-        '/'
-      );
+      const response = await axiosInstance.get<ApiResponse<ShippingMethod[]>>();
       return response.data;
     } catch (error) {
       console.error('Error fetching all shipping methods:', error);
