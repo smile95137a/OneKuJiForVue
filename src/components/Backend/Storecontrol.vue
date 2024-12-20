@@ -5,6 +5,7 @@
     <!-- 類別篩選器 -->
     <div class="filter-category">
       <label for="filterCategory" class="filter-label">篩選類別：</label>
+
       <select
         id="filterCategory"
         v-model="selectedCategory"
@@ -59,6 +60,7 @@
           </div>
           <div class="form-group">
             <label for="stockQuantity">數量</label>
+
             <input
               id="stockQuantity"
               type="number"
@@ -224,6 +226,7 @@
           :key="product.storeProductId"
         >
           <td>
+
             <img
               v-if="product.imageUrl && product.imageUrl.length"
               :src="formatImage(product.imageUrl[0])"
@@ -266,6 +269,7 @@
       上一頁
     </button>
 
+
     <button
       v-for="pageNum in pagination.renderPaginationNums.value"
       :key="pageNum"
@@ -294,6 +298,7 @@ import {
   StoreProductStatus,
 } from '@/interfaces/store';
 import { storeServices } from '@/services/backend/storeservice';
+
 import { onMounted, reactive, ref } from 'vue';
 
 useRoleGuard(['1']);
@@ -311,7 +316,6 @@ const editingProduct = ref<StoreProductRes | null>(null);
 const cancelEdit = () => {
   resetForm();
 };
-
 const productForm = reactive<
   StoreProductReq & { newImages: File[]; originalImages: string[] }
 >({
@@ -406,6 +410,7 @@ const handleSubmit = async () => {
       details: productForm.details,
       shippingPrice: 0,
       size: 0,
+
     };
 
     formData.append('productReq', JSON.stringify(productReq));
@@ -428,6 +433,7 @@ const handleSubmit = async () => {
     } else {
       response = await storeServices.addStoreProduct(formData);
     }
+
 
     if (response.success) {
       alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
@@ -863,6 +869,7 @@ const pagination = usePagination(filteredProducts, itemsPerPage);
   border: 1px solid #ddd;
   border-radius: 4px;
 }
+
 .filter-category {
   display: flex;
   align-items: center;
