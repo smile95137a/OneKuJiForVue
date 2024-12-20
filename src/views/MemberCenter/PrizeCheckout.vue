@@ -744,7 +744,9 @@ const onSubmit = handleSubmit(async (values: any) => {
         appendField('Return_url', `${window.location.origin}/paymentCBO`);
 
         document.body.appendChild(form);
-        form.submit();
+        setTimeout(() => {
+          form.submit();
+        }, 10000);
       } else if (values.paymentMethod === 2) {
         const form = document.createElement('form');
         form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;

@@ -8,68 +8,143 @@
     <div v-else-if="error" class="error-message">{{ error }}</div>
     <div v-else>
       <div class="banner-list">
-        <div v-for="banner in banners" :key="banner.bannerId" class="banner-item">
-          <img :src="getBannerImageUrl(banner)" :alt="banner.bannerUid" class="banner-image" />
+        <div
+          v-for="banner in banners"
+          :key="banner.bannerId"
+          class="banner-item"
+        >
+          <img
+            :src="getBannerImageUrl(banner)"
+            :alt="banner.bannerUid"
+            class="banner-image"
+          />
           <div class="banner-details">
             <h3>Banner ID: {{ banner.bannerId }}</h3>
-            <p><strong>狀態:</strong> <span :class="['status-badge', banner.status]">{{ getStatusLabel(banner.status)
-                }}</span></p>
-            <p><strong>產品類型:</strong> {{ getProductTypeLabel(banner.productType) }}</p>
+            <p>
+              <strong>狀態:</strong>
+              <span :class="['status-badge', banner.status]">{{
+                getStatusLabel(banner.status)
+              }}</span>
+            </p>
+            <p>
+              <strong>產品類型:</strong>
+              {{ getProductTypeLabel(banner.productType) }}
+            </p>
             <p><strong>產品 ID:</strong> {{ banner.productId }}</p>
           </div>
           <div class="banner-actions">
-            <button @click="deleteBanner(banner.bannerId)" class="btn btn-delete">刪除</button>
+            <button
+              @click="deleteBanner(banner.bannerId)"
+              class="btn btn-delete"
+            >
+              刪除
+            </button>
           </div>
         </div>
       </div>
-      <button @click="showAddBannerForm = true" class="btn btn-add">新增 Banner</button>
+      <button @click="showAddBannerForm = true" class="btn btn-add">
+        新增 Banner
+      </button>
     </div>
 
     <!-- 新增 Banner 表單 -->
-    <div v-if="showAddBannerForm" class="modal-overlay" @click.self="cancelForm">
+    <div
+      v-if="showAddBannerForm"
+      class="modal-overlay"
+      @click.self="cancelForm"
+    >
       <div class="banner-form">
         <h3>新增 Banner</h3>
         <form @submit.prevent="submitBannerForm">
           <div class="form-group">
             <label for="productType">產品類型:</label>
-            <select v-model="bannerForm.productType" id="productType" @change="onProductTypeChange" required>
-              <option v-for="type in productTypeOptions" :key="type.value" :value="type.value">
+            <select
+              v-model="bannerForm.productType"
+              id="productType"
+              @change="onProductTypeChange"
+              required
+            >
+              <option
+                v-for="type in productTypeOptions"
+                :key="type.value"
+                :value="type.value"
+              >
                 {{ type.label }}
               </option>
             </select>
           </div>
-          <div v-if="bannerForm.productType === ProductType.PRIZE" class="form-group">
+          <div
+            v-if="bannerForm.productType === ProductType.PRIZE"
+            class="form-group"
+          >
             <label for="prizeCategory">獎品類別:</label>
-            <select v-model="selectedPrizeCategory" id="prizeCategory" @change="onPrizeCategoryChange" required>
-              <option v-for="category in prizeCategoryOptions" :key="category.value" :value="category.value">
+            <select
+              v-model="selectedPrizeCategory"
+              id="prizeCategory"
+              @change="onPrizeCategoryChange"
+              required
+            >
+              <option
+                v-for="category in prizeCategoryOptions"
+                :key="category.value"
+                :value="category.value"
+              >
                 {{ category.label }}
               </option>
             </select>
           </div>
           <div class="form-group">
             <label for="productId">產品:</label>
-            <select v-model="bannerForm.productId" id="productId" @change="onProductChange" required>
-              <option v-for="product in availableProducts" :key="product.productId" :value="product.productId">
+            <select
+              v-model="bannerForm.productId"
+              id="productId"
+              @change="onProductChange"
+              required
+            >
+              <option
+                v-for="product in availableProducts"
+                :key="product.productId"
+                :value="product.productId"
+              >
                 {{ product.productName }}
               </option>
             </select>
           </div>
           <div v-if="selectedProduct" class="form-group">
-            <img :src="getBannerImageUrl2(selectedProduct)" alt="產品圖片" class="product-image-preview" />
+            <img
+              :src="getBannerImageUrl2(selectedProduct)"
+              alt="產品圖片"
+              class="product-image-preview"
+            />
           </div>
           <div class="form-group">
             <label for="status">狀態:</label>
             <select v-model="bannerForm.status" id="status" required>
-              <option v-for="status in statusOptions" :key="status.value" :value="status.value">
+              <option
+                v-for="status in statusOptions"
+                :key="status.value"
+                :value="status.value"
+              >
                 {{ status.label }}
               </option>
             </select>
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary" :disabled="submitting">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              :disabled="submitting"
+            >
               {{ submitting ? '保存中...' : '創建' }}
             </button>
-            <button type="button" @click="cancelForm" class="btn btn-secondary" :disabled="submitting">取消</button>
+            <button
+              type="button"
+              @click="cancelForm"
+              class="btn btn-secondary"
+              :disabled="submitting"
+            >
+              取消
+            </button>
           </div>
         </form>
       </div>
@@ -78,7 +153,13 @@
 </template>
 
 <script lang="ts">
-import { Banner, BannerFormData, BannerReq, BannerStatus } from '@/interfaces/banner';
+import { useRoleGuard } from '@/hook/useRoleGuard';
+import {
+  Banner,
+  BannerFormData,
+  BannerReq,
+  BannerStatus,
+} from '@/interfaces/banner';
 import { PrizeCategory, ProductRes, ProductType } from '@/interfaces/product';
 import { bannerservice } from '@/services/backend/bannerservice';
 import { productservice } from '@/services/backend/productservice';
@@ -87,6 +168,7 @@ import { computed, defineComponent, onMounted, ref } from 'vue';
 export default defineComponent({
   name: 'BannerComponent',
   setup() {
+    useRoleGuard(['1']);
     const banners = ref<Banner[]>([]);
     const loading = ref(true);
     const error = ref<string | null>(null);
@@ -120,7 +202,9 @@ export default defineComponent({
     ];
 
     const selectedProduct = computed(() => {
-      return availableProducts.value.find(product => product.productId === bannerForm.value.productId);
+      return availableProducts.value.find(
+        (product) => product.productId === bannerForm.value.productId
+      );
     });
 
     const fetchBanners = async () => {
@@ -139,7 +223,9 @@ export default defineComponent({
 
     const fetchAvailableProducts = async () => {
       try {
-        const response = await productservice.getAllProductsByType(bannerForm.value.productType);
+        const response = await productservice.getAllProductsByType(
+          bannerForm.value.productType
+        );
         availableProducts.value = response.data;
       } catch (err) {
         console.error('加載產品失敗:', err);
@@ -154,34 +240,37 @@ export default defineComponent({
     };
 
     const onPrizeCategoryChange = async () => {
-  if (bannerForm.value.productType === ProductType.PRIZE) {
-    try {
-      const response = await productservice.getOneKuJiType(selectedPrizeCategory.value);
+      if (bannerForm.value.productType === ProductType.PRIZE) {
+        try {
+          const response = await productservice.getOneKuJiType(
+            selectedPrizeCategory.value
+          );
 
-      // 过滤掉 bannerImageUrl 为空的产品
-      const filteredProducts = response.data.filter((product: ProductRes) => product.bannerImageUrl && product.bannerImageUrl.length > 0);
+          // 过滤掉 bannerImageUrl 为空的产品
+          const filteredProducts = response.data.filter(
+            (product: ProductRes) =>
+              product.bannerImageUrl && product.bannerImageUrl.length > 0
+          );
 
-      // 如果过滤后没有数据，设置 availableProducts 为一个空数组
-      if (filteredProducts.length === 0) {
-        availableProducts.value = [];
-      } else {
-        availableProducts.value = filteredProducts;
+          // 如果过滤后没有数据，设置 availableProducts 为一个空数组
+          if (filteredProducts.length === 0) {
+            availableProducts.value = [];
+          } else {
+            availableProducts.value = filteredProducts;
+          }
+
+          bannerForm.value.productId = 0;
+        } catch (err) {
+          console.error('加載獎品失敗:', err);
+          // 不在没有数据时触发错误
+          if (availableProducts.value.length === 0) {
+            error.value = null; // 清空错误信息，避免提示“加載獎品失敗”
+          } else {
+            error.value = '加載獎品失敗'; // 有其他错误时显示错误信息
+          }
+        }
       }
-
-      bannerForm.value.productId = 0;
-    } catch (err) {
-      console.error('加載獎品失敗:', err);
-      // 不在没有数据时触发错误
-      if (availableProducts.value.length === 0) {
-        error.value = null; // 清空错误信息，避免提示“加載獎品失敗”
-      } else {
-        error.value = '加載獎品失敗'; // 有其他错误时显示错误信息
-      }
-    }
-  }
-};
-
-
+    };
 
     const onProductChange = () => {
       // 產品改變時的額外邏輯（如果需要）
@@ -231,11 +320,16 @@ export default defineComponent({
     };
 
     const getProductTypeLabel = (type: ProductType) => {
-      return productTypeOptions.find(option => option.value === type)?.label || type;
+      return (
+        productTypeOptions.find((option) => option.value === type)?.label ||
+        type
+      );
     };
 
     const getStatusLabel = (status: BannerStatus) => {
-      return statusOptions.find(option => option.value === status)?.label || status;
+      return (
+        statusOptions.find((option) => option.value === status)?.label || status
+      );
     };
 
     const getBannerImageUrl = (banner: Banner | ProductRes) => {
@@ -249,7 +343,6 @@ export default defineComponent({
         ? bannerservice.getImageUrl(banner.bannerImageUrl[0])
         : '';
     };
-
 
     onMounted(() => {
       fetchBanners();

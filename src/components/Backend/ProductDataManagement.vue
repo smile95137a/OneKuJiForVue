@@ -764,6 +764,7 @@
 
 <script lang="ts" setup>
 import { usePagination } from '@/hook/usePagination';
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import {
   DetailReq,
   DetailRes,
@@ -778,6 +779,8 @@ import {
 import { productservice } from '@/services/backend/productservice';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+
+useRoleGuard(['1']);
 
 // 路由相關
 const route = useRoute();

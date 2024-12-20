@@ -286,6 +286,7 @@
 
 <script lang="ts" setup>
 import { usePagination } from '@/hook/usePagination';
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import {
   StoreCategory,
   StoreProductReq,
@@ -294,6 +295,8 @@ import {
 } from '@/interfaces/store';
 import { storeServices } from '@/services/backend/storeservice';
 import { onMounted, reactive, ref } from 'vue';
+
+useRoleGuard(['1']);
 
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 

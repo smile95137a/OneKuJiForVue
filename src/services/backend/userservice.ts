@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { User, UserReq, ApiResponse, SliverUpdate } from '@/interfaces/user';
+import { getAuthToken } from './adminservices';
 
 const baseURL = import.meta.env.VITE_BASE_API_URL2;
 
@@ -8,6 +9,14 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
 });
 
 async function apiCall<T>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
@@ -21,37 +30,43 @@ async function apiCall<T>(config: AxiosRequestConfig): Promise<ApiResponse<T>> {
 }
 
 export const userService = {
-  getAllUsers: () => apiCall<User[]>({ 
-    method: 'GET', 
-    url: '/user/query' 
-  }),
+  getAllUsers: () =>
+    apiCall<User[]>({
+      method: 'GET',
+      url: '/user/query',
+    }),
 
-  getUserById: (userId: number) => apiCall<User>({ 
-    method: 'GET', 
-    url: `/user/${userId}` 
-  }),
+  getUserById: (userId: number) =>
+    apiCall<User>({
+      method: 'GET',
+      url: `/user/${userId}`,
+    }),
 
-  createUser: (userReq: UserReq) => apiCall<User>({ 
-    method: 'POST', 
-    url: '/user/create', 
-    data: userReq 
-  }),
+  createUser: (userReq: UserReq) =>
+    apiCall<User>({
+      method: 'POST',
+      url: '/user/create',
+      data: userReq,
+    }),
 
-  updateUser: (userId: number, userReq: UserReq) => apiCall<User>({ 
-    method: 'PUT', 
-    url: `/user/update/${userId}`, 
-    data: userReq 
-  }),
+  updateUser: (userId: number, userReq: UserReq) =>
+    apiCall<User>({
+      method: 'PUT',
+      url: `/user/update/${userId}`,
+      data: userReq,
+    }),
 
-  deleteUser: (userId: number) => apiCall<void>({ 
-    method: 'DELETE', 
-    url: `/user/delete/${userId}` 
-  }),
+  deleteUser: (userId: number) =>
+    apiCall<void>({
+      method: 'DELETE',
+      url: `/user/delete/${userId}`,
+    }),
 
   // 新增的銀幣發放方法
-  distributeSilver: (sliverUpdate: SliverUpdate) => apiCall<void>({
-    method: 'POST',
-    url: '/user/updateSliver',
-    data: sliverUpdate
-  }),
+  distributeSilver: (sliverUpdate: SliverUpdate) =>
+    apiCall<void>({
+      method: 'POST',
+      url: '/user/updateSliver',
+      data: sliverUpdate,
+    }),
 };

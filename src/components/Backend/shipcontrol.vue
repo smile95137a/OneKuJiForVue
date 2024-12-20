@@ -27,7 +27,9 @@
           <td>{{ method.shippingPrice }}</td>
           <td>
             <button @click="openEditModal(method)">編輯</button>
-            <button @click="deleteShippingMethod(method.shippingMethodId)">刪除</button>
+            <button @click="deleteShippingMethod(method.shippingMethodId)">
+              刪除
+            </button>
           </td>
         </tr>
       </tbody>
@@ -39,27 +41,50 @@
         <form @submit.prevent="submitForm">
           <div>
             <label for="name">名稱</label>
-            <input v-model="currentMethod.name" id="name" required>
+            <input v-model="currentMethod.name" id="name" required />
           </div>
           <div>
             <label for="description">描述</label>
-            <input v-model="currentMethod.description" id="description" >
+            <input v-model="currentMethod.description" id="description" />
           </div>
           <div>
             <label for="status">狀態</label>
-            <input v-model.number="currentMethod.status" id="status" type="number" required>
+            <input
+              v-model.number="currentMethod.status"
+              id="status"
+              type="number"
+              required
+            />
           </div>
           <div>
             <label for="minSize">最小尺寸</label>
-            <input v-model.number="currentMethod.minSize" id="minSize" type="number" step="0.01" required>
+            <input
+              v-model.number="currentMethod.minSize"
+              id="minSize"
+              type="number"
+              step="0.01"
+              required
+            />
           </div>
           <div>
             <label for="maxSize">最大尺寸</label>
-            <input v-model.number="currentMethod.maxSize" id="maxSize" type="number" step="0.01" required>
+            <input
+              v-model.number="currentMethod.maxSize"
+              id="maxSize"
+              type="number"
+              step="0.01"
+              required
+            />
           </div>
           <div>
             <label for="shippingPrice">運費</label>
-            <input v-model.number="currentMethod.shippingPrice" id="shippingPrice" type="number" step="0.01" required>
+            <input
+              v-model.number="currentMethod.shippingPrice"
+              id="shippingPrice"
+              type="number"
+              step="0.01"
+              required
+            />
           </div>
           <button type="submit">{{ isEditing ? '更新' : '創建' }}</button>
           <button type="button" @click="closeModal">取消</button>
@@ -70,9 +95,11 @@
 </template>
 
 <script lang="ts" setup>
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import { ShippingMethod, ShippingMethodReq } from '@/interfaces/ship';
 import { ShipService } from '@/services/backend/shipservice';
 import { onMounted, ref } from 'vue';
+useRoleGuard(['1']);
 
 const shippingMethods = ref<ShippingMethod[]>([]);
 const showModal = ref(false);
@@ -121,7 +148,7 @@ const openEditModal = (method: ShippingMethod) => {
     status: method.status,
     minSize: method.minSize,
     maxSize: method.maxSize,
-    shippingPrice: method.shippingPrice
+    shippingPrice: method.shippingPrice,
   };
   showModal.value = true;
 };
@@ -133,7 +160,10 @@ const closeModal = () => {
 const submitForm = async () => {
   try {
     if (isEditing.value && currentMethod.value.shippingMethodId) {
-      await ShipService.updateShippingMethod(currentMethod.value.shippingMethodId, currentMethod.value);
+      await ShipService.updateShippingMethod(
+        currentMethod.value.shippingMethodId,
+        currentMethod.value
+      );
     } else {
       await ShipService.createShippingMethod(currentMethod.value);
     }
@@ -187,7 +217,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
@@ -241,7 +272,7 @@ input {
   margin-top: 5px;
 }
 
-input[type="number"] {
+input[type='number'] {
   width: 100%;
   padding: 8px;
   font-size: 14px;
@@ -250,26 +281,25 @@ input[type="number"] {
   margin-top: 5px;
 }
 
-button[type="submit"] {
+button[type='submit'] {
   background-color: #28a745;
   color: white;
 }
 
-button[type="submit"]:hover {
+button[type='submit']:hover {
   background-color: #218838;
 }
 
-button[type="button"] {
+button[type='button'] {
   background-color: #dc3545;
   color: white;
 }
 
-button[type="button"]:hover {
+button[type='button']:hover {
   background-color: #c82333;
 }
 
 button:focus {
   outline: none;
 }
-
 </style>

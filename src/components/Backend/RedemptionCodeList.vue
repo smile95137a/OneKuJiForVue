@@ -68,8 +68,14 @@
         <span>已兌換: {{ code.isRedeemed ? '是' : '否' }}</span>
         <span
           >兌換時間:
-          {{ code.redeemedAt ? formatDate(code.redeemedAt) : '尚未兌換' }}</span
-        >
+          <template v-if="code.redeemedAt">
+            <DateFormatter
+              :date="code.redeemedAt"
+              format="YYYY/MM/DD HH:mm:ss"
+            />
+          </template>
+          <template v-else> 尚未兌換 </template>
+        </span>
         <span>用戶ID: {{ code.userId ? code.userId : '未指定' }}</span>
         <span
           >指定產品: {{ code.productName ? code.productName : '未指定' }}</span
@@ -140,6 +146,7 @@
 </template>
 
 <script lang="ts" setup>
+import DateFormatter from '@/components/common/DateFormatter.vue';
 import { ref, computed, onMounted } from 'vue';
 import {
   fetchProducts,
@@ -147,6 +154,8 @@ import {
   getAllRedemptionCodes,
 } from '@/services/backend/redemptionCodeList';
 import { usePagination } from '@/hook/usePagination';
+import { useRoleGuard } from '@/hook/useRoleGuard';
+useRoleGuard(['1']);
 
 const redemptionCodes = ref([]); // 全部兌換碼列表
 const products = ref([]); // 商品列表
@@ -229,17 +238,6 @@ const generateCode = async () => {
     console.error('生成失敗：', error);
     alert('生成失敗！');
   }
-};
-
-// 日期格式化
-const formatDate = (timestamp: string | number) => {
-  const date = new Date(Number(timestamp));
-  const pad = (n: number) => n.toString().padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-    date.getDate()
-  )} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
-    date.getSeconds()
-  )}`;
 };
 
 // 打開彈窗

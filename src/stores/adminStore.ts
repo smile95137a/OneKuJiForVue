@@ -1,11 +1,17 @@
 import { defineStore } from 'pinia';
 import { JWTAuthResponse, User } from '@/interfaces/admin';
-import { setAuthToken, getAuthToken, removeAuthToken } from '@/services/backend/adminservices';
+import {
+  setAuthToken,
+  getAuthToken,
+  removeAuthToken,
+  setUser,
+  getUser,
+} from '@/services/backend/adminservices';
 
 export const useAdminStore = defineStore('admin', {
   state: () => ({
     token: getAuthToken(),
-    user: null as User | null,
+    user: getUser() as User | null,
   }),
   getters: {
     isAuthenticated: (state) => !!state.token,
@@ -15,6 +21,7 @@ export const useAdminStore = defineStore('admin', {
       this.token = authData.accessToken;
       this.user = authData.user;
       setAuthToken(authData.accessToken);
+      setUser(authData.user);
     },
     clearAuth() {
       this.token = null;

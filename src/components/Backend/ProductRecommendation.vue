@@ -96,6 +96,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import {
   ApiResponse,
   ProductRecommendationMapping,
@@ -114,6 +115,8 @@ import {
 } from '@/services/backend/recommand';
 import { storeServices } from '@/services/backend/storeservice';
 import { computed, onMounted, ref, watch } from 'vue';
+
+useRoleGuard(['1']);
 
 const mappings = ref<ProductRecommendationMapping[]>([]);
 const currentMapping = ref<ProductRecommendationMapping>({

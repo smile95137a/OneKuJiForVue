@@ -3,7 +3,11 @@
     <!-- 控制面板 -->
     <div class="report-controls">
       <label for="reportType">選擇報表：</label>
-      <select id="reportType" v-model="selectedReport" @change="resetDateAndFetchData">
+      <select
+        id="reportType"
+        v-model="selectedReport"
+        @change="resetDateAndFetchData"
+      >
         <option value="DRAW_AMOUNT">開獎金額報表</option>
         <option value="TOTAL_CONSUMPTION">消費總額報表</option>
         <option value="TOTAL_DEPOSIT">儲值總額報表</option>
@@ -14,9 +18,12 @@
         <option value="DRAW_RESULT_SUMMARY">開獎結果報表</option>
       </select>
 
-
       <label for="groupType">分組類型：</label>
-      <select id="groupType" v-model="groupType" @change="resetDateAndFetchData">
+      <select
+        id="groupType"
+        v-model="groupType"
+        @change="resetDateAndFetchData"
+      >
         <option value="day">日</option>
         <option value="week">週</option>
         <option value="month">月</option>
@@ -25,9 +32,19 @@
 
       <div v-if="requiresDateRange(selectedReport)">
         <label for="startDate">開始日期：</label>
-        <input id="startDate" type="date" v-model="startDate" @change="fetchReportData" />
+        <input
+          id="startDate"
+          type="date"
+          v-model="startDate"
+          @change="fetchReportData"
+        />
         <label for="endDate">結束日期：</label>
-        <input id="endDate" type="date" v-model="endDate" @change="fetchReportData" />
+        <input
+          id="endDate"
+          type="date"
+          v-model="endDate"
+          @change="fetchReportData"
+        />
       </div>
 
       <div class="action-buttons">
@@ -41,13 +58,20 @@
       <table v-if="pagedData.length">
         <thead>
           <tr>
-            <th v-for="key in Object.keys(pagedData[0])" :key="key">{{ key }}</th>
+            <th v-for="key in Object.keys(pagedData[0])" :key="key">
+              {{ key }}
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(row, index) in pagedData" :key="index">
             <td v-for="(value, key) in row" :key="key">
-              <img v-if="isImage(value)" :src="getFormattedImageUrl(value)" alt="圖片" class="product-image" />
+              <img
+                v-if="isImage(value)"
+                :src="getFormattedImageUrl(value)"
+                alt="圖片"
+                class="product-image"
+              />
               <span v-else>{{ value }}</span>
             </td>
           </tr>
@@ -58,20 +82,29 @@
 
     <!-- 分頁控制 -->
     <div class="pagination" v-if="totalPages > 0">
-      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一頁</button>
+      <button
+        @click="changePage(currentPage - 1)"
+        :disabled="currentPage === 1"
+      >
+        上一頁
+      </button>
       <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
-      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">下一頁</button>
+      <button
+        @click="changePage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+      >
+        下一頁
+      </button>
     </div>
-
   </div>
 </template>
 
-
-
 <script lang="ts" setup>
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import { storeServices } from '@/services/backend/storeservice';
 import axios from 'axios';
 import { ref } from 'vue';
+useRoleGuard(['1', '2']);
 
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
@@ -112,7 +145,9 @@ const isImage = (value: string | string[]): boolean => {
 
   const trimmedValue = value.trim().replace(/^["']|["']$/g, '');
   const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp'];
-  return imageExtensions.some(extension => trimmedValue.toLowerCase().includes(extension));
+  return imageExtensions.some((extension) =>
+    trimmedValue.toLowerCase().includes(extension)
+  );
 };
 
 const getFormattedImageUrl = (url: string): string => {
@@ -179,8 +214,7 @@ const fetchReportData = async (): Promise<void> => {
     // 获取当前页的数据
     const startIndex = (currentPage.value - 1) * PAGE_SIZE;
     const endIndex = currentPage.value * PAGE_SIZE;
-    pagedData.value = reportData.value.slice(startIndex, endIndex);  // 当前页数据
-
+    pagedData.value = reportData.value.slice(startIndex, endIndex); // 当前页数据
   } catch (error) {
     console.error('查詢報表失敗:', error);
     reportData.value = [];
@@ -188,10 +222,6 @@ const fetchReportData = async (): Promise<void> => {
     currentPage.value = 1;
   }
 };
-
-
-
-
 
 const reportNameMap: { [key: string]: string } = {
   DRAW_AMOUNT: '開獎金額報表',
@@ -219,7 +249,8 @@ const exportToExcel = async (): Promise<void> => {
     });
 
     // 获取中文名称
-    const reportName = reportNameMap[selectedReport.value] || selectedReport.value;
+    const reportName =
+      reportNameMap[selectedReport.value] || selectedReport.value;
 
     // 创建下载链接并触发下载
     const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -235,7 +266,6 @@ const exportToExcel = async (): Promise<void> => {
     console.error('匯出報表失敗:', error);
   }
 };
-
 
 // 初始化
 fetchReportData();
@@ -266,7 +296,7 @@ fetchReportData();
 }
 
 .report-controls select,
-.report-controls input[type="date"] {
+.report-controls input[type='date'] {
   padding: 5px 10px;
   border: 1px solid #ccc;
   border-radius: 5px;

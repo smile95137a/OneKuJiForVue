@@ -26,8 +26,12 @@
             </span>
           </td>
           <td>
-            <button @click="openEditNewsModal(news)" class="btn btn-edit">編輯</button>
-            <button @click="deleteNews(news.newsUid)" class="btn btn-delete">刪除</button>
+            <button @click="openEditNewsModal(news)" class="btn btn-edit">
+              編輯
+            </button>
+            <button @click="deleteNews(news.newsUid)" class="btn btn-delete">
+              刪除
+            </button>
           </td>
         </tr>
       </tbody>
@@ -46,39 +50,83 @@
           <form @submit.prevent="handleNewsSubmit">
             <div class="form-group">
               <label class="form-label" for="title">標題</label>
-              <input id="title" v-model="currentNews.title" class="form-input" required placeholder="請輸入標題" />
+              <input
+                id="title"
+                v-model="currentNews.title"
+                class="form-input"
+                required
+                placeholder="請輸入標題"
+              />
             </div>
 
             <div class="form-group">
               <label class="form-label" for="preview">預覽</label>
-              <input id="preview" v-model="currentNews.preview" class="form-input" required placeholder="請輸入預覽內容" />
+              <input
+                id="preview"
+                v-model="currentNews.preview"
+                class="form-input"
+                required
+                placeholder="請輸入預覽內容"
+              />
             </div>
 
             <div class="form-group editor-container">
               <label class="form-label" for="content">內容</label>
-              <ckeditor :editor="editor" v-model="currentNews.content" :config="editorConfig" class="custom-editor">
+              <ckeditor
+                :editor="editor"
+                v-model="currentNews.content"
+                :config="editorConfig"
+                class="custom-editor"
+              >
               </ckeditor>
             </div>
             <div class="form-group">
               <label for="images">上傳圖片</label>
-              <input type="file" id="images" @change="handleImageUpload" multiple accept="image/*" />
+              <input
+                type="file"
+                id="images"
+                @change="handleImageUpload"
+                multiple
+                accept="image/*"
+              />
             </div>
-            <div v-if="currentNews.imageUrls && currentNews.imageUrls.length > 0" class="image-preview">
-              <div v-for="(image, index) in currentNews.imageUrls" :key="index" class="image-item">
+            <div
+              v-if="currentNews.imageUrls && currentNews.imageUrls.length > 0"
+              class="image-preview"
+            >
+              <div
+                v-for="(image, index) in currentNews.imageUrls"
+                :key="index"
+                class="image-item"
+              >
                 <img :src="formatImageUrl(image)" alt="新聞圖片" />
-                <button type="button" @click="removeImage(index)" class="remove-image">移除</button>
+                <button
+                  type="button"
+                  @click="removeImage(index)"
+                  class="remove-image"
+                >
+                  移除
+                </button>
               </div>
             </div>
             <div class="form-group">
               <label class="form-label" for="status">狀態</label>
-              <select id="status" v-model="currentNews.status" class="form-select">
+              <select
+                id="status"
+                v-model="currentNews.status"
+                class="form-select"
+              >
                 <option :value="NewsStatus.AVAILABLE">發布</option>
                 <option :value="NewsStatus.UNAVAILABLE">不發布</option>
               </select>
             </div>
 
             <div class="form-actions">
-              <button type="button" @click="closeNewsModal" class="btn btn-secondary">
+              <button
+                type="button"
+                @click="closeNewsModal"
+                class="btn btn-secondary"
+              >
                 取消
               </button>
               <button type="submit" class="btn btn-primary">
@@ -93,12 +141,13 @@
 </template>
 
 <script lang="ts" setup>
+import { useRoleGuard } from '@/hook/useRoleGuard';
 import { News, NewsStatus } from '@/interfaces/news';
 import { NewsService } from '@/services/backend/newsservice';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { Ckeditor } from '@ckeditor/ckeditor5-vue';
 import { onMounted, reactive, ref } from 'vue';
-
+useRoleGuard(['1']);
 const newsList = ref<News[]>([]);
 const showNewsModal = ref(false);
 const isEditing = ref(false);
@@ -107,7 +156,17 @@ const editor = ClassicEditor;
 // 自定義 CKEditor 配置，啟用圖片大小調整功能
 const editorConfig = {
   toolbar: [
-    'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', '|', 'imageResize'
+    'heading',
+    '|',
+    'bold',
+    'italic',
+    'link',
+    'bulletedList',
+    'numberedList',
+    'blockQuote',
+    'imageUpload',
+    '|',
+    'imageResize',
   ],
   language: 'zh-tw',
   image: {
@@ -163,7 +222,7 @@ const closeNewsModal = () => {
   showNewsModal.value = false;
   resetNewsForm();
 };
-const handleImageUpload = (event: { target: { files: any; }; }) => {
+const handleImageUpload = (event: { target: { files: any } }) => {
   const files = event.target.files;
   if (files) {
     currentNews.imageFiles = Array.from(files); // 將上傳的檔案轉為陣列存到 imageFiles 中
@@ -184,7 +243,7 @@ const handleNewsSubmit = async () => {
       content: currentNews.content,
       status: currentNews.status,
       author: currentNews.author,
-      imageUrls: currentNews.imageUrls.filter(img => typeof img === 'string')
+      imageUrls: currentNews.imageUrls.filter((img) => typeof img === 'string'),
     };
 
     // 將 `newsReq` 作為一個 JSON 字串附加到 `FormData`
@@ -221,16 +280,15 @@ class MyCustomUploadAdapter {
   }
 
   upload() {
-    return this.loader.file
-      .then(async (file: File) => {
-        const res = await NewsService.uploadImage(file);
-        const url = NewsService.getImageUrl(res);
-        // 將圖片文件添加到 currentNews.imageFiles 中，稍後會一同提交
-        // 返回圖片的預覽 URL，這樣 CKEditor 可以即時顯示圖片
-        return {
-          default: url,
-        };
-      });
+    return this.loader.file.then(async (file: File) => {
+      const res = await NewsService.uploadImage(file);
+      const url = NewsService.getImageUrl(res);
+      // 將圖片文件添加到 currentNews.imageFiles 中，稍後會一同提交
+      // 返回圖片的預覽 URL，這樣 CKEditor 可以即時顯示圖片
+      return {
+        default: url,
+      };
+    });
   }
 
   abort() {
@@ -281,7 +339,6 @@ function formatDate(dateArray: number[]) {
   const [year, month, day, hour, minute, second] = dateArray;
   return `${year}年${month}月${day}日 ${hour}時${minute}分${second}秒`;
 }
-
 </script>
 
 <style scoped>

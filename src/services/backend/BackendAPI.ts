@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import { getAuthToken } from '../frontend/AuthService';
 import { removeAllState } from '@/utils/Localstorage';
+import { getAuthToken } from './adminservices';
 
 export const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_API_URL2,

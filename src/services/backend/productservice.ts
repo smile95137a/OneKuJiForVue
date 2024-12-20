@@ -1,19 +1,45 @@
 // src/services/backend/productservice.ts
 
-import { ApiResponse, DetailApiResponse, DetailListApiResponse, DetailReq, PrizeCategory, ProductApiResponse, ProductCategoryApiResponse, ProductCategoryListApiResponse, ProductListApiResponse, ProductReq, ProductType } from '@/interfaces/product';
+import {
+  ApiResponse,
+  DetailApiResponse,
+  DetailListApiResponse,
+  DetailReq,
+  PrizeCategory,
+  ProductApiResponse,
+  ProductCategoryApiResponse,
+  ProductCategoryListApiResponse,
+  ProductListApiResponse,
+  ProductReq,
+  ProductType,
+} from '@/interfaces/product';
 import axios from 'axios';
+import { getAuthToken } from './adminservices';
 
 const API_URL = import.meta.env.VITE_BASE_API_URL2;
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export const productservice = {
   getAllProducts: async (): Promise<ProductListApiResponse> => {
     try {
-      const response = await axiosInstance.get<ProductListApiResponse>('/product/query');
+      const response = await axiosInstance.get<ProductListApiResponse>(
+        '/product/query'
+      );
       return response.data;
     } catch (error) {
       console.error('getAllProducts 錯誤:', error);
@@ -23,14 +49,18 @@ export const productservice = {
 
   getProductById: async (id: number): Promise<ProductApiResponse> => {
     try {
-      const response = await axiosInstance.get<ProductApiResponse>(`/product/query/${id}`);
+      const response = await axiosInstance.get<ProductApiResponse>(
+        `/product/query/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error('getProductById 錯誤:', error);
       throw error;
     }
   },
-  createSingleProductDetail: async (detailReq: DetailReq): Promise<DetailApiResponse> => {
+  createSingleProductDetail: async (
+    detailReq: DetailReq
+  ): Promise<DetailApiResponse> => {
     if (!detailReq.productId || detailReq.productId <= 0) {
       console.error('無效的 productId:', detailReq.productId);
       throw new Error('無效的 productId');
@@ -52,16 +82,22 @@ export const productservice = {
     });
 
     try {
-      const response = await axiosInstance.post<DetailApiResponse>('/productDetail/add', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.post<DetailApiResponse>(
+        '/productDetail/add',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('createSingleProductDetail 錯誤:', error);
       throw error;
     }
   },
-  createProduct: async (productReq: ProductReq): Promise<ProductApiResponse> => {
+  createProduct: async (
+    productReq: ProductReq
+  ): Promise<ProductApiResponse> => {
     const formData = new FormData();
     const productReqCopy = { ...productReq };
     const imageFiles: File[] = [];
@@ -102,18 +138,23 @@ export const productservice = {
 
     try {
       // 调用后端接口创建产品
-      const response = await axiosInstance.post<ProductApiResponse>('/product/add', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.post<ProductApiResponse>(
+        '/product/add',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       return response.data;
     } catch (error) {
       throw error;
     }
   },
 
-
-
-  updateProduct: async (id: number, productReq: ProductReq): Promise<ProductApiResponse> => {
+  updateProduct: async (
+    id: number,
+    productReq: ProductReq
+  ): Promise<ProductApiResponse> => {
     const formData = new FormData();
     const productReqCopy = { ...productReq };
     const imageFiles: File[] = [];
@@ -148,9 +189,13 @@ export const productservice = {
     });
 
     try {
-      const response = await axiosInstance.put<ProductApiResponse>(`/product/update/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.put<ProductApiResponse>(
+        `/product/update/${id}`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('updateProduct 錯誤:', error);
@@ -158,10 +203,11 @@ export const productservice = {
     }
   },
 
-
   deleteProduct: async (id: number): Promise<ApiResponse<void>> => {
     try {
-      const response = await axiosInstance.delete<ApiResponse<void>>(`/product/delete/${id}`);
+      const response = await axiosInstance.delete<ApiResponse<void>>(
+        `/product/delete/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error('deleteProduct 錯誤:', error);
@@ -169,9 +215,14 @@ export const productservice = {
     }
   },
 
-  getAllProductsByType: async (productType: ProductType): Promise<ProductListApiResponse> => {
+  getAllProductsByType: async (
+    productType: ProductType
+  ): Promise<ProductListApiResponse> => {
     try {
-      const response = await axiosInstance.post<ProductListApiResponse>('/product/type', { type: productType });
+      const response = await axiosInstance.post<ProductListApiResponse>(
+        '/product/type',
+        { type: productType }
+      );
       return response.data;
     } catch (error) {
       console.error('getAllProductsByType 錯誤:', error);
@@ -179,9 +230,14 @@ export const productservice = {
     }
   },
 
-  getOneKuJiType: async (prizeCategory: PrizeCategory): Promise<ProductListApiResponse> => {
+  getOneKuJiType: async (
+    prizeCategory: PrizeCategory
+  ): Promise<ProductListApiResponse> => {
     try {
-      const response = await axiosInstance.post<ProductListApiResponse>('/product/OneKuJi/type', { type: prizeCategory });
+      const response = await axiosInstance.post<ProductListApiResponse>(
+        '/product/OneKuJi/type',
+        { type: prizeCategory }
+      );
       return response.data;
     } catch (error) {
       console.error('getOneKuJiType 錯誤:', error);
@@ -191,7 +247,9 @@ export const productservice = {
 
   getAllProductDetails: async (): Promise<DetailListApiResponse> => {
     try {
-      const response = await axiosInstance.get<DetailListApiResponse>('/productDetail/all');
+      const response = await axiosInstance.get<DetailListApiResponse>(
+        '/productDetail/all'
+      );
       return response.data;
     } catch (error) {
       console.error('getAllProductDetails 錯誤:', error);
@@ -199,9 +257,11 @@ export const productservice = {
     }
   },
 
-  createProductDetails: async (detailReqs: DetailReq[]): Promise<DetailListApiResponse> => {
+  createProductDetails: async (
+    detailReqs: DetailReq[]
+  ): Promise<DetailListApiResponse> => {
     const formData = new FormData();
-    const detailReqsCopy = detailReqs.map(req => ({ ...req }));
+    const detailReqsCopy = detailReqs.map((req) => ({ ...req }));
     const imageFiles: File[] = [];
 
     detailReqsCopy.forEach((req, reqIndex) => {
@@ -219,9 +279,13 @@ export const productservice = {
     });
 
     try {
-      const response = await axiosInstance.post<DetailListApiResponse>('/productDetail/add', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.post<DetailListApiResponse>(
+        '/productDetail/add',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('createProductDetails 錯誤:', error);
@@ -229,7 +293,10 @@ export const productservice = {
     }
   },
 
-  updateProductDetail: async (id: number, detailReq: DetailReq): Promise<DetailApiResponse> => {
+  updateProductDetail: async (
+    id: number,
+    detailReq: DetailReq
+  ): Promise<DetailApiResponse> => {
     const formData = new FormData();
     const detailReqCopy = { ...detailReq };
     const imageFiles: File[] = [];
@@ -247,9 +314,13 @@ export const productservice = {
     });
 
     try {
-      const response = await axiosInstance.put<DetailApiResponse>(`/productDetail/update/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.put<DetailApiResponse>(
+        `/productDetail/update/${id}`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('updateProductDetail 錯誤:', error);
@@ -259,7 +330,9 @@ export const productservice = {
 
   deleteProductDetail: async (id: number): Promise<ApiResponse<void>> => {
     try {
-      const response = await axiosInstance.delete<ApiResponse<void>>(`/productDetail/delete/${id}`);
+      const response = await axiosInstance.delete<ApiResponse<void>>(
+        `/productDetail/delete/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error('deleteProductDetail 錯誤:', error);
@@ -274,7 +347,9 @@ export const productservice = {
   // 新增的類別相關方法
   getAllCategories: async (): Promise<ProductCategoryListApiResponse> => {
     try {
-      const response = await axiosInstance.get<ProductCategoryListApiResponse>('/productCategory/all');
+      const response = await axiosInstance.get<ProductCategoryListApiResponse>(
+        '/productCategory/all'
+      );
       return response.data;
     } catch (error) {
       console.error('getAllCategories 錯誤:', error);
@@ -282,10 +357,11 @@ export const productservice = {
     }
   },
 
-
   getCategoryById: async (id: number): Promise<ProductCategoryApiResponse> => {
     try {
-      const response = await axiosInstance.get<ProductCategoryApiResponse>(`/productCategory/${id}`);
+      const response = await axiosInstance.get<ProductCategoryApiResponse>(
+        `/productCategory/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error('getCategoryById 錯誤:', error);
@@ -295,9 +371,15 @@ export const productservice = {
 
   // 更新 createCategory 和 updateCategory 方法
 
-  createCategory: async (category: { categoryName: string; productSort: number | null }): Promise<ProductCategoryApiResponse> => {
+  createCategory: async (category: {
+    categoryName: string;
+    productSort: number | null;
+  }): Promise<ProductCategoryApiResponse> => {
     try {
-      const response = await axiosInstance.post<ProductCategoryApiResponse>('/productCategory', category);
+      const response = await axiosInstance.post<ProductCategoryApiResponse>(
+        '/productCategory',
+        category
+      );
       return response.data;
     } catch (error) {
       console.error('createCategory 錯誤:', error);
@@ -305,9 +387,15 @@ export const productservice = {
     }
   },
 
-  updateCategory: async (id: number, category: { categoryName: string; productSort: number | null }): Promise<ProductCategoryApiResponse> => {
+  updateCategory: async (
+    id: number,
+    category: { categoryName: string; productSort: number | null }
+  ): Promise<ProductCategoryApiResponse> => {
     try {
-      const response = await axiosInstance.put<ProductCategoryApiResponse>(`/productCategory/${id}`, category);
+      const response = await axiosInstance.put<ProductCategoryApiResponse>(
+        `/productCategory/${id}`,
+        category
+      );
       return response.data;
     } catch (error) {
       console.error('updateCategory 錯誤:', error);
@@ -315,10 +403,11 @@ export const productservice = {
     }
   },
 
-
   deleteCategory: async (id: number): Promise<ApiResponse<void>> => {
     try {
-      const response = await axiosInstance.delete<ApiResponse<void>>(`/productCategory/${id}`);
+      const response = await axiosInstance.delete<ApiResponse<void>>(
+        `/productCategory/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error('deleteCategory 錯誤:', error);
@@ -328,17 +417,15 @@ export const productservice = {
 
   copyProduct: async (productId: any) => {
     try {
-      const response = await axiosInstance.post<ApiResponse<void>>(`/product/${productId}/duplicate`);
+      const response = await axiosInstance.post<ApiResponse<void>>(
+        `/product/${productId}/duplicate`
+      );
       return response.data;
     } catch (error) {
-      console.error("Error copying product:", error);
+      console.error('Error copying product:', error);
       throw error;
     }
   },
-
-
 };
-
-
 
 export default productservice;
