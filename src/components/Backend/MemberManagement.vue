@@ -346,11 +346,13 @@ export default defineComponent({
       } else {
         // 提取過濾邏輯為一個單獨的函數
         const filterMembers = (member: User) => {
+          const roleName = getRoleName(member.roleId).toLowerCase(); // 角色名稱
           return (
-            member.id.toString().includes(query) ||
-            member.phoneNumber.toLowerCase().includes(query) ||
-            member.username.toLowerCase().includes(query) ||
-            member.nickName.toLowerCase().includes(query)
+            `${member.id.toString()}`.includes(query) ||
+            `${member.phoneNumber}`.toLowerCase().includes(query) ||
+            `${member.username}`.toLowerCase().includes(query) ||
+            `${member.nickName}`.toLowerCase().includes(query) ||
+            roleName.includes(query)
           );
         };
 
