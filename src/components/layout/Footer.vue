@@ -43,6 +43,10 @@
           <div class="footer__info-text">再來一抽娛樂有限公司</div>
         </div>
         <div class="footer__info">
+          <div class="footer__info-text">公司地址：</div>
+          <div class="footer__info-text">新北市板橋區雙十路二段10-3號7樓</div>
+        </div>
+        <div class="footer__info">
           <div class="footer__info-text">客服服務時間：</div>
           <div class="footer__info-text">週一至週五 09:00~17:00</div>
         </div>

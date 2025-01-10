@@ -8,7 +8,15 @@
       <div class="category-management">
         <button @click="openCategoryModal">管理商品類別</button>
       </div>
-
+      <div class="m-b-12">
+        <input
+          type="text"
+          v-model="searchQuery"
+          @input="handleSearch"
+          placeholder="搜尋產品名稱"
+          class="search-input"
+        />
+      </div>
       <div class="filter-form">
         <select v-model="filterProductType" @change="handleProductTypeChange">
           <option value="">全部類型</option>
@@ -787,6 +795,7 @@ const route = useRoute();
 const hasBanner = ref(false); // 只用來控制是否需要 banner 圖片
 
 const error = ref(null); // 用於存儲錯誤信息
+const searchQuery = ref('');
 
 const duplicateProduct = async (productId: any) => {
   try {
@@ -870,6 +879,9 @@ const sizeOptions = [
 // 計算屬性
 const filteredProducts = computed(() => {
   return products.value.filter((product) => {
+    if (searchQuery.value && !product.productName.includes(searchQuery.value)) {
+      return false;
+    }
     if (
       filterProductType.value &&
       product.productType !== filterProductType.value
@@ -1548,6 +1560,13 @@ const pagination = usePagination(filteredProducts, itemsPerPage);
 watch(filteredProducts, (newFilteredProducts) => {
   console.log(newFilteredProducts);
 
+  pagination.updateItems(newFilteredProducts);
+});
+
+const handleSearch = () => {
+  pagination.updateItems(filteredProducts.value);
+};
+watch([filteredProducts, searchQuery], (newFilteredProducts) => {
   pagination.updateItems(newFilteredProducts);
 });
 </script>

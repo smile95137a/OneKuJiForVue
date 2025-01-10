@@ -255,7 +255,7 @@ const calculateAnimationDuration = computed(() => {
             class="header__btn header__btn--dailySignIn"
             @click="handleDailySignIn"
           >
-            <i class="fa-solid fa-pen"></i>
+            <i class="fa-solid fa-pen"></i>每日簽到
           </div>
         </template>
         <template v-else>

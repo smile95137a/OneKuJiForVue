@@ -4,8 +4,9 @@
       <div class="col-20 p-12">日期</div>
       <div class="col-20 p-12">訂單編號</div>
       <div class="col-20 p-12">內容</div>
-      <div class="col-20 p-12">狀態</div>
-      <div class="col-20 p-12">明細</div>
+      <div class="col-20 p-12">物流單號</div>
+      <div class="col-10 p-12">狀態</div>
+      <div class="col-10 p-12">明細</div>
     </div>
   </div>
   <div :class="['menu-flip', isActive ? 'menu-flip--active' : '']">
@@ -30,10 +31,16 @@
           class="col-20 flex items-center justify-center"
           @click="togglePanel"
         >
+          <p class="menu-flip__text">{{ orderData.trackingNumber || '-' }}</p>
+        </div>
+        <div
+          class="col-10 flex items-center justify-center"
+          @click="togglePanel"
+        >
           <p class="menu-flip__text">{{ orderData.resultStatus }}</p>
         </div>
         <div
-          class="col-20 flex items-center justify-center"
+          class="col-10 flex items-center justify-center"
           @click="togglePanel"
         >
           <p class="menu-flip__text">明細</p>
