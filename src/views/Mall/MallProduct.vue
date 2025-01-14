@@ -64,14 +64,7 @@
               </button>
             </div>
           </div>
-          <div class="mall-product__detail-otherPreOrder">
-            <div class="mall-product__detail-otherPreOrder-title">預購</div>
-            <div class="mall-product__detail-otherPreOrder-other">
-              <div class="mall-product__detail-otherPreOrder-other-text">
-                即日起 ~ 2024/11/30，商品預計將於 2024/11/30 陸續發貨
-              </div>
-            </div>
-          </div>
+
           <div class="mall-product__detail-otherLogistics">
             <div class="mall-product__detail-otherLogistics-title">物流</div>
             <div class="mall-product__detail-otherLogistics-other">
