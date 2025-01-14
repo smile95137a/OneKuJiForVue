@@ -181,6 +181,16 @@
         <p>選中的會員數：{{ selectedMembers.length }}</p>
         <form @submit.prevent="distributeReward">
           <div>
+            <label for="balanceAmount">金幣數量：</label>
+            <input
+              id="balanceAmount"
+              v-model.number="balanceAmount"
+              type="number"
+              required
+              min="0"
+            />
+          </div>
+          <div>
             <label for="silverAmount">銀幣數量：</label>
             <input
               id="silverAmount"
@@ -230,6 +240,7 @@ export default defineComponent({
     const searchInput = ref('');
     const selectedMembers = ref<number[]>([]);
     const selectAll = ref(false);
+    const balanceAmount = ref(0);
     const silverAmount = ref(0);
     const bonusAmount = ref(0);
 
@@ -435,7 +446,7 @@ export default defineComponent({
       try {
         // 确认对话框
         const isConfirmed = confirm(
-          `確定要發放 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員嗎？`
+          `確定要發放 ${balanceAmount.value} 金幣 和 ${silverAmount.value} 銀幣和 ${bonusAmount.value} 紅利點數給 ${selectedMembers.value.length} 位會員嗎？`
         );
 
         if (!isConfirmed) {
@@ -446,6 +457,7 @@ export default defineComponent({
           userId: selectedMembers.value,
           sliverCoin: silverAmount.value,
           bonus: bonusAmount.value,
+          balance: balanceAmount.value,
         };
 
         await userService.distributeSilver(sliverUpdate);
@@ -518,6 +530,7 @@ export default defineComponent({
       selectedMembers,
       selectAll,
       toggleSelectAll,
+      balanceAmount,
       silverAmount,
       bonusAmount,
       distributeReward,

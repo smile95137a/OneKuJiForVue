@@ -43,4 +43,5 @@ export interface SliverUpdate {
   userId: number[];
   sliverCoin: number;
   bonus: number;
+  balance: number;
 }
