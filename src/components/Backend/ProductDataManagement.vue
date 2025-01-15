@@ -1007,6 +1007,7 @@ watch(
 // 方法
 const fetchProducts = async () => {
   try {
+    const currentPage = pagination.currentPage.value;
     const response = await productservice.getAllProducts();
     if (response.success) {
       products.value = response.data.map((product) => ({
@@ -1027,6 +1028,8 @@ const fetchProducts = async () => {
       } else {
         console.error('獲取類別列表失敗:', categoriesResponse.message);
       }
+      pagination.updateItems(filteredProducts.value);
+      pagination.goToPage(currentPage); // 保持在原页
     } else {
       console.error('獲取產品列表失敗:', response.message);
     }
@@ -1557,11 +1560,6 @@ const deleteCategory = async (categoryId: number) => {
 };
 const itemsPerPage = 10;
 const pagination = usePagination(filteredProducts, itemsPerPage);
-watch(filteredProducts, (newFilteredProducts) => {
-  console.log(newFilteredProducts);
-
-  pagination.updateItems(newFilteredProducts);
-});
 
 const handleSearch = () => {
   pagination.updateItems(filteredProducts.value);
