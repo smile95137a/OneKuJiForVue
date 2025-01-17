@@ -5,6 +5,14 @@
     @close="handleClose"
   >
     <div class="imageDialog">
+      <div class="imageDialog__header">
+        <div class="imageDialog__logo">
+          <img :src="logoImg" class="imageDialog__logo-img" />
+        </div>
+        <div class="imageDialog__close" @click="handleClose">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+      </div>
       <div class="imageDialog__main">
         <MImage
           v-if="imageDialogOptions?.news?.imageUrls?.[0]"
@@ -21,6 +29,7 @@ import Dialog from './Dialog.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import { computed } from 'vue';
 import { useDialogStore } from '@/stores/dialogStore';
+import logoImg from '@/assets/image/logo1.png';
 
 const dialogStore = useDialogStore();
 
