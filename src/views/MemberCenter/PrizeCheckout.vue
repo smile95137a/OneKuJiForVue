@@ -706,6 +706,8 @@ const onSubmit = handleSubmit(async (values: any) => {
   const payCart = {
     ...values,
     prizeCartItemIds: selectedItems.map((x) => x.prizeCartItemId),
+    paymentMethod:
+      values.shippingMethod === 'pickUp' ? '3' : values.paymentMethod,
   };
 
   const isV = await validateForm();
@@ -719,71 +721,78 @@ const onSubmit = handleSubmit(async (values: any) => {
     const { data: userInfo } = await getUserInfo();
     loadingStore.stopLoading();
     if (success) {
-      if (values.paymentMethod === 1) {
-        const form = document.createElement('form');
-        form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
-        form.method = 'post';
-
-        const appendField = (name, value) => {
-          const input = document.createElement('input');
-          input.type = 'input';
-          input.name = name;
-          input.value = value;
-          form.appendChild(input);
-        };
-
-        appendField('Send_Type', '0');
-        appendField('Pay_Mode_No', '2');
-        appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
-        appendField('Order_No', data.orderNumber);
-        appendField('TransMode', '1');
-        appendField('Amount', finalAmount.value);
-        appendField('Installment', '0');
-        appendField('TransCode', '00');
-        appendField('Buyer_Memo', '賞品運費');
-        appendField('Return_url', `${window.location.origin}/paymentCBO`);
-
-        document.body.appendChild(form);
-        setTimeout(() => {
-          form.submit();
-        }, 10000);
-      } else if (values.paymentMethod === 2) {
-        const form = document.createElement('form');
-        form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
-        form.method = 'post';
-
-        // Helper to create and append form fields
-        const appendField = (name, value) => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = name;
-          input.value = value;
-          form.appendChild(input);
-        };
-
-        // Set form fields
-        appendField('Send_Type', '4');
-        appendField('Pay_Mode_No', '2');
-        appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
-        appendField('Order_No', data.orderNumber);
-        appendField('Amount', finalAmount.value);
-        appendField('Buyer_Name', userInfo.nickname);
-        appendField('Buyer_Telm', userInfo.phoneNumber);
-        appendField('Buyer_Mail', userInfo.email);
-        appendField('Buyer_Memo', '儲值代幣');
-        appendField(
-          'Callback_Url',
-          'https://api.onemorelottery.tw:8081/payment/paymentCallback'
-        );
-
-        // Append the form to the body and submit it
-        document.body.appendChild(form);
-        form.submit();
-      } else {
+      if (values.shippingMethod === 'pickUp') {
         router.push({
           name: 'PrizeOrderSuccess',
           params: { orderNumber: data.orderNumber },
         });
+      } else {
+        if (values.paymentMethod === 1) {
+          const form = document.createElement('form');
+          form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+          form.method = 'post';
+
+          const appendField = (name, value) => {
+            const input = document.createElement('input');
+            input.type = 'input';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+          };
+
+          appendField('Send_Type', '0');
+          appendField('Pay_Mode_No', '2');
+          appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+          appendField('Order_No', data.orderNumber);
+          appendField('TransMode', '1');
+          appendField('Amount', finalAmount.value);
+          appendField('Installment', '0');
+          appendField('TransCode', '00');
+          appendField('Buyer_Memo', '賞品運費');
+          appendField('Return_url', `${window.location.origin}/paymentCBO`);
+
+          document.body.appendChild(form);
+          setTimeout(() => {
+            form.submit();
+          }, 10000);
+        } else if (values.paymentMethod === 2) {
+          const form = document.createElement('form');
+          form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+          form.method = 'post';
+
+          // Helper to create and append form fields
+          const appendField = (name, value) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+          };
+
+          // Set form fields
+          appendField('Send_Type', '4');
+          appendField('Pay_Mode_No', '2');
+          appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+          appendField('Order_No', data.orderNumber);
+          appendField('Amount', finalAmount.value);
+          appendField('Buyer_Name', userInfo.nickname);
+          appendField('Buyer_Telm', userInfo.phoneNumber);
+          appendField('Buyer_Mail', userInfo.email);
+          appendField('Buyer_Memo', '儲值代幣');
+          appendField(
+            'Callback_Url',
+            'https://api.onemorelottery.tw:8081/payment/paymentCallback'
+          );
+
+          // Append the form to the body and submit it
+          document.body.appendChild(form);
+          form.submit();
+        } else {
+          router.push({
+            name: 'PrizeOrderSuccess',
+            params: { orderNumber: data.orderNumber },
+          });
+        }
       }
     } else {
       await dialogStore.openInfoDialog({

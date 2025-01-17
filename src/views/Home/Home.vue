@@ -5,12 +5,14 @@ import NoData from '@/components/common/NoData.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { Banner, getAllBanners } from '@/services/frontend/bannerService'; // 引入 getAllBanners
+import { getDisplayNews } from '@/services/frontend/newsService';
 import {
   getAllProduct,
   getAllProductList,
   IProduct,
 } from '@/services/frontend/productService';
-import { useLoadingStore } from '@/stores';
+import { useDialogStore, useLoadingStore } from '@/stores';
+import { delay } from '@/utils/DelayUtils';
 import { Navigation } from 'swiper/modules';
 import 'swiper/scss';
 import 'swiper/scss/navigation';
@@ -25,6 +27,7 @@ const blindBoxProducts = ref<IProduct[]>([]);
 const gachaProducts = ref<IProduct[]>([]);
 const bannerList = ref<Banner[]>([]); // 保存 Banner 数据
 const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
 
 const goToProductDetail = (banner: Banner) => {
   router.push({
@@ -102,10 +105,31 @@ const navigateToDetail = (product: IProduct) => {
     });
   }
 };
+const fetchDisplayNews = async () => {
+  try {
+    const { success, message, data } = await getDisplayNews();
+    if (success) {
+      if (data.length > 0) {
+        for (const news of data) {
+          // 確保對話框依序顯示
+          await dialogStore.openImageDialog({
+            news,
+          });
+          await delay(500);
+        }
+      }
+    } else {
+      console.log(message);
+    }
+  } catch (error) {
+    console.error('Error fetching display news:', error);
+  }
+};
 
 onMounted(() => {
   fetchProducts();
   fetchBanners(); // 在组件挂载时获取 Banner 数据
+  fetchDisplayNews();
 });
 </script>
 

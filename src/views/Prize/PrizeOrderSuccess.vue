@@ -10,18 +10,13 @@ import {
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import MImage from '@/components/frontend/MImage.vue';
 import { paymentOptions, shippingOptions } from '@/data/orderOptions';
-
+import { getShippingMethodName } from '@/enums/ShippingMethod';
 const breadcrumbItems = [{ name: '首頁' }, { name: '訂購成功' }];
 
 const route = useRoute();
 const router = useRouter();
 const orderNumber = route.params.orderNumber;
 const orderData = ref<any>(null);
-
-const getPaymentMethodName = (value: string) => {
-  const option = paymentOptions.find((option) => option.value === ~~value);
-  return option ? option.name : '未知付款方式';
-};
 
 onMounted(async () => {
   try {
@@ -101,7 +96,8 @@ const continueShopping = () => {
             </div>
             <div class="col-65 mallOrderSuccess__main-cell--delivery">
               <p class="mallOrderSuccess__text">
-                {{ orderData.shippingMethod }}：{{ orderData.shippingCity
+                {{ getShippingMethodName(orderData.shippingMethod) }}：{{
+                  orderData.shippingCity
                 }}{{ orderData.shippingArea }}{{ orderData.shippingAddress }}
               </p>
               <p class="mallOrderSuccess__text m-t-24">

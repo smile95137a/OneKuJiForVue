@@ -20,6 +20,9 @@ export interface News {
   createdDate: string; // 创建时间
   updatedDate?: string; // 最后更新时间（可选）
   author?: string; // 作者信息（可选）
+  startDate?: string; // 開始日期
+  endDate?: string; // 結束日期
+  isDisplayOnHome?: boolean; // 是否顯示在首頁
 }
 
 const basePath = '/news';
@@ -48,6 +51,16 @@ export const getNewsById = async (
     return response.data;
   } catch (error) {
     console.error(`Error fetching news with id ${newsUid}:`, error);
+    throw error;
+  }
+};
+
+export const getDisplayNews = async (): Promise<ApiResponse<News[]>> => {
+  try {
+    const response = await api.get<ApiResponse<News[]>>(`${basePath}/display`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching display news:', error);
     throw error;
   }
 };
