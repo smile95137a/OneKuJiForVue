@@ -1,9 +1,9 @@
-import axios from 'axios';
 import {
+  ApiResponse,
   ShippingMethod,
   ShippingMethodReq,
-  ApiResponse,
 } from '@/interfaces/ship';
+import axios from 'axios';
 import { getAuthToken } from './adminservices';
 
 const API_URL = `${import.meta.env.VITE_BASE_API_URL2}/shipping/method`;
@@ -52,7 +52,7 @@ export const ShipService = {
   ): Promise<ApiResponse<ShippingMethod>> => {
     try {
       const response = await axiosInstance.post<ApiResponse<ShippingMethod>>(
-        '/',
+        '',
         shippingMethod
       );
       return response.data;
