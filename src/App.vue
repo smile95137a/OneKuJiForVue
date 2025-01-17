@@ -14,6 +14,7 @@
   <RestPwdDialog v-if="dialogStore.isRestPwdDialogOpen" />
   <OneKuJiDialog />
   <InfoDialog />
+  <ImageDialog v-if="dialogStore.isImageDialogOpen" />
   <DaliyDialog v-if="dialogStore.isDaliyDialogOpen" />
   <LoadingMask v-if="loadingStore.isLoading" />
 </template>
@@ -30,6 +31,7 @@ import InfoDialog from './components/common/InfoDialog.vue';
 import LoadingMask from './components/common/LoadingMask.vue';
 import { useDialogStore, useLoadingStore } from './stores';
 import DaliyDialog from '@/components/common/DaliyDialog.vue';
+import ImageDialog from './components/common/ImageDialog.vue';
 
 const route = useRoute();
 const loadingStore = useLoadingStore();

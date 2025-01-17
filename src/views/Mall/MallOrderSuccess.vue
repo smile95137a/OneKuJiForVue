@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { getShippingMethodName } from '@/enums/ShippingMethod';
 import { ref, onMounted } from 'vue';
 import Card from '@/components/common/Card.vue';
 import Breadcrumbs from '@/components/frontend/Breadcrumbs.vue';
@@ -14,11 +15,6 @@ const route = useRoute();
 const router = useRouter();
 const orderNumber = route.params.orderNumber;
 const orderData = ref<any>(null);
-
-const getShippingMethodName = (value: string) => {
-  const option = shippingOptions.find((option) => option.value === value);
-  return option ? option.name : '未知配送方式';
-};
 
 const getPaymentMethodName = (value: string) => {
   const option = paymentOptions.find((option) => option.value === ~~value);
@@ -103,7 +99,8 @@ const continueShopping = () => {
             </div>
             <div class="col-65 mallOrderSuccess__main-cell--delivery">
               <p class="mallOrderSuccess__text">
-                {{ orderData.shippingMethod }}：{{ orderData.shippingCity
+                {{ getShippingMethodName(orderData.shippingMethod) }}：{{
+                  orderData.shippingCity
                 }}{{ orderData.shippingArea }}{{ orderData.shippingAddress }}
               </p>
               <p class="mallOrderSuccess__text m-t-24">

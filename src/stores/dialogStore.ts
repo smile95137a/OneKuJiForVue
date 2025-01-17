@@ -1,5 +1,6 @@
 import { useConfirmDialog } from '@/hook/confirmDialog';
 import { useDaliyDialog } from '@/hook/daliyDialog';
+import { useImageDialog } from '@/hook/imageDialog';
 import { useInfoDialog } from '@/hook/infoDialog';
 import { useOneKujiDialog } from '@/hook/oneKujiDialog';
 import { useRestPwdDialog } from '@/hook/restPwdDialog';
@@ -10,12 +11,14 @@ export const useDialogStore = defineStore('dialog', () => {
   const confirmDialog = useConfirmDialog();
   const oneKujiDialog = useOneKujiDialog();
   const infoDialog = useInfoDialog();
+  const imageDialog = useImageDialog();
   const restPwdDialog = useRestPwdDialog();
   const yseOrNoDialog = useYesOrNoDialog();
   return {
     ...confirmDialog,
     ...oneKujiDialog,
     ...infoDialog,
+    ...imageDialog,
     ...useDaliyDialog(),
     ...restPwdDialog,
     ...yseOrNoDialog,

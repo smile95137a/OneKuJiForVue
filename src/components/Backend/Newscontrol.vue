@@ -120,6 +120,42 @@
                 <option :value="NewsStatus.UNAVAILABLE">不發布</option>
               </select>
             </div>
+            <div class="form-group">
+              <label class="form-label" for="startDate">開始日期</label>
+              <input
+                type="datetime-local"
+                id="startDate"
+                v-model="currentNews.startDate"
+                class="form-input"
+                placeholder="選擇開始日期"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="endDate">結束日期</label>
+              <input
+                type="datetime-local"
+                id="endDate"
+                v-model="currentNews.endDate"
+                class="form-input"
+                placeholder="選擇結束日期"
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="isDisplayOnHome"
+                >是否顯示在首頁</label
+              >
+              <select
+                id="isDisplayOnHome"
+                v-model="currentNews.isDisplayOnHome"
+                class="form-select"
+              >
+                <option :value="null">請選擇</option>
+                <option :value="true">是</option>
+                <option :value="false">否</option>
+              </select>
+            </div>
 
             <div class="form-actions">
               <button
@@ -182,7 +218,7 @@ const editorConfig = {
 };
 
 // 當前新聞表單
-const currentNews = reactive<Partial<News> & { imageFiles: File[] }>({
+const currentNews = reactive<Partial<any> & { imageFiles: File[] }>({
   title: '',
   preview: '',
   content: '',
@@ -190,6 +226,9 @@ const currentNews = reactive<Partial<News> & { imageFiles: File[] }>({
   author: '',
   imageUrls: [], // 初始化為空陣列，避免 undefined 問題
   imageFiles: [],
+  startDate: null, // 新增
+  endDate: null, // 新增
+  isDisplayOnHome: null, // 新增
 });
 
 onMounted(async () => {
@@ -212,9 +251,12 @@ const openAddNewsModal = () => {
   showNewsModal.value = true;
 };
 
-const openEditNewsModal = (news: News) => {
+const openEditNewsModal = (news: any) => {
   isEditing.value = true;
   Object.assign(currentNews, news);
+  console.log(news);
+  console.log(currentNews);
+
   showNewsModal.value = true;
 };
 
@@ -244,6 +286,9 @@ const handleNewsSubmit = async () => {
       status: currentNews.status,
       author: currentNews.author,
       imageUrls: currentNews.imageUrls.filter((img) => typeof img === 'string'),
+      startDate: currentNews.startDate,
+      endDate: currentNews.endDate,
+      isDisplayOnHome: currentNews.isDisplayOnHome,
     };
 
     // 將 `newsReq` 作為一個 JSON 字串附加到 `FormData`

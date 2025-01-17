@@ -1,7 +1,15 @@
 <template>
   <div class="store-management">
     <h2 class="title">商店管理</h2>
-
+    <div class="m-b-12">
+      <input
+        type="text"
+        v-model="searchQuery"
+        @input="handleSearch"
+        placeholder="搜尋產品名稱"
+        class="search-input"
+      />
+    </div>
     <!-- 類別篩選器 -->
     <div class="filter-category">
       <label for="filterCategory" class="filter-label">篩選類別：</label>
@@ -9,7 +17,6 @@
       <select
         id="filterCategory"
         v-model="selectedCategory"
-        @change="filterProducts"
         class="filter-select"
       >
         <option value="">全部</option>
@@ -226,7 +233,6 @@
           :key="product.storeProductId"
         >
           <td>
-
             <img
               v-if="product.imageUrl && product.imageUrl.length"
               :src="formatImage(product.imageUrl[0])"
@@ -269,7 +275,6 @@
       上一頁
     </button>
 
-
     <button
       v-for="pageNum in pagination.renderPaginationNums.value"
       :key="pageNum"
@@ -299,14 +304,13 @@ import {
 } from '@/interfaces/store';
 import { storeServices } from '@/services/backend/storeservice';
 
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 
 useRoleGuard(['1']);
 
 const API_IMAGE_URL = import.meta.env.VITE_BASE_API_URL3;
 
 const products = ref<StoreProductRes[]>([]);
-const filteredProducts = ref<StoreProductRes[]>([]);
 const categories = ref<StoreCategory[]>([]);
 const selectedCategory = ref('');
 const showAddForm = ref(false);
@@ -346,7 +350,6 @@ const fetchProducts = async () => {
     const response = await storeServices.getAllStoreProduct();
     if (response.success && Array.isArray(response.data)) {
       products.value = response.data;
-      filterProducts();
     } else {
       products.value = [];
     }
@@ -410,7 +413,6 @@ const handleSubmit = async () => {
       details: productForm.details,
       shippingPrice: 0,
       size: 0,
-
     };
 
     formData.append('productReq', JSON.stringify(productReq));
@@ -433,7 +435,6 @@ const handleSubmit = async () => {
     } else {
       response = await storeServices.addStoreProduct(formData);
     }
-
 
     if (response.success) {
       alert(editingProduct.value ? '商品更新成功' : '商品新增成功');
@@ -571,16 +572,24 @@ const formatDimensions = (product: StoreProductRes) => {
   }`;
 };
 
-const filterProducts = () => {
-  if (selectedCategory.value === '') {
-    filteredProducts.value = products.value;
-  } else {
-    filteredProducts.value = products.value.filter(
-      (product) => product.categoryId.toString() === selectedCategory.value
-    );
-  }
-  pagination.updateItems(filteredProducts.value);
-};
+const filteredProducts = computed(() => {
+  return products.value.filter((product) => {
+    // 過濾分類
+    if (
+      selectedCategory.value &&
+      product.categoryId.toString() !== selectedCategory.value
+    ) {
+      return false;
+    }
+
+    // 過濾搜尋查詢
+    if (searchQuery.value && !product.productName.includes(searchQuery.value)) {
+      return false;
+    }
+
+    return true;
+  });
+});
 
 onMounted(async () => {
   await fetchProducts();
@@ -588,6 +597,14 @@ onMounted(async () => {
 });
 
 const pagination = usePagination(filteredProducts, itemsPerPage);
+const searchQuery = ref('');
+
+const handleSearch = () => {
+  pagination.updateItems(filteredProducts.value);
+};
+watch([filteredProducts, searchQuery], (newFilteredProducts) => {
+  pagination.updateItems(newFilteredProducts);
+});
 </script>
 
 <style scoped>
