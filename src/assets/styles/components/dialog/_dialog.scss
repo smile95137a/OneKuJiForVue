@@ -14,6 +14,13 @@ $root-block-style: '.downDialog';
     }
   }
 
+  &--newBanner {
+    #{$p__main} {
+      @include abs-center;
+      height: 70vh;
+    }
+  }
+
   &--confirmDialog {
     #{$p__main} {
       @include abs-center;
