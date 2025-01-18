@@ -7,12 +7,10 @@ import ProductCard from '@/components/frontend/ProductCard.vue';
 import { Banner, getAllBanners } from '@/services/frontend/bannerService'; // 引入 getAllBanners
 import { getDisplayNews } from '@/services/frontend/newsService';
 import {
-  getAllProduct,
   getAllProductList,
   IProduct,
 } from '@/services/frontend/productService';
 import { useDialogStore, useLoadingStore } from '@/stores';
-import { delay } from '@/utils/DelayUtils';
 import { Navigation } from 'swiper/modules';
 import 'swiper/scss';
 import 'swiper/scss/navigation';
@@ -110,13 +108,9 @@ const fetchDisplayNews = async () => {
     const { success, message, data } = await getDisplayNews();
     if (success) {
       if (data.length > 0) {
-        for (const news of data) {
-          // 確保對話框依序顯示
-          await dialogStore.openImageDialog({
-            news,
-          });
-          await delay(500);
-        }
+        dialogStore.openNewBannerDialog({
+          newsList: data,
+        });
       }
     } else {
       console.log(message);
