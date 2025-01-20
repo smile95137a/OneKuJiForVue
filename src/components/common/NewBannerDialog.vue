@@ -17,8 +17,7 @@
       <div class="newBannerDialog__main">
         <div class="news-slider">
           <Swiper
-            :slidesPerView="1.5"
-            :spaceBetween="30"
+            :slidesPerView="1"
             :centeredSlides="true"
             :loop="true"
             navigation
@@ -53,6 +52,7 @@ import 'swiper/scss';
 import 'swiper/scss/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { useRouter } from 'vue-router';
+import { genRandom } from '@/utils/RandomUtils';
 
 const dialogStore = useDialogStore();
 const router = useRouter();
