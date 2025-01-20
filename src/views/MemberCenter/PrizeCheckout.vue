@@ -752,9 +752,21 @@ const onSubmit = handleSubmit(async (values: any) => {
           appendField('Return_url', `${window.location.origin}/paymentCBO`);
 
           document.body.appendChild(form);
+
+          dialogStore
+            .openInfoDialog({
+              title: '系統通知',
+              message: `我們即將為您跳轉至付款頁面，請耐心等待。在完成所有流程之前，為確保交易順利進行，請勿關閉或刷新此畫面。感謝您的配合！`,
+            })
+            .then(() => {
+              form.submit();
+            });
+
           setTimeout(() => {
-            form.submit();
-          }, 10000);
+            if (dialogStore.isInfoDialogOpen.value) {
+              dialogStore.closeInfoDialog();
+            }
+          }, 3000);
         } else if (values.paymentMethod === 2) {
           const form = document.createElement('form');
           form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
