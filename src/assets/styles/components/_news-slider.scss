@@ -1,0 +1,38 @@
+$root-block-name: '.news-slider';
+
+#{$root-block-name} {
+  $p: &;
+  $p__text: #{$p}__text;
+  $p__item: #{$p}__item;
+  height: 100%;
+  &__item {
+    &-img {
+      max-height: 400px;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  .mySwiper {
+    height: 100%;
+  }
+}
+
+.swiper-slide {
+  width: 80%;
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.swiper-slide-active {
+  .slider__item {
+    &::after {
+      display: none;
+    }
+  }
+}
+.swiper-button-prev,
+.swiper-button-next {
+  color: #000 !important;
+}

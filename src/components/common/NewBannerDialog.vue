@@ -15,7 +15,7 @@
       </div>
 
       <div class="newBannerDialog__main">
-        <div class="slider">
+        <div class="news-slider">
           <Swiper
             :slidesPerView="1.5"
             :spaceBetween="30"
@@ -32,7 +32,7 @@
             >
               <MImage
                 :src="news.imageUrls[0]"
-                custom-class="slider__item-img"
+                custom-class="news-slider__item-img"
               />
             </SwiperSlide>
           </Swiper>
