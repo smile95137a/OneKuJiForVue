@@ -427,8 +427,7 @@ const viewShippingInfo = async (orderId: number | null) => {
       nickname: order.nickname || '無暱稱',
       shippingName: order.shippingName || '無收件人',
       shippingPhone: order.shippingPhone || '無電話',
-      shippingMethod:
-        getShippingMethodName(order.shippingMethod) || '無物流方式',
+      shippingMethod: order.shippingMethod,
       shippingAddress: `${order.shippingCity || ''} ${
         order.shippingArea || ''
       } ${order.shippingAddress || ''}`,
