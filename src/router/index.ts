@@ -32,6 +32,7 @@ import Rewards from '@/views/MemberCenter/Rewards.vue';
 import News from '@/views/News/News.vue';
 import NewsDetail from '@/views/NewsDetail/NewsDetail.vue';
 import NotFound from '@/views/NotFound/NotFound.vue';
+import Maintenance from '@/views/Maintenance.vue';
 import OAuth2Redirect from '@/views/OAuth2Redirect/OAuth2Redirect.vue';
 import Policy from '@/views/Policy/Policy.vue';
 import Privacy from '@/views/Privacy/Privacy.vue';
@@ -190,6 +191,12 @@ const routes: Array<RouteRecordRaw> = [
         component: DrawHistory,
       },
     ],
+  },
+
+  {
+    path: '/maintenance',
+    component: Maintenance,
+    meta: { layout: 'default' },
   },
   {
     path: '/home',

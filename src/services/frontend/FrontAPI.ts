@@ -26,9 +26,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    if (error.response && error.response.status === 401) {
-      removeAllState();
-      window.location.href = '/home';
+    const currentPath = window.location.pathname;
+
+    if (error.code === 'ERR_NETWORK' && currentPath !== '/maintenance') {
+      window.location.href = '/maintenance';
+    } else if (error.response) {
+      const { status } = error.response;
+      if (status === 401) {
+        removeAllState();
+        window.location.href = '/home';
+      }
     }
     return Promise.reject(error);
   }
