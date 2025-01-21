@@ -152,14 +152,14 @@
               </div>
               <div
                 class="mallCheckout__form-inputs--addr"
-                v-if="!['711', 'family'].includes(shippingMethod)"
+                v-if="!['sevenEleven', 'family'].includes(shippingMethod)"
               >
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
                       'mallCheckout__text--required': ![
-                        '711',
+                        'sevenEleven',
                         'family',
                       ].includes(shippingMethod),
                     }"
@@ -267,14 +267,14 @@
               </div>
               <div
                 class="mallCheckout__form-inputs--addr"
-                v-if="!['711', 'family'].includes(shippingMethod)"
+                v-if="!['sevenEleven', 'family'].includes(shippingMethod)"
               >
                 <div class="mallCheckout__form-inputs w-25 w-md-100">
                   <p
                     class="mallCheckout__text"
                     :class="{
                       'mallCheckout__text--required': ![
-                        '711',
+                        'sevenEleven',
                         'family',
                       ].includes(shippingMethod),
                     }"
@@ -296,7 +296,7 @@
                     class="mallCheckout__text"
                     :class="{
                       'mallCheckout__text--required': ![
-                        '711',
+                        'sevenEleven',
                         'family',
                       ].includes(shippingMethod),
                     }"
@@ -318,7 +318,7 @@
                     class="mallCheckout__text"
                     :class="{
                       'mallCheckout__text--required': ![
-                        '711',
+                        'sevenEleven',
                         'family',
                       ].includes(shippingMethod),
                     }"
@@ -340,7 +340,7 @@
               </div>
               <div
                 class="mallCheckout__form-inputs--addr"
-                v-if="['711', 'family'].includes(shippingMethod)"
+                v-if="['sevenEleven', 'family'].includes(shippingMethod)"
               >
                 <div v-if="storename && storeid && shopId">
                   <p class="mallCheckout__text">門市名稱: {{ storename }}</p>
@@ -554,7 +554,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => !['711', 'family'].includes(val),
+      is: (val: string) => !['sevenEleven', 'family'].includes(val),
       then: (schema) => schema.required('郵政編碼為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -562,7 +562,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => !['711', 'family'].includes(val),
+      is: (val: string) => !['sevenEleven', 'family'].includes(val),
       then: (schema) => schema.required('城市為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -570,7 +570,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => !['711', 'family'].includes(val),
+      is: (val: string) => !['sevenEleven', 'family'].includes(val),
       then: (schema) => schema.required('區域為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -578,7 +578,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => !['711', 'family'].includes(val),
+      is: (val: string) => !['sevenEleven', 'family'].includes(val),
       then: (schema) => schema.required('詳細地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -592,7 +592,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => !['711', 'family'].includes(val),
+      is: (val: string) => !['sevenEleven', 'family'].includes(val),
       then: (schema) => schema.required('購買人郵政編碼為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -600,7 +600,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => !['711', 'family'].includes(val),
+      is: (val: string) => !['sevenEleven', 'family'].includes(val),
       then: (schema) => schema.required('購買人縣市為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -608,7 +608,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => !['711', 'family'].includes(val),
+      is: (val: string) => !['sevenEleven', 'family'].includes(val),
       then: (schema) => schema.required('購買人區域為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -616,7 +616,7 @@ const schema = yup.object({
     .string()
     .nullable()
     .when('shippingMethod', {
-      is: (val: string) => !['711', 'family'].includes(val),
+      is: (val: string) => !['sevenEleven', 'family'].includes(val),
       then: (schema) => schema.required('購買人地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -717,6 +717,16 @@ const goBack = () => {
 };
 
 const onSubmit = handleSubmit(async (values: any) => {
+  if (
+    ['sevenEleven', 'family'].includes(values.shippingMethod) &&
+    !values.shopId
+  ) {
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message: '請選擇門市！',
+    });
+    return;
+  }
   const selectedItems = items.value.filter((item) => item.isSelected);
 
   const payCart = {
