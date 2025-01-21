@@ -3,10 +3,10 @@
     <div v-if="index === 0" class="menu-flip__header-title grid text-center">
       <div class="col-20 p-12">日期</div>
       <div class="col-20 p-12">訂單編號</div>
-      <div class="col-20 p-12">內容</div>
       <div class="col-20 p-12">物流單號</div>
       <div class="col-10 p-12">狀態</div>
       <div class="col-10 p-12">明細</div>
+      <div class="col-20 p-12">功能</div>
     </div>
   </div>
   <div :class="['menu-flip', isActive ? 'menu-flip--active' : '']">
@@ -21,12 +21,7 @@
         >
           <p class="menu-flip__text">{{ orderData.orderNumber }}</p>
         </div>
-        <div
-          class="col-20 flex items-center justify-center"
-          @click="togglePanel"
-        >
-          <p class="menu-flip__text">{{ orderData.content }}</p>
-        </div>
+
         <div
           class="col-20 flex items-center justify-center"
           @click="togglePanel"
@@ -37,13 +32,28 @@
           class="col-10 flex items-center justify-center"
           @click="togglePanel"
         >
-          <p class="menu-flip__text">{{ orderData.resultStatus }}</p>
+          <p class="menu-flip__text">
+            {{ getShipStatusByKey(orderData.resultStatus) }}
+          </p>
         </div>
         <div
           class="col-10 flex items-center justify-center"
           @click="togglePanel"
         >
           <p class="menu-flip__text">明細</p>
+        </div>
+        <div class="col-20 flex items-center justify-center">
+          <div v-if="orderData.resultStatus === 'NO_PAY'">
+            <button class="menu-flip__btn" @click="handlePayment(orderData)">
+              付款
+            </button>
+            <button
+              class="menu-flip__btn"
+              @click="handleCancelOrder(orderData)"
+            >
+              取消訂單
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -81,16 +91,24 @@
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
+import { getShipStatusByKey } from '@/enums/ShipmentStatus';
+import { cancelOrder } from '@/services/frontend/paymentService';
+import { useDialogStore, useLoadingStore } from '@/stores';
 import { PropType, ref } from 'vue';
+import { defineEmits } from 'vue';
 
+const emit = defineEmits(['refreshOrders']);
 const props = defineProps({
   index: Number,
   orderData: Object as PropType<any>,
+  user: Object as PropType<any>,
 });
 
 const isActive = ref(false);
+const loadingStore = useLoadingStore();
+const dialogStore = useDialogStore();
+
 const togglePanel = () => {
   isActive.value = !isActive.value;
 };
@@ -98,8 +116,99 @@ const togglePanel = () => {
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString();
 };
-</script>
 
-<style scoped>
-/* Your existing styles here */
-</style>
+const handlePayment = (orderData) => {
+  if (orderData.value.paymentMethod === 1) {
+    const form = document.createElement('form');
+    form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+    form.method = 'post';
+
+    const appendField = (name, value) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    };
+
+    appendField('Send_Type', '0');
+    appendField('Pay_Mode_No', '2');
+    appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+    appendField('Order_No', orderData.orderNumber);
+    appendField('TransMode', '1');
+    appendField('Amount', orderData.totalAmount);
+    appendField('Installment', '0');
+    appendField('TransCode', '00');
+    appendField('Buyer_Memo', '商品購買');
+    appendField(
+      'Return_url',
+      `${window.location.origin}/paymentCBO?isGoToOrderQuery=1`
+    );
+    document.body.appendChild(form);
+    form.submit();
+  } else if (orderData.value.paymentMethod === 2) {
+    const form = document.createElement('form');
+    form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+    form.method = 'post';
+
+    const appendField = (name, value) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    };
+
+    appendField('Send_Type', '4');
+    appendField('Pay_Mode_No', '2');
+    appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+    appendField('Order_No', orderData.orderNumber);
+    appendField('Amount', orderData.totalAmount);
+
+    appendField('Buyer_Name', orderData.billingName);
+    appendField('Buyer_Telm', props.user?.phoneNumber || '');
+    appendField('Buyer_Mail', props.user?.email || '');
+    appendField('Buyer_Memo', '儲值代幣');
+    appendField(
+      'Callback_Url',
+      'https://api.onemorelottery.tw:8081/payment/paymentCallback'
+    );
+    document.body.appendChild(form);
+    form.submit();
+  }
+};
+
+// 處理取消訂單邏輯
+const handleCancelOrder = async (orderData) => {
+  console.log(orderData.orderNumber);
+
+  try {
+    loadingStore.startLoading();
+    const { success, data, code, message } = await cancelOrder({
+      orderNumber: orderData.orderNumber,
+    });
+    loadingStore.stopLoading();
+    if (success) {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message: '訂單取消成功',
+      });
+      emit('refreshOrders');
+    } else {
+      await dialogStore.openInfoDialog({
+        title: '系統通知',
+        message,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+
+    loadingStore.stopLoading();
+    await dialogStore.openInfoDialog({
+      title: '系統通知',
+      message: '系統問題，請稍後再嘗試。',
+    });
+  }
+  console.log('取消訂單按鈕被點擊', orderData);
+};
+</script>

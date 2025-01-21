@@ -49,7 +49,9 @@
         v-for="(order, index) in orders"
         :key="index"
         :orderData="order"
+        :user="userData"
         :index="index"
+        @refreshOrders="submitForm"
       />
     </div>
   </div>
@@ -61,10 +63,10 @@ import MemberCenterCoins from '@/components/frontend/memberCenter/MemberCenterCo
 import CFlip from '@/components/common/CFlip.vue';
 import { queryOrder } from '@/services/frontend/orderService';
 import { useForm } from 'vee-validate';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import CTable from '@/components/common/CTable.vue';
-import CTableRow from '@/components/common/CTableRow.vue';
+import { getUserInfo } from '@/services/frontend/userService';
+const userData = ref({});
 
 const orders = ref([]);
 const router = useRouter();
@@ -87,6 +89,17 @@ const submitForm = handleSubmit(async (values) => {
     console.error('Error fetching order data:', error);
   }
 });
-</script>
 
-<style lang="scss" scoped></style>
+const fetchUserInfo = async () => {
+  try {
+    const { data: userInfo } = await getUserInfo();
+    userData.value = userInfo;
+  } catch (error) {
+    console.error('獲取用戶信息失敗:', error);
+  }
+};
+
+onMounted(() => {
+  fetchUserInfo();
+});
+</script>

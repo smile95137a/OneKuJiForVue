@@ -17,6 +17,21 @@ export const creditCard = async (
   }
 };
 
+export const cancelOrder = async (
+  paymentRequest: any
+): Promise<ApiResponse<any>> => {
+  try {
+    const response = await api.post<ApiResponse<PaymentResponse>>(
+      `${basePath}/cancelOrder`,
+      paymentRequest
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error processing credit card payment:', error);
+    throw error;
+  }
+};
+
 export const creditTopOp = async (
   creditDto: any
 ): Promise<ApiResponse<any>> => {

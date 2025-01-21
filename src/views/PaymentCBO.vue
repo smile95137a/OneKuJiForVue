@@ -1,10 +1,11 @@
 <template></template>
 
 <script lang="ts" setup>
-import { creditMP, creditTopOp } from '@/services/frontend/paymentService';
+import { creditMP } from '@/services/frontend/paymentService';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
+
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 const router = useRouter();
@@ -25,35 +26,50 @@ onMounted(async () => {
     creditResult: searchParams.get('result') || '',
     orderNumber: searchParams.get('e_orderno') || '',
   };
+
+  const isGoToOrderQuery = searchParams.get('isGoToOrderQuery') === '1';
+
   try {
     if (~~paramsObj.result === 1) {
       loadingStore.startLoading();
       const { success, message, data } = await creditMP(o);
       loadingStore.stopLoading();
       if (success) {
-        router.push({
-          name: ~~data === 1 ? 'MallOrderSuccess' : 'PrizeOrderSuccess',
-          params: { orderNumber: o.orderNumber },
+        await dialogStore.openInfoDialog({
+          title: '系統通知',
+          message: '付款成功，正在跳轉...',
         });
+        if (isGoToOrderQuery) {
+          router.push('/member-center/order-history');
+        }
       } else {
         await dialogStore.openInfoDialog({
           title: '系統通知',
           message: message,
         });
+        if (isGoToOrderQuery) {
+          router.push('/member-center/order-history');
+        }
       }
     } else {
       await dialogStore.openInfoDialog({
         title: '系統通知',
-        message: `付款失敗:${searchParams.get('ret_msg')}`,
+        message: `付款失敗:${searchParams.get('ret_msg') || '未知錯誤'}`,
       });
+      if (isGoToOrderQuery) {
+        router.push('/member-center/order-history');
+      }
     }
   } catch (error) {
     loadingStore.stopLoading();
-    console.error('Error processing credit top-up:', error);
+    console.error('Error processing payment:', error);
     await dialogStore.openInfoDialog({
       title: '系統通知',
       message: '系統問題',
     });
+    if (isGoToOrderQuery) {
+      router.push('/member-center/order-history');
+    }
   }
 });
 </script>
