@@ -118,7 +118,7 @@ const formatDate = (date: string) => {
 };
 
 const handlePayment = (orderData) => {
-  if (orderData.value.paymentMethod === 1) {
+  if (orderData.paymentMethod === '1') {
     const form = document.createElement('form');
     form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
     form.method = 'post';
@@ -146,7 +146,7 @@ const handlePayment = (orderData) => {
     );
     document.body.appendChild(form);
     form.submit();
-  } else if (orderData.value.paymentMethod === 2) {
+  } else if (orderData.paymentMethod === '2') {
     const form = document.createElement('form');
     form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
     form.method = 'post';
@@ -180,8 +180,6 @@ const handlePayment = (orderData) => {
 
 // 處理取消訂單邏輯
 const handleCancelOrder = async (orderData) => {
-  console.log(orderData.orderNumber);
-
   try {
     loadingStore.startLoading();
     const { success, data, code, message } = await cancelOrder({
