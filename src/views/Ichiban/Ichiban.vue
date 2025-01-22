@@ -15,8 +15,8 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const loadingStore = useLoadingStore();
 const products = ref<IProduct[]>([]);
-const activeBtn = ref('selfMade');
-const title = ref('自製賞');
+const activeBtn = ref<string>(localStorage.getItem('activeBtn') || 'selfMade');
+const title = ref(localStorage.getItem('title') || '自製賞');
 const searchTerm = ref('');
 const loading = ref(false);
 const page = ref(0);
@@ -30,8 +30,9 @@ const buttons = [
   { type: 'bonus', title: '紅利賞', category: 'BONUS' },
 ];
 
-const selectedTypes = ref<number[]>([]);
-
+const selectedTypes = ref<number[]>(
+  JSON.parse(localStorage.getItem('selectedTypes') || '[]')
+);
 const categories = ref([]);
 
 const filteredCategories = computed(() => {
@@ -91,6 +92,9 @@ const handleBtnClick = (btnType: string, btnTitle: string) => {
   activeBtn.value = btnType;
   title.value = btnTitle;
   selectedTypes.value = [];
+  localStorage.setItem('activeBtn', btnType);
+  localStorage.setItem('title', btnTitle);
+  localStorage.setItem('selectedTypes', JSON.stringify([]));
 };
 
 const loadMoreProducts = async () => {
@@ -126,10 +130,15 @@ onMounted(() => {
   if (selectedButton) {
     activeBtn.value = selectedButton.type;
     title.value = selectedButton.title;
+    localStorage.setItem('activeBtn', selectedButton.type);
+    localStorage.setItem('title', selectedButton.title);
   }
 
   loadMoreProducts();
   fetchCategories();
+});
+watch(selectedTypes, (newVal) => {
+  localStorage.setItem('selectedTypes', JSON.stringify(newVal));
 });
 </script>
 
