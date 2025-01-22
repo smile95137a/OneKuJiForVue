@@ -20,7 +20,7 @@ onMounted(async () => {
   const o = {
     orderId: searchParams.get('OrderID') || '',
     creditResult: searchParams.get('result') || '',
-    orderNumber: searchParams.get('e_orderno') || '',
+    orderNumber: searchParams.get('e_orderno') || '', // 是我們ordernumver
   };
   try {
     if (~~paramsObj.result === 1) {

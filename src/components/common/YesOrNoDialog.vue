@@ -22,7 +22,10 @@
           >
             {{ yesNoDialogOptions?.title }}
           </p>
-          <p class="yesOrNoDialog__text">{{ yesNoDialogOptions?.message }}</p>
+          <p
+            class="yesOrNoDialog__text"
+            v-html="yesNoDialogOptions?.message"
+          ></p>
         </div>
         <div class="yesOrNoDialog__main-btns">
           <div

@@ -934,8 +934,15 @@ const loadCartItems = async () => {
 const deleteProduct = async (item: any) => {
   const result = await dialogStore.openYesNoDialog({
     title: '系統通知',
-    message: '是否確認進行賞品回收？',
+    message: `
+    <span style="color: red; font-weight: bold;">
+      *注意：
+    </span> 
+    <span>
+      兌換視同「放棄出貨商品」之權利。請確認是否確定要兌換？
+    </span>`,
   });
+
   if (result) {
     try {
       loadingStore.startLoading();
