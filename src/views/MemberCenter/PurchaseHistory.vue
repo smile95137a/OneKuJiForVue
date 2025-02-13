@@ -104,7 +104,7 @@ const submitForm = handleSubmit(async (values) => {
     loadingStore.stopLoading();
 
     if (success) {
-      records.value = data;
+      records.value = data.filter((x) => x.status !== 'NO_PAY');
     } else {
       await dialogStore.openInfoDialog({
         title: '系統通知',
