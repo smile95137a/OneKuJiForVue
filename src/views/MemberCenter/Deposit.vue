@@ -30,14 +30,13 @@ const [paymentMethod] = defineField('paymentMethod');
 const [amount] = defineField('amount');
 
 const depositList = [
-  { id: 'deposit1', value: '1000', num: '1000' },
-  { id: 'deposit2', value: '3000', num: '3000' },
-  { id: 'deposit3', value: '5000', num: '5000' },
-  { id: 'deposit4', value: '8000', num: '8000' },
-  { id: 'deposit5', value: '10000', num: '10000' },
-  { id: 'deposit6', value: '20000', num: '20000' },
-  { id: 'deposit7', value: '30000', num: '30000' },
-  { id: 'deposit8', value: '50000', num: '50000' },
+  { id: 'deposit1', value: '300', num: '300' },
+  { id: 'deposit2', value: '500', num: '500' },
+  { id: 'deposit3', value: '1000', num: '1000' },
+  { id: 'deposit4', value: '3000', num: '3000' },
+  { id: 'deposit5', value: '5000', num: '5000' },
+  { id: 'deposit6', value: '8000', num: '8000' },
+  { id: 'deposit7', value: '10000', num: '10000' },
 ];
 
 // 提交表單的處理邏輯
