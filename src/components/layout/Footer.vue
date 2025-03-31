@@ -19,7 +19,7 @@
           <router-link to="/transaction">交易說明</router-link>
         </div>
         <div class="footer__link">
-          <a href="https://forms.gle/y16f8XU3L42Gszi3A">合作咨詢</a>
+          <a href="https://forms.gle/n6re5KGPUpqLwJEw6">合作咨詢</a>
         </div>
         <div class="footer__link">
           <router-link to="/policy">服務條款</router-link>
