@@ -21,16 +21,26 @@ onMounted(async () => {
 
   queryParams.value = paramsObj;
 
+  const orderId = searchParams.get('OrderID') || searchParams.get('id') || '';
+  const creditResult =
+    searchParams.get('result') ||
+    searchParams.get('authorization_result') ||
+    '';
+  const orderNumber =
+    searchParams.get('e_orderno') ||
+    searchParams.get('shop_transaction_no') ||
+    '';
+
   const o = {
-    orderId: searchParams.get('OrderID') || '',
-    creditResult: searchParams.get('result') || '',
-    orderNumber: searchParams.get('e_orderno') || '',
+    orderId,
+    creditResult,
+    orderNumber,
   };
 
   const isGoToOrderQuery = searchParams.get('isGoToOrderQuery') === '1';
 
   try {
-    if (~~paramsObj.result === 1) {
+    if (~~o.creditResult === 1) {
       loadingStore.startLoading();
       const { success, message, data } = await creditMP(o);
       loadingStore.stopLoading();
@@ -52,9 +62,13 @@ onMounted(async () => {
         }
       }
     } else {
+      const failReason = searchParams.get('ret_msg');
+
       await dialogStore.openInfoDialog({
         title: '系統通知',
-        message: `付款失敗:${searchParams.get('ret_msg') || '未知錯誤'}`,
+        message: failReason
+          ? `付款未成功，原因：${failReason}`
+          : '付款未成功，未收到詳細錯誤訊息，請稍後再試。',
       });
       if (isGoToOrderQuery) {
         router.push('/member-center/order-history');

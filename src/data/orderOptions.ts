@@ -8,4 +8,5 @@ export const shippingOptions = [
 export const paymentOptions = [
   { name: '信用卡一次付清', value: 1 },
   { name: 'ATM虛擬帳號', value: 2 },
+  { name: 'AFTEE付款', value: 4 },
 ];

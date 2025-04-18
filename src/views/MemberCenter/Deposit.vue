@@ -6,6 +6,8 @@ import { paymentOptions } from '@/data/orderOptions';
 import { topUp } from '@/services/frontend/paymentService';
 import { getUserInfo } from '@/services/frontend/userService';
 import { useDialogStore, useLoadingStore } from '@/stores';
+import AFTEEUtils from '@/utils/AFTEEUtils';
+import axios from 'axios';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 
@@ -112,6 +114,78 @@ const onSubmit = handleSubmit(async (values) => {
         // Append the form to the body and submit it
         document.body.appendChild(form);
         form.submit();
+      } else if (values.paymentMethod === 4) {
+        const { data: userInfo } = await getUserInfo();
+
+        const preRegisterPayload = {
+          pre_token: '',
+          pub_key: import.meta.env.VITE_AFTEE_PUB_KEY,
+          payment: {
+            amount: Number(values.amount),
+            shop_transaction_no: data.orderNo,
+            user_no: userInfo.userUid || '',
+            sales_settled: false,
+            transaction_options: [],
+            description_trans: '',
+            checksum: '', // 若後端提供可填入
+            customer: {
+              customer_name: userInfo.nickname,
+              phone_number: userInfo.phoneNumber,
+              address:
+                `${userInfo.city}${userInfo.area}${userInfo.addressName}` ||
+                '未填地址',
+              email: userInfo.email,
+              additional_info_code: 'AAAA',
+            },
+            dest_customers: [],
+            items: [
+              {
+                shop_item_id: 'TOPUP',
+                item_name: '儲值代幣',
+                item_category: '商品',
+                item_price: Number(values.amount),
+                item_count: 1,
+              },
+            ],
+            validation_datetime: '',
+            return_url: `${window.location.origin}/paymentCB`,
+          },
+        };
+
+        console.log(preRegisterPayload);
+        AFTEEUtils.generateAndAttachChecksum(
+          preRegisterPayload.payment,
+          import.meta.env.VITE_AFTEE_SECRET_KEY
+        );
+
+        try {
+          const res = await axios.post(
+            import.meta.env.VITE_AFTEE_API_URL + 'v1/transactions/pre_register',
+            preRegisterPayload
+          );
+
+          const result = res.data;
+
+          if (result.pre_register && result.pre_register_identifier) {
+            const redirectUrl = `${
+              import.meta.env.VITE_AFTEE_API_URL
+            }settlement/${result.shop_transaction_no}?identifier=${
+              result.pre_register_identifier
+            }`;
+            window.location.href = redirectUrl;
+          } else {
+            await dialogStore.openInfoDialog({
+              title: 'AFTEE 回應失敗',
+              message: '無法產生交易識別碼，請稍後再試。',
+            });
+          }
+        } catch (error) {
+          console.error(error);
+          await dialogStore.openInfoDialog({
+            title: '系統錯誤',
+            message: '與 AFTEE 連線失敗，請稍後再試。',
+          });
+        }
       }
     } else {
       await dialogStore.openInfoDialog({
@@ -120,6 +194,8 @@ const onSubmit = handleSubmit(async (values) => {
       });
     }
   } catch (error) {
+    console.log(error);
+
     loadingStore.stopLoading();
     await dialogStore.openInfoDialog({
       title: '系統通知',

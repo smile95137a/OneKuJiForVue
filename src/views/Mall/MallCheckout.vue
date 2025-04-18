@@ -516,6 +516,8 @@ import * as yup from 'yup';
 import { expressQuery } from '@/services/frontend/expressService';
 import { payCartItem } from '@/services/frontend/orderService';
 import { loadState, removeState, saveState } from '@/utils/Localstorage';
+import AFTEEUtils from '@/utils/AFTEEUtils';
+import axios from 'axios';
 const route = useRoute();
 const router = useRouter();
 const loadingStore = useLoadingStore();
@@ -814,6 +816,85 @@ const onSubmit = handleSubmit(async (values: any) => {
         // Append the form to the body and submit it
         document.body.appendChild(form);
         form.submit();
+      } else if (values.paymentMethod === 4) {
+        const preRegisterPayload = {
+          pre_token: '',
+          pub_key: import.meta.env.VITE_AFTEE_PUB_KEY,
+          payment: {
+            amount: Number(finalAmount.value),
+            shop_transaction_no: data.orderNumber,
+            user_no: userInfo.userUid || '',
+            sales_settled: false,
+            transaction_options: [],
+            description_trans: '',
+            checksum: '', // 若後端提供可填入
+            customer: {
+              customer_name: values.shippingName,
+              phone_number: values.shippingPhone,
+              address:
+                `${values.shippingCity}${values.shippingArea}${values.shippingAddress}` ||
+                '未填地址',
+              email: values.shippingEmail,
+              additional_info_code: 'AAAA',
+            },
+            dest_customers: [],
+            items: [
+              ...items.value
+                .filter((item) => item.isSelected)
+                .map((item) => ({
+                  shop_item_id:
+                    item.productCode || item.productId || 'UNKNOWN_ID',
+                  item_name: item.productName || '未命名商品',
+                  item_category: item.categoryName || '商城',
+                  item_price: Number(item.unitPrice) || 0,
+                  item_count: item.quantity || 1,
+                })),
+              {
+                shop_item_id: 'SHIPPING_FEE',
+                item_name: '運費',
+                item_category: '物流費用',
+                item_price: selectedShippingPrice.value || 0,
+                item_count: 1,
+              },
+            ],
+
+            validation_datetime: '',
+            return_url: `${window.location.origin}/paymentCBO`,
+          },
+        };
+
+        AFTEEUtils.generateAndAttachChecksum(
+          preRegisterPayload.payment,
+          import.meta.env.VITE_AFTEE_SECRET_KEY
+        );
+        try {
+          const res = await axios.post(
+            import.meta.env.VITE_AFTEE_API_URL + 'v1/transactions/pre_register',
+            preRegisterPayload
+          );
+
+          const result = res.data;
+
+          if (result.pre_register && result.pre_register_identifier) {
+            const redirectUrl = `${
+              import.meta.env.VITE_AFTEE_API_URL
+            }settlement/${result.shop_transaction_no}?identifier=${
+              result.pre_register_identifier
+            }`;
+            window.location.href = redirectUrl;
+          } else {
+            await dialogStore.openInfoDialog({
+              title: 'AFTEE 回應失敗',
+              message: '無法產生交易識別碼，請稍後再試。',
+            });
+          }
+        } catch (error) {
+          console.error(error);
+          await dialogStore.openInfoDialog({
+            title: '系統錯誤',
+            message: '與 AFTEE 連線失敗，請稍後再試。',
+          });
+        }
       } else {
         router.push({
           name: 'MallOrderSuccess',
