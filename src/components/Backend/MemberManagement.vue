@@ -60,7 +60,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="member in paginatedMembers" :key="member.id">
+            <tr
+              v-for="member in pagination.currentPageItems.value"
+              :key="member.id"
+            >
               <td>
                 <input
                   type="checkbox"
@@ -96,12 +99,27 @@
       </div>
     </div>
 
-    <div class="pagination">
-      <button @click="previousPage" :disabled="currentPage === 1">
+    <div class="pagination" v-if="pagination.totalPages.value > 1">
+      <button
+        @click="pagination.previousPage"
+        :disabled="pagination.currentPage.value === 1"
+      >
         上一頁
       </button>
-      <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">
+
+      <button
+        v-for="pageNum in pagination.renderPaginationNums.value"
+        :key="pageNum"
+        @click="pagination.goToPage(pageNum)"
+        :class="{ active: pageNum === pagination.currentPage.value }"
+      >
+        {{ pageNum }}
+      </button>
+
+      <button
+        @click="pagination.nextPage"
+        :disabled="pagination.currentPage.value === pagination.totalPages.value"
+      >
         下一頁
       </button>
     </div>
@@ -225,6 +243,7 @@ import { SliverUpdate, User, UserReq } from '@/interfaces/user';
 import { userService } from '@/services/backend/userservice';
 import { debounce } from 'lodash';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
+import { usePagination } from '@/hook/usePagination';
 
 export default defineComponent({
   name: 'MemberManagement',
@@ -232,8 +251,9 @@ export default defineComponent({
     useRoleGuard(['1']);
     const allMembers = ref<User[]>([]);
     const displayedMembers = ref<User[]>([]);
-    const currentPage = ref(1);
     const itemsPerPage = 10;
+    const pagination = usePagination(displayedMembers, itemsPerPage);
+
     const showAddMemberModal = ref(false);
     const showUpdateMemberModal = ref(false);
     const showDistributeRewardModal = ref(false);
@@ -483,27 +503,6 @@ export default defineComponent({
       fetchMemberData();
     });
 
-    const totalPages = computed(() =>
-      Math.ceil(displayedMembers.value.length / itemsPerPage)
-    );
-    const paginatedMembers = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return displayedMembers.value.slice(start, end);
-    });
-
-    const nextPage = () => {
-      if (currentPage.value < totalPages.value) {
-        currentPage.value += 1;
-      }
-    };
-
-    const previousPage = () => {
-      if (currentPage.value > 1) {
-        currentPage.value -= 1;
-      }
-    };
-
     return {
       showUpdateMemberModal,
       showDistributeRewardModal,
@@ -511,11 +510,7 @@ export default defineComponent({
       editMember,
       updateMember,
       displayedMembers,
-      currentPage,
-      totalPages,
-      paginatedMembers,
-      nextPage,
-      previousPage,
+      pagination,
       statItems,
       showAddMemberModal,
       newMember,
@@ -695,34 +690,6 @@ tr:hover {
 
 td {
   min-width: 120px;
-}
-
-.pagination {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.pagination button {
-  margin: 0 5px;
-  padding: 8px 12px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-}
-
-.pagination button:hover:not(:disabled) {
-  background-color: #2980b9;
-}
-
-.pagination button:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
 }
 
 .modal {
