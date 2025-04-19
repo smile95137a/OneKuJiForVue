@@ -715,11 +715,19 @@ const onSubmit = handleSubmit(async (values: any) => {
   }
   const selectedItems = items.value.filter((item) => item.isSelected);
 
+  const paymentMethod =
+    values.shippingMethod === 'pickUp' ? '3' : values.paymentMethod;
+  const matchedOption = paymentOptions.find(
+    (opt) => opt.value === paymentMethod
+  );
+
+  const priceType = matchedOption?.priceType ?? null;
+
   const payCart = {
     ...values,
     prizeCartItemIds: selectedItems.map((x) => x.prizeCartItemId),
-    paymentMethod:
-      values.shippingMethod === 'pickUp' ? '3' : values.paymentMethod,
+    paymentMethod,
+    priceType,
   };
 
   const isV = await validateForm();

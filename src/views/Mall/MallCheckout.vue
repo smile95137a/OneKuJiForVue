@@ -434,7 +434,9 @@
               class="mallCheckout__payment-item mallCheckout__payment-item--options"
             >
               <div
-                v-for="option in paymentOptions"
+                v-for="option in paymentOptions.filter(
+                  (opt) => opt.priceType === 3
+                )"
                 :key="option.name"
                 class="mallCheckout__payment-option"
               >
