@@ -17,7 +17,10 @@ const route = useRoute();
 const router = useRouter();
 const orderNumber = route.params.orderNumber;
 const orderData = ref<any>(null);
-
+const getPaymentMethodName = (value: string) => {
+  const option = paymentOptions.find((option) => option.value === ~~value);
+  return option ? option.name : '其他付款方式';
+};
 onMounted(async () => {
   try {
     const res = await getStorePrizeProductOrderById(orderNumber as string);

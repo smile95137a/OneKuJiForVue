@@ -615,7 +615,17 @@ const schema = yup.object({
       then: (schema) => schema.required('購買人地址為必填'),
       otherwise: (schema) => schema.nullable(),
     }),
-  invoice: yup.string().required('發票資訊為必填'),
+  invoice: yup.lazy((_, { parent }) => {
+    const matchedOption = paymentOptions.find(
+      (opt) => opt.value === parent.paymentMethod
+    );
+    const priceType = matchedOption?.priceType;
+
+    if (priceType === 1 || priceType === 2) {
+      return yup.string().nullable();
+    }
+    return yup.string().required('發票資訊為必填');
+  }),
 });
 const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
   validationSchema: schema,
