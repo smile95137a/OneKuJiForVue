@@ -10,4 +10,5 @@ export const paymentOptions = [
   { name: 'ATM虛擬帳號', value: 2, priceType: 3 },
   { name: '金幣付款', value: 98, priceType: 1 },
   { name: '銀幣付款', value: 99, priceType: 2 },
+  { name: 'AFTEE先享後付', value: 4, priceType: 3 }
 ];

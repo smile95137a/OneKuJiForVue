@@ -68,7 +68,7 @@ onMounted(async () => {
         title: '系統通知',
         message: failReason
           ? `付款未成功，原因：${failReason}`
-          : '付款未成功，未收到詳細錯誤訊息，請稍後再試。',
+          : '付款未成功，請更換其他支付方式。',
       });
       if (isGoToOrderQuery) {
         router.push('/member-center/order-history');

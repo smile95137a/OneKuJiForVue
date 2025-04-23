@@ -135,7 +135,7 @@ const onSubmit = handleSubmit(async (values) => {
                 `${userInfo.city}${userInfo.area}${userInfo.addressName}` ||
                 '未填地址',
               email: userInfo.email,
-              additional_info_code: 'AAAA',
+              additional_info_code: 'FI',
             },
             dest_customers: [],
             items: [

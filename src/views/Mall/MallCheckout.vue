@@ -837,7 +837,7 @@ const onSubmit = handleSubmit(async (values: any) => {
                 `${values.shippingCity}${values.shippingArea}${values.shippingAddress}` ||
                 '未填地址',
               email: values.shippingEmail,
-              additional_info_code: 'AAAA',
+              additional_info_code: 'FI',
             },
             dest_customers: [],
             items: [
