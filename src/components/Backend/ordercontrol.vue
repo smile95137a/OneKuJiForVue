@@ -1,7 +1,13 @@
 <template>
   <div class="order-management">
     <h1 class="title">訂單管理</h1>
-
+    <div class="search-section">
+      <input
+        v-model="searchInput"
+        placeholder="搜尋訂單編號、收件人姓名、電話或 Email"
+        @input="debounceSearch"
+      />
+    </div>
     <!-- 新增篩選按鈕 -->
     <div class="filter-buttons">
       <button @click="filterOrders('SHIPPED')" class="filter-btn">
@@ -383,7 +389,10 @@ import {
 import { productservice } from '@/services/backend/productservice';
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
+import { debounce } from 'lodash';
+
 useRoleGuard(['1']);
+const searchInput = ref('');
 const isEditing = ref(false);
 const orders = ref<Order[]>([]);
 const currentPage = ref(1);
@@ -394,6 +403,31 @@ const orderShippingInfo = ref(null); // 存储寄送信息
 const orderInfo = ref(null);
 const toggleEdit = () => {
   isEditing.value = !isEditing.value;
+};
+
+const debounceSearch = debounce(() => {
+  searchOrders();
+}, 300);
+
+const searchOrders = () => {
+  const query = searchInput.value.trim().toLowerCase();
+
+  if (!query) {
+    filteredOrders.value = orders.value;
+  } else {
+    const filterOrders = (order: Order) => {
+      return (
+        `${order.orderNumber ?? ''}`.toLowerCase().includes(query) ||
+        `${order.billingName ?? ''}`.toLowerCase().includes(query) ||
+        `${order.shippingPhone ?? ''}`.toLowerCase().includes(query) ||
+        `${order.shippingEmail ?? ''}`.toLowerCase().includes(query)
+      );
+    };
+
+    filteredOrders.value = orders.value.filter(filterOrders);
+  }
+
+  currentPage.value = 1;
 };
 
 const saveTrackingNumber = async () => {
@@ -1301,5 +1335,23 @@ td {
 .pagination button:disabled {
   background-color: #bdc3c7;
   cursor: not-allowed;
+}
+.search-section {
+  margin-bottom: 20px;
+}
+
+.search-section input {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.search-section input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 </style>

@@ -101,6 +101,13 @@
 
     <div class="pagination" v-if="pagination.totalPages.value > 1">
       <button
+        @click="pagination.goToPage(1)"
+        :disabled="pagination.currentPage.value === 1"
+      >
+        第一頁
+      </button>
+
+      <button
         @click="pagination.previousPage"
         :disabled="pagination.currentPage.value === 1"
       >
@@ -121,6 +128,13 @@
         :disabled="pagination.currentPage.value === pagination.totalPages.value"
       >
         下一頁
+      </button>
+
+      <button
+        @click="pagination.goToPage(pagination.totalPages.value)"
+        :disabled="pagination.currentPage.value === pagination.totalPages.value"
+      >
+        最後一頁
       </button>
     </div>
 
