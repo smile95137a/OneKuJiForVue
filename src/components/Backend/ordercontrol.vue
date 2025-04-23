@@ -27,6 +27,7 @@
           <tr>
             <th>訂單編號</th>
             <th>收件人姓名</th>
+            <th>收件人電話</th>
             <th>訂單狀態</th>
             <th>訂單明細</th>
             <th>出貨單</th>
@@ -42,6 +43,7 @@
           <tr v-for="order in paginatedOrders" :key="order.id">
             <td>{{ order.orderNumber }}</td>
             <td>{{ order.billingName }}</td>
+            <td>{{ order.shippingPhone }}</td>
             <td>
               <select
                 v-model="order.resultStatus"
