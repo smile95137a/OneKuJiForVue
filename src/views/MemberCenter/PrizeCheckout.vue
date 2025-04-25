@@ -491,8 +491,8 @@ import Card from '@/components/common/Card.vue';
 import MSelect from '@/components/common/MSelect.vue';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import MImage from '@/components/frontend/MImage.vue';
-import { AppEnv } from '@/config/appEnv';
 import { paymentOptions } from '@/data/orderOptions';
+import { generateAfteePreRegister } from '@/services/frontend/afteeService';
 import { expressQuery } from '@/services/frontend/expressService';
 import { payPrizeCartItem } from '@/services/frontend/orderService';
 import { removePrizeCartItem } from '@/services/frontend/prizeCartItemService';
@@ -760,7 +760,7 @@ const onSubmit = handleSubmit(async (values: any) => {
       } else {
         if (values.paymentMethod === 1) {
           const form = document.createElement('form');
-          form.action = AppEnv.PAYMENT_GATEWAY_URL;
+          form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
           form.method = 'post';
 
           const appendField = (name, value) => {
@@ -773,7 +773,7 @@ const onSubmit = handleSubmit(async (values: any) => {
 
           appendField('Send_Type', '0');
           appendField('Pay_Mode_No', '2');
-          appendField('CustomerId', AppEnv.PAYMENT_CUSTOMER_ID);
+          appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
           appendField('Order_No', data.orderNumber);
           appendField('TransMode', '1');
           appendField('Amount', finalAmount.value);
@@ -800,7 +800,7 @@ const onSubmit = handleSubmit(async (values: any) => {
           }, 3000);
         } else if (values.paymentMethod === 2) {
           const form = document.createElement('form');
-          form.action = AppEnv.PAYMENT_GATEWAY_URL;
+          form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
           form.method = 'post';
 
           // Helper to create and append form fields
@@ -815,7 +815,7 @@ const onSubmit = handleSubmit(async (values: any) => {
           // Set form fields
           appendField('Send_Type', '4');
           appendField('Pay_Mode_No', '2');
-          appendField('CustomerId', AppEnv.PAYMENT_CUSTOMER_ID);
+          appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
           appendField('Order_No', data.orderNumber);
           appendField('Amount', finalAmount.value);
           appendField('Buyer_Name', userInfo.nickname);
@@ -831,72 +831,31 @@ const onSubmit = handleSubmit(async (values: any) => {
           document.body.appendChild(form);
           form.submit();
         } else if (values.paymentMethod === 4) {
-          const preRegisterPayload = {
-            pre_token: '',
-            pub_key: AppEnv.AFTEE_PUB_KEY,
-            payment: {
-              amount: Number(finalAmount.value),
-              shop_transaction_no: data.orderNumber,
-              user_no: userInfo.userUid || '',
-              sales_settled: true,
-              transaction_options: [],
-              description_trans: '',
-              checksum: '', // 若後端提供可填入
-              customer: {
-                customer_name: values.shippingName,
-                phone_number: values.shippingPhone,
-                address:
-                  `${values.shippingCity}${values.shippingArea}${values.shippingAddress}` ||
-                  '未填地址',
-                email: values.shippingEmail,
-                additional_info_code: 'FI',
-              },
-              dest_customers: [],
-              items: [
-                ...items.value
-                  .filter((item) => item.isSelected)
-                  .map((item) => ({
-                    shop_item_id:
-                      item.productCode || item.productId || 'UNKNOWN_ID',
-                    item_name: item.productName || '未命名商品',
-                    item_category: item.categoryName || '商品盒',
-                    item_price: 0,
-                    item_count: item.quantity || 1,
-                  })),
-                {
-                  shop_item_id: 'SHIPPING_FEE',
-                  item_name: '運費',
-                  item_category: '物流費用',
-                  item_price: selectedShippingPrice.value || 0,
-                  item_count: 1,
-                },
-              ],
-
-              validation_datetime: '',
-              return_url: `${window.location.origin}/paymentCBO`,
-            },
-          };
-
-          AFTEEUtils.generateAndAttachChecksum(
-            preRegisterPayload.payment,
-            AppEnv.AFTEE_SECRET_KEY
-          );
           try {
-            const res = await axios.post(
-              AppEnv.AFTEE_API_URL + 'v1/transactions/pre_register',
-              preRegisterPayload
-            );
+            const res = await generateAfteePreRegister({
+              type: 'PRIZE',
+              orderNo: data.orderNumber,
+              returnUrl: `${window.location.origin}/paymentCBO`,
+            });
+            if (res.success) {
+              const result = res.data;
 
-            const result = res.data;
-
-            if (result.pre_register && result.pre_register_identifier) {
-              const redirectUrl = `${AppEnv.AFTEE_API_URL}settlement/${result.shop_transaction_no}?identifier=${result.pre_register_identifier}`;
-              window.location.href = redirectUrl;
-            } else {
-              await dialogStore.openInfoDialog({
-                title: 'AFTEE 回應失敗',
-                message: '無法產生交易識別碼，請稍後再試。',
-              });
+              if (
+                result?.shop_transaction_no &&
+                result?.pre_register_identifier
+              ) {
+                const redirectUrl = `${
+                  import.meta.env.VITE_AFTEE_API_URL
+                }settlement/${result.shop_transaction_no}?identifier=${
+                  result.pre_register_identifier
+                }`;
+                window.location.href = redirectUrl;
+              } else {
+                await dialogStore.openInfoDialog({
+                  title: 'AFTEE 回應失敗',
+                  message: '無法產生交易識別碼，請稍後再試。',
+                });
+              }
             }
           } catch (error) {
             console.error(error);
