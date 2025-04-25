@@ -124,7 +124,7 @@ const onSubmit = handleSubmit(async (values) => {
             amount: Number(values.amount),
             shop_transaction_no: data.orderNo,
             user_no: userInfo.userUid || '',
-            sales_settled: false,
+            sales_settled: true,
             transaction_options: [],
             description_trans: '',
             checksum: '', // 若後端提供可填入

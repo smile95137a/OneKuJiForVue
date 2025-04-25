@@ -837,7 +837,7 @@ const onSubmit = handleSubmit(async (values: any) => {
               amount: Number(finalAmount.value),
               shop_transaction_no: data.orderNumber,
               user_no: userInfo.userUid || '',
-              sales_settled: false,
+              sales_settled: true,
               transaction_options: [],
               description_trans: '',
               checksum: '', // 若後端提供可填入
