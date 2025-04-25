@@ -491,6 +491,7 @@ import Card from '@/components/common/Card.vue';
 import MSelect from '@/components/common/MSelect.vue';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import MImage from '@/components/frontend/MImage.vue';
+import { AppEnv } from '@/config/appEnv';
 import { paymentOptions } from '@/data/orderOptions';
 import { expressQuery } from '@/services/frontend/expressService';
 import { payPrizeCartItem } from '@/services/frontend/orderService';
@@ -759,7 +760,7 @@ const onSubmit = handleSubmit(async (values: any) => {
       } else {
         if (values.paymentMethod === 1) {
           const form = document.createElement('form');
-          form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+          form.action = AppEnv.PAYMENT_GATEWAY_URL;
           form.method = 'post';
 
           const appendField = (name, value) => {
@@ -772,7 +773,7 @@ const onSubmit = handleSubmit(async (values: any) => {
 
           appendField('Send_Type', '0');
           appendField('Pay_Mode_No', '2');
-          appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+          appendField('CustomerId', AppEnv.PAYMENT_CUSTOMER_ID);
           appendField('Order_No', data.orderNumber);
           appendField('TransMode', '1');
           appendField('Amount', finalAmount.value);
@@ -799,7 +800,7 @@ const onSubmit = handleSubmit(async (values: any) => {
           }, 3000);
         } else if (values.paymentMethod === 2) {
           const form = document.createElement('form');
-          form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
+          form.action = AppEnv.PAYMENT_GATEWAY_URL;
           form.method = 'post';
 
           // Helper to create and append form fields
@@ -814,7 +815,7 @@ const onSubmit = handleSubmit(async (values: any) => {
           // Set form fields
           appendField('Send_Type', '4');
           appendField('Pay_Mode_No', '2');
-          appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
+          appendField('CustomerId', AppEnv.PAYMENT_CUSTOMER_ID);
           appendField('Order_No', data.orderNumber);
           appendField('Amount', finalAmount.value);
           appendField('Buyer_Name', userInfo.nickname);
@@ -832,7 +833,7 @@ const onSubmit = handleSubmit(async (values: any) => {
         } else if (values.paymentMethod === 4) {
           const preRegisterPayload = {
             pre_token: '',
-            pub_key: import.meta.env.VITE_AFTEE_PUB_KEY,
+            pub_key: AppEnv.AFTEE_PUB_KEY,
             payment: {
               amount: Number(finalAmount.value),
               shop_transaction_no: data.orderNumber,
@@ -878,23 +879,18 @@ const onSubmit = handleSubmit(async (values: any) => {
 
           AFTEEUtils.generateAndAttachChecksum(
             preRegisterPayload.payment,
-            import.meta.env.VITE_AFTEE_SECRET_KEY
+            AppEnv.AFTEE_SECRET_KEY
           );
           try {
             const res = await axios.post(
-              import.meta.env.VITE_AFTEE_API_URL +
-                'v1/transactions/pre_register',
+              AppEnv.AFTEE_API_URL + 'v1/transactions/pre_register',
               preRegisterPayload
             );
 
             const result = res.data;
 
             if (result.pre_register && result.pre_register_identifier) {
-              const redirectUrl = `${
-                import.meta.env.VITE_AFTEE_API_URL
-              }settlement/${result.shop_transaction_no}?identifier=${
-                result.pre_register_identifier
-              }`;
+              const redirectUrl = `${AppEnv.AFTEE_API_URL}settlement/${result.shop_transaction_no}?identifier=${result.pre_register_identifier}`;
               window.location.href = redirectUrl;
             } else {
               await dialogStore.openInfoDialog({
