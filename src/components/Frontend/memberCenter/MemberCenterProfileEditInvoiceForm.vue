@@ -74,6 +74,7 @@
 
 <script lang="ts" setup>
 import MSelect from '@/components/common/MSelect.vue';
+import { invoiceInfoOptionsData } from '@/data/orderOptions';
 import {
   getUserInfo,
   updateUserInvoice,
@@ -86,12 +87,9 @@ import * as yup from 'yup';
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
 
-const invoiceInfoOptions = ref<{ value: string; label: string }[]>([
-  { value: '', label: '請選擇發票資訊' },
-  { value: 'donation', label: '捐贈發票' },
-  { value: 'mobileCarrier', label: '手機載具' },
-  { value: 'personalEInvoice', label: '個人電子發票' },
-]);
+const invoiceInfoOptions = ref<{ value: string; label: string }[]>(
+  invoiceInfoOptionsData
+);
 
 const schema = yup.object({
   invoiceInfo: yup.string().required('發票資訊為必填項'),

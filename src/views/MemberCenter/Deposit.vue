@@ -2,6 +2,7 @@
 import c1 from '@/assets/image/coin-1.png';
 import dbox from '@/assets/image/dp.png';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
+import { AppEnv } from '@/config/appEnv';
 import { paymentOptions } from '@/data/orderOptions';
 import { generateAfteePreRegister } from '@/services/frontend/afteeService';
 import { topUp } from '@/services/frontend/paymentService';
@@ -40,6 +41,8 @@ const depositList = [
   { id: 'deposit5', value: '5000', num: '5000' },
   { id: 'deposit6', value: '8000', num: '8000' },
   { id: 'deposit7', value: '10000', num: '10000' },
+  { id: 'deposit8', value: '20000', num: '20000' },
+  { id: 'deposit9', value: '30000', num: '30000' },
 ];
 
 // 提交表單的處理邏輯
@@ -122,6 +125,53 @@ const onSubmit = handleSubmit(async (values) => {
             orderNo: data.orderNo,
             returnUrl: `${window.location.origin}/paymentCB`,
           });
+
+          const { data: userInfo } = await getUserInfo();
+
+          const preRegisterPayload = {
+            pre_token: '',
+            pub_key: AppEnv.AFTEE_PUB_KEY,
+            payment: {
+              amount: Number(values.amount),
+              shop_transaction_no: data.orderNo,
+              user_no: userInfo.userUid || '',
+              sales_settled: true,
+              transaction_options: [],
+              description_trans: '',
+              checksum: '', // 若後端提供可填入
+              customer: {
+                customer_name: userInfo.nickname,
+                phone_number: userInfo.phoneNumber,
+                address:
+                  `${userInfo.city}${userInfo.area}${userInfo.addressName}` ||
+                  '未填地址',
+                email: userInfo.email,
+                additional_info_code: 'FI',
+              },
+              dest_customers: [],
+              items: [
+                {
+                  shop_item_id: 'TOPUP',
+                  item_name: '儲值代幣',
+                  item_category: '商品',
+                  item_price: Number(values.amount),
+                  item_count: 1,
+                },
+              ],
+              validation_datetime: '',
+              return_url: `${window.location.origin}/paymentCB`,
+            },
+          };
+
+          console.log(preRegisterPayload);
+          AFTEEUtils.generateAndAttachChecksum(
+            preRegisterPayload.payment,
+            AppEnv.AFTEE_SECRET_KEY
+          );
+
+          console.log(preRegisterPayload);
+          return;
+
           if (res.success) {
             const result = res.data;
 

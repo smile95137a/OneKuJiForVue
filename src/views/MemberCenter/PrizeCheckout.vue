@@ -423,6 +423,23 @@
                   {{ errors.vehicle }}
                 </p>
               </div>
+              <div v-if="invoice === 'uniformNumber'" class="">
+                <p class="mallCheckout__text mallCheckout__text--required">
+                  統一編號
+                </p>
+                <input
+                  class="mallCheckout__form-input"
+                  v-model="uncode"
+                  name="uncode"
+                  :class="{
+                    'mallCheckout__form-input--error': errors.uncode,
+                  }"
+                  placeholder="輸入統一編號"
+                />
+                <p class="mallCheckout__text mallCheckout__text--error">
+                  {{ errors.uncode }}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -491,7 +508,7 @@ import Card from '@/components/common/Card.vue';
 import MSelect from '@/components/common/MSelect.vue';
 import NumberFormatter from '@/components/common/NumberFormatter.vue';
 import MImage from '@/components/frontend/MImage.vue';
-import { paymentOptions } from '@/data/orderOptions';
+import { invoiceInfoOptionsData, paymentOptions } from '@/data/orderOptions';
 import { generateAfteePreRegister } from '@/services/frontend/afteeService';
 import { expressQuery } from '@/services/frontend/expressService';
 import { payPrizeCartItem } from '@/services/frontend/orderService';
@@ -505,9 +522,7 @@ import {
 } from '@/services/frontend/taiwanCitiesService';
 import { getUserInfo } from '@/services/frontend/userService';
 import { useDialogStore, useLoadingStore } from '@/stores';
-import AFTEEUtils from '@/utils/AFTEEUtils';
 import { loadState, removeState, saveState } from '@/utils/Localstorage';
-import axios from 'axios';
 import { useForm } from 'vee-validate';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -533,12 +548,9 @@ const shippingAreaOptions = ref<{ value: string; label: string }[]>([
 
 const shippingMethods = ref<any[]>([]);
 
-const invoiceInfoOptions = ref<{ value: string; label: string }[]>([
-  { value: '', label: '請選擇發票資訊' },
-  { value: 'donation', label: '捐贈發票' },
-  { value: 'mobileCarrier', label: '手機載具' },
-  { value: 'personalEInvoice', label: '個人電子發票' },
-]);
+const invoiceInfoOptions = ref<{ value: string; label: string }[]>(
+  invoiceInfoOptionsData
+);
 const schema = yup.object({
   shippingName: yup.string().required('收貨人姓名為必填'),
   shippingEmail: yup
@@ -627,6 +639,17 @@ const schema = yup.object({
     }
     return yup.string().required('發票資訊為必填');
   }),
+  uncode: yup
+    .string()
+    .nullable()
+    .when('invoice', {
+      is: 'uniformNumber',
+      then: (schema) =>
+        schema
+          .matches(/^\d{8}$/, '統一編號需為 8 碼數字')
+          .required('統一編號為必填'),
+      otherwise: (schema) => schema.nullable(),
+    }),
 });
 const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
   validationSchema: schema,
@@ -654,6 +677,7 @@ const { handleSubmit, errors, defineField, setFieldValue, values } = useForm({
     shopId: storeid,
     shopName: storename,
     shopAddress: storeaddress,
+    uncode: '',
   },
 });
 
@@ -678,6 +702,8 @@ const [vehicle, vehicleProps] = defineField('vehicle');
 const [donationCode, donationCodeProps] = defineField('donationCode');
 const [sameAsBilling, sameAsBillingProps] = defineField('sameAsBilling');
 const [shopId] = defineField('shopId');
+const [uncode, uncodeProps] = defineField('uncode');
+
 const selectedShippingPrice = ref(0);
 watch(shippingMethod, (newMethod) => {
   const selectedOption = shippingMethods.value.find(
