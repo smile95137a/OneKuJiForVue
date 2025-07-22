@@ -169,9 +169,6 @@ const onSubmit = handleSubmit(async (values) => {
             AppEnv.AFTEE_SECRET_KEY
           );
 
-          console.log(preRegisterPayload);
-          return;
-
           if (res.success) {
             const result = res.data;
 
