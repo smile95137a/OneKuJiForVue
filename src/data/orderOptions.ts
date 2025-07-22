@@ -6,11 +6,11 @@ export const shippingOptions = [
 ];
 
 export const paymentOptions = [
-  { name: '信用卡一次付清', value: 1, priceType: 3 },
-  { name: 'ATM虛擬帳號', value: 2, priceType: 3 },
-  { name: '金幣付款', value: 98, priceType: 1 },
-  { name: '銀幣付款', value: 99, priceType: 2 },
-  { name: 'AFTEE先享後付', value: 4, priceType: 3 },
+  { name: '信用卡一次付清', value: 1, priceType: 3, isMallShow: true },
+  { name: 'ATM虛擬帳號', value: 2, priceType: 3, isMallShow: true },
+  { name: '金幣付款', value: 98, priceType: 1, isMallShow: false },
+  { name: '銀幣付款', value: 99, priceType: 2, isMallShow: false },
+  { name: 'AFTEE先享後付', value: 4, priceType: 3, isMallShow: false },
 ];
 
 export const invoiceInfoOptionsData = [

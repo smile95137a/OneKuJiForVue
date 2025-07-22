@@ -452,7 +452,7 @@
             >
               <div
                 v-for="option in paymentOptions.filter(
-                  (opt) => opt.priceType === 3
+                  (opt) => opt.priceType === 3 && opt.isMallShow
                 )"
                 :key="option.name"
                 class="mallCheckout__payment-option"
@@ -535,8 +535,6 @@ import * as yup from 'yup';
 import { expressQuery } from '@/services/frontend/expressService';
 import { payCartItem } from '@/services/frontend/orderService';
 import { loadState, removeState, saveState } from '@/utils/Localstorage';
-import AFTEEUtils from '@/utils/AFTEEUtils';
-import axios from 'axios';
 import { generateAfteePreRegister } from '@/services/frontend/afteeService';
 const route = useRoute();
 const router = useRouter();
