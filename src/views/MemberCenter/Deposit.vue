@@ -86,7 +86,11 @@ const onSubmit = handleSubmit(async (values) => {
 
         // Append the form to the body and submit it
         document.body.appendChild(form);
-        form.submit();
+        loadingStore.startLoading();
+        setTimeout(() => {
+          loadingStore.stopLoading();
+          form.submit();
+        }, 1000);
       } else if (values.paymentMethod === 2) {
         const form = document.createElement('form');
         form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
@@ -117,7 +121,11 @@ const onSubmit = handleSubmit(async (values) => {
         );
         // Append the form to the body and submit it
         document.body.appendChild(form);
-        form.submit();
+        loadingStore.startLoading();
+        setTimeout(() => {
+          loadingStore.stopLoading();
+          form.submit();
+        }, 1000);
       } else if (values.paymentMethod === 4) {
         try {
           const res = await generateAfteePreRegister({

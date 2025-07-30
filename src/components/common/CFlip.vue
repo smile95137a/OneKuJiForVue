@@ -145,7 +145,11 @@ const handlePayment = (orderData) => {
       `${window.location.origin}/paymentCBO?isGoToOrderQuery=1`
     );
     document.body.appendChild(form);
-    form.submit();
+    loadingStore.startLoading();
+    setTimeout(() => {
+      loadingStore.stopLoading();
+      form.submit();
+    }, 1000);
   } else if (orderData.paymentMethod === '2') {
     const form = document.createElement('form');
     form.action = import.meta.env.VITE_PAYMENT_GATEWAY_URL;
@@ -174,7 +178,11 @@ const handlePayment = (orderData) => {
       'https://api.onemorelottery.tw:8081/payment/paymentCallback'
     );
     document.body.appendChild(form);
-    form.submit();
+    loadingStore.startLoading();
+    setTimeout(() => {
+      loadingStore.stopLoading();
+      form.submit();
+    }, 1000);
   }
 };
 

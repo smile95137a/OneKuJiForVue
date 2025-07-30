@@ -816,7 +816,11 @@ const onSubmit = handleSubmit(async (values: any) => {
               message: `我們即將為您跳轉至付款頁面，請耐心等待。在完成所有流程之前，為確保交易順利進行，請勿關閉或刷新此畫面。感謝您的配合！`,
             })
             .then(() => {
-              form.submit();
+              loadingStore.startLoading();
+              setTimeout(() => {
+                loadingStore.stopLoading();
+                form.submit();
+              }, 1000);
             });
 
           setTimeout(() => {
@@ -855,6 +859,11 @@ const onSubmit = handleSubmit(async (values: any) => {
 
           // Append the form to the body and submit it
           document.body.appendChild(form);
+          loadingStore.startLoading();
+          setTimeout(() => {
+            loadingStore.stopLoading();
+            form.submit();
+          }, 1000);
           form.submit();
         } else if (values.paymentMethod === 4) {
           try {
