@@ -848,7 +848,7 @@ const onSubmit = handleSubmit(async (values: any) => {
           appendField('CustomerId', import.meta.env.VITE_PAYMENT_CUSTOMER_ID);
           appendField('Order_No', data.orderNumber);
           appendField('Amount', finalAmount.value);
-          appendField('Buyer_Name', userInfo.nickname);
+          appendField('Buyer_Name', shippingName.value);
           appendField('Buyer_Telm', userInfo.phoneNumber);
           appendField('Buyer_Mail', userInfo.email);
           appendField('Buyer_Memo', '儲值代幣');
