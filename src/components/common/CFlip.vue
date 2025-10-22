@@ -43,7 +43,12 @@
           <p class="menu-flip__text">明細</p>
         </div>
         <div class="col-20 flex items-center justify-center">
-          <div v-if="orderData.resultStatus === 'NO_PAY'">
+          <div
+            v-if="
+              orderData.resultStatus === 'NO_PAY' &&
+              orderData.paymentMethod !== '2'
+            "
+          >
             <button class="menu-flip__btn" @click="handlePayment(orderData)">
               付款
             </button>
@@ -80,14 +85,14 @@
           {{ item.totalPrice }}
         </div>
       </div>
-      <div class="grid m-t-16" v-if="orderData.paymentMethod === '2'">
+      <!-- <div class="grid m-t-16" v-if="orderData.paymentMethod === '2'">
         <div class="col-25">轉帳帳號</div>
       </div>
       <div class="grid" v-if="orderData.paymentMethod === '2'">
         <div class="col-25 p-x-12">
           {{ orderData.billNumber }}
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

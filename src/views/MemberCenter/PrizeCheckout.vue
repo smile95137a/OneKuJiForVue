@@ -864,7 +864,6 @@ const onSubmit = handleSubmit(async (values: any) => {
             loadingStore.stopLoading();
             form.submit();
           }, 1000);
-          form.submit();
         } else if (values.paymentMethod === 4) {
           try {
             const res = await generateAfteePreRegister({
