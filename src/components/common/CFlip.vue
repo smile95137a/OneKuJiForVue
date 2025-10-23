@@ -43,13 +43,12 @@
           <p class="menu-flip__text">明細</p>
         </div>
         <div class="col-20 flex items-center justify-center">
-          <div
-            v-if="
-              orderData.resultStatus === 'NO_PAY' &&
-              orderData.paymentMethod !== '2'
-            "
-          >
-            <button class="menu-flip__btn" @click="handlePayment(orderData)">
+          <div v-if="orderData.resultStatus === 'NO_PAY'">
+            <button
+              class="menu-flip__btn"
+              v-if="orderData.paymentMethod !== '2'"
+              @click="handlePayment(orderData)"
+            >
               付款
             </button>
             <button
