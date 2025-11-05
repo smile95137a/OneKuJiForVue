@@ -854,8 +854,8 @@ const newCategoryName = ref('');
 
 // 尺寸選項
 const sizeOptions = [
-'1',  
-'10',
+  '1',
+  '10',
   '20',
   '30',
   '40',
@@ -878,7 +878,7 @@ const sizeOptions = [
   '500',
   '1000',
   '1500',
-  '2000'
+  '2000',
 ];
 
 // 計算屬性
@@ -1388,6 +1388,7 @@ const resetProductForm = () => {
 
 const resetDetailForm = () => {
   Object.assign(detailForm, {
+    productDetailId: undefined,
     productId: currentProductId.value,
     description: '',
     note: '',
