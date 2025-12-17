@@ -153,7 +153,7 @@ const isImage = (value: string | string[]): boolean => {
 const getFormattedImageUrl = (url: string): string => {
   if (isImage(url)) {
     const cleanURL = url.trim().replace(/^\["|"\]$/g, '');
-    return `${API_IMAGE_URL}/img${cleanURL}`;
+    return `${API_IMAGE_URL}${cleanURL}`;
   }
   return url;
 };
@@ -243,15 +243,15 @@ const exportToExcel = async (): Promise<void> => {
       endDate: endDate.value || '',
     };
 
-const rawToken = localStorage.getItem('admin_token') || '';
-const token = rawToken.replace(/"/g, ''); // 移除多餘的雙引號
+    const rawToken = localStorage.getItem('admin_token') || '';
+    const token = rawToken.replace(/"/g, ''); // 移除多餘的雙引號
 
     const response = await axios.get(`${API_URL}/reports/export`, {
       params,
       responseType: 'blob',
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     // 获取中文名称
@@ -272,7 +272,6 @@ const token = rawToken.replace(/"/g, ''); // 移除多餘的雙引號
     console.error('匯出報表失敗:', error);
   }
 };
-
 
 // 初始化
 fetchReportData();

@@ -341,7 +341,7 @@ export const productservice = {
   },
 
   getImageUrl: (imagePath: string): string => {
-    return `${API_IMAGE_URL}/img${imagePath}`;
+    return `${API_IMAGE_URL}${imagePath}`;
   },
 
   // 新增的類別相關方法

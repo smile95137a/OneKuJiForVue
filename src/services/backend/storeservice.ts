@@ -1,5 +1,11 @@
 import { ApiResponse } from '@/interfaces/admin';
-import { StoreCategory, StoreCategoryApiResponse, StoreCategoryListApiResponse, StoreProductApiResponse, StoreProductListApiResponse } from '@/interfaces/store';
+import {
+  StoreCategory,
+  StoreCategoryApiResponse,
+  StoreCategoryListApiResponse,
+  StoreProductApiResponse,
+  StoreProductListApiResponse,
+} from '@/interfaces/store';
 import { getAuthToken } from '@/services/backend/adminservices';
 import axios from 'axios';
 
@@ -21,7 +27,9 @@ axiosInstance.interceptors.request.use((config) => {
 export const storeServices = {
   getAllStoreProduct: async (): Promise<StoreProductListApiResponse> => {
     try {
-      const response = await axiosInstance.get<StoreProductListApiResponse>('/storeProduct/all');
+      const response = await axiosInstance.get<StoreProductListApiResponse>(
+        '/storeProduct/all'
+      );
       return response.data;
     } catch (error) {
       console.error('Error fetching store products:', error);
@@ -29,11 +37,17 @@ export const storeServices = {
     }
   },
 
-  addStoreProduct: async (formData: FormData): Promise<StoreProductApiResponse> => {
+  addStoreProduct: async (
+    formData: FormData
+  ): Promise<StoreProductApiResponse> => {
     try {
-      const response = await axiosInstance.post<StoreProductApiResponse>('/storeProduct/add', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.post<StoreProductApiResponse>(
+        '/storeProduct/add',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('Error adding store product:', error);
@@ -41,11 +55,18 @@ export const storeServices = {
     }
   },
 
-  updateStoreProduct: async (id: number, formData: FormData): Promise<StoreProductApiResponse> => {
+  updateStoreProduct: async (
+    id: number,
+    formData: FormData
+  ): Promise<StoreProductApiResponse> => {
     try {
-      const response = await axiosInstance.put<StoreProductApiResponse>(`/storeProduct/update/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await axiosInstance.put<StoreProductApiResponse>(
+        `/storeProduct/update/${id}`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error('Error updating store product:', error);
@@ -55,7 +76,9 @@ export const storeServices = {
 
   deleteStoreProduct: async (id: number): Promise<ApiResponse<void>> => {
     try {
-      const response = await axiosInstance.delete<ApiResponse<void>>(`/storeProduct/delete/${id}`);
+      const response = await axiosInstance.delete<ApiResponse<void>>(
+        `/storeProduct/delete/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error('Error deleting store product:', error);
@@ -65,7 +88,9 @@ export const storeServices = {
 
   getAllCategories: async (): Promise<StoreCategoryListApiResponse> => {
     try {
-      const response = await axiosInstance.get<StoreCategoryListApiResponse>('/category/all');
+      const response = await axiosInstance.get<StoreCategoryListApiResponse>(
+        '/category/all'
+      );
       return response.data;
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -75,7 +100,9 @@ export const storeServices = {
 
   getCategoryById: async (id: number): Promise<StoreCategoryApiResponse> => {
     try {
-      const response = await axiosInstance.get<StoreCategoryApiResponse>(`/category/${id}`);
+      const response = await axiosInstance.get<StoreCategoryApiResponse>(
+        `/category/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error('Error fetching category:', error);
@@ -83,9 +110,14 @@ export const storeServices = {
     }
   },
 
-  createCategory: async (category: { categoryName: string }): Promise<StoreCategoryApiResponse> => {
+  createCategory: async (category: {
+    categoryName: string;
+  }): Promise<StoreCategoryApiResponse> => {
     try {
-      const response = await axiosInstance.post<StoreCategoryApiResponse>('/category', category);
+      const response = await axiosInstance.post<StoreCategoryApiResponse>(
+        '/category',
+        category
+      );
       return response.data;
     } catch (error) {
       console.error('Error creating category:', error);
@@ -93,9 +125,15 @@ export const storeServices = {
     }
   },
 
-  updateCategory: async (id: number, category: StoreCategory): Promise<StoreCategoryApiResponse> => {
+  updateCategory: async (
+    id: number,
+    category: StoreCategory
+  ): Promise<StoreCategoryApiResponse> => {
     try {
-      const response = await axiosInstance.put<StoreCategoryApiResponse>(`/category/${id}`, category);
+      const response = await axiosInstance.put<StoreCategoryApiResponse>(
+        `/category/${id}`,
+        category
+      );
       return response.data;
     } catch (error) {
       console.error('Error updating category:', error);
@@ -105,7 +143,9 @@ export const storeServices = {
 
   deleteCategory: async (id: number): Promise<ApiResponse<void>> => {
     try {
-      const response = await axiosInstance.delete<ApiResponse<void>>(`/category/${id}`);
+      const response = await axiosInstance.delete<ApiResponse<void>>(
+        `/category/${id}`
+      );
       return response.data;
     } catch (error) {
       console.error('Error deleting category:', error);
@@ -114,25 +154,31 @@ export const storeServices = {
   },
 
   getImageUrl: (imagePath: string): string => {
-    const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
-    return `${API_IMAGE_URL}/${cleanPath}`;
+    const cleanPath = imagePath.startsWith('/')
+      ? imagePath.slice(1)
+      : imagePath;
+    return `${API_IMAGE_URL}${cleanPath}`;
   },
 
-
-  fetchReportData: async (reportType: any, startDate: any, endDate: any, groupType: any): Promise<ApiResponse<void>> => {
+  fetchReportData: async (
+    reportType: any,
+    startDate: any,
+    endDate: any,
+    groupType: any
+  ): Promise<ApiResponse<void>> => {
     try {
-       const response = await axiosInstance.get('/reports', {
-            params: {
-                reportType: reportType,
-                startDate: startDate,
-                endDate: endDate,
-                groupType: groupType,
-            },
-        });
-        return response.data;
+      const response = await axiosInstance.get('/reports', {
+        params: {
+          reportType: reportType,
+          startDate: startDate,
+          endDate: endDate,
+          groupType: groupType,
+        },
+      });
+      return response.data;
     } catch (error) {
       console.error('Error deleting category:', error);
       throw error;
     }
-  }
+  },
 };

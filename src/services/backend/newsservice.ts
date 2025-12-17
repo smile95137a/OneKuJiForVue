@@ -115,6 +115,6 @@ export const NewsService = {
 
   // 獲取圖片 URL
   getImageUrl: (imagePath: string): string => {
-    return `${API_IMAGE_URL}/img${imagePath}`;
+    return `${API_IMAGE_URL}${imagePath}`;
   },
 };

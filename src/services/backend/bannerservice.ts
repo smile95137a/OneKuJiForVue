@@ -92,6 +92,6 @@ export const bannerservice = {
 
   getImageUrl: (imagePath: string): string => {
     console.log(`生成圖片 URL: ${imagePath}`);
-    return `${API_IMAGE_URL}/img${imagePath}`;
+    return `${API_IMAGE_URL}${imagePath}`;
   },
 };

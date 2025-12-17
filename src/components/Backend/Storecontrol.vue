@@ -559,11 +559,11 @@ const getCategoryName = (categoryId: string) => {
 };
 
 const formatImageUrl = (url: string) => {
-  return `${API_IMAGE_URL}/img${url}`;
+  return `${API_IMAGE_URL}${url}`;
 };
 
 const formatImage = (url: string) => {
-  return `${API_IMAGE_URL}/img${url}`;
+  return `${API_IMAGE_URL}${url}`;
 };
 
 const formatDimensions = (product: StoreProductRes) => {
