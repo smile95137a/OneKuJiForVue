@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import img from '@/assets/image/login.png';
 
 interface IImageLoaderProps {
@@ -19,7 +19,8 @@ interface IImageLoaderProps {
 }
 
 const props = defineProps<IImageLoaderProps>();
-const apiURL = import.meta.env.VITE_BASE_API_URL as string;
+// 改用 S3 圖片 CDN (VITE_BASE_API_URL3)
+const apiURL = import.meta.env.VITE_BASE_API_URL3 as string;
 const srcURL = ref(`${apiURL}${props.src}`);
 const isLoading = ref(true);
 
