@@ -309,25 +309,20 @@ const validateForm = async () => {
       優惠及結帳
     </div>
     <div class="p-y-48 p-x-48">
-      <div class="mallCheckout__payment">
-        <div
-          class="mallCheckout__payment-item mallCheckout__payment-item--title"
-        >
-          付款
+      <div
+        v-for="option in paymentOptions.filter((opt) => opt.priceType === 3)"
+        :key="option.name"
+        class="mallCheckout__payment-options"
+      >
+        <div class="mallCheckout__payment-option">
+          <input type="radio" :value="option.value" v-model="paymentMethod" />
+          <label>{{ option.name }}</label>
         </div>
         <div
-          class="mallCheckout__payment-item mallCheckout__payment-item--options"
+          v-if="~~paymentMethod === 2 && ~~option.value === 2"
+          class="mallCheckout__payment-warn"
         >
-          <div
-            v-for="option in paymentOptions.filter(
-              (opt) => opt.priceType === 3
-            )"
-            :key="option.name"
-            class="mallCheckout__payment-option"
-          >
-            <input type="radio" :value="option.value" v-model="paymentMethod" />
-            <label>{{ option.name }} </label>
-          </div>
+          ※ 轉帳完成後約 3～5 分鐘入帳，請稍候再刷新確認。
         </div>
       </div>
     </div>

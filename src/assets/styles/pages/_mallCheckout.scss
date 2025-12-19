@@ -220,7 +220,13 @@ $root-block-name: '.mallCheckout';
         gap: 24px;
       }
     }
-
+    &-options {
+      @include flex;
+      flex-direction: column;
+    }
+    &-warn {
+      color: #fe4206;
+    }
     &-option {
       @include flex;
       gap: 24px;
