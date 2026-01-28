@@ -107,6 +107,16 @@
               加入我們的LINE社群，獲得最新賞品資訊！
             </span>
           </a>
+          <a
+            class="product-detail-one__announcement product-detail-one__announcement--block m-t-16"
+            :href="ANNOUNCEMENT_URL"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="product-detail-one__announcement-text">
+              {{ ANNOUNCEMENT_TEXT }}
+            </span>
+          </a>
         </div>
       </div>
 
@@ -175,7 +185,7 @@
         >
           <div
             v-for="(product, index) in productDetail?.filter(
-              (_, index) => index % 2 !== 0
+              (_, index) => index % 2 !== 0,
             )"
             :key="index"
             class="product-detail-one__productIntroduce-img"
@@ -188,7 +198,7 @@
         >
           <div
             v-for="(product, index) in productDetail?.filter(
-              (_, index) => index % 2 === 0
+              (_, index) => index % 2 === 0,
             )"
             :key="index"
             class="product-detail-one__productIntroduce-img"
@@ -385,6 +395,9 @@ import { useAuthStore, useDialogStore, useLoadingStore } from '@/stores';
 import moment from 'moment';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+const ANNOUNCEMENT_URL =
+  'https://onemorelottery.tw/news/07d6e503-c90e-4b69-8fea-9a0e5cf8d9b5';
+const ANNOUNCEMENT_TEXT = '重要公告：抽獎／兌換與出貨規範說明';
 
 const loadingStore = useLoadingStore();
 const dialogStore = useDialogStore();
@@ -535,7 +548,7 @@ const handleCheckboxChange = (ticket: any) => {
     .includes(ticket.prizeNumberId);
   if (isActive) {
     activeTickets.value = activeTickets.value.filter(
-      (x) => x.prizeNumberId !== ticket.prizeNumberId
+      (x) => x.prizeNumberId !== ticket.prizeNumberId,
     );
   } else {
     if (isCustmerPrize.value) {
@@ -596,7 +609,7 @@ const handleExchange = async (exchangeType: number) => {
         res = await executeDraw(
           productId,
           activeTickets.value?.map((x) => x.number),
-          exchangeType
+          exchangeType,
         );
       }
       const { success, data, message } = res;
@@ -606,7 +619,7 @@ const handleExchange = async (exchangeType: number) => {
       if (success) {
         await dialogStore.openOneKujiDialog(
           {},
-          productType === 'PRIZE' ? 'ticket' : 'box'
+          productType === 'PRIZE' ? 'ticket' : 'box',
         );
         activeTickets.value = [];
 
@@ -622,7 +635,7 @@ const handleExchange = async (exchangeType: number) => {
             count: data.length,
             total: totalAmount,
             drawData: data,
-          }
+          },
         );
       } else {
         await dialogStore.openInfoDialog({
@@ -734,5 +747,20 @@ const selectCustomRandom = () => {
 
 .product-detail-one__random-input[type='number'] {
   -moz-appearance: textfield;
+}
+
+.product-detail-one__announcement {
+  margin-top: 10px;
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.product-detail-one__announcement:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.product-detail-one__announcement--block {
+  width: fit-content;
 }
 </style>
