@@ -104,7 +104,10 @@ export const addDetail = (data: any) => {
 };
 
 export const getProducts = () => {
-  return apiClient.get('/product/query');
+  return apiClient.post('/product/query', {
+    page: 1,
+    size: 100,
+  });
 };
 
 export const updateDtail = (data: any) => {
@@ -124,11 +127,17 @@ export const getProductByType = (data: any) => {
 };
 
 export const getAllOrder = () => {
-  return apiClient.get('/order/query');
+  return apiClient.post('/order/query', {
+    page: 1,
+    size: 100,
+  });
 };
 
 export const getProduct = () => {
-  return apiClient.get('/product/query');
+  return apiClient.post('/product/query', {
+    page: 1,
+    size: 100,
+  });
 };
 
 export const deleteProduct = (data: any) => {

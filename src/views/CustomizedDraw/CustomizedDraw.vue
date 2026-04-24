@@ -2,7 +2,7 @@
 import Card from '@/components/common/Card.vue';
 import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
-import { getProductByType, IProduct } from '@/services/frontend/productService';
+import { IProduct, queryProducts } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -12,7 +12,7 @@ const loadingStore = useLoadingStore();
 const products = ref<IProduct[]>([]);
 const searchTerm = ref('');
 const loading = ref(false);
-const page = ref(0);
+const page = ref(1);
 const size = ref(20);
 const allLoaded = ref(false);
 
@@ -31,11 +31,16 @@ const loadMoreProducts = async () => {
   loading.value = true;
   try {
     loadingStore.startLoading();
-    const { data } = await getProductByType('4');
+    const { data } = await queryProducts({
+      productType: 'CUSTMER_PRIZE',
+      productName: searchTerm.value.trim() || undefined,
+      page: page.value,
+      size: size.value,
+    });
     loadingStore.stopLoading();
-    const newProducts = data;
+    const newProducts = data.list;
 
-    if (newProducts.length < size.value) {
+    if (page.value >= data.totalPages || newProducts.length < size.value) {
       allLoaded.value = true;
     }
 
@@ -87,6 +92,13 @@ watch(loading, (newValue) => {
   } else {
     unlockScroll();
   }
+});
+
+watch(searchTerm, () => {
+  page.value = 1;
+  allLoaded.value = false;
+  products.value = [];
+  loadMoreProducts();
 });
 </script>
 

@@ -7,9 +7,11 @@ import {
   DetailReq,
   PrizeCategory,
   ProductApiResponse,
+  ProductPagedApiResponse,
   ProductCategoryApiResponse,
   ProductCategoryListApiResponse,
   ProductListApiResponse,
+  ProductQueryReq,
   ProductReq,
   ProductType,
 } from '@/interfaces/product';
@@ -35,6 +37,21 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 export const productservice = {
+  queryProducts: async (
+    payload: ProductQueryReq
+  ): Promise<ProductPagedApiResponse> => {
+    try {
+      const response = await axiosInstance.post<ProductPagedApiResponse>(
+        '/product/query',
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      console.error('queryProducts 錯誤:', error);
+      throw error;
+    }
+  },
+
   getAllProducts: async (): Promise<ProductListApiResponse> => {
     try {
       const response = await axiosInstance.get<ProductListApiResponse>(
@@ -49,8 +66,9 @@ export const productservice = {
 
   getProductById: async (id: number): Promise<ProductApiResponse> => {
     try {
-      const response = await axiosInstance.get<ProductApiResponse>(
-        `/product/query/${id}`
+      const response = await axiosInstance.post<ProductApiResponse>(
+        '/product/getById',
+        { id }
       );
       return response.data;
     } catch (error) {

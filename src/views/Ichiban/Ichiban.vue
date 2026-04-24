@@ -4,9 +4,8 @@ import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
 import { getAllCategories } from '@/services/frontend/productCategoryService';
 import {
-  getAllProduct,
-  getAllProductList,
   IProduct,
+  queryProducts,
 } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -19,7 +18,7 @@ const activeBtn = ref<string>(localStorage.getItem('activeBtn') || 'selfMade');
 const title = ref(localStorage.getItem('title') || '自製賞');
 const searchTerm = ref('');
 const loading = ref(false);
-const page = ref(0);
+const page = ref(1);
 const size = ref(20);
 const allLoaded = ref(false);
 
@@ -95,19 +94,30 @@ const handleBtnClick = (btnType: string, btnTitle: string) => {
   localStorage.setItem('activeBtn', btnType);
   localStorage.setItem('title', btnTitle);
   localStorage.setItem('selectedTypes', JSON.stringify([]));
+  resetPagingAndLoad();
 };
 
 const loadMoreProducts = async () => {
   if (allLoaded.value || loading.value) return;
 
+  const buttonCategory = buttons.find(
+    (btn) => btn.type === activeBtn.value
+  )?.category;
+
   loading.value = true;
   try {
     loadingStore.startLoading();
-    const { data } = await getAllProductList();
+    const { data } = await queryProducts({
+      productType: 'PRIZE',
+      prizeCategory: buttonCategory,
+      productName: searchTerm.value.trim() || undefined,
+      page: page.value,
+      size: size.value,
+    });
     loadingStore.stopLoading();
-    const newProducts = data;
+    const newProducts = data.list;
 
-    if (newProducts.length < size.value) {
+    if (page.value >= data.totalPages || newProducts.length < size.value) {
       allLoaded.value = true;
     }
 
@@ -124,6 +134,23 @@ const navigateToDetail = (productId: number) => {
   router.push({ name: 'ProductDetail1', params: { id: productId.toString() } });
 };
 
+const handleScroll = () => {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight;
+  const clientHeight = window.innerHeight;
+
+  if (scrollTop + clientHeight >= scrollHeight - 10 && !loading.value) {
+    loadMoreProducts();
+  }
+};
+
+const resetPagingAndLoad = () => {
+  page.value = 1;
+  allLoaded.value = false;
+  products.value = [];
+  loadMoreProducts();
+};
+
 onMounted(() => {
   const queryType = router.currentRoute.value.query.type as string;
   const selectedButton = buttons.find((btn) => btn.type === queryType);
@@ -134,12 +161,39 @@ onMounted(() => {
     localStorage.setItem('title', selectedButton.title);
   }
 
+  window.addEventListener('scroll', handleScroll);
   loadMoreProducts();
   fetchCategories();
 });
+
+onBeforeUnmount(() => {
+  unlockScroll();
+  window.removeEventListener('scroll', handleScroll);
+});
+
 watch(selectedTypes, (newVal) => {
   localStorage.setItem('selectedTypes', JSON.stringify(newVal));
 });
+
+watch(searchTerm, () => {
+  resetPagingAndLoad();
+});
+
+watch(loading, (newValue) => {
+  if (newValue) {
+    lockScroll();
+  } else {
+    unlockScroll();
+  }
+});
+
+const lockScroll = () => {
+  document.body.style.overflow = 'hidden';
+};
+
+const unlockScroll = () => {
+  document.body.style.overflow = '';
+};
 </script>
 
 <style scoped></style>

@@ -44,8 +44,9 @@ export const getStoreProductOrderByOrderNumber = async (
   orderNumber: string
 ): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.get<ApiResponse<any>>(
-      `${basePath}/storeProduct/${orderNumber}`
+    const response = await api.post<ApiResponse<any>>(
+      `${basePath}/storeProduct`,
+      { orderNumber }
     );
     return response.data;
   } catch (error) {
@@ -58,8 +59,9 @@ export const getStorePrizeProductOrderById = async (
   orderNumber: string
 ): Promise<ApiResponse<any>> => {
   try {
-    const response = await api.get<ApiResponse<any>>(
-      `${basePath}/storeProduct/${orderNumber}`
+    const response = await api.post<ApiResponse<any>>(
+      `${basePath}/productDetail`,
+      { orderNumber }
     );
     return response.data;
   } catch (error) {

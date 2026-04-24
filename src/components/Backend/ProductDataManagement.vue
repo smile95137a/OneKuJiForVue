@@ -12,10 +12,11 @@
         <input
           type="text"
           v-model="searchQuery"
-          @input="handleSearch"
+          @keyup.enter="handleSearch"
           placeholder="搜尋產品名稱"
           class="search-input"
         />
+        <button @click="handleSearch">搜尋</button>
       </div>
       <div class="filter-form">
         <select v-model="filterProductType" @change="handleProductTypeChange">
@@ -31,6 +32,7 @@
         <select
           v-if="filterProductType === ProductType.PRIZE"
           v-model="filterPrizeCategory"
+          @change="handleFilterChange"
         >
           <option value="">全部一番賞類別</option>
           <option
@@ -40,6 +42,22 @@
           >
             {{ getPrizeCategoryDescription(category) }}
           </option>
+        </select>
+        <select v-model="filterStatus" @change="handleFilterChange">
+          <option value="">全部狀態</option>
+          <option
+            v-for="(label, value) in productStatusOptions"
+            :key="value"
+            :value="value"
+          >
+            {{ label }}
+          </option>
+        </select>
+        <select v-model.number="pageSize" @change="handlePageSizeChange">
+          <option :value="10">10 / 頁</option>
+          <option :value="20">20 / 頁</option>
+          <option :value="50">50 / 頁</option>
+          <option :value="100">100 / 頁</option>
         </select>
       </div>
     </div>
@@ -77,7 +95,7 @@
     </div>
 
     <!-- Product Table -->
-    <table v-if="filteredProducts.length">
+    <table v-if="products.length">
       <thead>
         <tr>
           <th>圖片</th>
@@ -94,10 +112,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="product in pagination.currentPageItems.value"
-          :key="product.productId"
-        >
+        <tr v-for="product in products" :key="product.productId">
           <td>
             <img
               v-if="product.imageUrls && product.imageUrls.length"
@@ -132,7 +147,7 @@
             }}
           </td>
           <td>{{ product.stockQuantity }}</td>
-          <td>{{ product.status }}</td>
+          <td>{{ getStatusLabel(product.status) }}</td>
           <td>{{ getCategoryName(product.categoryId) }}</td>
           <td>
             <button @click="openEditProductModal(product)">編輯</button>
@@ -149,29 +164,24 @@
       </tbody>
     </table>
     <p v-else>暫無產品系列</p>
-    <div class="pagination" v-if="pagination.totalPages.value > 1">
-      <button
-        @click="pagination.previousPage"
-        :disabled="pagination.currentPage.value === 1"
-      >
+    <div class="pagination" v-if="totalPages > 1">
+      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">
         上一頁
       </button>
 
       <button
-        v-for="pageNum in pagination.renderPaginationNums.value"
+        v-for="pageNum in pageNumbers"
         :key="pageNum"
-        @click="pagination.goToPage(pageNum)"
-        :class="{ active: pageNum === pagination.currentPage.value }"
+        @click="changePage(pageNum)"
+        :class="{ active: pageNum === currentPage }"
       >
         {{ pageNum }}
       </button>
 
-      <button
-        @click="pagination.nextPage"
-        :disabled="pagination.currentPage.value === pagination.totalPages.value"
-      >
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">
         下一頁
       </button>
+      <span>第 {{ currentPage }} / {{ totalPages }} 頁，共 {{ total }} 筆</span>
     </div>
     <!-- 新增/編輯商品類別模態窗 -->
     <div v-if="showCategoryEditModal" class="modal">
@@ -771,7 +781,6 @@
 </template>
 
 <script lang="ts" setup>
-import { usePagination } from '@/hook/usePagination';
 import { useRoleGuard } from '@/hook/useRoleGuard';
 import {
   DetailReq,
@@ -796,6 +805,11 @@ const hasBanner = ref(false); // 只用來控制是否需要 banner 圖片
 
 const error = ref(null); // 用於存儲錯誤信息
 const searchQuery = ref('');
+const filterStatus = ref('');
+const currentPage = ref(1);
+const pageSize = ref(20);
+const total = ref(0);
+const totalPages = ref(0);
 
 const duplicateProduct = async (productId: any) => {
   try {
@@ -881,27 +895,14 @@ const sizeOptions = [
   '2000',
 ];
 
-// 計算屬性
-const filteredProducts = computed(() => {
-  return products.value.filter((product) => {
-    if (searchQuery.value && !product.productName.includes(searchQuery.value)) {
-      return false;
-    }
-    if (
-      filterProductType.value &&
-      product.productType !== filterProductType.value
-    ) {
-      return false;
-    }
-    if (
-      filterProductType.value === ProductType.PRIZE &&
-      filterPrizeCategory.value &&
-      product.prizeCategory !== filterPrizeCategory.value
-    ) {
-      return false;
-    }
-    return true;
-  });
+const pageNumbers = computed(() => {
+  const pages: number[] = [];
+  const start = Math.max(1, currentPage.value - 2);
+  const end = Math.min(totalPages.value, currentPage.value + 2);
+  for (let page = start; page <= end; page++) {
+    pages.push(page);
+  }
+  return pages;
 });
 
 const totalQuantity = computed(() => {
@@ -1012,15 +1013,22 @@ watch(
 // 方法
 const fetchProducts = async () => {
   try {
-    const currentPage = pagination.currentPage.value;
-    const response = await productservice.getAllProducts();
+    const response = await productservice.queryProducts({
+      productName: searchQuery.value.trim() || undefined,
+      productType: (filterProductType.value as ProductType) || undefined,
+      prizeCategory:
+        filterProductType.value === ProductType.PRIZE
+          ? (filterPrizeCategory.value as PrizeCategory) || undefined
+          : undefined,
+      status: (filterStatus.value as ProductStatus) || undefined,
+      page: currentPage.value,
+      size: pageSize.value,
+    });
     if (response.success) {
-      products.value = response.data.map((product) => ({
-        ...product,
-        status:
-          productStatusOptions[product.status as ProductStatus] ||
-          product.status,
-      }));
+      products.value = response.data.list;
+      total.value = response.data.total;
+      totalPages.value = response.data.totalPages;
+      currentPage.value = response.data.page;
       const categoriesResponse = await productservice.getAllCategories();
       if (categoriesResponse.success) {
         // 使用 categoriesResponse.data.categories 获取类别数据
@@ -1033,8 +1041,6 @@ const fetchProducts = async () => {
       } else {
         console.error('獲取類別列表失敗:', categoriesResponse.message);
       }
-      pagination.updateItems(filteredProducts.value);
-      pagination.goToPage(currentPage); // 保持在原页
     } else {
       console.error('獲取產品列表失敗:', response.message);
     }
@@ -1461,6 +1467,34 @@ const handleProductTypeChange = () => {
   if (filterProductType.value !== ProductType.PRIZE) {
     filterPrizeCategory.value = '';
   }
+  handleFilterChange();
+};
+
+const handleFilterChange = () => {
+  currentPage.value = 1;
+  fetchProducts();
+};
+
+const handlePageSizeChange = () => {
+  currentPage.value = 1;
+  fetchProducts();
+};
+
+const handleSearch = () => {
+  currentPage.value = 1;
+  fetchProducts();
+};
+
+const changePage = (page: number) => {
+  if (page < 1 || page > totalPages.value || page === currentPage.value) {
+    return;
+  }
+  currentPage.value = page;
+  fetchProducts();
+};
+
+const getStatusLabel = (status: string | ProductStatus) => {
+  return productStatusOptions[status as ProductStatus] || status;
 };
 
 const isValidImageUrl = (url: string | File): boolean => {
@@ -1564,14 +1598,10 @@ const deleteCategory = async (categoryId: number) => {
     }
   }
 };
-const itemsPerPage = 10;
-const pagination = usePagination(filteredProducts, itemsPerPage);
-
-const handleSearch = () => {
-  pagination.updateItems(filteredProducts.value);
-};
-watch([filteredProducts, searchQuery], (newFilteredProducts) => {
-  pagination.updateItems(newFilteredProducts);
+watch(filterPrizeCategory, () => {
+  if (filterProductType.value === ProductType.PRIZE) {
+    handleFilterChange();
+  }
 });
 </script>
 <style scoped>

@@ -23,6 +23,7 @@
 <script setup lang="ts">
 import Footer from '@/components/layout/Footer.vue';
 import Header from '@/components/layout/Header.vue';
+import Sidebar from '@/components/layout/Sidebar.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import YesOrNoDialog from '@/components/common/YesOrNoDialog.vue';
 import RestPwdDialog from '@/components/common/RestPwdDialog.vue';
