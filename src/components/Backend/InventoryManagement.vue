@@ -190,7 +190,9 @@ const fetchDetailData = async () => {
 const fetchProducts = async () => {
   try {
     const x = await getProducts();
-    products.value = x.data;
+    products.value = Array.isArray(x.data)
+      ? x.data
+      : x.data?.data?.list || [];
   } catch (error) {
     console.error('獲取產品失败:', error);
   }

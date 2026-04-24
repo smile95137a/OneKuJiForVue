@@ -20,13 +20,57 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 export const getAllOrder = async (): Promise<Order[]> => {
-  const response = await axiosInstance.get<Order[]>(`${API_URL}/order/query`);
-  return response.data;
+  const result = await queryOrders({ page: 1, size: 100 });
+  return result.list;
+};
+
+export interface OrderQueryReq {
+  startDate?: string;
+  endDate?: string;
+  orderNumber?: string;
+  resultStatus?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface PagedOrderResponse {
+  list: Order[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+}
+
+export const queryOrders = async (
+  payload: OrderQueryReq
+): Promise<PagedOrderResponse> => {
+  const response = await axiosInstance.post<any>(
+    `${API_URL}/order/query`,
+    payload
+  );
+  if (response.data?.data?.list) {
+    return response.data.data as PagedOrderResponse;
+  }
+
+  if (response.data?.list) {
+    return response.data as PagedOrderResponse;
+  }
+
+  return {
+    list: [],
+    total: 0,
+    page: payload.page ?? 1,
+    size: payload.size ?? 20,
+    totalPages: 0,
+  };
 };
 
 export const getOrderById = async (id: number): Promise<Order> => {
-  const response = await axiosInstance.get<Order>(`${API_URL}/order/${id}`);
-  return response.data;
+  const response = await axiosInstance.post<any>(`${API_URL}/order/getById`, {
+    id,
+  });
+
+  return response.data?.data ?? response.data;
 };
 
 export const updateOrder = async (

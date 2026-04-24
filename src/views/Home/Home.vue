@@ -7,8 +7,8 @@ import ProductCard from '@/components/frontend/ProductCard.vue';
 import { Banner, getAllBanners } from '@/services/frontend/bannerService'; // 引入 getAllBanners
 import { getDisplayNews } from '@/services/frontend/newsService';
 import {
-  getAllProductList,
   IProduct,
+  queryProducts,
 } from '@/services/frontend/productService';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { Navigation } from 'swiper/modules';
@@ -41,33 +41,50 @@ const goToProductDetail = (banner: Banner) => {
 const fetchProducts = async () => {
   try {
     loadingStore.startLoading();
-    const { success, message, data } = await getAllProductList();
+    const [prizeRes, prizeSelfRes, blindBoxRes, gachaRes] = await Promise.all([
+      queryProducts({
+        productType: 'PRIZE',
+        prizeCategory: 'FIGURE',
+        status: 'AVAILABLE',
+        page: 1,
+        size: 9,
+      }),
+      queryProducts({
+        productType: 'PRIZE',
+        prizeCategory: 'PRIZESELF',
+        status: 'AVAILABLE',
+        page: 1,
+        size: 9,
+      }),
+      queryProducts({
+        productType: 'BLIND_BOX',
+        status: 'AVAILABLE',
+        page: 1,
+        size: 9,
+      }),
+      queryProducts({
+        productType: 'GACHA',
+        status: 'AVAILABLE',
+        page: 1,
+        size: 9,
+      }),
+    ]);
     loadingStore.stopLoading();
-    if (success) {
-      const availableProducts = data.filter(
-        (p: IProduct) => p.status === 'AVAILABLE'
-      );
-      prizeProducts.value = availableProducts
-        .filter(
-          (p: IProduct) =>
-            p.productType === 'PRIZE' && p.prizeCategory === 'FIGURE'
-        )
-        .slice(0, 9);
 
-      prizeSelfProducts.value = availableProducts
-        .filter(
-          (p: IProduct) =>
-            p.productType === 'PRIZE' && p.prizeCategory === 'PRIZESELF'
-        )
-        .slice(0, 9);
-      blindBoxProducts.value = availableProducts
-        .filter((p: IProduct) => p.productType === 'BLIND_BOX')
-        .slice(0, 9);
-      gachaProducts.value = availableProducts
-        .filter((p: IProduct) => p.productType === 'GACHA')
-        .slice(0, 9);
-    } else {
-      console.log(message);
+    if (prizeRes.success) {
+      prizeProducts.value = prizeRes.data.list;
+    }
+
+    if (prizeSelfRes.success) {
+      prizeSelfProducts.value = prizeSelfRes.data.list;
+    }
+
+    if (blindBoxRes.success) {
+      blindBoxProducts.value = blindBoxRes.data.list;
+    }
+
+    if (gachaRes.success) {
+      gachaProducts.value = gachaRes.data.list;
     }
   } catch (error) {
     loadingStore.stopLoading();

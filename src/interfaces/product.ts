@@ -72,6 +72,23 @@ export interface ProductRes {
   bannerImageUrl: string[];
 }
 
+export interface ProductQueryReq {
+  productName?: string;
+  productType?: ProductType;
+  prizeCategory?: PrizeCategory;
+  status?: ProductStatus;
+  page?: number;
+  size?: number;
+}
+
+export interface PagedResult<T> {
+  list: T[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+}
+
 export interface DetailReq {
   productDetailId?: number;
   productId: number;
@@ -121,6 +138,7 @@ export interface ApiResponse<T> {
 
 export type ProductApiResponse = ApiResponse<ProductRes>;
 export type ProductListApiResponse = ApiResponse<ProductRes[]>;
+export type ProductPagedApiResponse = ApiResponse<PagedResult<ProductRes>>;
 export type DetailApiResponse = ApiResponse<DetailRes>;
 export type DetailListApiResponse = ApiResponse<DetailRes[]>;
 export type ProductCategoryApiResponse = ApiResponse<ProductCategory>;

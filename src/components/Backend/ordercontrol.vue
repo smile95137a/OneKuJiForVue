@@ -7,18 +7,30 @@
         placeholder="搜尋訂單編號、收件人姓名、電話或 Email"
         @input="debounceSearch"
       />
+      <input v-model="startDate" type="date" />
+      <input v-model="endDate" type="date" />
+      <select v-model="resultStatus">
+        <option value="">全部狀態</option>
+        <option value="PREPARING_SHIPMENT">準備發貨</option>
+        <option value="SHIPPED">已發貨</option>
+        <option value="NO_PAY">未付款</option>
+        <option value="FAILED_PAYMENT">付款失敗</option>
+      </select>
+      <select v-model.number="pageSize" @change="handlePageSizeChange">
+        <option :value="10">10 / 頁</option>
+        <option :value="20">20 / 頁</option>
+        <option :value="50">50 / 頁</option>
+        <option :value="100">100 / 頁</option>
+      </select>
+      <button @click="handleSearch">搜尋</button>
     </div>
-    <!-- 新增篩選按鈕 -->
     <div class="filter-buttons">
-      <button @click="filterOrders('SHIPPED')" class="filter-btn">
-        已發貨
-      </button>
+      <button @click="filterOrders('SHIPPED')" class="filter-btn">已發貨</button>
       <button @click="filterOrders('PREPARING_SHIPMENT')" class="filter-btn">
         未發貨
       </button>
       <button @click="filterOrders('')" class="filter-btn">全部訂單</button>
       <button @click="filterOrders('NO_PAY')" class="filter-btn">未付款</button>
-      <!-- 改成未付款 -->
     </div>
 
     <div class="order-table-container">
@@ -40,7 +52,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="order in paginatedOrders" :key="order.id">
+          <tr v-for="order in displayOrders" :key="order.id">
             <td>{{ order.orderNumber }}</td>
             <td>{{ order.billingName }}</td>
             <td>{{ order.shippingPhone }}</td>
@@ -84,7 +96,7 @@
               </button>
             </td>
             <td>{{ order.totalAmount }} 元</td>
-            <td>{{ getShippingMethodName(order.shippingMethod) }}</td>
+            <td>{{ order.shippingMethodName || getShippingMethodName(order.shippingMethod) }}</td>
             <td>{{ order.shippingCost }} 元</td>
             <td>{{ order.orderCount }} 個</td>
             <td>{{ formatDate(order.createdAt) }}</td>
@@ -97,7 +109,7 @@
       <button @click="previousPage" :disabled="currentPage === 1">
         上一頁
       </button>
-      <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁</span>
+      <span>第 {{ currentPage }} 頁，共 {{ totalPages }} 頁（{{ total }} 筆）</span>
       <button @click="nextPage" :disabled="currentPage === totalPages">
         下一頁
       </button>
@@ -380,11 +392,12 @@
 <script lang="ts" setup>
 import { getShippingMethodName } from '@/enums/ShippingMethod';
 import { useRoleGuard } from '@/hook/useRoleGuard';
-import { Order, OrderDetail } from '@/interfaces/order';
+import { Order } from '@/interfaces/order';
 import {
   convenience,
-  getAllOrder,
+  getOrderById,
   getAllVendor,
+  queryOrders,
   saveTrackingNumberAPI,
   xxx,
 } from '@/services/backend/orderservice';
@@ -395,42 +408,41 @@ import { debounce } from 'lodash';
 
 useRoleGuard(['1']);
 const searchInput = ref('');
+const startDate = ref('');
+const endDate = ref('');
+const resultStatus = ref('');
 const isEditing = ref(false);
-const orders = ref<Order[]>([]);
+const orders = ref<any[]>([]);
 const currentPage = ref(1);
-const itemsPerPage = 10;
-const currentFilter = ref<string>(''); // 訂單狀態篩選
+const pageSize = ref(20);
+const totalPages = ref(1);
+const total = ref(0);
 const showShippingInfoModal = ref(false); // 控制寄送信息弹出视窗的显示
-const orderShippingInfo = ref(null); // 存储寄送信息
-const orderInfo = ref(null);
+const orderShippingInfo = ref<any>(null); // 存储寄送信息
+const orderInfo = ref<any>(null);
 const toggleEdit = () => {
   isEditing.value = !isEditing.value;
 };
 
-const debounceSearch = debounce(() => {
-  searchOrders();
-}, 300);
-
-const searchOrders = () => {
+const displayOrders = computed(() => {
   const query = searchInput.value.trim().toLowerCase();
-
   if (!query) {
-    filteredOrders.value = orders.value;
-  } else {
-    const filterOrders = (order: Order) => {
-      return (
-        `${order.orderNumber ?? ''}`.toLowerCase().includes(query) ||
-        `${order.billingName ?? ''}`.toLowerCase().includes(query) ||
-        `${order.shippingPhone ?? ''}`.toLowerCase().includes(query) ||
-        `${order.shippingEmail ?? ''}`.toLowerCase().includes(query)
-      );
-    };
-
-    filteredOrders.value = orders.value.filter(filterOrders);
+    return orders.value;
   }
 
-  currentPage.value = 1;
-};
+  return orders.value.filter((order) => {
+    return (
+      `${order.orderNumber ?? ''}`.toLowerCase().includes(query) ||
+      `${order.billingName ?? ''}`.toLowerCase().includes(query) ||
+      `${order.shippingPhone ?? ''}`.toLowerCase().includes(query) ||
+      `${order.shippingEmail ?? ''}`.toLowerCase().includes(query)
+    );
+  });
+});
+
+const debounceSearch = debounce(() => {
+  handleSearch();
+}, 300);
 
 const saveTrackingNumber = async () => {
   isEditing.value = false;
@@ -438,7 +450,7 @@ const saveTrackingNumber = async () => {
   try {
     // 調用後端 API 保存物流單號
     const response = await saveTrackingNumberAPI({
-      orderId: selectedOrderId.value,
+      orderId: String(selectedOrderId.value),
       trackingNumber: orderShippingInfo.value.trackingNumber,
     });
     console.log('物流單號保存成功:', response.data);
@@ -453,8 +465,9 @@ const toggleOrderManagementVisibility = (isHidden: boolean) => {
   }
 };
 const viewShippingInfo = async (orderId: number | null) => {
+  if (!orderId) return;
   toggleOrderManagementVisibility(true);
-  const order = orders.value.find((o) => o.id === orderId); // 根據訂單 ID 查找訂單
+  const order = (await getOrderById(orderId)) as any;
   const vendor = await getAllVendor(order?.orderNumber);
   if (order) {
     // 設置寄送資訊
@@ -496,7 +509,7 @@ const viewShippingInfo = async (orderId: number | null) => {
 
     // 合併相同商品 ID 的數量
     const mergedOrderDetails: any[] = [];
-    order.orderDetails.forEach(
+    (order.orderDetails || []).forEach(
       (detail: {
         productDetailRes: { productDetailId: any; grade: any };
         quantity: any;
@@ -544,71 +557,72 @@ const closeShippingInfoModal = () => {
 };
 
 onMounted(() => {
-  loadOrders();
+  fetchOrders();
 });
 
-const loadOrders = async () => {
+const fetchOrders = async (page = currentPage.value) => {
   try {
-    // 獲取所有訂單
-    orders.value = await getAllOrder();
-
-    // 修改訂單的 shippingMethod 欄位，將 "family" 改為 "全家"
-
-    // 初始化為所有訂單
-    filteredOrders.value = orders.value;
+    const response = await queryOrders({
+      orderNumber: searchInput.value.trim() || undefined,
+      startDate: startDate.value || undefined,
+      endDate: endDate.value || undefined,
+      resultStatus: resultStatus.value || undefined,
+      page,
+      size: pageSize.value,
+    });
+    orders.value = response.list;
+    total.value = response.total;
+    totalPages.value = response.totalPages;
+    currentPage.value = response.page;
   } catch (error) {
     console.error('Error loading orders:', error);
   }
 };
 
-// 根據篩選條件過濾訂單
-const filterOrders = (status: string) => {
-  currentFilter.value = status;
-
-  if (status === 'NO_PAY') {
-    // 篩選出未付款的訂單
-    filteredOrders.value = orders.value.filter(
-      (order) => order.resultStatus === 'NO_PAY'
-    );
-  } else if (status) {
-    filteredOrders.value = orders.value.filter(
-      (order) => order.resultStatus === status
-    );
-  } else {
-    filteredOrders.value = orders.value; // 顯示所有訂單
-  }
+const handleSearch = () => {
+  currentPage.value = 1;
+  fetchOrders(1);
 };
 
-const paginatedOrders = computed(() => {
-  const startIndex = (currentPage.value - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  return filteredOrders.value.slice(startIndex, endIndex);
-});
+const filterOrders = (status: string) => {
+  resultStatus.value = status;
+  currentPage.value = 1;
+  fetchOrders(1);
+};
 
-const totalPages = computed(() =>
-  Math.ceil(filteredOrders.value.length / itemsPerPage)
-);
+const handlePageSizeChange = () => {
+  currentPage.value = 1;
+  fetchOrders(1);
+};
 
-function formatDate(dateArray: [any, any, any, any, any, any]) {
-  const [year, month, day, hour, minute, second] = dateArray;
-  const date = new Date(year, month - 1, day, hour, minute, second);
+function formatDate(dateValue: any) {
+  if (!dateValue) return '-';
+  let date: Date;
+  if (Array.isArray(dateValue)) {
+    const [year, month, day, hour, minute, second] = dateValue;
+    date = new Date(year, month - 1, day, hour, minute, second);
+  } else {
+    date = new Date(dateValue);
+  }
 
   const pad = (num: { toString: () => string }) =>
     num.toString().padStart(2, '0');
 
-  return `${year} 年 ${pad(month)} 月 ${pad(day)} 日 ${pad(hour)} 時 ${pad(
-    minute
-  )} 分 ${pad(second)} 秒`;
+  return `${date.getFullYear()} 年 ${pad(date.getMonth() + 1)} 月 ${pad(
+    date.getDate()
+  )} 日 ${pad(date.getHours())} 時 ${pad(
+    date.getMinutes()
+  )} 分 ${pad(date.getSeconds())} 秒`;
 }
 const previousPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--;
+    fetchOrders(currentPage.value - 1);
   }
 };
 
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++;
+    fetchOrders(currentPage.value + 1);
   }
 };
 
@@ -727,30 +741,22 @@ const formatImageUrl = (url: string | File): string => {
 // 當前選中的訂單 ID
 const selectedOrderId = ref<number | null>(null);
 const showOrderDetailsModal = ref(false);
-const orderDetails = ref<OrderDetail[]>([]);
-
-// 過濾訂單，這裡你可以應用自己的過濾邏輯
-const filteredOrders = ref(orders.value);
+const orderDetails = ref<any[]>([]);
 
 // 更新訂單狀態
-const updateOrderStatus = async (order) => {
+const updateOrderStatus = async (order: Order) => {
   try {
-    const response = await xxx(order.id, order.resultStatus);
-    if (response.ok) {
-      const updatedOrder = await response.json();
-      console.log('订单状态更新成功', updatedOrder);
-    } else {
-      console.error('更新订单状态失败', response.status);
-    }
+    await xxx(order.id, order.resultStatus);
+    await fetchOrders(currentPage.value);
   } catch (error) {
-    console.error('请求失败', error);
+    console.error('更新订单狀態失敗', error);
   }
 };
 // 查看訂單詳情
-const viewOrderDetails = (orderId: number) => {
-  const order = orders.value.find((o) => o.id === orderId);
+const viewOrderDetails = async (orderId: number) => {
+  const order = (await getOrderById(orderId)) as any;
   if (order) {
-    orderDetails.value = [...order.orderDetails];
+    orderDetails.value = [...(order.orderDetails || [])];
     selectedOrderId.value = orderId;
     showOrderDetailsModal.value = true;
   }

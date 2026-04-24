@@ -53,7 +53,7 @@ import Card from '@/components/common/Card.vue';
 import MCardHeader from '@/components/common/MCardHeader.vue';
 import NoData from '@/components/common/NoData.vue';
 import ProductCard from '@/components/frontend/ProductCard.vue';
-import { IProduct, getAllProduct } from '@/services/frontend/productService';
+import { IProduct, queryProducts } from '@/services/frontend/productService';
 import { useLoadingStore } from '@/stores';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
@@ -64,7 +64,7 @@ const products = ref<IProduct[]>([]);
 const searchTerm = ref('');
 
 const loading = ref(false);
-const page = ref(0);
+const page = ref(1);
 const size = ref(20);
 const allLoaded = ref(false);
 
@@ -89,18 +89,20 @@ const loadMoreProducts = async () => {
   loading.value = true;
   try {
     loadingStore.startLoading();
-    const { data } = await getAllProduct(page.value, size.value);
+    const { data } = await queryProducts({
+      productType: 'BLIND_BOX',
+      status: 'AVAILABLE',
+      productName: searchTerm.value.trim() || undefined,
+      page: page.value,
+      size: size.value,
+    });
     loadingStore.stopLoading();
-    const newProducts = data;
+    const newProducts = data.list;
 
-    if (newProducts.length < size.value) {
+    if (page.value >= data.totalPages || newProducts.length < size.value) {
       allLoaded.value = true;
     }
-    const availableGachaProducts = newProducts.filter(
-      (p: IProduct) => p.status === 'AVAILABLE' && p.productType === 'BLIND_BOX'
-    );
-
-    products.value = [...products.value, ...availableGachaProducts];
+    products.value = [...products.value, ...newProducts];
     page.value++;
   } catch (error) {
     console.error('加載產品時發生錯誤:', error);
@@ -143,6 +145,13 @@ watch(loading, (newValue) => {
   } else {
     unlockScroll();
   }
+});
+
+watch(searchTerm, () => {
+  page.value = 1;
+  allLoaded.value = false;
+  products.value = [];
+  loadMoreProducts();
 });
 </script>
 
