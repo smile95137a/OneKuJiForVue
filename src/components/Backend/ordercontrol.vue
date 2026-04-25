@@ -396,6 +396,7 @@ import { Order } from '@/interfaces/order';
 import {
   convenience,
   getOrderById,
+  getOrderDetailsByOrderId,
   getAllVendor,
   queryOrders,
   saveTrackingNumberAPI,
@@ -754,12 +755,10 @@ const updateOrderStatus = async (order: Order) => {
 };
 // 查看訂單詳情
 const viewOrderDetails = async (orderId: number) => {
-  const order = (await getOrderById(orderId)) as any;
-  if (order) {
-    orderDetails.value = [...(order.orderDetails || [])];
-    selectedOrderId.value = orderId;
-    showOrderDetailsModal.value = true;
-  }
+  const details = await getOrderDetailsByOrderId(orderId);
+  orderDetails.value = [...(details || [])];
+  selectedOrderId.value = orderId;
+  showOrderDetailsModal.value = true;
 };
 
 const availableStatuses = (currentStatus: string) => {
