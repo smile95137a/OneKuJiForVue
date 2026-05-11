@@ -51,8 +51,8 @@
 <script lang="ts" setup>
 import { ref, defineProps } from 'vue';
 import { Navigation } from 'swiper/modules';
-import 'swiper/scss';
-import 'swiper/scss/navigation';
+import 'swiper/css';
+import 'swiper/css/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 
 import ProductCard from '@/components/frontend/ProductCard.vue';

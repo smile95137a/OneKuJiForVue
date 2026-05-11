@@ -12,8 +12,8 @@ import {
 } from '@/services/frontend/productService';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { Navigation } from 'swiper/modules';
-import 'swiper/scss';
-import 'swiper/scss/navigation';
+import 'swiper/css';
+import 'swiper/css/navigation';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
