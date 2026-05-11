@@ -524,7 +524,7 @@ import { getUserInfo } from '@/services/frontend/userService';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { loadState, removeState, saveState } from '@/utils/Localstorage';
 import { useForm } from 'vee-validate';
-import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import * as yup from 'yup';
 const route = useRoute();
@@ -1095,6 +1095,19 @@ onMounted(async () => {
   setTimeout(() => {
     isInitialSetup = false;
   }, 100);
+});
+
+// bfcache 防護：從第三方金流頁按上一頁回來時，強制重新載入購物車
+// 避免舊的 prizeCartItemIds 殘留在記憶體中導致建立空訂單
+const onPageShow = (event: PageTransitionEvent) => {
+  if (event.persisted) {
+    loadCartItems();
+  }
+};
+window.addEventListener('pageshow', onPageShow);
+
+onUnmounted(() => {
+  window.removeEventListener('pageshow', onPageShow);
 });
 
 watch(billingCity, (newCity) => {
