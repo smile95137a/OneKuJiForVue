@@ -1,7 +1,7 @@
 <template></template>
 
 <script lang="ts" setup>
-import { creditMP } from '@/services/frontend/paymentService';
+import { cancelOrder, creditMP } from '@/services/frontend/paymentService';
 import { useDialogStore, useLoadingStore } from '@/stores';
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
@@ -63,6 +63,15 @@ onMounted(async () => {
       }
     } else {
       const failReason = searchParams.get('ret_msg');
+
+      // 付款失敗：通知後端取消訂單並還原賞品盒
+      if (orderNumber) {
+        try {
+          await cancelOrder({ orderNumber });
+        } catch (e) {
+          console.error('cancelOrder failed:', e);
+        }
+      }
 
       await dialogStore.openInfoDialog({
         title: '系統通知',
